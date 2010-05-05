@@ -25,16 +25,64 @@
 					m = mockHandlers[k](s);
 				} else {
 					m = mockHandlers[k];
-					if ( !( m.url && ( m.url == '*' || m.url == s.url ) ) ) {
-						m = null;
+					var star = m.url.indexOf('*');
+					if ( ( m.url != '*' && m.url != s.url && star == -1 ) ||
+						 ( star > -1 && m.url.substr(0, star) != s.url.substr(0, star) ) ) {
+						 //alert('null: ' + m.url + ' ' + s.url);
+						 m = null;
 					}
 				}
-
 				if ( m ) {
+					if ( console && console.log ) {
+						console.log('MOCK GET: ' + s.url);
+					}
 					mock = true;
 					// Test if we are going to create a script tag (if so, intercept & mock)
-					if ( s.dataType === "script" && type === "GET" && remote ) {
+					if ( s.dataType === "script" && s.type === "GET" ) {
 						// Synthesize the mock request for adding a script tag
+						var callbackContext = origSettings && origSettings.context || s;
+						
+						function success() {
+							// If a local callback was specified, fire it and pass it the data
+							if ( s.success ) {
+								s.success.call( callbackContext, (m.response ? m.response.toString() : m.responseText || ''), status, {} );
+							}
+				
+							// Fire the global callback
+							if ( s.global ) {
+								trigger( "ajaxSuccess", [{}, s] );
+							}
+						}
+				
+						function complete() {
+							// Process result
+							if ( s.complete ) {
+								s.complete.call( callbackContext, {} , status);
+							}
+				
+							// The request was completed
+							if ( s.global ) {
+								trigger( "ajaxComplete", [{}, s] );
+							}
+				
+							// Handle the global AJAX counter
+							if ( s.global && ! --jQuery.active ) {
+								jQuery.event.trigger( "ajaxStop" );
+							}
+						}
+						
+						function trigger(type, args) {
+							(s.context ? jQuery(s.context) : jQuery.event).trigger(type, args);
+						}
+						
+						if ( m.response && $.isFunction(m.response) ) {
+							m.response();
+						} else {
+							$.globalEval(m.responseText);
+						}
+						success();
+						complete();
+						return false;
 					}
 					_ajax.call($, $.extend(true, {}, origSettings, {
 						xhr: function() {
@@ -48,11 +96,12 @@
 								},
 								send: function() {
 									// type == 'POST' || 'GET' || 'DELETE'
+									// TODO: check for synchonous execution
 									this.responseTimer = setTimeout($.proxy(function() {
 										// The request has returned
 										this.status 		= m.status;
 										this.readyState 	= 4;
-
+										
 										if ( s.dataType == 'json' && ( typeof m.responseText == 'object' ) ) {
 											this.responseText = JSON.stringify(m.responseText);
 										} else if ( s.dataType == 'xml' ) {
@@ -60,7 +109,6 @@
 										} else {
 											this.responseText = m.responseText;
 										}
-
 										this.onreadystatechange( m.isTimeout ? 'timeout' : undefined );
 									}, this), m.responseTime || 50);
 								},
@@ -68,12 +116,12 @@
 									clearTimeout(this.responseTimer);
 								},
 								setRequestHeader: function() {
-									alert('setRequestHeader intercept called!');
+									//TODO: Store set request header
 								},
-								getResponseHeader: function() {
+								getResponseHeader: function(header) {
 									// 'Last-modified', 'Etag', 'content-type'
 									if ( header == 'Last-modified' ) {
-										return m.lastModified || '';
+										return m.lastModified || (new Date()).toString();
 									} else if ( header == 'Etag' ) {
 										return m.etag || '';
 									} else if ( header == 'content-type' ) {
