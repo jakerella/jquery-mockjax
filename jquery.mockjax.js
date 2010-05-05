@@ -37,8 +37,60 @@
 						console.log('MOCK GET: ' + s.url);
 					}
 					mock = true;
+					
+					
+					// Handle JSONP Parameter Callbacks
+					if ( s.dataType === "jsonp" ) {
+						if ( type === "GET" ) {
+							if ( !jsre.test( s.url ) ) {
+								s.url += (rquery.test( s.url ) ? "&" : "?") + (s.jsonp || "callback") + "=?";
+							}
+						} else if ( !s.data || !jsre.test(s.data) ) {
+							s.data = (s.data ? s.data + "&" : "") + (s.jsonp || "callback") + "=?";
+						}
+						s.dataType = "json";
+					}
+			
+					// Build temporary JSONP function
+					var jsre = /=\?(&|$)/;
+					if ( s.dataType === "json" && (s.data && jsre.test(s.data) || jsre.test(s.url)) ) {
+						jsonp = s.jsonpCallback || ("jsonp" + jsc++);
+			
+						// Replace the =? sequence both in the query string and the data
+						if ( s.data ) {
+							s.data = (s.data + "").replace(jsre, "=" + jsonp + "$1");
+						}
+			
+						s.url = s.url.replace(jsre, "=" + jsonp + "$1");
+			
+						// We need to make sure
+						// that a JSONP style response is executed properly
+						s.dataType = "script";
+			
+						// Handle JSONP-style loading
+						window[ jsonp ] = window[ jsonp ] || function( tmp ) {
+							data = tmp;
+							success();
+							complete();
+							// Garbage collect
+							window[ jsonp ] = undefined;
+			
+							try {
+								delete window[ jsonp ];
+							} catch(e) {}
+			
+							if ( head ) {
+								head.removeChild( script );
+							}
+						};
+					}
+					
+					var rurl = /^(\w+:)?\/\/([^\/?#]+)/,
+						parts = rurl.exec( s.url ),
+						remote = parts && (parts[1] && parts[1] !== location.protocol || parts[2] !== location.host);
+					
 					// Test if we are going to create a script tag (if so, intercept & mock)
-					if ( s.dataType === "script" && s.type === "GET" ) {
+					if ( s.dataType === "script" && s.type === "GET" && remote ) {
 						// Synthesize the mock request for adding a script tag
 						var callbackContext = origSettings && origSettings.context || s;
 						
