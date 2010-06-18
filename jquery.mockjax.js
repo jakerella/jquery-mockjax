@@ -1,8 +1,8 @@
 /*!
  * MockJax - Mock for Ajax requests
  *
- * Version: 1.0
- * Released: 2010-04-26
+ * Version: 1.1
+ * Released: 2010-05-20
  * Source: http://labs.appendto.com/jquery-plugins/mockjax
  * Author: Jonathan Sharp (http://jdsharp.com)
  * License: MIT,GPL
