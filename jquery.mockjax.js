@@ -147,9 +147,7 @@
 								open: function() {
 								},
 								send: function() {
-									// type == 'POST' || 'GET' || 'DELETE'
-									// TODO: check for synchonous execution
-									this.responseTimer = setTimeout($.proxy(function() {
+									var cb = $.proxy(function() {
 										// The request has returned
 										this.status 		= m.status;
 										this.readyState 	= 4;
@@ -162,7 +160,25 @@
 											this.responseText = m.responseText;
 										}
 										this.onreadystatechange( m.isTimeout ? 'timeout' : undefined );
-									}, this), m.responseTime || 50);
+									}, this);
+									
+									if ( m.proxy ) {
+										// We're proxying this request and loading in an external js file instead
+										$.ajax({
+											url: m.proxy,
+											type: 'GET',
+											dataType: s.dataType,
+											complete: function(xhr, txt) {
+												m.responseXML = xhr.responseXML;
+												m.responseText = xhr.responseText;
+												cb();
+											}
+										});
+									} else {
+										// type == 'POST' || 'GET' || 'DELETE'
+										// TODO: check for synchonous execution
+										this.responseTimer = setTimeout(cb, m.responseTime || 50);
+									}
 								},
 								abort: function() {
 									clearTimeout(this.responseTimer);
@@ -200,7 +216,8 @@
 		responseTime: 	500,
 		contentType: 	'text/plain',
 		etag: 			'',
-		response: 		''
+		response: 		'',
+		proxy:			''
 	};
 
 	$.mockjax = function(settings) {
