@@ -3,14 +3,217 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>MockJax Demo</title>
-	<script src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+	<style type="text/css">
+	body {
+		font-family: sans-serif;
+	}
+	dl dt {
+		margin: 0;
+		font-weight: bold;
+	}
+	dl dd {
+		margin: 0 0 0.5em 0;
+	}
+	pre {
+		padding: 1em;
+		display: block;
+		background: #EFEFEF;
+		border: 1px dashed #656565;
+		margin: 0 0 1em 0;
+	}
+	span.title {
+		display: block;
+		margin-top: 1em;
+		font-size: 0.8em;
+	}
+	</style>
+	<script src="lib/jquery-1.4.2.js"></script>
 	<script src="lib/jquery.xmldom.js"></script>
 	<script src="lib/json2.js"></script>
 	<script src="jquery.mockjax.js"></script>
-	<script src="mockjax.demo.js"></script>
-	<script src="test.js"></script>
+	<script type="text/javascript">
+		$('body').delegate('input', 'click', function() {
+			var fn = $(this).attr('id');
+			if ( $.isFunction(window[fn]) ) {
+				window[fn]();
+			}
+		});
+		$('body').delegate('pre', 'click', function() {
+			$.mockjaxClear();
+			var script = $(this).html();
+			eval(script);
+		});
+	</script>
 </head>
 <body>
-	<ul></ul>
+	<h2>What is jquery.mockjax?</h2>
+	<p>The Mockjax plugin for jQuery provides a decoupled non-invasive way to mock (or simulate) ajax requests throughout your application. It is possible to 
+	completely simulate the Ajax request/response cycle without any network traffic and without changing any production code. Below are a list of steps for making using 
+	of mockjax.</p>
+	
+	<ol>
+		<li>Include jquery.mockjax.js jQuery Plugin</li>
+		<li>Optionally include json2.js if not natively supported by your browser.</li>
+		<li>Include jquery.xmldom.js if you're mocking XML inline.</li>
+		<li>Include a file such as mockjax.js containing your mock definitions</li>
+	</ol>
+	
+	<h2>Approaches to Mocking</h2>
+	
+	<p>There are a number of different approaches to mocking Ajax requests. Below is a list of request types and patterns 
+	supported by mockjax.</p>
+	
+	<dl>
+		<dt>Mocking via Inline</dt>
+		<dd>Mock response is included inline in the mock request definition.
+		<span class="title">Simple Mock of JSON</span>
+		<pre>
+$.mockjax({
+	url: '/test/inline',
+	dataType: 'json',
+	responseTime: 2500,
+	responseText: {
+		say: 'Hello world!'
+	}
+});
+
+// Normal ajax request in your application
+$.ajax({
+	url: '/test/inline',
+	dataType: 'json',
+	success: function(json) {
+		alert('You said: ' + json.say);
+	}
+});
+		</pre>
+		</dd>
+		
+		<dt>Mocking via Proxy</dt>
+		<dd>Mock response is contained in an external url, proxy attribute contains location of preferred response.
+<pre>
+$.mockjax({
+	url: '/some/webservice',
+	dataType: 'json',
+	proxy: 'test.json'
+});
+
+// Normal ajax request in your application
+$.ajax({
+	url: '/some/webservice',
+	dataType: 'json',
+	success: function(json) {
+		alert('You said: ' + json.say);
+	}
+});
+</pre>
+		</dd>
+		
+		<dt>Mocking via Function</dt>
+		<dd>There are two ways to mock via functions, the first provides the greatest flexability and allows for the 
+		developer to decide if they will intercept the request as a mock. In this situation, the developer should return 
+		a falsy value (false, undefined, or null) or an object literal containing the settings for this mock request.
+<pre>
+$.mockjax(function(settings) {
+	if ( settings.dataType == 'json' ) {
+		return {
+			dataType: 'json',
+			proxy: 'test.json'
+		};
+	}
+	return false;
+});
+
+// Normal ajax request in your application
+$.ajax({
+	url: '/some/webservice',
+	dataType: 'json',
+	success: function(json) {
+		alert('You said: ' + json.say);
+	}
+});
+</pre>
+		<p>In the second form, a callback method is registered under the response attribute. The callback method is triggered 
+		right before the response is parsed. In the function body, the method has the opportunity to modify any attributes such 
+		as responseText or responseXML.</p>
+<pre>
+$.mockjax({
+	url: '/some/webservice',
+	dataType: 'json',
+	response: function(settings) {
+		this.responseText = { say: 'random ' + Math.random() };
+	}
+});
+
+// Normal ajax request in your application
+$.ajax({
+	url: '/some/webservice',
+	dataType: 'json',
+	success: function(json) {
+		alert('You said: ' + json.say);
+	}
+});
+</pre>
+		</dd>
+	
+	</dl>
+	
+	<h2>Mocking Various Data Types</h2>
+	<p></p>
+	
+	<h3>Mocking JSON</h3>
+	<pre>
+	$.mockjax({
+		url: '/some/json',
+		dataType: 'json',
+		responseText: {
+			say: "JSON Here"
+		}
+	});
+	
+	// Normal ajax request in your application
+	$.ajax({
+		url: '/some/json',
+		dataType: 'json',
+		success: function(json) {
+			alert('You said: ' + json.say);
+		}
+	});
+	</pre>
+	
+	<h3>Mocking XML</h3>
+	<pre>
+	$.mockjax({
+		url: '/some/xml',
+		dataType: 'xml',
+		responseXML: '<document><say>Hello world XML</say></document>'
+	});
+	
+	// Normal ajax request in your application
+	$.ajax({
+		url: '/some/xml',
+		dataType: 'xml',
+		success: function(xml) {
+			alert('You said: ' + $(xml).find('document say').text() );
+		}
+	});
+	</pre>
+	
+	<h3>Mocking HTML</h3>
+	<pre>
+	$.mockjax({
+		url: '/some/webservice',
+		dataType: 'html',
+		responseText: '<div>Hello there</div>'
+	});
+	
+	// Normal ajax request in your application
+	$.ajax({
+		url: '/some/webservice',
+		dataType: 'html',
+		success: function(html) {
+			alert('You said: ' + html);
+		}
+	});
+	</pre>
 </body>
 </html>

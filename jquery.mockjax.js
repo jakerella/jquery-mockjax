@@ -1,9 +1,9 @@
 /*!
  * MockJax - Mock for Ajax requests
  *
- * Version: 1.1
- * Released: 2010-05-20
- * Source: http://labs.appendto.com/jquery-plugins/mockjax
+ * Version: 1.2
+ * Released: 2010-07-13
+ * Source: http://code.appendto.com/mockjax
  * Author: Jonathan Sharp (http://jdsharp.com)
  * License: MIT,GPL
  * 
@@ -17,20 +17,27 @@
 
 	$.extend({
 		ajax: function(origSettings) {
-			var s = jQuery.extend(true, {}, jQuery.ajaxSettings, origSettings);
-			var mock = false;
+			var s = jQuery.extend(true, {}, jQuery.ajaxSettings, origSettings),
+			    mock = false;
+			// Iterate over our mock handlers (in registration order) until we find
+			// one that is willing to intercept the request
 			$.each(mockHandlers, function(k, v) {
 				var m = null;
+				// If the mock was registered with a function, let the function decide if we 
+				// want to mock this request
 				if ( $.isFunction(mockHandlers[k]) ) {
 					m = mockHandlers[k](s);
 				} else {
 					m = mockHandlers[k];
+					// Inspect the URL of the request and check if the mock handler's url 
+					// matches the url for this ajax request
 					var star = m.url.indexOf('*');
 					if ( ( m.url != '*' && m.url != s.url && star == -1 ) ||
 						 ( star > -1 && m.url.substr(0, star) != s.url.substr(0, star) ) ) {
-						 //alert('null: ' + m.url + ' ' + s.url);
+						 // The url we tested did not match the wildcard *
 						 m = null;
 					}
+					// TODO: add in testing for data params
 				}
 				if ( m ) {
 					if ( console && console.log ) {
@@ -38,8 +45,8 @@
 					}
 					mock = true;
 					
-					
-					// Handle JSONP Parameter Callbacks
+					// Handle JSONP Parameter Callbacks, we need to replicate some of the jQuery core here
+					// because we don't have an easy hook for the cross domain script tag of jsonp
 					if ( s.dataType === "jsonp" ) {
 						if ( type === "GET" ) {
 							if ( !jsre.test( s.url ) ) {
@@ -97,7 +104,7 @@
 						function success() {
 							// If a local callback was specified, fire it and pass it the data
 							if ( s.success ) {
-								s.success.call( callbackContext, (m.response ? m.response.toString() : m.responseText || ''), status, {} );
+								s.success.call( callbackContext, ( m.response ? m.response.toString() : m.responseText || ''), status, {} );
 							}
 				
 							// Fire the global callback
@@ -109,7 +116,7 @@
 						function complete() {
 							// Process result
 							if ( s.complete ) {
-								s.complete.call( callbackContext, {} , status);
+								s.complete.call( callbackContext, {} , status );
 							}
 				
 							// The request was completed
@@ -127,16 +134,17 @@
 							(s.context ? jQuery(s.context) : jQuery.event).trigger(type, args);
 						}
 						
-						if ( m.response && $.isFunction(m.response) ) {
-							m.response();
-						} else {
+						//if ( m.response && $.isFunction(m.response) ) {
+						//	m.response();
+						//} else {
 							$.globalEval(m.responseText);
-						}
+						//}
 						success();
 						complete();
 						return false;
 					}
 					_ajax.call($, $.extend(true, {}, origSettings, {
+						// Mock the XHR object
 						xhr: function() {
 							// Extend with our default mockjax settings
 							m = $.extend({}, $.mockjaxSettings, m);
@@ -144,18 +152,29 @@
 							return {
 								status: m.status,
 								readyState: 1,
-								open: function() {
-								},
+								open: function() { },
 								send: function() {
-									var cb = $.proxy(function() {
+									var process = $.proxy(function() {
 										// The request has returned
 										this.status 		= m.status;
 										this.readyState 	= 4;
 										
+										// We have an executable function, call it to give 
+										// the mock a chance to update it's data
+										if ( $.isFunction(m.response) ) {
+											m.response();
+										}
+										// Copy over our mock to our xhr object before passing control back to 
+										// jQuery's onreadystatechange callback
 										if ( s.dataType == 'json' && ( typeof m.responseText == 'object' ) ) {
 											this.responseText = JSON.stringify(m.responseText);
 										} else if ( s.dataType == 'xml' ) {
-											this.responseXML = m.responseXML;
+											if ( $.xmlDOM && typeof m.responseXML == 'string' ) {
+												// Parse the XML 
+												this.responseXML = $.xmlDOM( m.responseXML )[0];
+											} else {
+												this.responseXML = m.responseXML;
+											}
 										} else {
 											this.responseText = m.responseText;
 										}
@@ -163,32 +182,38 @@
 									}, this);
 									
 									if ( m.proxy ) {
-										// We're proxying this request and loading in an external js file instead
-										$.ajax({
+										// We're proxying this request and loading in an external file instead
+										_ajax({
 											url: m.proxy,
-											type: 'GET',
+											type: m.type,
+											data: m.data,
 											dataType: s.dataType,
 											complete: function(xhr, txt) {
 												m.responseXML = xhr.responseXML;
 												m.responseText = xhr.responseText;
-												cb();
+												process();
 											}
 										});
 									} else {
 										// type == 'POST' || 'GET' || 'DELETE'
-										// TODO: check for synchonous execution
-										this.responseTimer = setTimeout(cb, m.responseTime || 50);
+										if ( s.async === false ) {
+											// TODO: Blocking delay
+											process();
+										} else {
+											this.responseTimer = setTimeout(process, m.responseTime || 50);
+										}
 									}
 								},
 								abort: function() {
 									clearTimeout(this.responseTimer);
 								},
-								setRequestHeader: function() {
-									//TODO: Store set request header
-								},
+								setRequestHeader: function() { },
 								getResponseHeader: function(header) {
-									// 'Last-modified', 'Etag', 'content-type'
-									if ( header == 'Last-modified' ) {
+									// 'Last-modified', 'Etag', 'content-type' are all checked by jQuery
+									if ( m.headers && m.headers[header] ) {
+										// Return arbitrary headers
+										return m.headers[header];
+									} else if ( header == 'Last-modified' ) {
 										return m.lastModified || (new Date()).toString();
 									} else if ( header == 'Etag' ) {
 										return m.etag || '';
@@ -199,10 +224,10 @@
 							};
 						}
 					}));
-
 					return false;
 				}
 			});
+			// We don't have a mock request, trigger a normal request
 			if ( !mock ) {
 				return _ajax.apply($, arguments);
 			}
@@ -214,13 +239,25 @@
 		type: 			'GET',
 		status: 		200,
 		responseTime: 	500,
+		isTimeout:		false,
 		contentType: 	'text/plain',
+		response: 		'', 
+		responseText:	'',
+		responseXML:	'',
+		proxy:			'',
+		
+		lastModified:	null,
 		etag: 			'',
-		response: 		'',
-		proxy:			''
+		headers: {
+			etag: 'IJF@H#@923uf8023hFO@I#H#',
+			'content-type' : 'text/plain'
+		}
 	};
 
 	$.mockjax = function(settings) {
 		mockHandlers.push( settings );
+	};
+	$.mockjaxClear = function() {
+		mockHandlers = [];
 	};
 })(jQuery);

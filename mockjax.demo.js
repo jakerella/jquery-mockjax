@@ -1,3 +1,14 @@
+
+// Example of a getScript or dataType == 'script'
+$.mockjax({
+	url: 'example.com/foo',
+	response: function() {
+		// This method is executed when a script request comes in
+	}
+});
+
+
+
 /*
  * This file contains the mock ajax requests
  */
