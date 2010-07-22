@@ -1,14 +1,15 @@
 /*!
  * MockJax - Mock for Ajax requests
  *
- * Version: 1.2
- * Released: 2010-07-13
- * Source: http://code.appendto.com/mockjax
+ * Version: 1.3
+ * Released: 2010-07-21
+ * Source: http://github.com/appendto/jquery-mockjax
+ * Plugin: mockjax
  * Author: Jonathan Sharp (http://jdsharp.com)
  * License: MIT,GPL
  * 
  * Copyright (c) 2010 appendTo LLC.
- * Dual licensed under the MIT and GPL licenses.
+ * Dual licensed under the MIT or GPL licenses.
  * http://appendto.com/open-source-licenses
  */
 (function($) {
@@ -22,6 +23,9 @@
 			// Iterate over our mock handlers (in registration order) until we find
 			// one that is willing to intercept the request
 			$.each(mockHandlers, function(k, v) {
+				if ( !mockHandlers[k] ) {
+					return;
+				}
 				var m = null;
 				// If the mock was registered with a function, let the function decide if we 
 				// want to mock this request
@@ -31,13 +35,55 @@
 					m = mockHandlers[k];
 					// Inspect the URL of the request and check if the mock handler's url 
 					// matches the url for this ajax request
-					var star = m.url.indexOf('*');
-					if ( ( m.url != '*' && m.url != s.url && star == -1 ) ||
-						 ( star > -1 && m.url.substr(0, star) != s.url.substr(0, star) ) ) {
-						 // The url we tested did not match the wildcard *
-						 m = null;
+					if ( $.isFunction(m.url.test) ) {
+						// The user provided a regex for the url, test it
+						if ( !m.url.test( s.url ) ) {
+							m = null;
+						}
+					} else {
+						// Look for a simple wildcard '*' or a direct URL match
+						var star = m.url.indexOf('*');
+						if ( ( m.url != '*' && m.url != s.url && star == -1 ) ||
+							( star > -1 && m.url.substr(0, star) != s.url.substr(0, star) ) ) {
+							 // The url we tested did not match the wildcard *
+							 m = null;
+						}
 					}
-					// TODO: add in testing for data params
+					// Inspect the data submitted in the request (either POST body or GET query string)
+					if ( m.data && s.data ) {
+						var identical = false;
+						// Deep inspect the identity of the objects
+						(function ident(mock, live) {
+							$.each(mock, function(k, v) {
+								if ( live[k] === undefined ) {
+									identical = false;
+									return false;
+								} else {
+									identical = true;
+									if ( typeof live[k] == 'object' ) {
+										return ident(mock[k], live[k]);
+									} else {
+										if ( $.isFunction( mock[k].test ) ) {
+											identical = mock[k].test(live[k]);
+										} else {
+											identical = ( mock[k] == live[k] );
+										}
+										return identical;
+									}
+								}
+								return true;
+							});
+						})(m.data, s.data);
+						// They're not identical, do not mock this request
+						if ( identical == false ) {
+							m = null;
+						}
+					}
+					// Inspect the request type
+					if ( m.type && m.type != s.type ) {
+						// The request type doesn't match (GET vs. POST)
+						m = null;
+					}
 				}
 				if ( m ) {
 					if ( console && console.log ) {
@@ -46,7 +92,7 @@
 					mock = true;
 					
 					// Handle JSONP Parameter Callbacks, we need to replicate some of the jQuery core here
-					// because we don't have an easy hook for the cross domain script tag of jsonp
+					// because there isn't an easy hook for the cross domain script tag of jsonp
 					if ( s.dataType === "jsonp" ) {
 						if ( type === "GET" ) {
 							if ( !jsre.test( s.url ) ) {
@@ -170,7 +216,7 @@
 											this.responseText = JSON.stringify(m.responseText);
 										} else if ( s.dataType == 'xml' ) {
 											if ( $.xmlDOM && typeof m.responseXML == 'string' ) {
-												// Parse the XML 
+												// Parse the XML from a string into a DOM
 												this.responseXML = $.xmlDOM( m.responseXML )[0];
 											} else {
 												this.responseXML = m.responseXML;
@@ -184,6 +230,7 @@
 									if ( m.proxy ) {
 										// We're proxying this request and loading in an external file instead
 										_ajax({
+											global: false,
 											url: m.proxy,
 											type: m.type,
 											data: m.data,
@@ -235,8 +282,8 @@
 	});
 
 	$.mockjaxSettings = {
-		url: 			null,
-		type: 			'GET',
+		//url: 			null,
+		//type: 			'GET',
 		status: 		200,
 		responseTime: 	500,
 		isTimeout:		false,
@@ -255,9 +302,15 @@
 	};
 
 	$.mockjax = function(settings) {
-		mockHandlers.push( settings );
+		var i = mockHandlers.length;
+		mockHandlers[i] = settings;
+		return i;
 	};
-	$.mockjaxClear = function() {
-		mockHandlers = [];
+	$.mockjaxClear = function(i) {
+		if ( arguments.length == 1 ) {
+			mockHandlers[i] = null;
+		} else {
+			mockHandlers = [];
+		}
 	};
 })(jQuery);
