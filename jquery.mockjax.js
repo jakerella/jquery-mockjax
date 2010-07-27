@@ -49,40 +49,42 @@
 							 m = null;
 						}
 					}
-					// Inspect the data submitted in the request (either POST body or GET query string)
-					if ( m.data && s.data ) {
-						var identical = false;
-						// Deep inspect the identity of the objects
-						(function ident(mock, live) {
-							$.each(mock, function(k, v) {
-								if ( live[k] === undefined ) {
-									identical = false;
-									return false;
-								} else {
-									identical = true;
-									if ( typeof live[k] == 'object' ) {
-										return ident(mock[k], live[k]);
+					if ( m ) {
+						// Inspect the data submitted in the request (either POST body or GET query string)
+						if ( m.data && s.data ) {
+							var identical = false;
+							// Deep inspect the identity of the objects
+							(function ident(mock, live) {
+								$.each(mock, function(k, v) {
+									if ( live[k] === undefined ) {
+										identical = false;
+										return false;
 									} else {
-										if ( $.isFunction( mock[k].test ) ) {
-											identical = mock[k].test(live[k]);
+										identical = true;
+										if ( typeof live[k] == 'object' ) {
+											return ident(mock[k], live[k]);
 										} else {
-											identical = ( mock[k] == live[k] );
+											if ( $.isFunction( mock[k].test ) ) {
+												identical = mock[k].test(live[k]);
+											} else {
+												identical = ( mock[k] == live[k] );
+											}
+											return identical;
 										}
-										return identical;
 									}
-								}
-								return true;
-							});
-						})(m.data, s.data);
-						// They're not identical, do not mock this request
-						if ( identical == false ) {
+									return true;
+								});
+							})(m.data, s.data);
+							// They're not identical, do not mock this request
+							if ( identical == false ) {
+								m = null;
+							}
+						}
+						// Inspect the request type
+						if ( m.type && m.type != s.type ) {
+							// The request type doesn't match (GET vs. POST)
 							m = null;
 						}
-					}
-					// Inspect the request type
-					if ( m.type && m.type != s.type ) {
-						// The request type doesn't match (GET vs. POST)
-						m = null;
 					}
 				}
 				if ( m ) {
