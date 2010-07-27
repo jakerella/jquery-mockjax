@@ -86,7 +86,7 @@
 					}
 				}
 				if ( m ) {
-					if ( console && console.log ) {
+					if ( typeof console !== 'undefined' && console.log ) {
 						console.log('MOCK GET: ' + s.url);
 					}
 					mock = true;
