@@ -81,7 +81,7 @@
 							}
 						}
 						// Inspect the request type
-						if ( m.type && m.type != s.type ) {
+						if ( m && m.type && m.type != s.type ) {
 							// The request type doesn't match (GET vs. POST)
 							m = null;
 						}
