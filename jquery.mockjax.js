@@ -72,7 +72,6 @@
 											return identical;
 										}
 									}
-									return true;
 								});
 							})(m.data, s.data);
 							// They're not identical, do not mock this request
