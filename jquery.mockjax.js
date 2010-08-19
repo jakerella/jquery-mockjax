@@ -239,7 +239,7 @@
 											complete: function(xhr, txt) {
 												m.responseXML = xhr.responseXML;
 												m.responseText = xhr.responseText;
-												process();
+												this.responseTimer = setTimeout(process, m.responseTime || 0);
 											}
 										});
 									} else {
