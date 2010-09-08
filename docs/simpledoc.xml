@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<simpledoc xmlns:xi="http://www.w3.org/2001/XInclude">
+	<title>EpicJS Documentation</title>
+	<copyright>© 2010 appendTo, LLC</copyright>
+	<topic name="Introduction">
+		<description><![CDATA[Introduction]]></description>
+	</topic>	
+	<topic header="Modules" />
+	<topic name="Bus">
+		<description><![CDATA[Bus]]></description>
+	</topic>
+	<topic name="Cache">
+		<description><![CDATA[Cache]]></description>
+		<topic name="CacheType">
+			<description><![CDATA[CacheType]]></description>
+		</topic>
+		<topic name="HashCache">
+			<description><![CDATA[HashCache]]></description>
+		</topic>
+		<topic name="ListCache">
+			<description><![CDATA[ListCache]]></description>
+		</topic>
+		<topic name="QueueCache">
+			<description><![CDATA[QueueCache]]></description>
+		</topic>
+	</topic>
+	<topic name="Request">
+		<description><![CDATA[Request]]></description>
+	</topic>
+	<topic name="Require">
+		<description><![CDATA[Require]]></description>
+	</topic>
+	<topic name="Route">
+		<description><![CDATA[Route]]></description>
+	</topic>	
+	<topic name="Storage">
+		<description><![CDATA[Storage]]></description>
+	</topic>
+
+	<component name="Introduction">
+		<section name="Introduction">
+			<description><![CDATA[Some Introduction Text]]></description>
+		</section>
+	</component>
+	
+	<xi:include href="bus/docs/simpledoc.xml" parse="text"/>
+	<xi:include href="cache/docs/simpledoc.xml" parse="text"/>
+	<xi:include href="request/docs/simpledoc.xml" parse="text"/>
+	<xi:include href="require/docs/simpledoc.xml" parse="text"/>
+	<xi:include href="route/docs/simpledoc.xml" parse="text"/>
+	<xi:include href="storage/docs/simpledoc.xml" parse="text"/>
+</simpledoc>
