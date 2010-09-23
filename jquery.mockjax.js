@@ -95,7 +95,7 @@
 					// Handle JSONP Parameter Callbacks, we need to replicate some of the jQuery core here
 					// because there isn't an easy hook for the cross domain script tag of jsonp
 					if ( s.dataType === "jsonp" ) {
-						if ( type === "GET" ) {
+						if ( s.type.toUpperCase() === "GET" ) {
 							if ( !jsre.test( s.url ) ) {
 								s.url += (rquery.test( s.url ) ? "&" : "?") + (s.jsonp || "callback") + "=?";
 							}
@@ -144,7 +144,7 @@
 						remote = parts && (parts[1] && parts[1] !== location.protocol || parts[2] !== location.host);
 					
 					// Test if we are going to create a script tag (if so, intercept & mock)
-					if ( s.dataType === "script" && s.type === "GET" && remote ) {
+					if ( s.dataType === "script" && s.type.toUpperCase() === "GET" && remote ) {
 						// Synthesize the mock request for adding a script tag
 						var callbackContext = origSettings && origSettings.context || s;
 						
