@@ -55,6 +55,10 @@
 							var identical = false;
 							// Deep inspect the identity of the objects
 							(function ident(mock, live) {
+                                                                if (typeof live === 'string') {
+                                                                  identical = $.isFunction( mock.test ) ? mock.test(live) : mock == live;
+                                                                  return identical;
+                                                                }
 								$.each(mock, function(k, v) {
 									if ( live[k] === undefined ) {
 										identical = false;
