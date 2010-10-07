@@ -1,12 +1,13 @@
 /*!
- * MockJax - Mock for Ajax requests
+ * MockJax - jQuery Plugin to Mock Ajax requests
  *
- * Version: 1.3.1
- * Released: 2010-08-11
- * Source: http://github.com/appendto/jquery-mockjax
- * Plugin: mockjax
- * Author: Jonathan Sharp (http://jdsharp.com)
- * License: MIT,GPL
+ * Version:  1.3.2
+ * Released: 2010-10-07
+ * Source:   http://github.com/appendto/jquery-mockjax
+ * Docs:     http://enterprisejquery.com/2010/07/mock-your-ajax-requests-with-mockjax-for-rapid-development
+ * Plugin:   mockjax
+ * Author:   Jonathan Sharp (http://jdsharp.com)
+ * License:  MIT,GPL
  * 
  * Copyright (c) 2010 appendTo LLC.
  * Dual licensed under the MIT or GPL licenses.
@@ -55,10 +56,12 @@
 							var identical = false;
 							// Deep inspect the identity of the objects
 							(function ident(mock, live) {
-                                                                if (typeof live === 'string') {
-                                                                  identical = $.isFunction( mock.test ) ? mock.test(live) : mock == live;
-                                                                  return identical;
-                                                                }
+								// Test for situations where the data is a querystring (not an object)
+								if (typeof live === 'string') {
+									// Querystring may be a regex
+									identical = $.isFunction( mock.test ) ? mock.test(live) : mock == live;
+									return identical;
+								}
 								$.each(mock, function(k, v) {
 									if ( live[k] === undefined ) {
 										identical = false;
@@ -287,16 +290,16 @@
 	});
 
 	$.mockjaxSettings = {
-		//url: 			null,
-		//type: 			'GET',
-		status: 		200,
-		responseTime: 	500,
-		isTimeout:		false,
-		contentType: 	'text/plain',
-		response: 		'', 
-		responseText:	'',
-		responseXML:	'',
-		proxy:			'',
+		//url:        null,
+		//type:       'GET',
+		status:       200,
+		responseTime: 500,
+		isTimeout:    false,
+		contentType:  'text/plain',
+		response:     '', 
+		responseText: '',
+		responseXML:  '',
+		proxy:        '',
 		
 		lastModified:	null,
 		etag: 			'',
