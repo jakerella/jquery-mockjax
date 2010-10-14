@@ -197,7 +197,7 @@
 						complete();
 						return false;
 					}
-					_ajax.call($, $.extend(true, {}, origSettings, {
+					mock = _ajax.call($, $.extend(true, {}, origSettings, {
 						// Mock the XHR object
 						xhr: function() {
 							// Extend with our default mockjax settings
@@ -285,6 +285,8 @@
 			// We don't have a mock request, trigger a normal request
 			if ( !mock ) {
 				return _ajax.apply($, arguments);
+			} else {
+				return mock;
 			}
 		}
 	});
