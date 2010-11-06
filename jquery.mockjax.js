@@ -1,8 +1,8 @@
 /*!
  * MockJax - jQuery Plugin to Mock Ajax requests
  *
- * Version:  1.3.2
- * Released: 2010-10-07
+ * Version:  1.3.3
+ * Released: 2010-11-05
  * Source:   http://github.com/appendto/jquery-mockjax
  * Docs:     http://enterprisejquery.com/2010/07/mock-your-ajax-requests-with-mockjax-for-rapid-development
  * Plugin:   mockjax
@@ -188,11 +188,11 @@
 							(s.context ? jQuery(s.context) : jQuery.event).trigger(type, args);
 						}
 						
-						//if ( m.response && $.isFunction(m.response) ) {
-						//	m.response(origSettings);
-						//} else {
+						if ( m.response && $.isFunction(m.response) ) {
+							m.response(origSettings);
+						} else {
 							$.globalEval(m.responseText);
-						//}
+						}
 						success();
 						complete();
 						return false;
