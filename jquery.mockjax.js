@@ -95,7 +95,7 @@
 				}
 				if ( m ) {
 					if ( typeof console !== 'undefined' && console.log ) {
-						console.log('MOCK GET: ' + s.url);
+						console.log('MOCK ' + s.type + ': ' + s.url);
 					}
 					mock = true;
 					
