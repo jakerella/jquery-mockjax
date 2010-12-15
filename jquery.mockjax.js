@@ -284,7 +284,7 @@
 			});
 			// We don't have a mock request, trigger a normal request
 			if ( !mock ) {
-				return _ajax.apply($, arguments);
+				return _ajax.call($, s);
 			} else {
 				return mock;
 			}

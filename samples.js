@@ -12,5 +12,10 @@ $.mockjax({
 });
 
 $.mockjax({
-	url: '*',
+	url: '*'
+});
+
+$.mockjax(function onRequest(request) {
+	req.url = "/test/" + req.url;
+	return false;
 });
