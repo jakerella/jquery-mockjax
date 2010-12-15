@@ -197,7 +197,7 @@
 						complete();
 						return false;
 					}
-					mock = _ajax.call($, $.extend(true, {}, origSettings, {
+					mock = _ajax.call($, $.extend(true, {}, s, {
 						// Mock the XHR object
 						xhr: function() {
 							// Extend with our default mockjax settings
@@ -216,7 +216,7 @@
 										// We have an executable function, call it to give 
 										// the mock a chance to update it's data
 										if ( $.isFunction(m.response) ) {
-											m.response(origSettings);
+											m.response(s);
 										}
 										// Copy over our mock to our xhr object before passing control back to 
 										// jQuery's onreadystatechange callback
