@@ -16,6 +16,6 @@ $.mockjax({
 });
 
 $.mockjax(function onRequest(request) {
-	req.url = "/test/" + req.url;
+	request.url = "/test/" + request.url;
 	return false;
 });
