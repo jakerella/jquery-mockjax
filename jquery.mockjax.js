@@ -240,7 +240,7 @@
 										_ajax({
 											global: false,
 											url: m.proxy,
-											type: m.type,
+											type: "GET", // Always use GET to load json mock files
 											data: m.data,
 											dataType: s.dataType,
 											complete: function(xhr, txt) {
