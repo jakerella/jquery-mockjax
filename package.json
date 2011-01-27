@@ -1,0 +1,41 @@
+{
+   "name": "jquery-mockjax",
+   "version": "1.4.0",
+   "description": "Mockjax. The jQuery Mockjax Plugin provides a simple and extremely flexible interface for mocking or simulating ajax requests and responses.",
+   "url": "http://code.appendto.com/plugins/jquery-mockjax/",
+   "keywords": [ "ajax", "mock", "unit" ],
+   "maintainers": [
+       {
+           "name": "Jonathan Sharp",
+           "web": "http://jdsharp.com/"
+       } 
+   ],
+   "contributors": [
+       {
+           "name": "Jonathan Sharp",
+           "web": "http://jdsharp.com/"
+       } 
+   ],
+   "bugs": {
+       "web": "http://github.com/appendto/jquery-mockjax/issues" 
+   },
+   "licenses": [
+       {
+           "type": "MIT",
+           "url": "http://appendto.com/open-source-licenses"
+       },
+       {
+           "type": "GPLv2",
+           "url": "http://appendto.com/open-source-licenses"
+       } 
+   ],
+   "repositories": [
+       {
+           "type": "git",
+           "url": "http://github.com/appendto/jquery-mockjax.git" 
+       } 
+   ],
+   "dependencies": {
+       "jquery": [ "1.3.2", "1.4.0", "1.5.0" ]
+   }
+}

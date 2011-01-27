@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>jQuery Mockjax Example Query string</title>
+	<script src="../lib/jquery-1.4.2.js"></script>
+	<script src="../jquery.mockjax.js"></script>
+	<script>
+	$.mockjax({
+		url:  '/rest',
+		data: { action: "foo" },
+		responseText: { bar: "hello world" }
+	});
+
+	$.mockjax({
+		url:  '/rest',
+		data: { action: "bar" },
+		responseText: { bar: "hello world 2" }
+	});
+
+	$.ajax({
+		url: '/rest',
+		dataType: 'json',
+		data: {
+			action: "foo"
+		},
+		success: function(json) {
+			$('body').append('Response 1: ' + ( json.bar || 'ERROR' ) + '<br>' );
+		}
+	});
+
+	$.ajax({
+		url: '/rest',
+		dataType: 'json',
+		data: {
+			action: "bar"
+		},
+		success: function(json) {
+			$('body').append('Response 2: ' + ( json.bar || 'ERROR' ) + '<br>' );
+		}
+	});
+	</script>
+</head>
+<body>
+	
+</body>
+</html>
