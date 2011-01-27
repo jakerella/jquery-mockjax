@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+    	<script>
+    		(function() {
+    			var jquery = {
+    				'1.4' : '../lib/jquery-1.4.2.js',
+    				'1.5' : '../lib/jquery-1.5rc1.js'
+    			},
+    			load = ['../jquery.mockjax.js', 'test.js'];
+    			
+    			var hash = window.location.hash.replace(/^#/, '');
+    			if ( jquery[hash] ) {
+    				load.unshift(jquery[hash]);
+    				for ( var i = 0; i < load.length; i++ ) {
+    					var s = document.createElement('script');
+    					s.src = load[i];
+    					document.head.appendChild(s);
+    				}
+    			} else {
+    				alert('Unknown jQuery version ' + hash);
+    			}
+    		})();
+    	</script>
+        <script src="../lib/jquery-1.5rc1.js"></script>
+        <link rel="stylesheet" href="../lib/qunit.css" type="text/css" media="screen" />
+        <script src="../lib/qunit.js"></script>
+        <!--
+        <script src="jquery.mockjax.js"></script>
+        -->
+        <title>MockJax Tests - </title>
+      </head>
+    <body>
+        <h1 id="qunit-header">MockJax</h1>
+        <h2 id="qunit-banner"></h2>
+        <h2 id="qunit-userAgent"></h2>
+        <ol id="qunit-tests"></ol>
+		
+		<!--
+        <script type="text/javascript" src="test_mockjax.js"></script>
+		-->
+    </body>
+</html>
