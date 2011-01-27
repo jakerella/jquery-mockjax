@@ -1,4 +1,8 @@
-module("mockjax");
+module("mockjax", {
+    teardown: function() {
+        $.mockjaxClear();
+    }
+});
 test("should return xmlhttprequest object", function() {
     stop();
     $.mockjax({
@@ -12,4 +16,18 @@ test("should return xmlhttprequest object", function() {
         }
     });
     ok(xhr, "xhr object should not be null/undefined");
+});
+
+test("can mock a jsonp datatype", function() {
+    stop();
+    $.mockjax({
+        url: '/myapi'
+    });
+    $.ajax({
+        url: '/myapi',
+        dataType: 'jsonp',
+        complete: function() {
+            start();
+        }
+    })
 });
