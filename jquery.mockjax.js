@@ -1,8 +1,8 @@
 /*!
  * MockJax - jQuery Plugin to Mock Ajax requests
  *
- * Version:  1.3.3
- * Released: 2010-11-05
+ * Version:  1.4.0
+ * Released: 2011-01-27
  * Source:   http://github.com/appendto/jquery-mockjax
  * Docs:     http://enterprisejquery.com/2010/07/mock-your-ajax-requests-with-mockjax-for-rapid-development
  * Plugin:   mockjax
@@ -16,7 +16,36 @@
 (function($) {
 	var _ajax = $.ajax,
 		mockHandlers = [];
-
+	
+	function parseXML(xml) {
+		if ( window['DOMParser'] == undefined && window.ActiveXObject ) {
+			DOMParser = function() { };
+			DOMParser.prototype.parseFromString = function( xmlString ) {
+				var doc = new ActiveXObject('Microsoft.XMLDOM');
+		        doc.async = 'false';
+		        doc.loadXML( xmlString );
+				return doc;
+			};
+		}
+		
+		try {
+			var xmlDoc 	= ( new DOMParser() ).parseFromString( xml, 'text/xml' );
+			if ( $.isXMLDoc( xmlDoc ) ) {
+				var err = $('parsererror', xmlDoc);
+				if ( err.length == 1 ) {
+					throw('Error: ' + $(xmlDoc).text() );
+				}
+			} else {
+				throw('Unable to parse XML');
+			}
+		} catch( e ) {
+			var msg = ( e.name == undefined ? e : e.name + ': ' + e.message );
+			$(document).trigger('xmlParseError', [ msg ]);
+			return undefined;
+		}
+		return xmlDoc;
+	}
+	
 	$.extend({
 		ajax: function(origSettings) {
 			var s = jQuery.extend(true, {}, jQuery.ajaxSettings, origSettings),
@@ -214,7 +243,7 @@
 										this.readyState 	= 4;
 										
 										// We have an executable function, call it to give 
-										// the mock a chance to update it's data
+										// the mock handler a chance to update it's data
 										if ( $.isFunction(m.response) ) {
 											m.response(origSettings);
 										}
@@ -223,9 +252,8 @@
 										if ( s.dataType == 'json' && ( typeof m.responseText == 'object' ) ) {
 											this.responseText = JSON.stringify(m.responseText);
 										} else if ( s.dataType == 'xml' ) {
-											if ( $.xmlDOM && typeof m.responseXML == 'string' ) {
-												// Parse the XML from a string into a DOM
-												this.responseXML = $.xmlDOM( m.responseXML )[0];
+											if ( typeof m.responseXML == 'string' ) {
+												this.responseXML = parseXML(m.responseXML);
 											} else {
 												this.responseXML = m.responseXML;
 											}
@@ -268,11 +296,11 @@
 									if ( m.headers && m.headers[header] ) {
 										// Return arbitrary headers
 										return m.headers[header];
-									} else if ( header == 'Last-modified' ) {
+									} else if ( header.toLowerCase() == 'last-modified' ) {
 										return m.lastModified || (new Date()).toString();
-									} else if ( header == 'Etag' ) {
+									} else if ( header.toLowerCase() == 'etag' ) {
 										return m.etag || '';
-									} else if ( header == 'content-type' ) {
+									} else if ( header.toLowerCase() == 'content-type' ) {
 										return m.contentType || 'text/plain';
 									}
 								}
@@ -303,8 +331,8 @@
 		responseXML:  '',
 		proxy:        '',
 		
-		lastModified:	null,
-		etag: 			'',
+		lastModified: null,
+		etag:         '',
 		headers: {
 			etag: 'IJF@H#@923uf8023hFO@I#H#',
 			'content-type' : 'text/plain'
