@@ -206,6 +206,7 @@
 							return {
 								status: m.status,
 								readyState: 1,
+							  getAllResponseHeaders: function() { },
 								open: function() { },
 								send: function() {
 									var process = $.proxy(function() {
