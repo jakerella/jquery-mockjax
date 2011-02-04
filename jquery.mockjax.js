@@ -2,7 +2,7 @@
  * MockJax - jQuery Plugin to Mock Ajax requests
  *
  * Version:  1.4.0
- * Released: 2011-01-27
+ * Released: 2011-02-04
  * Source:   http://github.com/appendto/jquery-mockjax
  * Docs:     http://enterprisejquery.com/2010/07/mock-your-ajax-requests-with-mockjax-for-rapid-development
  * Plugin:   mockjax
@@ -123,11 +123,16 @@
 					}
 				}
 				if ( m ) {
-					if ( typeof console !== 'undefined' && console.log ) {
-						console.log('MOCK ' + s.type + ': ' + s.url);
-					}
 					mock = true;
+
+					// Handle console logging
+					var c = $.extend({}, $.mockjaxSettings, m);
+					if ( c.log && $.isFunction(c.log) ) {
+						c.log('MOCK ' + s.type.toUpperCase() + ': ' + s.url, $.extend({}, s));
+					}
 					
+					var jsre = /=\?(&|$)/, jsc = (new Date()).getTime();
+
 					// Handle JSONP Parameter Callbacks, we need to replicate some of the jQuery core here
 					// because there isn't an easy hook for the cross domain script tag of jsonp
 					if ( s.dataType === "jsonp" ) {
@@ -142,7 +147,6 @@
 					}
 			
 					// Build temporary JSONP function
-					var jsre = /=\?(&|$)/;
 					if ( s.dataType === "json" && (s.data && jsre.test(s.data) || jsre.test(s.url)) ) {
 						jsonp = s.jsonpCallback || ("jsonp" + jsc++);
 			
@@ -231,44 +235,57 @@
 						xhr: function() {
 							// Extend with our default mockjax settings
 							m = $.extend({}, $.mockjaxSettings, m);
+
+							if ( m.contentType ) {
+								m.headers['content-type'] = m.contentType;
+							}
+
 							// Return our mock xhr object
 							return {
 								status: m.status,
 								readyState: 1,
 								open: function() { },
 								send: function() {
-									var process = $.proxy(function() {
-										// The request has returned
-										this.status 		= m.status;
-										this.readyState 	= 4;
+									// This is a substitute for < 1.4 which lacks $.proxy
+									var process = (function(that) {
+										return function() {
+											return (function() {
+												// The request has returned
+											 	this.status 		= m.status;
+												this.readyState 	= 4;
 										
-										// We have an executable function, call it to give 
-										// the mock handler a chance to update it's data
-										if ( $.isFunction(m.response) ) {
-											m.response(origSettings);
-										}
-										// Copy over our mock to our xhr object before passing control back to 
-										// jQuery's onreadystatechange callback
-										if ( s.dataType == 'json' && ( typeof m.responseText == 'object' ) ) {
-											this.responseText = JSON.stringify(m.responseText);
-										} else if ( s.dataType == 'xml' ) {
-											if ( typeof m.responseXML == 'string' ) {
-												this.responseXML = parseXML(m.responseXML);
-											} else {
-												this.responseXML = m.responseXML;
-											}
-										} else {
-											this.responseText = m.responseText;
-										}
-										this.onreadystatechange( m.isTimeout ? 'timeout' : undefined );
-									}, this);
-									
+												// We have an executable function, call it to give 
+												// the mock handler a chance to update it's data
+												if ( $.isFunction(m.response) ) {
+													m.response(origSettings);
+												}
+												// Copy over our mock to our xhr object before passing control back to 
+												// jQuery's onreadystatechange callback
+												if ( s.dataType == 'json' && ( typeof m.responseText == 'object' ) ) {
+													this.responseText = JSON.stringify(m.responseText);
+												} else if ( s.dataType == 'xml' ) {
+													if ( typeof m.responseXML == 'string' ) {
+														this.responseXML = parseXML(m.responseXML);
+													} else {
+														this.responseXML = m.responseXML;
+													}
+												} else {
+													this.responseText = m.responseText;
+												}
+												// jQuery < 1.4 doesn't have onreadystate change for xhr
+												if ( $.isFunction(this.onreadystatechange) ) {
+													this.onreadystatechange( m.isTimeout ? 'timeout' : undefined );
+												}
+											}).apply(that);
+										};
+									})(this);
+
 									if ( m.proxy ) {
 										// We're proxying this request and loading in an external file instead
 										_ajax({
 											global: false,
 											url: m.proxy,
-											type: m.type,
+											type: m.proxyType,
 											data: m.data,
 											dataType: s.dataType,
 											complete: function(xhr, txt) {
@@ -303,6 +320,13 @@
 									} else if ( header.toLowerCase() == 'content-type' ) {
 										return m.contentType || 'text/plain';
 									}
+								},
+								getAllResponseHeaders: function() {
+									var headers = '';
+									$.each(m.headers, function(k, v) {
+										headers += k + ': ' + v + "\n";
+									});
+									return headers;
 								}
 							};
 						}
@@ -322,6 +346,9 @@
 	$.mockjaxSettings = {
 		//url:        null,
 		//type:       'GET',
+		log:          function(msg) {
+		              	window['console'] && window.console.log && window.console.log(msg);
+		              },
 		status:       200,
 		responseTime: 500,
 		isTimeout:    false,
@@ -330,6 +357,7 @@
 		responseText: '',
 		responseXML:  '',
 		proxy:        '',
+		proxyType:    'GET',
 		
 		lastModified: null,
 		etag:         '',

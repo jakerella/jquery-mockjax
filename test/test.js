@@ -8,7 +8,6 @@ function noErrorCallbackExpected() {
 $.mockjaxSettings.responseTime = 0;
 
 module('Core');
-
 test('Return XMLHttpRequest object from $.ajax', function() {
 	$.mockjax({
 	    url: '/xmlhttprequest',
@@ -20,6 +19,7 @@ test('Return XMLHttpRequest object from $.ajax', function() {
         complete: function() { }
     });
     xhr && xhr.abort && xhr.abort();
+
     ok(xhr, "XHR object is not null or undefined");
     
     $.mockjaxClear();
@@ -107,10 +107,42 @@ test('Remove mockjax definition by id', function() {
 		}
 	});
 });
+asyncTest('Intercept log messages', function() {
+	var msg = null;
+	$.mockjaxSettings.log = function(inMsg, settings) {
+		msg = inMsg;
+	};
+	$.mockjax({
+		url: '*'
+	});
+	$.ajax({
+		url: '/console',
+		type: 'GET',
+		complete: function() {
+			equals(msg, 'MOCK GET: /console', 'Mock request logged to console');
+			$.mockjaxClear();
+			start();
+		}
+	});
+});
+asyncTest('Disable console logging', function() {
+	var msg = null;
+	$.mockjaxSettings.console = false;
+	$.mockjax({
+		url: '*'
+	});
+	$.ajax({
+		url: '/console',
+		complete: function() {
+			equals(msg, null, 'Mock request not logged');
+			$.mockjaxClear();
+			start();
+		}
+	});
+});
 
 
 module('URL Matching');
-
 asyncTest('Exact string', function() {
 	$.mockjax({
 		url: '/exact/string',
@@ -173,47 +205,14 @@ asyncTest('RegEx match', 1, function() {
 
 
 // Test Data Types [Text, HTML, JSON, JSONP, Script and XML]
-module('Data Types', {
-	setup: function() {
-		$.mockjax({
-			url: '/text',
-			contentType:  'text/plain',
-			responseText: 'just text'
-		});
-		$.mockjax({
-			url: '/html',
-			contentType:  'text/html',
-			responseText: '<div>String</div>'
-		});
-		$.mockjax({
-			url: '/json',
-			contentType:  'text/json',
-			responseText: { "foo" : "bar", "baz" : { "car" : "far" } }
-		});
-		$.mockjax({
-			url: '/jsonp',
-			contentType: 'text/json',
-			proxy: 'test_jsonp.js'
-		});
-		$.mockjax({
-			url: '/script',
-			contentType: 'text/plain',
-			proxy: 'test_script.js'
-		});
-		
-		$.mockjax({
-			url: '/xml',
-			contentType:  'text/xml',
-			responseXML: '<document>String</document>'
-		});
-	},
-	
-	teardown: function() {
-		$.mockjaxClear();
-	}
-});
+module('Data Types');
 // Text
 asyncTest('Response returns text', function() {
+	$.mockjax({
+		url: '/text',
+		contentType:  'text/plain',
+		responseText: 'just text'
+	});
 	$.ajax({
 		url: '/text',
 		dataType: 'text',
@@ -224,8 +223,14 @@ asyncTest('Response returns text', function() {
 			start();
 		}
 	});
+	$.mockjaxClear();
 });
 asyncTest('Response returns html', function() {
+	$.mockjax({
+		url: '/html',
+		contentType:  'text/html',
+		responseText: '<div>String</div>'
+	});
 	$.ajax({
 		url: '/html',
 		dataType: 'html',
@@ -238,8 +243,14 @@ asyncTest('Response returns html', function() {
 			start();
 		}
 	});
+	$.mockjaxClear();
 });
 asyncTest('Response returns json', function() {
+	$.mockjax({
+		url: '/json',
+		contentType:  'text/json',
+		responseText: { "foo" : "bar", "baz" : { "car" : "far" } }
+	});
 	$.ajax({
 		url: '/json',
 		dataType: 'json',
@@ -252,25 +263,38 @@ asyncTest('Response returns json', function() {
 			start();
 		}
 	});
+	$.mockjaxClear();
 });
 asyncTest('Response returns jsonp', function() {
+	$.mockjax({
+		url: '/jsonp*',
+		contentType: 'text/json',
+		proxy: 'test_jsonp.js'
+	});
 	window.abcdef123456 = function(json) {
 		ok( true, 'JSONP Callback executed');
 		deepEqual(json, { "data" : "JSONP is cool" });
 	};
 	
 	$.ajax({
-		url: '/jsonp',
+		url: '/jsonp?callback=?',
 		jsonpCallback: 'abcdef123456',
-		
+		dataType: 'jsonp',
 		error: noErrorCallbackExpected,
 		complete: function(xhr) {
 			equals(xhr.getResponseHeader('Content-Type'), 'text/json', 'Content type of text/json');
 			start();
 		}
 	});
+	$.mockjaxClear();
 });
 asyncTest('Response executes script', function() {
+	$.mockjax({
+		url: '/script',
+		contentType: 'text/plain',
+		proxy: 'test_script.js'
+	});
+		
 	window.TEST_SCRIPT_VAR = 0;
 	$.ajax({
 		url: '/script',
@@ -283,8 +307,14 @@ asyncTest('Response executes script', function() {
 			start();
 		}
 	});
+	$.mockjaxClear();
 });
 asyncTest('Response returns parsed XML', function() {
+	$.mockjax({
+		url: '/xml',
+		contentType:  'text/xml',
+		responseXML: '<document>String</document>'
+	});
 	$.ajax({
 		url: '/xml',
 		dataType: 'xml',
@@ -298,6 +328,7 @@ asyncTest('Response returns parsed XML', function() {
 			start();
 		}
 	});
+	$.mockjaxClear();
 });
 
 module('Connection Simulation', {
