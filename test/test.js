@@ -44,6 +44,7 @@ asyncTest('Intercept and proxy (sub-ajax request)', function() {
 	
 	$.mockjaxClear();
 });
+
 asyncTest('Dynamic response callback', function() {
 	$.mockjax({
 		url: '/response-callback',
@@ -67,6 +68,31 @@ asyncTest('Dynamic response callback', function() {
 	
 	$.mockjaxClear();
 });
+
+asyncTest('Dynamic response status callback', function() {
+	$.mockjax({
+		url: '/response-callback',
+		response: function(settings) {
+      this.status = 500;
+		}
+	});
+	
+	$.ajax({
+		url: '/response-callback',
+		dataType: 'text',
+		data: {
+			response: 'Hello world'
+		},
+		error: function(){ ok(true, "error callback was called"); },
+		complete: function(xhr) {
+			equals(xhr.status, 500, 'Dynamically set response status matches');
+			start();
+		}
+	});
+	
+	$.mockjaxClear();
+});
+
 test('Remove mockjax definition by id', function() {
 	var id = $.mockjax({
 		url: '/test',
