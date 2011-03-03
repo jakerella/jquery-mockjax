@@ -464,6 +464,32 @@ asyncTest('Response time simulation and latency', function() {
 	}, 30);
 });
 
+module('Headers');
+asyncTest('headers can be inspected via setRequestHeader()', function() {
+	var mock;
+	$('html').ajaxSend(function(event, xhr, ajaxSettings) {
+		xhr.setRequestHeader('X-CSRFToken', '<this is a token>');
+	});
+	mock = $.mockjax({
+		url: '/inspect-headers',
+		response: function(settings) {
+			var key;
+			if (typeof this.headers['X-Csrftoken'] !== 'undefined') {
+				key = 'X-Csrftoken';  // bugs in jquery 1.5
+			} else {
+				key = 'X-CSRFToken';
+			}
+			equals(this.headers[key], '<this is a token>');
+			$.mockjaxClear(mock);
+			start();
+		}
+	});
+	$.ajax({
+		url: '/inspect-headers',
+		complete: function() {}
+	});
+});
+
 
 // TODO: SIMULATING HTTP RESPONSE STATUSES
 // TODO: SETTING THE CONTENT-TYPE

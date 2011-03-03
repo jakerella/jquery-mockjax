@@ -242,6 +242,9 @@
 							// Extend with our default mockjax settings
 							m = $.extend({}, $.mockjaxSettings, m);
 
+							if (typeof m.headers === 'undefined') {
+								m.headers = {};
+							}
 							if ( m.contentType ) {
 								m.headers['content-type'] = m.contentType;
 							}
@@ -317,7 +320,9 @@
 								abort: function() {
 									clearTimeout(this.responseTimer);
 								},
-								setRequestHeader: function() { },
+								setRequestHeader: function(header, value) {
+									m.headers[header] = value;
+								},
 								getResponseHeader: function(header) {
 									// 'Last-modified', 'Etag', 'content-type' are all checked by jQuery
 									if ( m.headers && m.headers[header] ) {
