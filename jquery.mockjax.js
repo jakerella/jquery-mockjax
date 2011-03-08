@@ -291,6 +291,7 @@
 											complete: function(xhr, txt) {
 												m.responseXML = xhr.responseXML;
 												m.responseText = xhr.responseText;
+												m.status = xhr.status;
 												this.responseTimer = setTimeout(process, m.responseTime || 0);
 											}
 										});
