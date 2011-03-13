@@ -230,7 +230,7 @@
 						complete();
 						return false;
 					}
-					mock = _ajax.call($, $.extend(true, {}, origSettings, {
+					_ajax.call($, $.extend(true, {}, origSettings, {
 						// Mock the XHR object
 						xhr: function() {
 							// Extend with our default mockjax settings
