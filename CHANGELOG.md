@@ -1,3 +1,7 @@
+## 2011-03-25   Jonathan Sharp (http://jdsharp.com)
+    * Updating jQuery 1.5rc1 to 1.5.1
+	* Adding TestSwarm support
+
 ## 2011-02-03	Jonathan Sharp (http://jdsharp.com)
 	* Added log setting to intercept or disable logging messages
 	* Added proxyType setting to force request type when proxying a mock
