@@ -383,7 +383,8 @@ asyncTest('Response time simulation and latency', function() {
 	$.ajax({
 		url: '/delay',
 		complete: function() {
-			ok( ((new Date()) - ts) >= 150, 'Correct delay simulation');
+			var delay = ((new Date()) - ts);
+			ok( delay >= 150, 'Correct delay simulation (' + delay + ')' );
 			equals( executed, 1, 'Callback execution order correct');
 			start();
 		}
