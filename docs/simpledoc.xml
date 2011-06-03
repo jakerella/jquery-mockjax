@@ -77,7 +77,8 @@ $.mockjaxClear(id);
   responseXML:   [string],
   proxy:         [string],
   lastModified:  [date string],
-  etag:          [string]
+  etag:          [string],
+  log:           [function]
 };
 				]]></block>
 			</code>
@@ -118,6 +119,9 @@ $.mockjaxClear(id);
 			<attribute name="etag">
 				<description>A string specifying a unique identifier referencing a specific version of the requested data. This is used by $.ajax to determine if the requested data is new since the last request. (see http://en.wikipedia.org/wiki/HTTP_ETag)</description>
 			</attribute>
+			<attribute name="log">
+				<description>A function called with log messages.</description>
+			</attribute>
 		</section>		
 		
 		<section name="Global MockjaxSettings">
@@ -141,7 +145,8 @@ $.mockjaxSettings = {
   responseXML:   '',
   proxy:         '',
   lastModified:  null,
-  etag:          ''
+  etag:          '',
+  log:           function(msg) { window['console'] && window.console.log && window.console.log(msg); }
 };
 ]]>
 				</block>
