@@ -230,6 +230,13 @@
 						complete();
 						return false;
 					}
+					
+					m.data = s.data;
+				  m.cache = s.cache;
+				  m.timeout = s.timeout;
+				  m.global = s.global;
+				  m.requestHeaders = {};
+					
 					mock = _ajax.call($, $.extend(true, {}, origSettings, {
 						// Mock the XHR object
 						xhr: function() {
@@ -246,6 +253,9 @@
 								readyState: 1,
 								open: function() { },
 								send: function() {
+								  
+								  mockHandlers[k].fired = true;
+								  
 									// This is a substitute for < 1.4 which lacks $.proxy
 									var process = (function(that) {
 										return function() {
@@ -307,7 +317,9 @@
 								abort: function() {
 									clearTimeout(this.responseTimer);
 								},
-								setRequestHeader: function() { },
+								setRequestHeader: function(header, value) {
+								  mockHandlers[k].requestHeaders[header] = value;
+								},
 								getResponseHeader: function(header) {
 									// 'Last-modified', 'Etag', 'content-type' are all checked by jQuery
 									if ( m.headers && m.headers[header] ) {
