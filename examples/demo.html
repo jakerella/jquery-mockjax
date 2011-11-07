@@ -27,10 +27,10 @@
 		font-size: 0.8em;
 	}
 	</style>
-	<script src="lib/jquery-1.4.2.js"></script>
-	<script src="lib/jquery.xmldom.js"></script>
-	<script src="lib/json2.js"></script>
-	<script src="jquery.mockjax.js"></script>
+	<script src="../lib/jquery-1.4.2.js"></script>
+	<script src="../lib/jquery.xmldom.js"></script>
+	<script src="../lib/json2.js"></script>
+	<script src="../jquery.mockjax.js"></script>
 	<script type="text/javascript">
 		$('body').delegate('input', 'click', function() {
 			var fn = $(this).attr('id');
@@ -48,22 +48,22 @@
 <body>
 	<p><a href="http://enterprisejquery.com/?p=106">Enterprise jQuery Blog Post about $.mockjax</a></p>
 	<h2>What is jQuery.mockjax?</h2>
-	<p>The Mockjax plugin for jQuery provides a decoupled non-invasive way to mock (or simulate) ajax requests throughout your application. It is possible to 
-	completely simulate the Ajax request/response cycle without any network traffic and without changing any production code. Below are a list of steps for making using 
+	<p>The Mockjax plugin for jQuery provides a decoupled non-invasive way to mock (or simulate) ajax requests throughout your application. It is possible to
+	completely simulate the Ajax request/response cycle without any network traffic and without changing any production code. Below are a list of steps for making using
 	of mockjax.</p>
-	
+
 	<ol>
 		<li>Include jquery.mockjax.js jQuery Plugin</li>
 		<li>Optionally include json2.js if not natively supported by your browser.</li>
 		<li>Include jquery.xmldom.js if you're mocking XML inline.</li>
 		<li>Include a file such as mockjax.js containing your mock definitions</li>
 	</ol>
-	
+
 	<h2>Approaches to Mocking</h2>
-	
-	<p>There are a number of different approaches to mocking Ajax requests. Below is a list of request types and patterns 
+
+	<p>There are a number of different approaches to mocking Ajax requests. Below is a list of request types and patterns
 	supported by mockjax.</p>
-	
+
 	<dl>
 		<dt>Mocking via Inline</dt>
 		<dd>Mock response is included inline in the mock request definition.
@@ -88,7 +88,7 @@ $.ajax({
 });
 		</pre>
 		</dd>
-		
+
 		<dt>Mocking via Proxy</dt>
 		<dd>Mock response is contained in an external url, proxy attribute contains location of preferred response.
 <pre>
@@ -108,10 +108,10 @@ $.ajax({
 });
 </pre>
 		</dd>
-		
+
 		<dt>Mocking via Function</dt>
-		<dd>There are two ways to mock via functions, the first provides the greatest flexability and allows for the 
-		developer to decide if they will intercept the request as a mock. In this situation, the developer should return 
+		<dd>There are two ways to mock via functions, the first provides the greatest flexability and allows for the
+		developer to decide if they will intercept the request as a mock. In this situation, the developer should return
 		a falsy value (false, undefined, or null) or an object literal containing the settings for this mock request.
 <pre>
 $.mockjax(function(settings) {
@@ -133,8 +133,8 @@ $.ajax({
 	}
 });
 </pre>
-		<p>In the second form, a callback method is registered under the response attribute. The callback method is triggered 
-		right before the response is parsed. In the function body, the method has the opportunity to modify any attributes such 
+		<p>In the second form, a callback method is registered under the response attribute. The callback method is triggered
+		right before the response is parsed. In the function body, the method has the opportunity to modify any attributes such
 		as responseText or responseXML.</p>
 <pre>
 $.mockjax({
@@ -155,12 +155,12 @@ $.ajax({
 });
 </pre>
 		</dd>
-	
+
 	</dl>
-	
+
 	<h2>Mocking Various Data Types</h2>
 	<p></p>
-	
+
 	<h3>Mocking JSON</h3>
 	<pre>
 	$.mockjax({
@@ -170,7 +170,7 @@ $.ajax({
 			say: "JSON Here"
 		}
 	});
-	
+
 	// Normal ajax request in your application
 	$.ajax({
 		url: '/some/json',
@@ -180,7 +180,7 @@ $.ajax({
 		}
 	});
 	</pre>
-	
+
 	<h3>Mocking XML</h3>
 	<pre>
 	$.mockjax({
@@ -188,7 +188,7 @@ $.ajax({
 		dataType: 'xml',
 		responseXML: '<document><say>Hello world XML</say></document>'
 	});
-	
+
 	// Normal ajax request in your application
 	$.ajax({
 		url: '/some/xml',
@@ -198,7 +198,7 @@ $.ajax({
 		}
 	});
 	</pre>
-	
+
 	<h3>Mocking HTML</h3>
 	<pre>
 	$.mockjax({
@@ -206,7 +206,7 @@ $.ajax({
 		dataType: 'html',
 		responseText: '<div>Hello there</div>'
 	});
-	
+
 	// Normal ajax request in your application
 	$.ajax({
 		url: '/some/webservice',
