@@ -10,19 +10,22 @@ $.mockjaxSettings.responseTime = 0;
 module('Core');
 test('Return XMLHttpRequest object from $.ajax', function() {
 	$.mockjax({
-	    url: '/xmlhttprequest',
-	    responseText: "Hello Word"
+		url: '/xmlhttprequest',
+		responseText: "Hello Word"
 	});
 
-    var xhr = $.ajax({
-        url: '/xmlhttprequest',
-        complete: function() { }
-    });
-    xhr && xhr.abort && xhr.abort();
+	var xhr = $.ajax({
+		url: '/xmlhttprequest',
+		complete: function() { }
+	});
+	xhr && xhr.abort && xhr.abort();
 
-    ok(xhr, "XHR object is not null or undefined");
+	ok(xhr, "XHR object is not null or undefined");
+	if (jQuery.Deferred) {
+		ok(xhr.done && xhr.fail, "Got Promise methods");
+	}
 
-    $.mockjaxClear();
+	$.mockjaxClear();
 });
 asyncTest('Intercept and proxy (sub-ajax request)', function() {
 	$.mockjax({
