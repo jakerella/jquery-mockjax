@@ -42,6 +42,33 @@ The plugin was originally developed this plugin for appendTo back in
 March 2010 and the [team](http://twitter.com/appendto/team) has been
 using it in all of its projects since.
 
+### API
+
+Mockjax consists of two methods, one to set up mocks, one to remove them.
+You'll find plenty examples below. If you're looking for a specific option,
+check this list:
+
+* `$.mockjax(options)`
+  * Sets up a mockjax handler.
+  * `options`: An object literal which defines the settings to use for the mocked request.
+      * `url`: A string specifying the url of the request that the data should be mocked for. If the url contains an asterisk ( * ), it is treated as a wildcard and the url will attempt to match any request to a url similar to the portion of the url **before** the asterisk.
+      * `headers`: An object literal whos keys will be simulated as additional headers returned from the server for the request.
+      * `status`: An integer that specifies a valid server response code. This simulates a server response code.
+      * `responseTime`: An integer that specifies a simulated network and server latency (in milliseconds).
+      * `isTimeout`: A boolean value that determines whether or not the mock will force a timeout on the request.
+      * `contentType`: A string which specifies the content type for the response.
+      * `response`: `function(settings) {}`, A function that allows for the dynamic setting of responseText/responseXML upon each request.
+      * `responseText`: A string specifying the mocked text, or a mocked object literal, for the request.
+      * `responseXML`: A string specifying the mocked XML for the request.
+      * `proxy`: A string specifying a path to a file, from which the contents will be returned for the request.
+      * `lastModified`: A date string specifying the mocked last-modified time for the request. This is used by `$.ajax` to determine if the requested data is new since the last request.
+      * `etag`: A string specifying a unique identifier referencing a specific version of the requested data. This is used by `$.ajax` to determine if the requested data is new since the last request. (see [HTTP_ETag](http://en.wikipedia.org/wiki/HTTP_ETag))
+* `$.mockjaxClear()`
+  * Removes all mockjax handlers.
+* `$.mockjaxClear(id)`
+  * Remove a single mockjax handler.
+  * `id` is the string returned from `$.mockjax`.
+
 ### Overview: Your First Mock
 
 Our first example will be for a simple REST service for a fortune app
