@@ -230,7 +230,7 @@
 						complete();
 						return false;
 					}
-					mock = _ajax.call($, $.extend(true, {}, origSettings, {
+					_ajax.call($, $.extend(true, {}, origSettings, {
 						// Mock the XHR object
 						xhr: function() {
 							// Extend with our default mockjax settings
@@ -294,13 +294,19 @@
 											complete: function(xhr, txt) {
 												m.responseXML = xhr.responseXML;
 												m.responseText = xhr.responseText;
-												this.responseTimer = setTimeout(process, m.responseTime || 0);
+												if (m.responseTime == 0) {
+													process();
+												} else {
+													this.responseTimer = setTimeout(process, m.responseTime || 0);
+												}
 											}
 										});
 									} else {
 										// type == 'POST' || 'GET' || 'DELETE'
 										if ( s.async === false ) {
 											// TODO: Blocking delay
+											process();
+										} else if(m.responseTime == 0) {
 											process();
 										} else {
 											this.responseTimer = setTimeout(process, m.responseTime || 50);
@@ -383,3 +389,4 @@
 		}
 	};
 })(jQuery);
+
