@@ -45,6 +45,25 @@ asyncTest('Intercept and proxy (sub-ajax request)', function() {
 	$.mockjaxClear();
 });
 
+asyncTest('Support 1.5 $.ajax(url, settings) signature.', function() {
+	$.mockjax({
+		url: '/resource',
+		responseText: 'Hello Word'
+	});
+
+	$.ajax('/resource', {
+		success: function(response) {
+			equal(response, 'Hello Word');
+		},
+		error: noErrorCallbackExpected,
+		complete: function() {
+			start();
+		}
+	});
+
+	$.mockjaxClear();
+});
+
 asyncTest('Dynamic response callback', function() {
 	$.mockjax({
 		url: '/response-callback',

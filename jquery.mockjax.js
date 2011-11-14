@@ -48,6 +48,14 @@
 
 	$.extend({
 		ajax: function(url, origSettings) {
+			// If url is an object, simulate pre-1.5 signature
+			if ( typeof url === "object" ) {
+				origSettings = url;
+				url = undefined;
+			} else {
+				// work around to support 1.5 signature
+				origSettings.url = url;
+			}
 			var s = jQuery.extend(true, {}, jQuery.ajaxSettings, origSettings),
 			    mock = false;
 			// Iterate over our mock handlers (in registration order) until we find
