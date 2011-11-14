@@ -47,7 +47,7 @@
 	}
 
 	$.extend({
-		ajax: function(origSettings) {
+		ajax: function(url, origSettings) {
 			var s = jQuery.extend(true, {}, jQuery.ajaxSettings, origSettings),
 			    mock = false;
 			// Iterate over our mock handlers (in registration order) until we find

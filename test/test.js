@@ -13,7 +13,7 @@ test('Return XMLHttpRequest object from $.ajax', function() {
 	    url: '/xmlhttprequest',
 	    responseText: "Hello Word"
 	});
-	
+
     var xhr = $.ajax({
         url: '/xmlhttprequest',
         complete: function() { }
@@ -21,7 +21,7 @@ test('Return XMLHttpRequest object from $.ajax', function() {
     xhr && xhr.abort && xhr.abort();
 
     ok(xhr, "XHR object is not null or undefined");
-    
+
     $.mockjaxClear();
 });
 asyncTest('Intercept and proxy (sub-ajax request)', function() {
@@ -29,19 +29,19 @@ asyncTest('Intercept and proxy (sub-ajax request)', function() {
 		url: '/proxy',
 		proxy: 'test_proxy.json'
 	});
-	
+
 	$.ajax({
 		url: '/proxy',
 		dataType: 'json',
 		success: function(json) {
 			ok(json && json.proxy, 'Proxy request succeeded');
-		}, 
+		},
 		error: noErrorCallbackExpected,
 		complete: function() {
 			start();
 		}
 	});
-	
+
 	$.mockjaxClear();
 });
 
@@ -52,7 +52,7 @@ asyncTest('Dynamic response callback', function() {
 			this.responseText = settings.data.response + ' 2';
 		}
 	});
-	
+
 	$.ajax({
 		url: '/response-callback',
 		dataType: 'text',
@@ -65,7 +65,7 @@ asyncTest('Dynamic response callback', function() {
 			start();
 		}
 	});
-	
+
 	$.mockjaxClear();
 });
 
@@ -76,7 +76,7 @@ asyncTest('Dynamic response status callback', function() {
       this.status = 500;
 		}
 	});
-	
+
 	$.ajax({
 		url: '/response-callback',
 		dataType: 'text',
@@ -89,7 +89,7 @@ asyncTest('Dynamic response status callback', function() {
 			start();
 		}
 	});
-	
+
 	$.mockjaxClear();
 });
 
@@ -99,13 +99,13 @@ test('Remove mockjax definition by id', function() {
 		contentType: 'text/plain',
 		responseText: 'test'
 	});
-	
+
 	$.mockjax({
 		url: '*',
 		contentType: 'text/plain',
 		responseText: 'default'
 	});
-	
+
 	stop();
 	$.ajax({
 		url: '/test',
@@ -115,7 +115,7 @@ test('Remove mockjax definition by id', function() {
 		error: noErrorCallbackExpected,
 		complete: function() {
 			$.mockjaxClear(id);
-			
+
 			// Reissue the request expecting the default handler
 			$.ajax({
 				url: '/test',
@@ -125,7 +125,7 @@ test('Remove mockjax definition by id', function() {
 				error: noErrorCallbackExpected,
 				complete: function(xhr) {
 					equals(xhr.responseText, 'default', 'Default handler responded');
-					
+
 					$.mockjaxClear();
 					start();
 				}
@@ -178,7 +178,7 @@ asyncTest('Exact string', function() {
 		url: '*',
 		responseText: 'catch all'
 	});
-	
+
 	$.ajax({
 		url: '/exact/string',
 		error: noErrorCallbackExpected,
@@ -187,7 +187,7 @@ asyncTest('Exact string', function() {
 			start();
 		}
 	});
-	
+
 	$.mockjaxClear();
 });
 asyncTest('Wildcard match', 1, function() {
@@ -195,7 +195,7 @@ asyncTest('Wildcard match', 1, function() {
 		url: '/wildcard/string/*',
 		responseText: 'wildcard string'
 	});
-		
+
 	$.ajax({
 		url: '/wildcard/string/123456',
 		error: noErrorCallbackExpected,
@@ -204,7 +204,7 @@ asyncTest('Wildcard match', 1, function() {
 			start();
 		}
 	});
-	
+
 	$.mockjaxClear();
 });
 asyncTest('RegEx match', 1, function() {
@@ -216,7 +216,7 @@ asyncTest('RegEx match', 1, function() {
 		url: '*',
 		responseText: 'catch all'
 	});
-		
+
 	$.ajax({
 		url: '/regex-123456',
 		error: noErrorCallbackExpected,
@@ -225,7 +225,7 @@ asyncTest('RegEx match', 1, function() {
 			start();
 		}
 	});
-	
+
 	$.mockjaxClear();
 });
 
@@ -245,7 +245,7 @@ asyncTest('Response returns text', function() {
 		error: noErrorCallbackExpected,
 		complete: function(xhr) {
 			equals(xhr.getResponseHeader('Content-Type'), 'text/plain', 'Content type of text/plain');
-			
+
 			start();
 		}
 	});
@@ -301,7 +301,7 @@ asyncTest('Response returns jsonp', function() {
 		ok( true, 'JSONP Callback executed');
 		deepEqual(json, { "data" : "JSONP is cool" });
 	};
-	
+
 	$.ajax({
 		url: '/jsonp?callback=?',
 		jsonpCallback: 'abcdef123456',
@@ -320,7 +320,7 @@ asyncTest('Response executes script', function() {
 		contentType: 'text/plain',
 		proxy: 'test_script.js'
 	});
-		
+
 	window.TEST_SCRIPT_VAR = 0;
 	$.ajax({
 		url: '/script',
@@ -329,7 +329,7 @@ asyncTest('Response executes script', function() {
 		complete: function(xhr) {
 			equals(window.TEST_SCRIPT_VAR, 1, 'Script executed');
 			equals(xhr.getResponseHeader('Content-Type'), 'text/plain', 'Content type of text/plain');
-			
+
 			start();
 		}
 	});
@@ -450,7 +450,7 @@ $.mockjaxClear(id);
 			contentType: 'text/json',
 			responseText: { "test": "mock message" }
 		});
-		
+
 		$.ajax({
 			url: 'test.json',
 			dataType: 'json',
@@ -463,19 +463,19 @@ $.mockjaxClear(id);
 			complete: function() {
 			}
 		});
-		
+
 		$.mockjax({
 			url: 'http://google.com',
 			responseText: 'alert("Hello world");'
 		});
-		
+
 		$.mockjax({
 			url: 'http://another-cross-domain.com',
 			responseText: function() {
 				alert("Get script mock");
 			}
 		});
-		
+
 		$.ajax({
 			url: 'http://google.com',
 			dataType: 'script',
