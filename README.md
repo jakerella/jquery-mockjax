@@ -105,7 +105,7 @@ code:
 At this point if we were to run this code it would fail since the REST
 service has yet to be implemented. This is where the benefit of the
 Mockjax Plugin starts to pay off. The first step in using Mockjax is to
-include the Plugin.
+include the Plugin, just add a regular script tag.
 
 Once you have that included, you can start intercepting Ajax requests
 and mocking the responses. So let’s mock out the service by including
@@ -122,7 +122,10 @@ the following code:
 
 **Defining a JOSN string inline requires a `JSON.stringify` method to be
 available. For some browsers you may need to include
-[json2.js](http://json.org/json2.js)**
+[json2.js](http://json.org/json2.js), which is included in the `lib` folder**
+
+**If you plan on mocking xml responses, you may also have to include
+`jquery.xmldom.js`, also in the `lib` folder.**
 
 What the plugin does at this point is replace the `$.ajax` method with a
 wrapper that transparently checks the URL being requested. If the URL
@@ -354,6 +357,24 @@ request by implementing a callback function on the `response` parameter:
       response: function(settings) {
         this.responseText = { say: 'random ' + Math.random() };
       }
+    });
+
+#### Data types
+
+The example above mocks a `json` response. You can also mock `xml`:
+
+    $.mockjax({
+      url: '/some/xml',
+      dataType: 'xml',
+      responseXML: '<document><say>Hello world XML</say></document>'
+    });
+
+And `html`:
+
+    $.mockjax({
+      url: '/some/webservice',
+      dataType: 'html',
+      responseText: '<div>Hello there</div>'
     });
 
 #### Globally Defining Mockjax Settings
