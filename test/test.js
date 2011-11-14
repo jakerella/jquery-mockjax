@@ -313,7 +313,7 @@ asyncTest('Response returns json', function() {
 	});
 	$.mockjaxClear();
 });
-asyncTest('Response returns jsonp', function() {
+asyncTest('Response returns jsonp', 3, function() {
 	$.mockjax({
 		url: '/jsonp*',
 		contentType: 'text/json',
