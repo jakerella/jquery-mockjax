@@ -404,4 +404,9 @@
 			mockHandlers = [];
 		}
 	};
+	$.mockjaxProperties = function(i) {
+	  if ( arguments.length == 1 ) {
+			return mockHandlers[i];
+		}
+	};
 })(jQuery);
