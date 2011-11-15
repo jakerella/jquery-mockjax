@@ -141,6 +141,87 @@ asyncTest('Disable console logging', function() {
 	});
 });
 
+module('Request Property Inspection');
+test('Calling $.mockjaxProperties with an ID', function() {
+  var ID = $.mockjax({
+    url: '/mockjax_properties',
+    responseText: "Hello Word"
+  });
+  
+  var mockedRequestProperties = $.mockjaxProperties(ID);
+  
+  equals(typeof mockedRequestProperties, "object", "Returns an object");
+  
+  equals(typeof mockedRequestProperties.fired, "undefined", "The mock object does not have a fired property");
+  
+  $.mockjaxClear();
+});
+
+test('Inspecting $.mockjaxProperties after request has fired', function() {
+  var ID = $.mockjax({
+    url: '/mockjax_properties',
+    responseText: "Hello Word"
+  });
+  
+  var xhr = $.ajax({
+      url: '/mockjax_properties',
+      complete: function() {}
+  });
+  
+  ok($.mockjaxProperties(ID).fired, "Sets the fired property to true");
+  
+  $.mockjaxClear();
+});
+
+asyncTest('Inspecting $.mockjaxProperties data after request has fired', function() {
+  var ID = $.mockjax({
+    url: '/mockjax_data_properties',
+    data: {
+      'param1': 'value1'
+    },
+    responseText: "Hello Word"
+  });
+  
+  var xhr = $.ajax({
+      url: '/mockjax_data_properties',
+      data: {
+        'param1': 'value1'
+      },
+      beforeSend: function() {
+        equals($.mockjaxProperties(ID).data.param1, 'value1', 'Stores request data on the mock request object');
+      },
+      complete: function() {
+        $.mockjaxClear();
+        start();
+      }
+  });
+  
+  ok($.mockjaxProperties(ID).fired, "Sets the fired property to true");
+  
+});
+
+asyncTest('Inspecting $.mockjaxProperties requestHeaders after request has fired', function() {
+  var ID = $.mockjax({
+    url: '/mockjax_header_properties',
+    responseText: "Hello Word"
+  });
+  
+  var xhr = $.ajax({
+    url: '/mockjax_header_properties',
+    beforeSend: function(jqXHR) {
+      jqXHR.setRequestHeader("Custom-Header", "request_header_value");
+    },
+    complete: function() { 
+      equals($.mockjaxProperties(ID).requestHeaders['Custom-Header'], 'request_header_value', 'Stores request headers on the mock request object');
+    
+      $.mockjaxClear();
+      start();
+    }
+  });
+  
+  ok($.mockjaxProperties(ID).fired, "Sets the fired property to true");
+  
+});
 
 module('URL Matching');
 asyncTest('Exact string', function() {
