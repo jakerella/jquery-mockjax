@@ -142,6 +142,27 @@ asyncTest('Disable console logging', function() {
 });
 
 
+module('Type Matching');
+asyncTest('Case-insensitive matching for request types', function() {
+	$.mockjax({
+		url: '/case_insensitive_match',
+		type: 'GET',
+		responseText: 'uppercase type response'
+	});
+	
+	$.ajax({
+		url: '/case_insensitive_match',
+		type: 'get',
+		error: noErrorCallbackExpected,
+		complete: function(xhr) {
+			equals(xhr.responseText, 'uppercase type response', 'Request matched regardless of case');
+			start();
+		}
+	});
+	
+	$.mockjaxClear();
+});
+
 module('URL Matching');
 asyncTest('Exact string', function() {
 	$.mockjax({
