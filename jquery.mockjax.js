@@ -122,7 +122,7 @@
 							}
 						}
 						// Inspect the request type
-						if ( m && m.type && m.type != s.type ) {
+						if ( m && m.type && m.type.toLowerCase() != s.type.toLowerCase() ) {
 							// The request type doesn't match (GET vs. POST)
 							m = null;
 						}
