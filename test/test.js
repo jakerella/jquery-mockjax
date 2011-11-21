@@ -201,7 +201,7 @@ test('Inspecting $.mockjax.handler(id) after request has fired', function() {
       complete: function() {}
   });
   
-  ok($.mockjax.handler(ID).fired, "Sets the fired property to true");
+  ok($.mockjax.handler(ID).fired, "Sets the mock's fired property to true");
   
   $.mockjaxClear();
 });
