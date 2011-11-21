@@ -79,10 +79,8 @@
 					} else {
 						// Look for a simple wildcard '*' or a direct URL match
 						var star = m.url.indexOf('*');
-						if ( ( m.url != '*' && m.url != s.url && star == -1 ) ||
-							( star > -1 && m.url.substr(0, star) != s.url.substr(0, star) ) ) {
-							 // The url we tested did not match the wildcard *
-							 m = null;
+						if (m.url !== s.url && star === -1 || !new RegExp(m.url.replace(/[-[\]{}()+?.,\\^$|#\s]/g, "\\$&").replace('*', '.+')).test(s.url)) {
+							m = null;
 						}
 					}
 					if ( m ) {

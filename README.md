@@ -51,7 +51,7 @@ check this list:
 * `$.mockjax(options)`
   * Sets up a mockjax handler.
   * `options`: An object literal which defines the settings to use for the mocked request.
-      * `url`: A string specifying the url of the request that the data should be mocked for. If the url contains an asterisk ( * ), it is treated as a wildcard and the url will attempt to match any request to a url similar to the portion of the url **before** the asterisk.
+      * `url`: A string or regular expression specifying the url of the request that the data should be mocked for. If the url is a string and contains an asterisk ( * ), it is treated as a wildcard, by translating to a regular expression, replacing the asterisk with `.+`.
       * `data`: In addition to the URL, match parameters.
       * `type`: Specify what HTTP method to match, usually GET or POST. Case-insensitive, so `get` and `post` also work.
       * `headers`: An object literal whos keys will be simulated as additional headers returned from the server for the request.

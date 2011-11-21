@@ -233,20 +233,25 @@ asyncTest('Exact string', function() {
 
 	$.mockjaxClear();
 });
-asyncTest('Wildcard match', 1, function() {
-	$.mockjax({
-		url: '/wildcard/string/*',
-		responseText: 'wildcard string'
-	});
-
-	$.ajax({
-		url: '/wildcard/string/123456',
-		error: noErrorCallbackExpected,
-		complete: function(xhr) {
-			equals(xhr.responseText, 'wildcard string', 'Wildcard * string url match');
-			start();
-		}
-	});
+test('Wildcard match', 4, function() {
+	function mock(mockUrl, url, response) {
+		$.mockjax({
+			url: mockUrl,
+			responseText: response
+		});
+		$.ajax({
+			async: false,
+			url: url,
+			error: noErrorCallbackExpected,
+			complete: function(xhr) {
+				equals(xhr.responseText, response);
+			}
+		});
+	}
+	mock('/wildcard*w', '/wildcard/123456/w', 'w');
+	mock('/wildcard*x', '/wildcard/123456/x', 'x');
+	mock('*y', '/wildcard/123456/y', 'y');
+	mock('z*', 'z/wildcard/123456', 'z');
 
 	$.mockjaxClear();
 });
