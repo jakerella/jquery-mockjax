@@ -241,7 +241,6 @@
 				  m.cache = s.cache;
 				  m.timeout = s.timeout;
 				  m.global = s.global;
-				  m.requestHeaders = {};
 					
 					mock = _ajax.call($, $.extend(true, {}, origSettings, {
 						// Mock the XHR object
@@ -404,7 +403,7 @@
 			mockHandlers = [];
 		}
 	};
-	$.mockjaxProperties = function(i) {
+	$.mockjax.handler = function(i) {
 	  if ( arguments.length == 1 ) {
 			return mockHandlers[i];
 		}
