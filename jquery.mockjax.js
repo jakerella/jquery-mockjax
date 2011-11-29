@@ -234,6 +234,12 @@
 						complete();
 						return false;
 					}
+					
+					m.data = s.data;
+				  m.cache = s.cache;
+				  m.timeout = s.timeout;
+				  m.global = s.global;
+					
 					mock = _ajax.call($, $.extend(true, {}, origSettings, {
 						// Mock the XHR object
 						xhr: function() {
@@ -253,6 +259,9 @@
 								readyState: 1,
 								open: function() { },
 								send: function() {
+								  
+								  mockHandlers[k].fired = true;
+								  
 									// This is a substitute for < 1.4 which lacks $.proxy
 									var process = (function(that) {
 										return function() {
@@ -390,6 +399,11 @@
 			mockHandlers[i] = null;
 		} else {
 			mockHandlers = [];
+		}
+	};
+	$.mockjax.handler = function(i) {
+	  if ( arguments.length == 1 ) {
+			return mockHandlers[i];
 		}
 	};
 })(jQuery);
