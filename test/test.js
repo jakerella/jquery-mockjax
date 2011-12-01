@@ -195,14 +195,14 @@ test('Inspecting $.mockjax.handler(id) after request has fired', function() {
     url: '/mockjax_properties',
     responseText: "Hello Word"
   });
-  
+
   var xhr = $.ajax({
       url: '/mockjax_properties',
       complete: function() {}
   });
-  
+
   ok($.mockjax.handler(ID).fired, "Sets the mock's fired property to true");
-  
+
   $.mockjaxClear();
 });
 
@@ -211,7 +211,7 @@ asyncTest('Inspecting $.mockjax.handler\'s data after request has fired', functi
     url: '/mockjax_data_properties',
     responseText: "Hello Word"
   });
-  
+
   var xhr = $.ajax({
       url: '/mockjax_data_properties',
       data: {
@@ -225,9 +225,9 @@ asyncTest('Inspecting $.mockjax.handler\'s data after request has fired', functi
         start();
       }
   });
-  
+
   ok($.mockjax.handler(ID).fired, "Sets the mock's fired property to true");
-  
+
 });
 
 module('Type Matching');
@@ -237,7 +237,7 @@ asyncTest('Case-insensitive matching for request types', function() {
 		type: 'GET',
 		responseText: 'uppercase type response'
 	});
-	
+
 	$.ajax({
 		url: '/case_insensitive_match',
 		type: 'get',
@@ -247,7 +247,7 @@ asyncTest('Case-insensitive matching for request types', function() {
 			start();
 		}
 	});
-	
+
 	$.mockjaxClear();
 });
 

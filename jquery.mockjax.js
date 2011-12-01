@@ -20,8 +20,8 @@
 			DOMParser = function() { };
 			DOMParser.prototype.parseFromString = function( xmlString ) {
 				var doc = new ActiveXObject('Microsoft.XMLDOM');
-		        doc.async = 'false';
-		        doc.loadXML( xmlString );
+				doc.async = 'false';
+				doc.loadXML( xmlString );
 				return doc;
 			};
 		}
@@ -55,7 +55,7 @@
 				origSettings.url = url;
 			}
 			var s = jQuery.extend(true, {}, jQuery.ajaxSettings, origSettings),
-			    mock = false;
+				mock = false;
 			// Iterate over our mock handlers (in registration order) until we find
 			// one that is willing to intercept the request
 			$.each(mockHandlers, function(k, v) {
@@ -234,12 +234,12 @@
 						complete();
 						return false;
 					}
-					
+
 					m.data = s.data;
 				  m.cache = s.cache;
 				  m.timeout = s.timeout;
 				  m.global = s.global;
-					
+
 					mock = _ajax.call($, $.extend(true, {}, origSettings, {
 						// Mock the XHR object
 						xhr: function() {
@@ -259,15 +259,15 @@
 								readyState: 1,
 								open: function() { },
 								send: function() {
-								  
+
 								  mockHandlers[k].fired = true;
-								  
+
 									// This is a substitute for < 1.4 which lacks $.proxy
 									var process = (function(that) {
 										return function() {
 											return (function() {
 												// The request has returned
-											 	this.status 		= m.status;
+												this.status 		= m.status;
 												this.readyState 	= 4;
 
 												// We have an executable function, call it to give
@@ -288,9 +288,9 @@
 												} else {
 													this.responseText = m.responseText;
 												}
-                        if( typeof m.status == 'number' || typeof m.status == 'string' ) {
-                          this.status = m.status;
-                        }
+												if( typeof m.status == 'number' || typeof m.status == 'string' ) {
+												  this.status = m.status;
+												}
 												// jQuery < 1.4 doesn't have onreadystate change for xhr
 												if ( $.isFunction(this.onreadystatechange) ) {
 													this.onreadystatechange( m.isTimeout ? 'timeout' : undefined );
@@ -369,8 +369,8 @@
 		//url:        null,
 		//type:       'GET',
 		log:          function(msg) {
-		              	window['console'] && window.console.log && window.console.log(msg);
-		              },
+						window['console'] && window.console.log && window.console.log(msg);
+					  },
 		status:       200,
 		responseTime: 500,
 		isTimeout:    false,
