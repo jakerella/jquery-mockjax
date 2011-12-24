@@ -122,7 +122,7 @@ the following code:
       }
     });
 
-**Defining a JOSN string inline requires a `JSON.stringify` method to be
+**Defining a JSON string inline requires a `JSON.stringify` method to be
 available. For some browsers you may need to include
 [json2.js](http://json.org/json2.js), which is included in the `lib` folder**
 
