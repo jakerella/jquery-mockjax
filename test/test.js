@@ -95,7 +95,8 @@ asyncTest('Dynamic response status callback', function() {
 	$.mockjax({
 		url: '/response-callback',
 		response: function(settings) {
-      this.status = 500;
+            this.status = 500;
+            this.statusText = "Internal Server Error"
 		}
 	});
 
@@ -108,11 +109,35 @@ asyncTest('Dynamic response status callback', function() {
 		error: function(){ ok(true, "error callback was called"); },
 		complete: function(xhr) {
 			equals(xhr.status, 500, 'Dynamically set response status matches');
+			equals(xhr.statusText, "Internal Server Error", 'Dynamically set response statusText matches');
 			start();
 		}
 	});
 
 	$.mockjaxClear();
+});
+
+asyncTest('Default Response Settings', function() {
+    $.mockjax({
+        url: '/response-callback'
+    });
+
+    $.ajax({
+        url: '/response-callback',
+        dataType: 'text',
+        data: {
+            response: ''
+        },
+        complete: function(xhr) {
+            equals(xhr.status, 200, 'Response status matches default');
+            equals(xhr.statusText, "OK", 'Response statusText matches default');
+            equals(xhr.responseText.length, 0, 'responseText length should be 0');
+            equals(xhr.responseXml === undefined, true, 'responseXml should be undefined');
+            start();
+        }
+    });
+
+    $.mockjaxClear();
 });
 
 test('Remove mockjax definition by id', function() {
@@ -379,7 +404,7 @@ asyncTest('Response returns json', function() {
 	});
 	$.mockjaxClear();
 });
-asyncTest('Response returns jsonp', 3, function() {
+asyncTest('Response returns jsonp', 5, function() {
 	$.mockjax({
 		url: '/jsonp*',
 		contentType: 'text/json',
