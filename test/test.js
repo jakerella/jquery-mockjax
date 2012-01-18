@@ -404,7 +404,7 @@ asyncTest('Response returns json', function() {
 	});
 	$.mockjaxClear();
 });
-asyncTest('Response returns jsonp', 5, function() {
+asyncTest('Response returns jsonp', 3, function() {
 	$.mockjax({
 		url: '/jsonp*',
 		contentType: 'text/json',

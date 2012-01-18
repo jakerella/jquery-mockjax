@@ -311,7 +311,7 @@
 											url: m.proxy,
 											type: m.proxyType,
 											data: m.data,
-											dataType: s.dataType,
+											dataType: s.dataType === "script" ? "text/plain" : s.dataType,
 											complete: function(xhr, txt) {
 												m.responseXML = xhr.responseXML;
 												m.responseText = xhr.responseText;
