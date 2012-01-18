@@ -56,6 +56,7 @@ check this list:
       * `type`: Specify what HTTP method to match, usually GET or POST. Case-insensitive, so `get` and `post` also work.
       * `headers`: An object literal whos keys will be simulated as additional headers returned from the server for the request.
       * `status`: An integer that specifies a valid server response code. This simulates a server response code.
+      * `statusText`: An string that specifies a valid server response code description. This simulates a server response code description.
       * `responseTime`: An integer that specifies a simulated network and server latency (in milliseconds).
       * `isTimeout`: A boolean value that determines whether or not the mock will force a timeout on the request.
       * `contentType`: A string which specifies the content type for the response.
@@ -387,6 +388,7 @@ settings are as follows:
 
     $.mockjaxSettings = {
       status:        200,
+      statusText     'OK',
       responseTime:  500,
       isTimeout:     false,
       contentType:   'text/plain',
