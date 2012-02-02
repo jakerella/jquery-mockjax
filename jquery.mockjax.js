@@ -232,8 +232,15 @@
 						}
 						success();
 						complete();
-						mock = new jQuery.Deferred();
-						mock.resolve(m.responseText);
+						if(jQuery.Deferred){
+							mock = new jQuery.Deferred();
+							if(typeof m.responseText == "object"){
+								mock.resolve(m.responseText);
+							}
+							else{
+								mock.resolve(jQuery.parseJSON(m.responseText));
+							}
+						}
 						return false;
 					}
 
