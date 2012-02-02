@@ -421,12 +421,12 @@ asyncTest('Response returns jsonp and return value from ajax is a promise', 2, f
                 dataType:"jsonp"
         });
 
-	if (jQuery.Deferred) {
-		ok(promiseObject.done && promiseObject.fail, "Got Promise methods");
+        if (jQuery.Deferred) {
+        ok(promiseObject.done && promiseObject.fail, "Got Promise methods");
                 promiseObject.then(function(){
                         ok(true, "promise object then is executed");
                 });
-	}
+}
 
         
 
