@@ -142,7 +142,7 @@
 					if ( s.dataType === "jsonp" ) {
 						if ( s.type.toUpperCase() === "GET" ) {
 							if ( !jsre.test( s.url ) ) {
-								s.url += (rquery.test( s.url ) ? "&" : "?") + (s.jsonp || "callback") + "=?";
+								s.url += (/\?/.test( s.url ) ? "&" : "?") + (s.jsonp || "callback") + "=?";
 							}
 						} else if ( !s.data || !jsre.test(s.data) ) {
 							s.data = (s.data ? s.data + "&" : "") + (s.jsonp || "callback") + "=?";
@@ -315,7 +315,6 @@
 											url: m.proxy,
 											type: m.proxyType,
 											data: m.data,
-											dataType: s.dataType,
 											complete: function(xhr, txt) {
 												m.responseXML = xhr.responseXML;
 												m.responseText = xhr.responseText;
