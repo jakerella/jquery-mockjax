@@ -407,28 +407,28 @@ asyncTest('Response returns jsonp', 3, function() {
 
 asyncTest('Response returns jsonp and return value from ajax is a promise', 2, function() {
         window.rquery =  /\?/;
+
         $.mockjax({
                 url:"http://api*",
                 responseText:{
                         success:true,
                         ids:[21327211]
                 },
-                        dataType:"jsonp",
-                        contentType: 'text/json',
+                dataType:"jsonp",
+                contentType: 'text/json'
         });
+
         var promiseObject = $.ajax({
                 url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
                 dataType:"jsonp"
         });
 
         if (jQuery.Deferred) {
-        ok(promiseObject.done && promiseObject.fail, "Got Promise methods");
+                ok(promiseObject.done && promiseObject.fail, "Got Promise methods");
                 promiseObject.then(function(){
                         ok(true, "promise object then is executed");
                 });
-}
-
-        
+        }
 
         start();
 });
