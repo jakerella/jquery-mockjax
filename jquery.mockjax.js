@@ -256,6 +256,7 @@
 							// Return our mock xhr object
 							return {
 								status: m.status,
+								statusText: m.statusText,
 								readyState: 1,
 								open: function() { },
 								send: function() {
@@ -268,6 +269,7 @@
 											return (function() {
 												// The request has returned
 												this.status 		= m.status;
+												this.statusText		= m.statusText;
 												this.readyState 	= 4;
 
 												// We have an executable function, call it to give
@@ -291,6 +293,9 @@
 												if( typeof m.status == 'number' || typeof m.status == 'string' ) {
 												  this.status = m.status;
 												}
+                                                if( typeof m.statusText === "string") {
+                                                    this.statusText = m.statusText;
+                                                }
 												// jQuery < 1.4 doesn't have onreadystate change for xhr
 												if ( $.isFunction(this.onreadystatechange) ) {
 													this.onreadystatechange( m.isTimeout ? 'timeout' : undefined );
@@ -306,11 +311,12 @@
 											url: m.proxy,
 											type: m.proxyType,
 											data: m.data,
-											dataType: s.dataType,
+											dataType: s.dataType === "script" ? "text/plain" : s.dataType,
 											complete: function(xhr, txt) {
 												m.responseXML = xhr.responseXML;
 												m.responseText = xhr.responseText;
 												m.status = xhr.status;
+												m.statusText = xhr.statusText;
 												this.responseTimer = setTimeout(process, m.responseTime || 0);
 											}
 										});
@@ -372,6 +378,7 @@
 						window['console'] && window.console.log && window.console.log(msg);
 					  },
 		status:       200,
+		statusText:   "OK",
 		responseTime: 500,
 		isTimeout:    false,
 		contentType:  'text/plain',
