@@ -232,6 +232,15 @@
 						}
 						success();
 						complete();
+						if(jQuery.Deferred){
+							mock = new jQuery.Deferred();
+							if(typeof m.responseText == "object"){
+								mock.resolve(m.responseText);
+							}
+							else{
+								mock.resolve(jQuery.parseJSON(m.responseText));
+							}
+						}
 						return false;
 					}
 
@@ -306,7 +315,6 @@
 											url: m.proxy,
 											type: m.proxyType,
 											data: m.data,
-											dataType: s.dataType,
 											complete: function(xhr, txt) {
 												m.responseXML = xhr.responseXML;
 												m.responseText = xhr.responseText;
