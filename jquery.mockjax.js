@@ -27,7 +27,7 @@
 		}
 
 		try {
-			var xmlDoc 	= ( new DOMParser() ).parseFromString( xml, 'text/xml' );
+			var xmlDoc = ( new DOMParser() ).parseFromString( xml, 'text/xml' );
 			if ( $.isXMLDoc( xmlDoc ) ) {
 				var err = $('parsererror', xmlDoc);
 				if ( err.length == 1 ) {
@@ -55,7 +55,7 @@
 				origSettings.url = url;
 			}
 			var s = jQuery.extend(true, {}, jQuery.ajaxSettings, origSettings),
-				mock = false;
+			    mock = false;
 			// Iterate over our mock handlers (in registration order) until we find
 			// one that is willing to intercept the request
 			$.each(mockHandlers, function(k, v) {
@@ -236,9 +236,9 @@
 					}
 
 					m.data = s.data;
-				  m.cache = s.cache;
-				  m.timeout = s.timeout;
-				  m.global = s.global;
+					m.cache = s.cache;
+					m.timeout = s.timeout;
+					m.global = s.global;
 
 					mock = _ajax.call($, $.extend(true, {}, origSettings, {
 						// Mock the XHR object
@@ -260,15 +260,15 @@
 								open: function() { },
 								send: function() {
 
-								  mockHandlers[k].fired = true;
+									mockHandlers[k].fired = true;
 
 									// This is a substitute for < 1.4 which lacks $.proxy
 									var process = (function(that) {
 										return function() {
 											return (function() {
 												// The request has returned
-												this.status 		= m.status;
-												this.readyState 	= 4;
+												this.status		= m.status;
+												this.readyState		= 4;
 
 												// We have an executable function, call it to give
 												// the mock handler a chance to update it's data
@@ -289,7 +289,7 @@
 													this.responseText = m.responseText;
 												}
 												if( typeof m.status == 'number' || typeof m.status == 'string' ) {
-												  this.status = m.status;
+													this.status = m.status;
 												}
 												// jQuery < 1.4 doesn't have onreadystate change for xhr
 												if ( $.isFunction(this.onreadystatechange) ) {
@@ -358,7 +358,7 @@
 			});
 			// We don't have a mock request, trigger a normal request
 			if ( !mock ) {
-				return _ajax.apply($, arguments);
+				return _ajax.apply($, [origSettings]);
 			} else {
 				return mock;
 			}
@@ -368,9 +368,7 @@
 	$.mockjaxSettings = {
 		//url:        null,
 		//type:       'GET',
-		log:          function(msg) {
-						window['console'] && window.console.log && window.console.log(msg);
-					  },
+		log:          function(msg) {window['console'] && window.console.log && window.console.log(msg);},
 		status:       200,
 		responseTime: 500,
 		isTimeout:    false,
@@ -402,7 +400,7 @@
 		}
 	};
 	$.mockjax.handler = function(i) {
-	  if ( arguments.length == 1 ) {
+		if ( arguments.length == 1 ) {
 			return mockHandlers[i];
 		}
 	};
