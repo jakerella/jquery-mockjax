@@ -106,7 +106,9 @@ asyncTest('Dynamic response status callback', function() {
 		data: {
 			response: 'Hello world'
 		},
-		error: function(){ ok(true, "error callback was called"); },
+	error: function(){ 
+	ok(true, "error callback was called"); 
+},
 		complete: function(xhr) {
 			equals(xhr.status, 500, 'Dynamically set response status matches');
 			equals(xhr.statusText, "Internal Server Error", 'Dynamically set response statusText matches');
@@ -593,7 +595,7 @@ asyncTest('Setting the content-type', function() {
 		url: '/response-callback',
 		error: function(){ ok(false, "error callback was called"); },
 		success: function(json) {
-			equals(json.foo, "bar", 'Json object field matches');
+			deepEqual(json, { "foo" : "bar" }, 'JSON Object matches');
 		},
 		complete: function(xhr) {
 			equals(xhr.getResponseHeader('Content-Type'), 'text/json', 'Content type of json');
@@ -628,9 +630,10 @@ asyncTest('Setting additional HTTP response headers', function() {
 	$.mockjaxClear();
 });
 // FORCE SIMULATION OF SERVER TIMEOUTS
-asyncTest('Force server timeout', function() {
+asyncTest('Forcing timeout', function() {
 	$.mockjax({
 		url: '/response-callback',
+		responseText: 'done',
 		isTimeout: true
 	});
 
@@ -638,9 +641,9 @@ asyncTest('Force server timeout', function() {
 		url: '/response-callback',
 		error: function(){ ok(true, "error callback was called"); },
 		success: function(response) {
+			ok(false, "should not be be successful");
 		},
-		complete: function(xhr, textStatus) {
-			equals( textStatus, "timeout", "Request status is 'timeout'");
+		complete: function(xhr) {
 			start();
 		}
 	});
