@@ -478,7 +478,6 @@ asyncTest('Response returns jsonp', 3, function() {
 			start();
 		}
 	});
-	console.log('AJAX', ret);
 	$.mockjaxClear();
 });
 
