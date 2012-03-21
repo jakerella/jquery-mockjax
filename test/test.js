@@ -344,6 +344,56 @@ asyncTest('RegEx match', 1, function() {
 	$.mockjaxClear();
 });
 
+module('Request Data Matching');
+asyncTest('Incorrect data matching on request', 1, function() {
+	$.mockjax({
+		url: '/response-callback',
+		data: {
+			foo: 'bar'
+		}
+	});
+
+	$.ajax({
+		url: '/response-callback',
+		error: function() { ok(true, "Error called on bad mock/data matching"); },
+		data: {
+			bar: 'baz'
+		},
+		success: function(json) {
+			ok( false, "Success should not be called" );
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+
+	$.mockjaxClear();
+});
+asyncTest('Correct data matching on request', 1, function() {
+	$.mockjax({
+		url: '/response-callback',
+		contentType: 'text/json',
+		data: {
+			foo: 'bar'
+		}
+	});
+
+	$.ajax({
+		url: '/response-callback',
+		error: noErrorCallbackExpected,
+		data: {
+			foo: 'bar'
+		},
+		success: function(json) {
+			ok( true, "Successfully matched data" );
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+
+	$.mockjaxClear();
+});
 
 // Test Data Types [Text, HTML, JSON, JSONP, Script and XML]
 module('Data Types');
