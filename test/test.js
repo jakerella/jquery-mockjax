@@ -534,6 +534,42 @@ asyncTest('Response executes script', function() {
 	});
 	$.mockjaxClear();
 });
+asyncTest('Grouping deferred responses, if supported', function() {
+	window.rquery =  /\?/;
+
+	$.mockjax({
+		url:"http://api*",
+		responseText:{
+			success:true,
+			ids:[21327211]
+		},
+		dataType:"jsonp",
+		contentType: 'text/json'
+	});
+
+	var req1 = $.ajax({
+		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
+		dataType:"jsonp"
+	});
+	var req2 = $.ajax({
+		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
+		dataType:"jsonp"
+	});
+	var req3 = $.ajax({
+		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
+		dataType:"jsonp"
+	});
+
+	if (jQuery.Deferred) {
+		$.when(req1, req2, req3).done(function(a, b, c) {
+			ok(true, "Successfully grouped deferred responses");
+		});
+	} else {
+		ok(true, "No deferred support, passing as succesful");
+	}
+
+	start();
+});
 asyncTest('Response returns parsed XML', function() {
 	$.mockjax({
 		url: '/xml',
