@@ -593,6 +593,7 @@ asyncTest('Setting the content-type', function() {
 
 	$.ajax({
 		url: '/response-callback',
+		dataType: 'json',
 		error: function(){ ok(false, "error callback was called"); },
 		success: function(json) {
 			deepEqual(json, { "foo" : "bar" }, 'JSON Object matches');
