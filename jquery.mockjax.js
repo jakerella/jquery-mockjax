@@ -297,8 +297,11 @@
 													this.statusText = m.statusText;
 												}
 												// jQuery < 1.4 doesn't have onreadystate change for xhr
-												if ( $.isFunction(this.onreadystatechange) ) {
+												if ( $.isFunction(this.onreadystatechange) && !m.isTimeout ) {
 													this.onreadystatechange( m.isTimeout ? 'timeout' : undefined );
+												} else if ( m.isTimeout ) {
+													s.error( this, "timeout" );
+													s.complete( this, "timeout" );
 												}
 											}).apply(that);
 										};
