@@ -456,6 +456,7 @@ asyncTest('Response returns json', function() {
 	});
 	$.mockjaxClear();
 });
+
 asyncTest('Response returns jsonp', 3, function() {
 	$.mockjax({
 		url: '/jsonp*',
@@ -467,7 +468,7 @@ asyncTest('Response returns jsonp', 3, function() {
 		deepEqual(json, { "data" : "JSONP is cool" });
 	};
 
-	$.ajax({
+	var ret = $.ajax({
 		url: '/jsonp?callback=?',
 		jsonpCallback: 'abcdef123456',
 		dataType: 'jsonp',
@@ -477,8 +478,41 @@ asyncTest('Response returns jsonp', 3, function() {
 			start();
 		}
 	});
+	console.log('AJAX', ret);
 	$.mockjaxClear();
 });
+
+
+asyncTest('Response returns jsonp and return value from ajax is a promise if supported', function() {
+	window.rquery =  /\?/;
+
+	$.mockjax({
+		url:"http://api*",
+		responseText:{
+			success:true,
+			ids:[21327211]
+		},
+		dataType:"jsonp",
+		contentType: 'text/json'
+	});
+
+	var promiseObject = $.ajax({
+		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
+		dataType:"jsonp"
+	});
+
+	if (jQuery.Deferred) {
+		ok(promiseObject.done && promiseObject.fail, "Got Promise methods");
+		promiseObject.then(function(){
+			ok(true, "promise object then is executed");
+		});
+	} else {
+		ok(true, "No deferred support, passing as succesful");
+	}
+
+	start();
+});
+
 asyncTest('Response executes script', function() {
 	$.mockjax({
 		url: '/script',

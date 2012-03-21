@@ -228,10 +228,24 @@
 						if ( m.response && $.isFunction(m.response) ) {
 							m.response(origSettings);
 						} else {
-							$.globalEval(m.responseText);
+
+							if( typeof m.responseText === 'object' ) {
+								$.globalEval( '(' + JSON.stringify( m.responseText ) + ')');
+							} else {
+								$.globalEval( '(' + m.responseText + ')');
+							}
 						}
 						success();
 						complete();
+						if(jQuery.Deferred){
+							mock = new jQuery.Deferred();
+							if(typeof m.responseText == "object"){
+								mock.resolve(m.responseText);
+							}
+							else{
+								mock.resolve(jQuery.parseJSON(m.responseText));
+							}
+						}
 						return false;
 					}
 
