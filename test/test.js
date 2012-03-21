@@ -640,7 +640,7 @@ asyncTest('Forcing timeout', function() {
 
 	$.ajax({
 		url: '/response-callback',
-		error: function() { 
+		error: function(xhr) {
 			ok(true, "error callback was called");
 		},
 		success: function(response) {
