@@ -233,6 +233,7 @@ test('Inspecting $.mockjax.handler(id) after request has fired', function() {
   $.mockjaxClear();
 });
 
+/*
 asyncTest('Inspecting $.mockjax.handler\'s data after request has fired', function() {
   var ID = $.mockjax({
     url: '/mockjax_data_properties',
@@ -256,6 +257,7 @@ asyncTest('Inspecting $.mockjax.handler\'s data after request has fired', functi
   ok($.mockjax.handler(ID).fired, "Sets the mock's fired property to true");
 
 });
+*/
 
 module('Type Matching');
 asyncTest('Case-insensitive matching for request types', function() {
@@ -386,6 +388,114 @@ asyncTest('Correct data matching on request', 1, function() {
 		},
 		success: function(json) {
 			ok( true, "Successfully matched data" );
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+
+	$.mockjaxClear();
+});
+asyncTest('Multiple data matching requests', function() {
+	$.mockjax({
+		url: '/response-callback',
+		contentType: 'text/json',
+		data: {
+			remote: {
+				test: function(data) {
+					console.log(data);
+					return data !== "hello";
+				}
+			}
+		},
+		responseText: { "yes?": "no" }
+	});
+	$.mockjax({
+		url: '/response-callback',
+		contentType: 'text/json',
+		data: {
+			//remote: "hello"
+			remote: {
+				test: function(data) {
+					console.log('THIS ONE', data);
+					return data == "hello";
+				}
+			}
+		},
+		responseText: { "yes?": "yes" }
+	});
+
+	$.ajax({
+		url: '/response-callback',
+		error: function(resp) { ok(true, "Expected error"); },
+		dataType: 'json',
+		data: {
+			remote: "h"
+		},
+		success: function(resp) {
+			deepEqual( resp, {"yes?": "no"}, "correct mock hander" );
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+	stop();
+	$.ajax({
+		url: '/response-callback',
+		error: function() { ok(true, "Expected error"); },
+		dataType: 'json',
+		data: {
+			remote: "he"
+		},
+		success: function(resp) {
+			deepEqual( resp, {"yes?": "no"}, "correct mock hander" );
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+	stop();
+	$.ajax({
+		url: '/response-callback',
+		error: function() { ok(true, "Expected error"); },
+		dataType: 'json',
+		data: {
+			remote: "hel"
+		},
+		success: function(resp) {
+			deepEqual( resp, {"yes?": "no"}, "correct mock hander" );
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+	stop();
+	$.ajax({
+		url: '/response-callback',
+		error: function() { ok(true, "Expected error"); },
+		dataType: 'json',
+		data: {
+			remote: "hell"
+		},
+		success: function(resp) {
+			deepEqual( resp, {"yes?": "no"}, "correct mock hander" );
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+	stop();
+	$.ajax({
+		url: '/response-callback',
+		error: function(resp) {
+			noErrorCallbackExpected();
+		},
+		data: {
+			remote: "hello"
+		},
+		dataType: 'json',
+		success: function(resp) {
+			deepEqual( resp, {"yes?": "yes"}, "correct mock hander" );
 		},
 		complete: function(xhr) {
 			start();

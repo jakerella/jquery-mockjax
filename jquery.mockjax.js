@@ -249,10 +249,10 @@
 						return false;
 					}
 
-					m.data = s.data;
-				  m.cache = s.cache;
-				  m.timeout = s.timeout;
-				  m.global = s.global;
+					//m.data = s.data;
+					m.cache = s.cache;
+					m.timeout = s.timeout;
+					m.global = s.global;
 
 					mock = _ajax.call($, $.extend(true, {}, origSettings, {
 						// Mock the XHR object
