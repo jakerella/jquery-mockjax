@@ -293,9 +293,9 @@
 												if( typeof m.status == 'number' || typeof m.status == 'string' ) {
 												  this.status = m.status;
 												}
-                                                if( typeof m.statusText === "string") {
-                                                    this.statusText = m.statusText;
-                                                }
+												if( typeof m.statusText === "string") {
+													this.statusText = m.statusText;
+												}
 												// jQuery < 1.4 doesn't have onreadystate change for xhr
 												if ( $.isFunction(this.onreadystatechange) ) {
 													this.onreadystatechange( m.isTimeout ? 'timeout' : undefined );
