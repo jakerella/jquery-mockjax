@@ -106,9 +106,9 @@ asyncTest('Dynamic response status callback', function() {
 		data: {
 			response: 'Hello world'
 		},
-	error: function(){ 
-	ok(true, "error callback was called"); 
-},
+		error: function(){ 
+			ok(true, "error callback was called"); 
+		},
 		complete: function(xhr) {
 			equals(xhr.status, 500, 'Dynamically set response status matches');
 			equals(xhr.statusText, "Internal Server Error", 'Dynamically set response statusText matches');
