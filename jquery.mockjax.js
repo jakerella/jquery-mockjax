@@ -260,7 +260,7 @@
 	}
 
 	// Process a JSONP mock request.
-	function processJsonpMock( s, mockHandler, mock, origSettings ) {
+	function processJsonpMock( s, mockHandler, origSettings ) {
 		// Handle JSONP Parameter Callbacks, we need to replicate some of the jQuery core here
 		// because there isn't an easy hook for the cross domain script tag of jsonp
 
@@ -279,7 +279,15 @@
 
 			s.dataType = "script";
 			if(s.type.toUpperCase() === "GET" && remote ) {
-				return processJsonpRequest( s, mockHandler, mock, origSettings );
+				var newMockReturn = processJsonpRequest( s, mockHandler, origSettings );
+
+				// Check if we are supposed to return a Deferred back to the mock call, or just 
+				// signal success
+				if(newMockReturn) {
+					return newMockReturn;
+				} else {
+					return true;
+				}
 			}
 		}
 		return null;
@@ -297,10 +305,10 @@
 	}
 	
 	// Process a JSONP request by evaluating the mocked response text
-	function processJsonpRequest( s, mockHandler, mock, origSettings ) {
+	function processJsonpRequest( s, mockHandler, origSettings ) {
 		// Synthesize the mock request for adding a script tag
 		var callbackContext = origSettings && origSettings.context || s,
-			newMock = mock;
+			newMock = null;
 
 
 		// If the response handler on the moock is a function, call it
@@ -425,14 +433,12 @@
 				continue;
 			}
 
-			mockRequest = true;
-
 			// Handle console logging
 			logMock( mockHandler, s );
 
 
 			if ( s.dataType === "jsonp" ) {
-				if ((mockRequest = processJsonpMock( s, mockHandler, mockRequest, origSettings ))) {
+				if ((mockRequest = processJsonpMock( s, mockHandler, origSettings ))) {
 					// This mock will handle the JSONP request
 					return mockRequest;
 				}
