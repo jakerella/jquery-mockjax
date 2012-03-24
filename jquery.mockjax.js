@@ -228,17 +228,31 @@
 						if ( m.response && $.isFunction(m.response) ) {
 							m.response(origSettings);
 						} else {
-							$.globalEval(m.responseText);
+
+							if( typeof m.responseText === 'object' ) {
+								$.globalEval( '(' + JSON.stringify( m.responseText ) + ')');
+							} else {
+								$.globalEval( '(' + m.responseText + ')');
+							}
 						}
 						success();
 						complete();
+						if(jQuery.Deferred){
+							mock = new jQuery.Deferred();
+							if(typeof m.responseText == "object"){
+								mock.resolve(m.responseText);
+							}
+							else{
+								mock.resolve(jQuery.parseJSON(m.responseText));
+							}
+						}
 						return false;
 					}
 
-					m.data = s.data;
-				  m.cache = s.cache;
-				  m.timeout = s.timeout;
-				  m.global = s.global;
+					//m.data = s.data;
+					m.cache = s.cache;
+					m.timeout = s.timeout;
+					m.global = s.global;
 
 					mock = _ajax.call($, $.extend(true, {}, origSettings, {
 						// Mock the XHR object
@@ -293,12 +307,19 @@
 												if( typeof m.status == 'number' || typeof m.status == 'string' ) {
 												  this.status = m.status;
 												}
-                                                if( typeof m.statusText === "string") {
-                                                    this.statusText = m.statusText;
-                                                }
+												if( typeof m.statusText === "string") {
+													this.statusText = m.statusText;
+												}
 												// jQuery < 1.4 doesn't have onreadystate change for xhr
-												if ( $.isFunction(this.onreadystatechange) ) {
+												if ( $.isFunction(this.onreadystatechange) && !m.isTimeout ) {
 													this.onreadystatechange( m.isTimeout ? 'timeout' : undefined );
+												} else if ( m.isTimeout ) {
+													if ( $.isFunction( $.handleError ) ) {
+														// Fix for 1.3.2 timeout to keep success from firing.
+														this.readyState = -1;
+													}
+													s.error( this, "timeout" );
+													s.complete( this, "timeout" );
 												}
 											}).apply(that);
 										};
