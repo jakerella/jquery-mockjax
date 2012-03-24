@@ -135,45 +135,45 @@
 	}
 
 	// Process the xhr objects send operation
-	function _xhrSend(m, requestSettings, origSettings) {
+	function _xhrSend(mockHandler, requestSettings, origSettings) {
 
 		// This is a substitute for < 1.4 which lacks $.proxy
 		var process = (function(that) {
 			return function() {
 				return (function() {
 					// The request has returned
-					this.status 		= m.status;
-					this.statusText		= m.statusText;
+					this.status 		= mockHandler.status;
+					this.statusText		= mockHandler.statusText;
 					this.readyState 	= 4;
 
 					// We have an executable function, call it to give
 					// the mock handler a chance to update it's data
-					if ( $.isFunction(m.response) ) {
-						m.response(origSettings);
+					if ( $.isFunction(mockHandler.response) ) {
+						mockHandler.response(origSettings);
 					}
 					// Copy over our mock to our xhr object before passing control back to
 					// jQuery's onreadystatechange callback
-					if ( requestSettings.dataType == 'json' && ( typeof m.responseText == 'object' ) ) {
-						this.responseText = JSON.stringify(m.responseText);
+					if ( requestSettings.dataType == 'json' && ( typeof mockHandler.responseText == 'object' ) ) {
+						this.responseText = JSON.stringify(mockHandler.responseText);
 					} else if ( requestSettings.dataType == 'xml' ) {
-						if ( typeof m.responseXML == 'string' ) {
-							this.responseXML = parseXML(m.responseXML);
+						if ( typeof mockHandler.responseXML == 'string' ) {
+							this.responseXML = parseXML(mockHandler.responseXML);
 						} else {
-							this.responseXML = m.responseXML;
+							this.responseXML = mockHandler.responseXML;
 						}
 					} else {
-						this.responseText = m.responseText;
+						this.responseText = mockHandler.responseText;
 					}
-					if( typeof m.status == 'number' || typeof m.status == 'string' ) {
-						this.status = m.status;
+					if( typeof mockHandler.status == 'number' || typeof mockHandler.status == 'string' ) {
+						this.status = mockHandler.status;
 					}
-					if( typeof m.statusText === "string") {
-						this.statusText = m.statusText;
+					if( typeof mockHandler.statusText === "string") {
+						this.statusText = mockHandler.statusText;
 					}
 					// jQuery < 1.4 doesn't have onreadystate change for xhr
-					if ( $.isFunction(this.onreadystatechange) && !m.isTimeout ) {
-						this.onreadystatechange( m.isTimeout ? 'timeout' : undefined );
-					} else if ( m.isTimeout ) {
+					if ( $.isFunction(this.onreadystatechange) && !mockHandler.isTimeout ) {
+						this.onreadystatechange( mockHandler.isTimeout ? 'timeout' : undefined );
+					} else if ( mockHandler.isTimeout ) {
 						if ( $.isFunction( $.handleError ) ) {
 							// Fix for 1.3.2 timeout to keep success from firing.
 							this.readyState = -1;
@@ -185,20 +185,20 @@
 			};
 		})(this);
 
-		if ( m.proxy ) {
+		if ( mockHandler.proxy ) {
 			// We're proxying this request and loading in an external file instead
 			_ajax({
 				global: false,
-				url: m.proxy,
-				type: m.proxyType,
-				data: m.data,
+				url: mockHandler.proxy,
+				type: mockHandler.proxyType,
+				data: mockHandler.data,
 				dataType: requestSettings.dataType === "script" ? "text/plain" : requestSettings.dataType,
 				complete: function(xhr, txt) {
-					m.responseXML = xhr.responseXML;
-					m.responseText = xhr.responseText;
-					m.status = xhr.status;
-					m.statusText = xhr.statusText;
-					this.responseTimer = setTimeout(process, m.responseTime || 0);
+					mockHandler.responseXML = xhr.responseXML;
+					mockHandler.responseText = xhr.responseText;
+					mockHandler.status = xhr.status;
+					mockHandler.statusText = xhr.statusText;
+					this.responseTimer = setTimeout(process, mockHandler.responseTime || 0);
 				}
 			});
 		} else {
@@ -207,54 +207,54 @@
 				// TODO: Blocking delay
 				process();
 			} else {
-				this.responseTimer = setTimeout(process, m.responseTime || 50);
+				this.responseTimer = setTimeout(process, mockHandler.responseTime || 50);
 			}
 		}
 	}
 
 	// Construct a mocked XHR Object
-	function xhr(m, requestSettings, origSettings, origHandler) {
+	function xhr(mockHandler, requestSettings, origSettings, origHandler) {
 		// Extend with our default mockjax settings
-		m = $.extend({}, $.mockjaxSettings, m);
+		mockHandler = $.extend({}, $.mockjaxSettings, mockHandler);
 
-		if (typeof m.headers === 'undefined') {
-			m.headers = {};
+		if (typeof mockHandler.headers === 'undefined') {
+			mockHandler.headers = {};
 		}
-		if ( m.contentType ) {
-			m.headers['content-type'] = m.contentType;
+		if ( mockHandler.contentType ) {
+			mockHandler.headers['content-type'] = mockHandler.contentType;
 		}
 
 		return {
-			status: m.status,
-			statusText: m.statusText,
+			status: mockHandler.status,
+			statusText: mockHandler.statusText,
 			readyState: 1,
 			open: function() { },
 			send: function() {
 				origHandler.fired = true;
-				_xhrSend.call(this, m, requestSettings, origSettings);
+				_xhrSend.call(this, mockHandler, requestSettings, origSettings);
 			},
 			abort: function() {
 				clearTimeout(this.responseTimer);
 			},
 			setRequestHeader: function(header, value) {
-				m.headers[header] = value;
+				mockHandler.headers[header] = value;
 			},
 			getResponseHeader: function(header) {
 				// 'Last-modified', 'Etag', 'content-type' are all checked by jQuery
-				if ( m.headers && m.headers[header] ) {
+				if ( mockHandler.headers && mockHandler.headers[header] ) {
 					// Return arbitrary headers
-					return m.headers[header];
+					return mockHandler.headers[header];
 				} else if ( header.toLowerCase() == 'last-modified' ) {
-					return m.lastModified || (new Date()).toString();
+					return mockHandler.lastModified || (new Date()).toString();
 				} else if ( header.toLowerCase() == 'etag' ) {
-					return m.etag || '';
+					return mockHandler.etag || '';
 				} else if ( header.toLowerCase() == 'content-type' ) {
-					return m.contentType || 'text/plain';
+					return mockHandler.contentType || 'text/plain';
 				}
 			},
 			getAllResponseHeaders: function() {
 				var headers = '';
-				$.each(m.headers, function(k, v) {
+				$.each(mockHandler.headers, function(k, v) {
 					headers += k + ': ' + v + "\n";
 				});
 				return headers;
@@ -450,7 +450,7 @@
 
 
 			// Removed to fix #54 - keep the mocking data object intact
-			//m.data = s.data;
+			//mockHandler.data = requestSettings.data;
 
 			mockHandler.cache = requestSettings.cache;
 			mockHandler.timeout = requestSettings.timeout;
