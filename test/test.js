@@ -403,7 +403,6 @@ asyncTest('Multiple data matching requests', function() {
 		data: {
 			remote: {
 				test: function(data) {
-					console.log(data);
 					return data !== "hello";
 				}
 			}
@@ -417,7 +416,6 @@ asyncTest('Multiple data matching requests', function() {
 			//remote: "hello"
 			remote: {
 				test: function(data) {
-					console.log('THIS ONE', data);
 					return data == "hello";
 				}
 			}
