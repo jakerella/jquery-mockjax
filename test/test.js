@@ -47,6 +47,27 @@ asyncTest('Intercept and proxy (sub-ajax request)', function() {
 
 	$.mockjaxClear();
 });
+asyncTest('Proxy type specification', function() {
+	$.mockjax({
+		url: '/proxy',
+		proxy: 'test_proxy.json',
+		proxyType: 'GET'
+	});
+
+	$.ajax({
+		url: '/proxy',
+		error: noErrorCallbackExpected,
+		dataType: 'json',
+		success: function(json) {
+			ok(json && json.proxy, 'Proxy request succeeded');
+		},
+		complete: function() {
+			start();
+		}
+	});
+
+	$.mockjaxClear();
+});
 
 asyncTest('Support 1.5 $.ajax(url, settings) signature.', function() {
 	$.mockjax({
