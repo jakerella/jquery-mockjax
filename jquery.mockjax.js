@@ -86,37 +86,39 @@
 	}
 
 	// Check the given handler should mock the given request
-	function getMockForRequest( handler, s ) {
+	function getMockForRequest( handler, requestSettings ) {
 		// If the mock was registered with a function, let the function decide if we
 		// want to mock this request
 		if ( $.isFunction(handler) ) {
-			return handler(s);
+			return handler( requestSettings );
 		}
 
 		// Inspect the URL of the request and check if the mock handler's url
 		// matches the url for this ajax request
 		if ( $.isFunction(handler.url.test) ) {
 			// The user provided a regex for the url, test it
-			if ( !handler.url.test( s.url ) ) {
+			if ( !handler.url.test( requestSettings.url ) ) {
 				return null;
 			}
 		} else {
 			// Look for a simple wildcard '*' or a direct URL match
 			var star = handler.url.indexOf('*');
-			if (handler.url !== s.url && star === -1 || !new RegExp(handler.url.replace(/[-[\]{}()+?.,\\^$|#\s]/g, "\\$&").replace('*', '.+')).test(s.url)) {
+			if (handler.url !== requestSettings.url && star === -1 || 
+					!new RegExp(handler.url.replace(/[-[\]{}()+?.,\\^$|#\s]/g, "\\$&").replace('*', '.+')).test(requestSettings.url)) {
 				return null;
 			}
 		}
 
 		// Inspect the data submitted in the request (either POST body or GET query string)
-		if ( handler.data && s.data ) {
-			if ( !isMockDataEqual(handler.data, s.data) ) {
+		if ( handler.data && requestSettings.data ) {
+			if ( !isMockDataEqual(handler.data, requestSettings.data) ) {
 				// They're not identical, do not mock this request
 				return null;
 			}
 		}
 		// Inspect the request type
-		if ( handler && handler.type && handler.type.toLowerCase() != s.type.toLowerCase() ) {
+		if ( handler && handler.type && 
+				 handler.type.toLowerCase() != requestSettings.type.toLowerCase() ) {
 			// The request type doesn't match (GET vs. POST)
 			return null;
 		}
@@ -125,15 +127,15 @@
 	}
 
 	// If logging is enabled, log the mock to the console
-	function logMock( mockHandler, s ) {
+	function logMock( mockHandler, requestSettings ) {
 		var c = $.extend({}, $.mockjaxSettings, mockHandler);
 		if ( c.log && $.isFunction(c.log) ) {
-			c.log('MOCK ' + s.type.toUpperCase() + ': ' + s.url, $.extend({}, s));
+			c.log('MOCK ' + requestSettings.type.toUpperCase() + ': ' + requestSettings.url, $.extend({}, requestSettings));
 		}
 	}
 
-	function _xhrSend(k, m, s, origSettings, mockHandlers) {
-		mockHandlers[k].fired = true;
+	// Process the xhr objects send operation
+	function _xhrSend(m, requestSettings, origSettings) {
 
 		// This is a substitute for < 1.4 which lacks $.proxy
 		var process = (function(that) {
@@ -151,9 +153,9 @@
 					}
 					// Copy over our mock to our xhr object before passing control back to
 					// jQuery's onreadystatechange callback
-					if ( s.dataType == 'json' && ( typeof m.responseText == 'object' ) ) {
+					if ( requestSettings.dataType == 'json' && ( typeof m.responseText == 'object' ) ) {
 						this.responseText = JSON.stringify(m.responseText);
-					} else if ( s.dataType == 'xml' ) {
+					} else if ( requestSettings.dataType == 'xml' ) {
 						if ( typeof m.responseXML == 'string' ) {
 							this.responseXML = parseXML(m.responseXML);
 						} else {
@@ -176,8 +178,8 @@
 							// Fix for 1.3.2 timeout to keep success from firing.
 							this.readyState = -1;
 						}
-						s.error( this, "timeout" );
-						s.complete( this, "timeout" );
+						requestSettings.error( this, "timeout" );
+						requestSettings.complete( this, "timeout" );
 					}
 				}).apply(that);
 			};
@@ -190,7 +192,7 @@
 				url: m.proxy,
 				type: m.proxyType,
 				data: m.data,
-				dataType: s.dataType === "script" ? "text/plain" : s.dataType,
+				dataType: requestSettings.dataType === "script" ? "text/plain" : requestSettings.dataType,
 				complete: function(xhr, txt) {
 					m.responseXML = xhr.responseXML;
 					m.responseText = xhr.responseText;
@@ -201,7 +203,7 @@
 			});
 		} else {
 			// type == 'POST' || 'GET' || 'DELETE'
-			if ( s.async === false ) {
+			if ( requestSettings.async === false ) {
 				// TODO: Blocking delay
 				process();
 			} else {
@@ -211,7 +213,7 @@
 	}
 
 	// Construct a mocked XHR Object
-	function xhr(k, m, s, origSettings, mockHandlers) {
+	function xhr(m, requestSettings, origSettings, origHandler) {
 		// Extend with our default mockjax settings
 		m = $.extend({}, $.mockjaxSettings, m);
 
@@ -228,7 +230,8 @@
 			readyState: 1,
 			open: function() { },
 			send: function() {
-				_xhrSend.call(this, k, m, s, origSettings, mockHandlers);
+				origHandler.fired = true;
+				_xhrSend.call(this, m, requestSettings, origSettings);
 			},
 			abort: function() {
 				clearTimeout(this.responseTimer);
@@ -260,26 +263,26 @@
 	}
 
 	// Process a JSONP mock request.
-	function processJsonpMock( s, mockHandler, origSettings ) {
+	function processJsonpMock( requestSettings, mockHandler, origSettings ) {
 		// Handle JSONP Parameter Callbacks, we need to replicate some of the jQuery core here
 		// because there isn't an easy hook for the cross domain script tag of jsonp
 
-		processJsonpUrl( s );
+		processJsonpUrl( requestSettings );
 
-		s.dataType = "json";
-		if(s.data && CALLBACK_REGEX.test(s.data) || CALLBACK_REGEX.test(s.url)) {
-			createJsonpCallback(s, mockHandler);
+		requestSettings.dataType = "json";
+		if(requestSettings.data && CALLBACK_REGEX.test(requestSettings.data) || CALLBACK_REGEX.test(requestSettings.url)) {
+			createJsonpCallback(requestSettings, mockHandler);
 
 			// We need to make sure
 			// that a JSONP style response is executed properly
 
 			var rurl = /^(\w+:)?\/\/([^\/?#]+)/,
-				parts = rurl.exec( s.url ),
+				parts = rurl.exec( requestSettings.url ),
 				remote = parts && (parts[1] && parts[1] !== location.protocol || parts[2] !== location.host);
 
-			s.dataType = "script";
-			if(s.type.toUpperCase() === "GET" && remote ) {
-				var newMockReturn = processJsonpRequest( s, mockHandler, origSettings );
+			requestSettings.dataType = "script";
+			if(requestSettings.type.toUpperCase() === "GET" && remote ) {
+				var newMockReturn = processJsonpRequest( requestSettings, mockHandler, origSettings );
 
 				// Check if we are supposed to return a Deferred back to the mock call, or just 
 				// signal success
@@ -294,20 +297,21 @@
 	}
 
 	// Append the required callback parameter to the end of the request URL, for a JSONP request
-	function processJsonpUrl( s ) {
-		if ( s.type.toUpperCase() === "GET" ) {
-			if ( !CALLBACK_REGEX.test( s.url ) ) {
-				s.url += (/\?/.test( s.url ) ? "&" : "?") + (s.jsonp || "callback") + "=?";
+	function processJsonpUrl( requestSettings ) {
+		if ( requestSettings.type.toUpperCase() === "GET" ) {
+			if ( !CALLBACK_REGEX.test( requestSettings.url ) ) {
+				requestSettings.url += (/\?/.test( requestSettings.url ) ? "&" : "?") + 
+					(requestSettings.jsonp || "callback") + "=?";
 			}
-		} else if ( !s.data || !CALLBACK_REGEX.test(s.data) ) {
-			s.data = (s.data ? s.data + "&" : "") + (s.jsonp || "callback") + "=?";
+		} else if ( !requestSettings.data || !CALLBACK_REGEX.test(requestSettings.data) ) {
+			requestSettings.data = (requestSettings.data ? requestSettings.data + "&" : "") + (requestSettings.jsonp || "callback") + "=?";
 		}
 	}
 	
 	// Process a JSONP request by evaluating the mocked response text
-	function processJsonpRequest( s, mockHandler, origSettings ) {
+	function processJsonpRequest( requestSettings, mockHandler, origSettings ) {
 		// Synthesize the mock request for adding a script tag
-		var callbackContext = origSettings && origSettings.context || s,
+		var callbackContext = origSettings && origSettings.context || requestSettings,
 			newMock = null;
 
 
@@ -325,8 +329,8 @@
 		}
 
 		// Successful response
-		jsonpSuccess( s, mockHandler );
-		jsonpComplete( s, mockHandler );
+		jsonpSuccess( requestSettings, mockHandler );
+		jsonpComplete( requestSettings, mockHandler );
 
 		// If we are running under jQuery 1.5+, return a deferred object
 		if(jQuery.Deferred){
@@ -343,22 +347,22 @@
 
 
 	// Create the required JSONP callback function for the request
-	function createJsonpCallback( s, mockHandler ) {
-		jsonp = s.jsonpCallback || ("jsonp" + jsc++);
+	function createJsonpCallback( requestSettings, mockHandler ) {
+		jsonp = requestSettings.jsonpCallback || ("jsonp" + jsc++);
 
 		// Replace the =? sequence both in the query string and the data
-		if ( s.data ) {
-			s.data = (s.data + "").replace(CALLBACK_REGEX, "=" + jsonp + "$1");
+		if ( requestSettings.data ) {
+			requestSettings.data = (requestSettings.data + "").replace(CALLBACK_REGEX, "=" + jsonp + "$1");
 		}
 
-		s.url = s.url.replace(CALLBACK_REGEX, "=" + jsonp + "$1");
+		requestSettings.url = requestSettings.url.replace(CALLBACK_REGEX, "=" + jsonp + "$1");
 
 
 		// Handle JSONP-style loading
 		window[ jsonp ] = window[ jsonp ] || function( tmp ) {
 			data = tmp;
-			jsonpSuccess( s, mockHandler );
-			jsonpComplete( s, mockHandler );
+			jsonpSuccess( requestSettings, mockHandler );
+			jsonpComplete( requestSettings, mockHandler );
 			// Garbage collect
 			window[ jsonp ] = undefined;
 
@@ -373,32 +377,32 @@
 	}
 
 	// The JSONP request was successful
-	function jsonpSuccess(s, mockHandler) {
+	function jsonpSuccess(requestSettings, mockHandler) {
 		// If a local callback was specified, fire it and pass it the data
-		if ( s.success ) {
-			s.success.call( callbackContext, ( mockHandler.response ? mockHandler.response.toString() : mockHandler.responseText || ''), status, {} );
+		if ( requestSettings.success ) {
+			requestSettings.success.call( callbackContext, ( mockHandler.response ? mockHandler.response.toString() : mockHandler.responseText || ''), status, {} );
 		}
 
 		// Fire the global callback
-		if ( s.global ) {
-			trigger(s, "ajaxSuccess", [{}, s] );
+		if ( requestSettings.global ) {
+			trigger(requestSettings, "ajaxSuccess", [{}, requestSettings] );
 		}
 	}
 
 	// The JSONP request was completed
-	function jsonpComplete(s, mockHandler) {
+	function jsonpComplete(requestSettings, mockHandler) {
 		// Process result
-		if ( s.complete ) {
-			s.complete.call( callbackContext, {} , status );
+		if ( requestSettings.complete ) {
+			requestSettings.complete.call( callbackContext, {} , status );
 		}
 
 		// The request was completed
-		if ( s.global ) {
-			trigger( "ajaxComplete", [{}, s] );
+		if ( requestSettings.global ) {
+			trigger( "ajaxComplete", [{}, requestSettings] );
 		}
 
 		// Handle the global AJAX counter
-		if ( s.global && ! --jQuery.active ) {
+		if ( requestSettings.global && ! --jQuery.active ) {
 			jQuery.event.trigger( "ajaxStop" );
 		}
 	}
@@ -406,7 +410,7 @@
 
 	// The $.ajax replacement.  Where the magic happens
 	function handleAjax( url, origSettings ) {
-		var mockRequest, s, mockHandler;
+		var mockRequest, requestSettings, mockHandler;
 
 		// If url is an object, simulate pre-1.5 signature
 		if ( typeof url === "object" ) {
@@ -418,7 +422,7 @@
 		}
 		
 		// Extend the original settings for the request
-		s = jQuery.extend(true, {}, jQuery.ajaxSettings, origSettings);
+		requestSettings = jQuery.extend(true, {}, jQuery.ajaxSettings, origSettings);
 
 		// Iterate over our mock handlers (in registration order) until we find
 		// one that is willing to intercept the request
@@ -427,18 +431,18 @@
 				continue;
 			}
 			
-			mockHandler = getMockForRequest( mockHandlers[k], s );
+			mockHandler = getMockForRequest( mockHandlers[k], requestSettings );
 			if(!mockHandler) {
 				// No valid mock found for this request
 				continue;
 			}
 
 			// Handle console logging
-			logMock( mockHandler, s );
+			logMock( mockHandler, requestSettings );
 
 
-			if ( s.dataType === "jsonp" ) {
-				if ((mockRequest = processJsonpMock( s, mockHandler, origSettings ))) {
+			if ( requestSettings.dataType === "jsonp" ) {
+				if ((mockRequest = processJsonpMock( requestSettings, mockHandler, origSettings ))) {
 					// This mock will handle the JSONP request
 					return mockRequest;
 				}
@@ -448,16 +452,16 @@
 			// Removed to fix #54 - keep the mocking data object intact
 			//m.data = s.data;
 
-			mockHandler.cache = s.cache;
-			mockHandler.timeout = s.timeout;
-			mockHandler.global = s.global;
+			mockHandler.cache = requestSettings.cache;
+			mockHandler.timeout = requestSettings.timeout;
+			mockHandler.global = requestSettings.global;
 
-			(function(k, mockHandler, s, origSettings, mockHandlers) {
+			(function(k, mockHandler, requestSettings, origSettings, mockHandlers) {
 				mockRequest = _ajax.call($, $.extend(true, {}, origSettings, {
 					// Mock the XHR object
-					xhr: function() { return xhr(k, mockHandler, s, origSettings, mockHandlers); }
+					xhr: function() { return xhr( mockHandler, requestSettings, origSettings, mockHandlers[k]); }
 				}));
-			})(k, mockHandler, s, origSettings, mockHandlers);
+			})(k, mockHandler, requestSettings, origSettings, mockHandlers);
 
 			return mockRequest;
 		}
@@ -477,8 +481,8 @@
 		//url:        null,
 		//type:       'GET',
 		log:          function(msg) {
-						window['console'] && window.console.log && window.console.log(msg);
-					  },
+										window['console'] && window.console.log && window.console.log(msg);
+					  			},
 		status:       200,
 		statusText:   "OK",
 		responseTime: 500,
