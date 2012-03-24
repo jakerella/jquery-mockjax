@@ -440,51 +440,6 @@ asyncTest('Multiple data matching requests', function() {
 	stop();
 	$.ajax({
 		url: '/response-callback',
-		error: function() { ok(true, "Expected error"); },
-		dataType: 'json',
-		data: {
-			remote: "he"
-		},
-		success: function(resp) {
-			deepEqual( resp, {"yes?": "no"}, "correct mock hander" );
-		},
-		complete: function(xhr) {
-			start();
-		}
-	});
-	stop();
-	$.ajax({
-		url: '/response-callback',
-		error: function() { ok(true, "Expected error"); },
-		dataType: 'json',
-		data: {
-			remote: "hel"
-		},
-		success: function(resp) {
-			deepEqual( resp, {"yes?": "no"}, "correct mock hander" );
-		},
-		complete: function(xhr) {
-			start();
-		}
-	});
-	stop();
-	$.ajax({
-		url: '/response-callback',
-		error: function() { ok(true, "Expected error"); },
-		dataType: 'json',
-		data: {
-			remote: "hell"
-		},
-		success: function(resp) {
-			deepEqual( resp, {"yes?": "no"}, "correct mock hander" );
-		},
-		complete: function(xhr) {
-			start();
-		}
-	});
-	stop();
-	$.ajax({
-		url: '/response-callback',
 		error: function(resp) {
 			noErrorCallbackExpected();
 		},
