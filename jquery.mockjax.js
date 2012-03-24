@@ -222,7 +222,7 @@
 			m.headers['content-type'] = m.contentType;
 		}
 
-		return {
+		var mockXhr = {
 			status: m.status,
 			statusText: m.statusText,
 			readyState: 1,
@@ -257,6 +257,9 @@
 				return headers;
 			}
 		};
+
+		// Return our mock xhr object
+		return mockXhr;
 	}
 
 	// Process a JSONP mock request.
@@ -424,6 +427,8 @@
 				// No valid mock found for this request
 				continue;
 			}
+
+			mockRequest = true;
 
 			// Handle console logging
 			logMock( mockHandler, s );
