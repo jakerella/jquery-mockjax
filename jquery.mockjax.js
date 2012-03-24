@@ -13,7 +13,9 @@
  */
 (function($) {
 	var _ajax = $.ajax,
-		mockHandlers = [];
+		mockHandlers = [],
+		CALLBACK_REGEX = /=\?(&|$)/, 
+		jsc = (new Date()).getTime();
 
 	function parseXML(xml) {
 		if ( window['DOMParser'] == undefined && window.ActiveXObject ) {
@@ -42,6 +44,10 @@
 			return undefined;
 		}
 		return xmlDoc;
+	}
+
+	function trigger(s, type, args) {
+		(s.context ? jQuery(s.context) : jQuery.event).trigger(type, args);
 	}
 
 	function isMockDataEqual( mock, live ) {
@@ -243,6 +249,45 @@
 		return mockXhr;
 	}
 
+	function processJsonpRequest( s ) {
+		if ( s.type.toUpperCase() === "GET" ) {
+			if ( !CALLBACK_REGEX.test( s.url ) ) {
+				s.url += (/\?/.test( s.url ) ? "&" : "?") + (s.jsonp || "callback") + "=?";
+			}
+		} else if ( !s.data || !CALLBACK_REGEX.test(s.data) ) {
+			s.data = (s.data ? s.data + "&" : "") + (s.jsonp || "callback") + "=?";
+		}
+	}
+
+	function jsonpSuccess(s, m) {
+		// If a local callback was specified, fire it and pass it the data
+		if ( s.success ) {
+			s.success.call( callbackContext, ( m.response ? m.response.toString() : m.responseText || ''), status, {} );
+		}
+
+		// Fire the global callback
+		if ( s.global ) {
+			trigger(s, "ajaxSuccess", [{}, s] );
+		}
+	}
+
+	function jsonpComplete(s, m) {
+		// Process result
+		if ( s.complete ) {
+			s.complete.call( callbackContext, {} , status );
+		}
+
+		// The request was completed
+		if ( s.global ) {
+			trigger( "ajaxComplete", [{}, s] );
+		}
+
+		// Handle the global AJAX counter
+		if ( s.global && ! --jQuery.active ) {
+			jQuery.event.trigger( "ajaxStop" );
+		}
+	}
+
 	function handleAjax( url, origSettings ) {
 		// If url is an object, simulate pre-1.5 signature
 		if ( typeof url === "object" ) {
@@ -272,31 +317,24 @@
 			// Handle console logging
 			logMock( m, s );
 
-			var jsre = /=\?(&|$)/, jsc = (new Date()).getTime();
 
 			// Handle JSONP Parameter Callbacks, we need to replicate some of the jQuery core here
 			// because there isn't an easy hook for the cross domain script tag of jsonp
 			if ( s.dataType === "jsonp" ) {
-				if ( s.type.toUpperCase() === "GET" ) {
-					if ( !jsre.test( s.url ) ) {
-						s.url += (/\?/.test( s.url ) ? "&" : "?") + (s.jsonp || "callback") + "=?";
-					}
-				} else if ( !s.data || !jsre.test(s.data) ) {
-					s.data = (s.data ? s.data + "&" : "") + (s.jsonp || "callback") + "=?";
-				}
+				processJsonpRequest( s );
 				s.dataType = "json";
 			}
 
 			// Build temporary JSONP function
-			if ( s.dataType === "json" && (s.data && jsre.test(s.data) || jsre.test(s.url)) ) {
+			if ( s.dataType === "json" && (s.data && CALLBACK_REGEX.test(s.data) || CALLBACK_REGEX.test(s.url)) ) {
 				jsonp = s.jsonpCallback || ("jsonp" + jsc++);
 
 				// Replace the =? sequence both in the query string and the data
 				if ( s.data ) {
-					s.data = (s.data + "").replace(jsre, "=" + jsonp + "$1");
+					s.data = (s.data + "").replace(CALLBACK_REGEX, "=" + jsonp + "$1");
 				}
 
-				s.url = s.url.replace(jsre, "=" + jsonp + "$1");
+				s.url = s.url.replace(CALLBACK_REGEX, "=" + jsonp + "$1");
 
 				// We need to make sure
 				// that a JSONP style response is executed properly
@@ -305,8 +343,8 @@
 				// Handle JSONP-style loading
 				window[ jsonp ] = window[ jsonp ] || function( tmp ) {
 					data = tmp;
-					success();
-					complete();
+					jsonpSuccess( s, m );
+					jsonpComplete( s, m );
 					// Garbage collect
 					window[ jsonp ] = undefined;
 
@@ -329,38 +367,6 @@
 				// Synthesize the mock request for adding a script tag
 				var callbackContext = origSettings && origSettings.context || s;
 
-				function success() {
-					// If a local callback was specified, fire it and pass it the data
-					if ( s.success ) {
-						s.success.call( callbackContext, ( m.response ? m.response.toString() : m.responseText || ''), status, {} );
-					}
-
-					// Fire the global callback
-					if ( s.global ) {
-						trigger( "ajaxSuccess", [{}, s] );
-					}
-				}
-
-				function complete() {
-					// Process result
-					if ( s.complete ) {
-						s.complete.call( callbackContext, {} , status );
-					}
-
-					// The request was completed
-					if ( s.global ) {
-						trigger( "ajaxComplete", [{}, s] );
-					}
-
-					// Handle the global AJAX counter
-					if ( s.global && ! --jQuery.active ) {
-						jQuery.event.trigger( "ajaxStop" );
-					}
-				}
-
-				function trigger(type, args) {
-					(s.context ? jQuery(s.context) : jQuery.event).trigger(type, args);
-				}
 
 				if ( m.response && $.isFunction(m.response) ) {
 					m.response(origSettings);
@@ -372,8 +378,8 @@
 						$.globalEval( '(' + m.responseText + ')');
 					}
 				}
-				success();
-				complete();
+				jsonpSuccess( s, m );
+				jsonpComplete( s, m );
 				if(jQuery.Deferred){
 					mock = new jQuery.Deferred();
 					if(typeof m.responseText == "object"){
