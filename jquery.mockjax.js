@@ -222,7 +222,7 @@
 			m.headers['content-type'] = m.contentType;
 		}
 
-		var mockXhr = {
+		return {
 			status: m.status,
 			statusText: m.statusText,
 			readyState: 1,
@@ -257,9 +257,6 @@
 				return headers;
 			}
 		};
-
-		// Return our mock xhr object
-		return mockXhr;
 	}
 
 	// Process a JSONP mock request.
