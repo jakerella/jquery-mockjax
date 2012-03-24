@@ -249,7 +249,7 @@
 		return mockXhr;
 	}
 
-	function processJsonpRequest( s ) {
+	function processJsonpUrl( s ) {
 		if ( s.type.toUpperCase() === "GET" ) {
 			if ( !CALLBACK_REGEX.test( s.url ) ) {
 				s.url += (/\?/.test( s.url ) ? "&" : "?") + (s.jsonp || "callback") + "=?";
@@ -257,6 +257,68 @@
 		} else if ( !s.data || !CALLBACK_REGEX.test(s.data) ) {
 			s.data = (s.data ? s.data + "&" : "") + (s.jsonp || "callback") + "=?";
 		}
+	}
+
+	function createJsonpScript( s, m ) {
+		jsonp = s.jsonpCallback || ("jsonp" + jsc++);
+
+		// Replace the =? sequence both in the query string and the data
+		if ( s.data ) {
+			s.data = (s.data + "").replace(CALLBACK_REGEX, "=" + jsonp + "$1");
+		}
+
+		s.url = s.url.replace(CALLBACK_REGEX, "=" + jsonp + "$1");
+
+		// We need to make sure
+		// that a JSONP style response is executed properly
+		s.dataType = "script";
+
+		// Handle JSONP-style loading
+		window[ jsonp ] = window[ jsonp ] || function( tmp ) {
+			data = tmp;
+			jsonpSuccess( s, m );
+			jsonpComplete( s, m );
+			// Garbage collect
+			window[ jsonp ] = undefined;
+
+			try {
+				delete window[ jsonp ];
+			} catch(e) {}
+
+			if ( head ) {
+				head.removeChild( script );
+			}
+		};
+	}
+
+	function processJsonpRequest( s, m, mock, origSettings ) {
+		// Synthesize the mock request for adding a script tag
+		var callbackContext = origSettings && origSettings.context || s;
+		var newMock = mock;
+
+
+		if ( m.response && $.isFunction(m.response) ) {
+			m.response(origSettings);
+		} else {
+
+			if( typeof m.responseText === 'object' ) {
+				$.globalEval( '(' + JSON.stringify( m.responseText ) + ')');
+			} else {
+				$.globalEval( '(' + m.responseText + ')');
+			}
+		}
+		jsonpSuccess( s, m );
+		jsonpComplete( s, m );
+		if(jQuery.Deferred){
+			newMock = new jQuery.Deferred();
+			if(typeof m.responseText == "object"){
+				newMock.resolve(m.responseText);
+			}
+			else{
+				newMock.resolve(jQuery.parseJSON(m.responseText));
+			}
+		}
+		return newMock;
 	}
 
 	function jsonpSuccess(s, m) {
@@ -321,41 +383,13 @@
 			// Handle JSONP Parameter Callbacks, we need to replicate some of the jQuery core here
 			// because there isn't an easy hook for the cross domain script tag of jsonp
 			if ( s.dataType === "jsonp" ) {
-				processJsonpRequest( s );
+				processJsonpUrl( s );
 				s.dataType = "json";
 			}
 
 			// Build temporary JSONP function
 			if ( s.dataType === "json" && (s.data && CALLBACK_REGEX.test(s.data) || CALLBACK_REGEX.test(s.url)) ) {
-				jsonp = s.jsonpCallback || ("jsonp" + jsc++);
-
-				// Replace the =? sequence both in the query string and the data
-				if ( s.data ) {
-					s.data = (s.data + "").replace(CALLBACK_REGEX, "=" + jsonp + "$1");
-				}
-
-				s.url = s.url.replace(CALLBACK_REGEX, "=" + jsonp + "$1");
-
-				// We need to make sure
-				// that a JSONP style response is executed properly
-				s.dataType = "script";
-
-				// Handle JSONP-style loading
-				window[ jsonp ] = window[ jsonp ] || function( tmp ) {
-					data = tmp;
-					jsonpSuccess( s, m );
-					jsonpComplete( s, m );
-					// Garbage collect
-					window[ jsonp ] = undefined;
-
-					try {
-						delete window[ jsonp ];
-					} catch(e) {}
-
-					if ( head ) {
-						head.removeChild( script );
-					}
-				};
+				createJsonpScript(s, m);
 			}
 
 			var rurl = /^(\w+:)?\/\/([^\/?#]+)/,
@@ -364,31 +398,8 @@
 
 			// Test if we are going to create a script tag (if so, intercept & mock)
 			if ( s.dataType === "script" && s.type.toUpperCase() === "GET" && remote ) {
-				// Synthesize the mock request for adding a script tag
-				var callbackContext = origSettings && origSettings.context || s;
+				mock = processJsonpRequest( s, m, mock, origSettings );
 
-
-				if ( m.response && $.isFunction(m.response) ) {
-					m.response(origSettings);
-				} else {
-
-					if( typeof m.responseText === 'object' ) {
-						$.globalEval( '(' + JSON.stringify( m.responseText ) + ')');
-					} else {
-						$.globalEval( '(' + m.responseText + ')');
-					}
-				}
-				jsonpSuccess( s, m );
-				jsonpComplete( s, m );
-				if(jQuery.Deferred){
-					mock = new jQuery.Deferred();
-					if(typeof m.responseText == "object"){
-						mock.resolve(m.responseText);
-					}
-					else{
-						mock.resolve(jQuery.parseJSON(m.responseText));
-					}
-				}
 				return false;
 			}
 
@@ -403,6 +414,7 @@
 			}));
 			return false;
 		});
+
 		// We don't have a mock request, trigger a normal request
 		if ( !mock ) {
 			return _ajax.apply($, [origSettings]);
