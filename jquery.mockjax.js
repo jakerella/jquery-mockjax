@@ -408,7 +408,7 @@
 	}
 
 
-	// The $.ajax replacement.  Where the magic happens
+	// The core $.ajax replacement.  
 	function handleAjax( url, origSettings ) {
 		var mockRequest, requestSettings, mockHandler;
 
@@ -456,12 +456,12 @@
 			mockHandler.timeout = requestSettings.timeout;
 			mockHandler.global = requestSettings.global;
 
-			(function(k, mockHandler, requestSettings, origSettings, mockHandlers) {
+			(function(mockHandler, requestSettings, origSettings, origHandler) {
 				mockRequest = _ajax.call($, $.extend(true, {}, origSettings, {
 					// Mock the XHR object
-					xhr: function() { return xhr( mockHandler, requestSettings, origSettings, mockHandlers[k]); }
+					xhr: function() { return xhr( mockHandler, requestSettings, origSettings, origHandler ) }
 				}));
-			})(k, mockHandler, requestSettings, origSettings, mockHandlers);
+			})(mockHandler, requestSettings, origSettings, mockHandlers[k]);
 
 			return mockRequest;
 		}
