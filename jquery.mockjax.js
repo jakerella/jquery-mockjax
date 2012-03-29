@@ -486,7 +486,7 @@
 		status:       200,
 		statusText:   "OK",
 		responseTime: 500,
-		sisTimeout:    false,
+		isTimeout:    false,
 		contentType:  'text/plain',
 		response:     '',
 		responseText: '',

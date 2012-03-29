@@ -233,32 +233,6 @@ test('Inspecting $.mockjax.handler(id) after request has fired', function() {
   $.mockjaxClear();
 });
 
-/*
-asyncTest('Inspecting $.mockjax.handler\'s data after request has fired', function() {
-  var ID = $.mockjax({
-    url: '/mockjax_data_properties',
-    responseText: "Hello Word"
-  });
-
-  var xhr = $.ajax({
-      url: '/mockjax_data_properties',
-      data: {
-        'param1': 'value1'
-      },
-      beforeSend: function() {
-        equals($.mockjax.handler(ID).data.param1, 'value1', 'Stores request data on the mock request object');
-      },
-      complete: function() {
-        $.mockjaxClear();
-        start();
-      }
-  });
-
-  ok($.mockjax.handler(ID).fired, "Sets the mock's fired property to true");
-
-});
-*/
-
 module('Type Matching');
 asyncTest('Case-insensitive matching for request types', function() {
 	$.mockjax({
