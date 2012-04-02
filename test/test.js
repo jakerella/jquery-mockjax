@@ -91,6 +91,7 @@ asyncTest('Dynamic response callback', function() {
 	$.mockjaxClear();
 });
 
+
 asyncTest('Dynamic response status callback', function() {
 	$.mockjax({
 		url: '/response-callback',
@@ -111,7 +112,13 @@ asyncTest('Dynamic response status callback', function() {
 		},
 		complete: function(xhr) {
 			equals(xhr.status, 500, 'Dynamically set response status matches');
-			equals(xhr.statusText, "Internal Server Error", 'Dynamically set response statusText matches');
+
+			if( $.fn.jquery !== '1.5.2') {
+				// This assertion fails in 1.5.2 due to this bug: http://bugs.jquery.com/ticket/9854
+				// The statusText is being modified internally by jQuery in 1.5.2
+				equals(xhr.statusText, "Internal Server Error", 'Dynamically set response statusText matches');
+			}
+
 			start();
 		}
 	});
@@ -132,7 +139,13 @@ asyncTest('Default Response Settings', function() {
 		},
 		complete: function(xhr) {
 			equals(xhr.status, 200, 'Response status matches default');
-			equals(xhr.statusText, "OK", 'Response statusText matches default');
+
+			if( $.fn.jquery !== '1.5.2') {
+				// This assertion fails in 1.5.2 due to this bug: http://bugs.jquery.com/ticket/9854
+				// The statusText is being modified internally by jQuery in 1.5.2
+				equals(xhr.statusText, "OK", 'Response statusText matches default');
+			}
+
 			equals(xhr.responseText.length, 0, 'responseText length should be 0');
 			equals(xhr.responseXml === undefined, true, 'responseXml should be undefined');
 			start();
