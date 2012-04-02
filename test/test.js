@@ -95,8 +95,8 @@ asyncTest('Dynamic response status callback', function() {
 	$.mockjax({
 		url: '/response-callback',
 		response: function(settings) {
-            this.status = 500;
-            this.statusText = "Internal Server Error"
+			this.status = 500;
+			this.statusText = "Internal Server Error"
 		}
 	});
 
@@ -120,26 +120,26 @@ asyncTest('Dynamic response status callback', function() {
 });
 
 asyncTest('Default Response Settings', function() {
-    $.mockjax({
-        url: '/response-callback'
-    });
+	$.mockjax({
+		url: '/response-callback'
+	});
 
-    $.ajax({
-        url: '/response-callback',
-        dataType: 'text',
-        data: {
-            response: ''
-        },
-        complete: function(xhr) {
-            equals(xhr.status, 200, 'Response status matches default');
-            equals(xhr.statusText, "OK", 'Response statusText matches default');
-            equals(xhr.responseText.length, 0, 'responseText length should be 0');
-            equals(xhr.responseXml === undefined, true, 'responseXml should be undefined');
-            start();
-        }
-    });
+	$.ajax({
+		url: '/response-callback',
+		dataType: 'text',
+		data: {
+			response: ''
+		},
+		complete: function(xhr) {
+			equals(xhr.status, 200, 'Response status matches default');
+			equals(xhr.statusText, "OK", 'Response statusText matches default');
+			equals(xhr.responseText.length, 0, 'responseText length should be 0');
+			equals(xhr.responseXml === undefined, true, 'responseXml should be undefined');
+			start();
+		}
+	});
 
-    $.mockjaxClear();
+	$.mockjaxClear();
 });
 
 test('Remove mockjax definition by id', function() {
