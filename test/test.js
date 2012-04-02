@@ -91,12 +91,13 @@ asyncTest('Dynamic response callback', function() {
 	$.mockjaxClear();
 });
 
+
 asyncTest('Dynamic response status callback', function() {
 	$.mockjax({
 		url: '/response-callback',
 		response: function(settings) {
-            this.status = 500;
-            this.statusText = "Internal Server Error"
+			this.status = 500;
+			this.statusText = "Internal Server Error"
 		}
 	});
 
@@ -106,10 +107,18 @@ asyncTest('Dynamic response status callback', function() {
 		data: {
 			response: 'Hello world'
 		},
-		error: function(){ ok(true, "error callback was called"); },
+		error: function(){ 
+			ok(true, "error callback was called"); 
+		},
 		complete: function(xhr) {
 			equals(xhr.status, 500, 'Dynamically set response status matches');
-			equals(xhr.statusText, "Internal Server Error", 'Dynamically set response statusText matches');
+
+			if( $.fn.jquery !== '1.5.2') {
+				// This assertion fails in 1.5.2 due to this bug: http://bugs.jquery.com/ticket/9854
+				// The statusText is being modified internally by jQuery in 1.5.2
+				equals(xhr.statusText, "Internal Server Error", 'Dynamically set response statusText matches');
+			}
+
 			start();
 		}
 	});
@@ -118,26 +127,32 @@ asyncTest('Dynamic response status callback', function() {
 });
 
 asyncTest('Default Response Settings', function() {
-    $.mockjax({
-        url: '/response-callback'
-    });
+	$.mockjax({
+		url: '/response-callback'
+	});
 
-    $.ajax({
-        url: '/response-callback',
-        dataType: 'text',
-        data: {
-            response: ''
-        },
-        complete: function(xhr) {
-            equals(xhr.status, 200, 'Response status matches default');
-            equals(xhr.statusText, "OK", 'Response statusText matches default');
-            equals(xhr.responseText.length, 0, 'responseText length should be 0');
-            equals(xhr.responseXml === undefined, true, 'responseXml should be undefined');
-            start();
-        }
-    });
+	$.ajax({
+		url: '/response-callback',
+		dataType: 'text',
+		data: {
+			response: ''
+		},
+		complete: function(xhr) {
+			equals(xhr.status, 200, 'Response status matches default');
 
-    $.mockjaxClear();
+			if( $.fn.jquery !== '1.5.2') {
+				// This assertion fails in 1.5.2 due to this bug: http://bugs.jquery.com/ticket/9854
+				// The statusText is being modified internally by jQuery in 1.5.2
+				equals(xhr.statusText, "OK", 'Response statusText matches default');
+			}
+
+			equals(xhr.responseText.length, 0, 'responseText length should be 0');
+			equals(xhr.responseXml === undefined, true, 'responseXml should be undefined');
+			start();
+		}
+	});
+
+	$.mockjaxClear();
 });
 
 test('Remove mockjax definition by id', function() {
@@ -231,30 +246,6 @@ test('Inspecting $.mockjax.handler(id) after request has fired', function() {
   $.mockjaxClear();
 });
 
-asyncTest('Inspecting $.mockjax.handler\'s data after request has fired', function() {
-  var ID = $.mockjax({
-    url: '/mockjax_data_properties',
-    responseText: "Hello Word"
-  });
-
-  var xhr = $.ajax({
-      url: '/mockjax_data_properties',
-      data: {
-        'param1': 'value1'
-      },
-      beforeSend: function() {
-        equals($.mockjax.handler(ID).data.param1, 'value1', 'Stores request data on the mock request object');
-      },
-      complete: function() {
-        $.mockjaxClear();
-        start();
-      }
-  });
-
-  ok($.mockjax.handler(ID).fired, "Sets the mock's fired property to true");
-
-});
-
 module('Type Matching');
 asyncTest('Case-insensitive matching for request types', function() {
 	$.mockjax({
@@ -342,6 +333,162 @@ asyncTest('RegEx match', 1, function() {
 	$.mockjaxClear();
 });
 
+module('Request Data Matching');
+asyncTest('Incorrect data matching on request', 1, function() {
+	$.mockjax({
+		url: '/response-callback',
+		data: {
+			foo: 'bar'
+		}
+	});
+
+	$.ajax({
+		url: '/response-callback',
+		error: function() { ok(true, "Error called on bad mock/data matching"); },
+		data: {
+			bar: 'baz'
+		},
+		success: function(json) {
+			ok( false, "Success should not be called" );
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+
+	$.mockjaxClear();
+});
+asyncTest('Correct data matching on request', 1, function() {
+	$.mockjax({
+		url: '/response-callback',
+		contentType: 'text/json',
+		data: {
+			foo: 'bar'
+		}
+	});
+
+	$.ajax({
+		url: '/response-callback',
+		error: noErrorCallbackExpected,
+		data: {
+			foo: 'bar'
+		},
+		success: function(json) {
+			ok( true, "Successfully matched data" );
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+
+	$.mockjaxClear();
+});
+asyncTest('Multiple data matching requests', function() {
+	$.mockjax({
+		url: '/response-callback',
+		contentType: 'text/json',
+		data: {
+			remote: {
+				test: function(data) {
+					return data !== "hello";
+				}
+			}
+		},
+		responseText: { "yes?": "no" }
+	});
+	$.mockjax({
+		url: '/response-callback',
+		contentType: 'text/json',
+		data: {
+			//remote: "hello"
+			remote: {
+				test: function(data) {
+					return data == "hello";
+				}
+			}
+		},
+		responseText: { "yes?": "yes" }
+	});
+
+	$.ajax({
+		url: '/response-callback',
+		error: function(resp) { ok(true, "Expected error"); },
+		dataType: 'json',
+		data: {
+			remote: "h"
+		},
+		success: function(resp) {
+			deepEqual( resp, {"yes?": "no"}, "correct mock hander" );
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+	stop();
+	$.ajax({
+		url: '/response-callback',
+		error: function() { ok(true, "Expected error"); },
+		dataType: 'json',
+		data: {
+			remote: "he"
+		},
+		success: function(resp) {
+			deepEqual( resp, {"yes?": "no"}, "correct mock hander" );
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+	stop();
+	$.ajax({
+		url: '/response-callback',
+		error: function() { ok(true, "Expected error"); },
+		dataType: 'json',
+		data: {
+			remote: "hel"
+		},
+		success: function(resp) {
+			deepEqual( resp, {"yes?": "no"}, "correct mock hander" );
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+	stop();
+	$.ajax({
+		url: '/response-callback',
+		error: function() { ok(true, "Expected error"); },
+		dataType: 'json',
+		data: {
+			remote: "hell"
+		},
+		success: function(resp) {
+			deepEqual( resp, {"yes?": "no"}, "correct mock hander" );
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+	stop();
+	$.ajax({
+		url: '/response-callback',
+		error: function(resp) {
+			noErrorCallbackExpected();
+		},
+		data: {
+			remote: "hello"
+		},
+		dataType: 'json',
+		success: function(resp) {
+			deepEqual( resp, {"yes?": "yes"}, "correct mock hander" );
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+
+	$.mockjaxClear();
+});
 
 // Test Data Types [Text, HTML, JSON, JSONP, Script and XML]
 module('Data Types');
@@ -404,6 +551,7 @@ asyncTest('Response returns json', function() {
 	});
 	$.mockjaxClear();
 });
+
 asyncTest('Response returns jsonp', 3, function() {
 	$.mockjax({
 		url: '/jsonp*',
@@ -415,7 +563,7 @@ asyncTest('Response returns jsonp', 3, function() {
 		deepEqual(json, { "data" : "JSONP is cool" });
 	};
 
-	$.ajax({
+	var ret = $.ajax({
 		url: '/jsonp?callback=?',
 		jsonpCallback: 'abcdef123456',
 		dataType: 'jsonp',
@@ -427,6 +575,38 @@ asyncTest('Response returns jsonp', 3, function() {
 	});
 	$.mockjaxClear();
 });
+
+
+asyncTest('Response returns jsonp and return value from ajax is a promise if supported', function() {
+	window.rquery =  /\?/;
+
+	$.mockjax({
+		url:"http://api*",
+		responseText:{
+			success:true,
+			ids:[21327211]
+		},
+		dataType:"jsonp",
+		contentType: 'text/json'
+	});
+
+	var promiseObject = $.ajax({
+		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
+		dataType:"jsonp"
+	});
+
+	if (jQuery.Deferred) {
+		ok(promiseObject.done && promiseObject.fail, "Got Promise methods");
+		promiseObject.then(function(){
+			ok(true, "promise object then is executed");
+		});
+	} else {
+		ok(true, "No deferred support, passing as succesful");
+	}
+
+	start();
+});
+
 asyncTest('Response executes script', function() {
 	$.mockjax({
 		url: '/script',
@@ -447,6 +627,42 @@ asyncTest('Response executes script', function() {
 		}
 	});
 	$.mockjaxClear();
+});
+asyncTest('Grouping deferred responses, if supported', function() {
+	window.rquery =  /\?/;
+
+	$.mockjax({
+		url:"http://api*",
+		responseText:{
+			success:true,
+			ids:[21327211]
+		},
+		dataType:"jsonp",
+		contentType: 'text/json'
+	});
+
+	var req1 = $.ajax({
+		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
+		dataType:"jsonp"
+	});
+	var req2 = $.ajax({
+		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
+		dataType:"jsonp"
+	});
+	var req3 = $.ajax({
+		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
+		dataType:"jsonp"
+	});
+
+	if (jQuery.Deferred) {
+		$.when(req1, req2, req3).done(function(a, b, c) {
+			ok(true, "Successfully grouped deferred responses");
+		});
+	} else {
+		ok(true, "No deferred support, passing as succesful");
+	}
+
+	start();
 });
 asyncTest('Response returns parsed XML', function() {
 	$.mockjax({
@@ -561,12 +777,144 @@ asyncTest('headers can be inspected via setRequestHeader()', function() {
 });
 
 
-// TODO: SIMULATING HTTP RESPONSE STATUSES
-// TODO: SETTING THE CONTENT-TYPE
-// TODO: SETTING ADDITIONAL HTTP RESPONSE HEADERS
-// TODO: FORCE SIMULATION OF SERVER TIMEOUTS
-// TODO: DYNAMICALLY GENERATING MOCK DEFINITIONS
-// TODO: DYNAMICALLY GENERATING MOCK RESPONSES
+// SIMULATING HTTP RESPONSE STATUSES
+asyncTest('Response status callback', function() {
+	$.mockjax({
+		url: '/response-callback',
+		status: 403
+	});
+
+	$.ajax({
+		url: '/response-callback',
+		error: function(){ ok(true, "error callback was called"); },
+		complete: function(xhr) {
+			equals(xhr.status, 403, 'response status matches');
+			start();
+		}
+	});
+
+	$.mockjaxClear();
+});
+// SETTING THE CONTENT-TYPE
+asyncTest('Setting the content-type', function() {
+	$.mockjax({
+		url: '/response-callback',
+		contentType: 'text/json',
+		responseText: {
+			foo: 'bar'
+		}
+	});
+
+	$.ajax({
+		url: '/response-callback',
+		dataType: 'json',
+		error: function(){ ok(false, "error callback was called"); },
+		success: function(json) {
+			deepEqual(json, { "foo" : "bar" }, 'JSON Object matches');
+		},
+		complete: function(xhr) {
+			equals(xhr.getResponseHeader('Content-Type'), 'text/json', 'Content type of json');
+			start();
+		}
+	});
+
+	$.mockjaxClear();
+});
+// SETTING ADDITIONAL HTTP RESPONSE HEADERS
+asyncTest('Setting additional HTTP response headers', function() {
+	$.mockjax({
+		url: '/response-callback',
+		headers: {
+			'X-Must-Exist': 'yes'
+		},
+		responseText: 'done'
+	});
+
+	$.ajax({
+		url: '/response-callback',
+		error: function(){ ok(false, "error callback was called"); },
+		success: function(response) {
+			equals( response, "done", "Response text matches" );
+		},
+		complete: function(xhr) {
+			equals( xhr.getResponseHeader( "X-Must-Exist" ), "yes", "Header matches" );
+			start();
+		}
+	});
+
+	$.mockjaxClear();
+});
+// FORCE SIMULATION OF SERVER TIMEOUTS
+asyncTest('Forcing timeout', function() {
+	$.mockjax({
+		url: '/response-callback',
+		responseText: 'done',
+		isTimeout: true
+	});
+
+	$.ajax({
+		url: '/response-callback',
+		error: function(xhr) {
+			ok(true, "error callback was called");
+		},
+		success: function(response) {
+			ok(false, "should not be be successful");
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+
+	$.mockjaxClear();
+});
+// DYNAMICALLY GENERATING MOCK DEFINITIONS
+asyncTest('Dynamic mock definition', function() {
+	$.mockjax( function( settings ) {
+		var service = settings.url.match(/\/users\/(.*)$/);
+		if ( service ) {
+			return { 
+				proxy: 'test_proxy.json'
+			}
+		}
+	});
+
+	$.ajax({
+		url: '/users/test',
+		dataType: 'json',
+		error: noErrorCallbackExpected,
+		success: function(json) {
+			ok(json && json.proxy, 'Proxy request succeeded');
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+
+	$.mockjaxClear();
+});
+// DYNAMICALLY GENERATING MOCK RESPONSES
+asyncTest('Dynamic mock response generation', function() {
+	$.mockjax({
+		url: '/response-callback',
+		response: function( settings ) {
+			this.responseText = { currentTime: 'now: ' + new Date() };
+		}
+	});
+
+	$.ajax({
+		url: '/response-callback',
+		dataType: 'json',
+		error: noErrorCallbackExpected,
+		success: function(json) {
+			equals( typeof json.currentTime, 'string', 'Dynamic response succeeded');
+		},
+		complete: function(xhr) {
+			start();
+		}
+	});
+
+	$.mockjaxClear();
+});
 /*
 var id = $.mockjax({
    ...
