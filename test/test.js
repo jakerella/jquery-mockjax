@@ -48,6 +48,28 @@ asyncTest('Intercept and proxy (sub-ajax request)', function() {
 	$.mockjaxClear();
 });
 
+asyncTest('Proxy type specification', function() {
+	$.mockjax({
+		url: '/proxy',
+		proxy: 'test_proxy.json',
+		proxyType: 'GET'
+	});
+
+	$.ajax({
+		url: '/proxy',
+		error: noErrorCallbackExpected,
+		dataType: 'json',
+		success: function(json) {
+			ok(json && json.proxy, 'Proxy request succeeded');
+		},
+		complete: function() {
+			start();
+		}
+	});
+
+	$.mockjaxClear();
+});
+
 asyncTest('Support 1.5 $.ajax(url, settings) signature.', function() {
 	$.mockjax({
 		url: '/resource',
@@ -400,7 +422,6 @@ asyncTest('Multiple data matching requests', function() {
 		url: '/response-callback',
 		contentType: 'text/json',
 		data: {
-			//remote: "hello"
 			remote: {
 				test: function(data) {
 					return data == "hello";
@@ -416,51 +437,6 @@ asyncTest('Multiple data matching requests', function() {
 		dataType: 'json',
 		data: {
 			remote: "h"
-		},
-		success: function(resp) {
-			deepEqual( resp, {"yes?": "no"}, "correct mock hander" );
-		},
-		complete: function(xhr) {
-			start();
-		}
-	});
-	stop();
-	$.ajax({
-		url: '/response-callback',
-		error: function() { ok(true, "Expected error"); },
-		dataType: 'json',
-		data: {
-			remote: "he"
-		},
-		success: function(resp) {
-			deepEqual( resp, {"yes?": "no"}, "correct mock hander" );
-		},
-		complete: function(xhr) {
-			start();
-		}
-	});
-	stop();
-	$.ajax({
-		url: '/response-callback',
-		error: function() { ok(true, "Expected error"); },
-		dataType: 'json',
-		data: {
-			remote: "hel"
-		},
-		success: function(resp) {
-			deepEqual( resp, {"yes?": "no"}, "correct mock hander" );
-		},
-		complete: function(xhr) {
-			start();
-		}
-	});
-	stop();
-	$.ajax({
-		url: '/response-callback',
-		error: function() { ok(true, "Expected error"); },
-		dataType: 'json',
-		data: {
-			remote: "hell"
 		},
 		success: function(resp) {
 			deepEqual( resp, {"yes?": "no"}, "correct mock hander" );
