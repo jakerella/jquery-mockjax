@@ -4,12 +4,12 @@
 jQuery Mockjax provides request/response mocking for ajax requests with
 jQuery and provides all standard behaviors in the request/response flow.
 
-You may report any issues [https://github.com/appendto/jquery-mockjax/issues](in the github issue tracking).
+You may report any issues you may find [https://github.com/appendto/jquery-mockjax/issues](in the github issue tracking).
 
 ### jQuery Version Support ###
 
 The current version of Mockjax has been tested with jQuery 1.3.2 through
-1.7.0 with QUnit unit tests residing in /test.
+1.7.0 with QUnit unit tests, residing in /test.
 
 ### Browsers Tested ###
 Internet Explorer 6-9, Firefox 3.6 and stable, Safari 5.x, Chrome stable, Opera 9.6-latest.
@@ -18,9 +18,11 @@ Internet Explorer 6-9, Firefox 3.6 and stable, Safari 5.x, Chrome stable, Opera 
 [CHANGELOG](https://github.com/appendto/jquery-mockjax/blob/master/CHANGELOG.md)
 
 ## License ##
-Copyright (c) 2010 appendTo LLC.
+Copyright (c) 2012 appendTo LLC.
+
 Dual licensed under the MIT or GPL licenses.
-http://appendto.com/open-source-licenses
+
+[http://appendto.com/open-source-licenses](http://appendto.com/open-source-licenses)
 
 ## Documentation ##
 
@@ -38,15 +40,15 @@ data format at the beginning of a project and develop the front-end
 interface against mock data while the back end team builds the
 production services.**
 
-The plugin was originally developed this plugin for appendTo back in
+The plugin was originally developed by appendTo back in
 March 2010 and the [team](http://twitter.com/appendto/team) has been
 using it in all of its projects since.
 
 ### API
 
 Mockjax consists of two methods, one to set up mocks, one to remove them.
-You'll find plenty examples below. If you're looking for a specific option,
-check this list:
+You'll find plenty of examples below. If you're looking for a specific option,
+checkout this list:
 
 * `$.mockjax(options)`
   * Sets up a mockjax handler.
@@ -54,7 +56,7 @@ check this list:
       * `url`: A string or regular expression specifying the url of the request that the data should be mocked for. If the url is a string and contains an asterisk ( * ), it is treated as a wildcard, by translating to a regular expression, replacing the asterisk with `.+`.
       * `data`: In addition to the URL, match parameters.
       * `type`: Specify what HTTP method to match, usually GET or POST. Case-insensitive, so `get` and `post` also work.
-      * `headers`: An object literal whos keys will be simulated as additional headers returned from the server for the request.
+      * `headers`: An object literal whose keys will be simulated as additional headers returned from the server for the request.
       * `status`: An integer that specifies a valid server response code. This simulates a server response code.
       * `statusText`: An string that specifies a valid server response code description. This simulates a server response code description.
       * `responseTime`: An integer that specifies a simulated network and server latency (in milliseconds).
@@ -90,7 +92,7 @@ code:
     <html>
       <head>
         <title>Fortune App</title>
-        <script src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+        <script src="http://code.jquery.com/jquery-1.7.0.min.js"></script>
       </head>
     <body>
       <div id="fortune"></div>
@@ -108,7 +110,7 @@ code:
 At this point if we were to run this code it would fail since the REST
 service has yet to be implemented. This is where the benefit of the
 Mockjax Plugin starts to pay off. The first step in using Mockjax is to
-include the Plugin, just add a regular script tag.
+include the plugin by just adding a regular script tag.
 
 Once you have that included, you can start intercepting Ajax requests
 and mocking the responses. So let’s mock out the service by including
@@ -128,18 +130,18 @@ available. For some browsers you may need to include
 [json2.js](http://json.org/json2.js), which is included in the `lib` folder**
 
 **If you plan on mocking xml responses, you may also have to include
-`jquery.xmldom.js`, also in the `lib` folder.**
+`jquery.xmldom.js`, which can also be found in the `lib` folder.**
 
-What the plugin does at this point is replace the `$.ajax` method with a
+What Mockjax does at this point is replace the `$.ajax` method with a
 wrapper that transparently checks the URL being requested. If the URL
-matches one defined by `$.mockjax()`, the plugin intercepts the request
+matches one defined by `$.mockjax()`, Mockjax intercepts the request
 and sets up a mock `XMLHttpRequest` object before executing the
 `jQuery.ajax` handler. Otherwise, the request is handed back to the
 native `$.ajax` method for normal execution. One benefit in this
 implementation detail is by simulating the `XMLHttpRequest` object, the
 plugin continues to make use of jQuery’s native ajax handling.
 
-As you write code to mock responses, there’s great value in there are no
+As you write code to mock responses, there’s great value in the fact that there are no
 modifications required to production code. The mocks can be
 transparently inserted. This provides easy integration into most
 frameworks by including the plugin and mock definitions through your
@@ -157,7 +159,7 @@ flexibility in Mockjax and creating responses.
 
 jQuery is able to handle and parse `Text`, `HTML`, `JSON`, `JSONP`,
 `Script` and `XML` data formats and Mockjax is able to mock any of those
-formats. Two things to note, depending upon how you Mock out `JSON` and
+formats. Two things to note, depending upon how you mock out `JSON` and
 `JSONP` you may need to include [json2.js](http://json.org/json2.js) for
 the `JSON.stringify()` method. Additionally if you mock XML inline,
 you’ll need to include the
@@ -190,7 +192,7 @@ or a full regular expression:
       url: /^\/data\/(quote|tweet)$/i
     });
 
-You can also use the data option to match against in addition to url:
+You can also match against the data option in addition to url:
 
     $.mockjax({
         url:  '/rest',
@@ -231,7 +233,7 @@ A simple XML response would be:
     });
 
 As you can quickly see, if you have a significant amount of data being
-mocked this becomes unwieldy. So that brings us to the next pattern of
+mocked this becomes unwieldy. So that brings us to the next pattern,
 proxying.
 
 #### Proxy
