@@ -843,6 +843,32 @@ asyncTest('Forcing timeout', function() {
 
 	$.mockjaxClear();
 });
+// FORCE SIMULATION OF SERVER TIMEOUTS WITH PROMISES
+asyncTest('Forcing timeout with Promises', function() {
+	$.mockjax({
+		url: '/response-callback',
+		responseText: 'done',
+		isTimeout: true
+	});
+
+	var request = $.ajax({
+		url: '/response-callback'
+	});
+
+    request.done(function(xhr) {
+        ok(true, "error callback was called");
+    });
+    
+    request.fail(function(response) {
+        ok(false, "should not be be successful");
+    });
+    
+    request.always(function(xhr) {
+        start();
+    });
+    
+	$.mockjaxClear();
+});
 // DYNAMICALLY GENERATING MOCK DEFINITIONS
 asyncTest('Dynamic mock definition', function() {
 	$.mockjax( function( settings ) {
