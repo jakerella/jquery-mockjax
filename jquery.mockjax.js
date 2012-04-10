@@ -171,15 +171,14 @@
 						this.statusText = mockHandler.statusText;
 					}
 					// jQuery < 1.4 doesn't have onreadystate change for xhr
-					if ( $.isFunction(this.onreadystatechange) && !mockHandler.isTimeout ) {
+					if ( $.isFunction(this.onreadystatechange) ) {
+						if( mockHandler.isTimeout) {
+							this.status = -1;
+						}
 						this.onreadystatechange( mockHandler.isTimeout ? 'timeout' : undefined );
 					} else if ( mockHandler.isTimeout ) {
-						if ( $.isFunction( $.handleError ) ) {
-							// Fix for 1.3.2 timeout to keep success from firing.
-							this.readyState = -1;
-						}
-						requestSettings.error( this, "timeout" );
-						requestSettings.complete( this, "timeout" );
+						// Fix for 1.3.2 timeout to keep success from firing.
+						this.status = -1;
 					}
 				}).apply(that);
 			};
