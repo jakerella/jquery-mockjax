@@ -968,8 +968,6 @@ asyncTest('Dynamic mock response generation', function() {
 
 	$.mockjaxClear();
 });
-
-
 /*
 var id = $.mockjax({
    ...
