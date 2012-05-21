@@ -251,7 +251,7 @@ asyncTest('Disable console logging', function() {
 	});
 });
 
-// This test is only relevant in 1.5.2 and higher
+// These tests is only relevant in 1.5.2 and higher
 if( jQuery.Deferred ) {
     asyncTest('Preserve context when set in jsonp ajax requet', function(){
             $.mockjax({
@@ -270,7 +270,7 @@ if( jQuery.Deferred ) {
                     error: noErrorCallbackExpected,
                     context: cxt})
                 .done(function(){
-                    equals(this.context, cxt.context, 'this is equal to context object');
+                    deepEqual(this, cxt, 'this is equal to context object');
                     start();
                 });
             $.mockjaxClear();
