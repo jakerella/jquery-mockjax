@@ -335,10 +335,10 @@
 		if(jQuery.Deferred){
 			newMock = new jQuery.Deferred();
 			if(typeof mockHandler.responseText == "object"){
-				newMock.resolve( mockHandler.responseText );
+				newMock.resolveWith( callbackContext, [mockHandler.responseText] );
 			}
 			else{
-				newMock.resolve( jQuery.parseJSON( mockHandler.responseText ) );
+				newMock.resolveWith( callbackContext, [jQuery.parseJSON( mockHandler.responseText )] );
 			}
 		}
 		return newMock;
