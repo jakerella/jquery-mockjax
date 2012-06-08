@@ -57,7 +57,7 @@
 	// can be used to restrict a mock handler to being used only when a certain
 	// set of data is passed to it.
 	function isMockDataEqual( mock, live ) {
-		var identical = false;
+       		var identical = true;
 		// Test for situations where the data is a querystring (not an object)
 		if (typeof live === 'string') {
 			// Querystring may be a regex
@@ -68,16 +68,14 @@
 				identical = false;
 				return identical;
 			} else {
-				identical = true;
 				if ( typeof live[k] == 'object' ) {
-					return isMockDataEqual(mock[k], live[k]);
+					identical = identical && isMockDataEqual(mock[k], live[k]);
 				} else {
 					if ( $.isFunction( mock[k].test ) ) {
-						identical = mock[k].test(live[k]);
+						identical = identical && mock[k].test(live[k]);
 					} else {
-						identical = ( mock[k] == live[k] );
+						identical = identical && ( mock[k] == live[k] );
 					}
-					return identical;
 				}
 			}
 		});
