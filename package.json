@@ -1,6 +1,6 @@
 {
   "name": "jquery-mockjax",
-  "version": "1.5.0pre",
+  "version": "1.5.1",
   "description": "Mockjax. The jQuery Mockjax Plugin provides a simple and extremely flexible interface for mocking or simulating ajax requests and responses.",
   "url": "http://code.appendto.com/plugins/jquery-mockjax/",
   "keywords": [ "ajax", "mock", "unit" ],

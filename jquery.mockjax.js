@@ -1,7 +1,7 @@
 /*!
  * MockJax - jQuery Plugin to Mock Ajax requests
  *
- * Version:  1.5.0pre
+ * Version:  1.5.1
  * Released:
  * Home:   http://github.com/appendto/jquery-mockjax
  * Author:   Jonathan Sharp (http://jdsharp.com)
