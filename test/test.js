@@ -251,6 +251,55 @@ asyncTest('Disable console logging', function() {
 	});
 });
 
+// These tests is only relevant in 1.5.2 and higher
+if( jQuery.Deferred ) {
+    asyncTest('Preserve context when set in jsonp ajax requet', function(){
+            $.mockjax({
+                    url: '/jsonp*',
+                    contentType: 'text/json',
+                    proxy: 'test_jsonp.js'
+            });
+
+            window.abcdef123456 = function(json) {};
+            var cxt = {context: 'context'};
+
+            $.ajax({
+                    url: '/jsonp?callback=?',
+                    jsonpCallback: 'abcdef123456',
+                    dataType: 'jsonp',
+                    error: noErrorCallbackExpected,
+                    context: cxt})
+                .done(function(){
+                    deepEqual(this, cxt, 'this is equal to context object');
+                    start();
+                });
+            $.mockjaxClear();
+    });
+    
+    asyncTest('Validate this is the $.ajax object if context is not set', function(){
+            $.mockjax({
+                    url: '/jsonp*',
+                    contentType: 'text/json',
+                    proxy: 'test_jsonp.js'
+            });
+
+            window.abcdef123456 = function(json) {};
+
+            var ret = $.ajax({
+                    url: '/jsonp?callback=?',
+                    jsonpCallback: 'abcdef123456',
+                    dataType: 'jsonp',
+                    error: noErrorCallbackExpected
+                })
+                .done(function(){
+                    ok(this.jsonp, '\'this\' is the $.ajax object for this request.');
+                    start();
+                });
+            var settings = $.ajaxSettings;
+            $.mockjaxClear();
+    });
+}
+
 module('Request Property Inspection');
 test('Inspecting $.mockjax.handler(id) after request has fired', function() {
   var ID = $.mockjax({
