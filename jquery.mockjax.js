@@ -50,7 +50,7 @@
 
 	// Trigger a jQuery event
 	function trigger(s, type, args) {
-		(s.context ? jQuery(s.context) : jQuery.event).trigger(type, args);
+		(s.context ? $(s.context) : $.event).trigger(type, args);
 	}
 
 	// Check if the data field on the mock handler and the request match. This 
@@ -332,13 +332,13 @@
 		jsonpComplete( requestSettings, mockHandler );
 
 		// If we are running under jQuery 1.5+, return a deferred object
-		if(jQuery.Deferred){
-			newMock = new jQuery.Deferred();
+		if($.Deferred){
+			newMock = new $.Deferred();
 			if(typeof mockHandler.responseText == "object"){
 				newMock.resolveWith( callbackContext, [mockHandler.responseText] );
 			}
 			else{
-				newMock.resolveWith( callbackContext, [jQuery.parseJSON( mockHandler.responseText )] );
+				newMock.resolveWith( callbackContext, [$.parseJSON( mockHandler.responseText )] );
 			}
 		}
 		return newMock;
@@ -401,8 +401,8 @@
 		}
 
 		// Handle the global AJAX counter
-		if ( requestSettings.global && ! --jQuery.active ) {
-			jQuery.event.trigger( "ajaxStop" );
+		if ( requestSettings.global && ! --$.active ) {
+			$.event.trigger( "ajaxStop" );
 		}
 	}
 
@@ -421,7 +421,7 @@
 		}
 		
 		// Extend the original settings for the request
-		requestSettings = jQuery.extend(true, {}, jQuery.ajaxSettings, origSettings);
+		requestSettings = $.extend(true, {}, $.ajaxSettings, origSettings);
 
 		// Iterate over our mock handlers (in registration order) until we find
 		// one that is willing to intercept the request
