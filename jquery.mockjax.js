@@ -479,9 +479,11 @@
 	$.mockjaxSettings = {
 		//url:        null,
 		//type:       'GET',
-		log:          function(msg) {
-										window['console'] && window.console.log && window.console.log(msg);
-					  			},
+		log:          function( msg ) {
+			if ( window[ 'console' ] && window.console.log ) {
+				window.console.log.apply( console, arguments );
+			}
+		},
 		status:       200,
 		statusText:   "OK",
 		responseTime: 500,
