@@ -136,7 +136,7 @@
 
 	// Process the xhr objects send operation
 	function _xhrSend(mockHandler, requestSettings, origSettings) {
-
+    var that = this;
 		// This is a substitute for < 1.4 which lacks $.proxy
 		var process = (function(that) {
 			return function() {
@@ -204,7 +204,7 @@
        mockHandler
           .done(function (res) {
             mockHandler.responseText = JSON.stringify(res);
-            process();
+				    that.responseTimer = setTimeout(process, mockHandler.responseTime || 50);
           });
 
     } else {
