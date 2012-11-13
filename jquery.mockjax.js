@@ -184,6 +184,25 @@
 			};
 		})(this);
 
+	        // handle HTTP 3xx redirect with Location header
+	        if(String(mockHandler.status).indexOf(3) > -1 && mockHandler.header['Location']) {
+	            $.ajax({
+	                global: false,
+	                url: mockHandler.header['Location'],
+	                type: mockHandler.proxyType,
+	                data: mockHandler.data,
+	                dataType: requestSettings.dataType === "script" ? "text/plain" : requestSettings.dataType,
+	                complete: function(xhr, txt) {
+	                    mockHandler.responseXML = xhr.responseXML;
+	                    mockHandler.responseText = xhr.responseText;
+	                    mockHandler.status = xhr.status;
+	                    mockHandler.statusText = xhr.statusText;
+	                    this.responseTimer = setTimeout(process, mockHandler.responseTime || 0);
+	                }
+	            });
+	            return;
+	        }
+
 		if ( mockHandler.proxy ) {
 			// We're proxying this request and loading in an external file instead
 			_ajax({
