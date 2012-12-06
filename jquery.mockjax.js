@@ -214,7 +214,7 @@
 	// Construct a mocked XHR Object
 	function xhr(mockHandler, requestSettings, origSettings, origHandler) {
 		// Extend with our default mockjax settings
-		mockHandler = $.extend({}, $.mockjaxSettings, mockHandler);
+		mockHandler = $.extend(true, {}, $.mockjaxSettings, mockHandler);
 
 		if (typeof mockHandler.headers === 'undefined') {
 			mockHandler.headers = {};
