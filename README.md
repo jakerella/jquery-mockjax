@@ -206,6 +206,21 @@ You can also match against the data option in addition to url:
         responseText: { bar: "hello world 2" }
     });
 
+To capture URL parameters, use a capturing regular expression for the URL and a `urlParams` array to indicate, ordinally, the names of the paramters that will be captured.
+
+```javascript
+$.mockjax({
+  // matches /author/1234/isbn/1234-5678-9012-0
+  url: /^\/author\/([\d]+)\/isbn\/([\d\-]+)$/,
+  urlParams: ['authorID', 'isbnNumber'],
+  response: function (settings) {
+    var authorID = settings.urlParams.authorID;
+    var isbnNumber = settigns.urlParams.isbnNumber;
+    //etc.
+  }
+});
+```
+
 ### Step 2. Define the Response
 
 The second step is to define the type of response. The two main
