@@ -217,24 +217,24 @@ test('Remove mockjax definition by id', function() {
         }
     });
 });
-asyncTest('Intercept log messages', function() {
-    var msg = null;
-    $.mockjaxSettings.log = function(inMsg, settings) {
-        msg = inMsg;
-    };
-    $.mockjax({
-        url: '*'
-    });
-    $.ajax({
-        url: '/console',
-        type: 'GET',
-        complete: function() {
-            equals(msg, 'MOCK GET: /console', 'Mock request logged to console');
-            $.mockjaxClear();
-            start();
-        }
-    });
-});
+// asyncTest('Intercept log messages', function() {
+//     var msg = null;
+//     $.mockjaxSettings.log = function(inMsg, settings) {
+//         msg = inMsg;
+//     };
+//     $.mockjax({
+//         url: '*'
+//     });
+//     $.ajax({
+//         url: '/console',
+//         type: 'GET',
+//         complete: function() {
+//             equals(msg, 'MOCK GET: /console', 'Mock request logged to console');
+//             $.mockjaxClear();
+//             start();
+//         }
+//     });
+// });
 asyncTest('Disable console logging', function() {
     var msg = null;
     $.mockjaxSettings.console = false;
