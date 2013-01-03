@@ -527,6 +527,10 @@
 		//type:       'GET',
 		log:          function( msg ) {
 			if (window['console'] && window.console.log) {
+				if (!Function.prototype.bind) {
+					console.log(Array.prototype.slice.call(arguments).join(', '));
+					return;
+				}
 				var log = Function.prototype.bind.call(console.log, console);
 				log.apply(console, arguments);
 			}
