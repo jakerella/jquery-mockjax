@@ -149,6 +149,12 @@
 
 		// This is a substitute for < 1.4 which lacks $.proxy
 		var process = (function(that) {
+			// We have an executable function, call it to give
+			// the mock handler a chance to update it's data
+			if ( $.isFunction(mockHandler.response) ) {
+				mockHandler.response(origSettings);
+			}
+			
 			return function() {
 				return (function() {
 					// The request has returned
@@ -156,11 +162,6 @@
 					this.statusText		= mockHandler.statusText;
 					this.readyState 	= 4;
 
-					// We have an executable function, call it to give
-					// the mock handler a chance to update it's data
-					if ( $.isFunction(mockHandler.response) ) {
-						mockHandler.response(origSettings);
-					}
 					// Copy over our mock to our xhr object before passing control back to
 					// jQuery's onreadystatechange callback
 					if ( requestSettings.dataType == 'json' && ( typeof mockHandler.responseText == 'object' ) ) {
