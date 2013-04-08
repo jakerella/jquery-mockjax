@@ -360,7 +360,7 @@ asyncTest('Exact string', function() {
 
     $.mockjaxClear();
 });
-test('Wildcard match', 4, function() {
+test('Wildcard match', 5, function() {
     function mock(mockUrl, url, response) {
         $.mockjax({
             url: mockUrl,
@@ -379,6 +379,7 @@ test('Wildcard match', 4, function() {
     mock('/wildcard*x', '/wildcard/123456/x', 'x');
     mock('*y', '/wildcard/123456/y', 'y');
     mock('z*', 'z/wildcard/123456', 'z');
+    mock('/wildcard*aa/second/*/nice', '/wildcard/123456/aa/second/9991231/nice', 'aa');
 
     $.mockjaxClear();
 });
