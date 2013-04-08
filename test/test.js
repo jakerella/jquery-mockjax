@@ -478,6 +478,36 @@ asyncTest('Correct data matching on request with empty object literals', 1, func
 
     $.mockjaxClear();
 });
+
+// Related issue #68
+asyncTest('Correct data matching on request with arrays', 1, function() {
+    $.mockjax({
+        url: '/response-callback',
+        contentType: 'text/json',
+        data: {
+            values: []
+        }
+    });
+
+    $.ajax({
+        url: '/response-callback',
+        error: function() {
+            ok( true, "Error callback fired" );
+        },
+        data: {
+            values: [1,2,3]
+        },
+        success: function(json) {
+            ok( false, "Success callback fired" );
+        },
+        complete: function(xhr) {
+            start();
+        }
+    });
+
+    $.mockjaxClear();
+});
+
 asyncTest('Multiple data matching requests', function() {
     $.mockjax({
         url: '/response-callback',
