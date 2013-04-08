@@ -455,6 +455,29 @@ asyncTest('Correct data matching on request', 1, function() {
 
     $.mockjaxClear();
 });
+
+// Related issue #80
+asyncTest('Correct data matching on request with empty object literals', 1, function() {
+    $.mockjax({
+        url: '/response-callback',
+        contentType: 'text/json',
+        data: {}
+    });
+
+    $.ajax({
+        url: '/response-callback',
+        error: noErrorCallbackExpected,
+        data: {},
+        success: function(json) {
+            ok( true, "Successfully matched data" );
+        },
+        complete: function(xhr) {
+            start();
+        }
+    });
+
+    $.mockjaxClear();
+});
 asyncTest('Multiple data matching requests', function() {
     $.mockjax({
         url: '/response-callback',
