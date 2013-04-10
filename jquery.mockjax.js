@@ -398,7 +398,7 @@
 	}
 
 	// The JSONP request was completed
-	function jsonpComplete(requestSettings, callbackContext, mockHandler) {
+	function jsonpComplete(requestSettings, callbackContext) {
 		// Process result
 		if ( requestSettings.complete ) {
 			requestSettings.complete.call( callbackContext, {} , status );
