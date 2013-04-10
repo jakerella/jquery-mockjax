@@ -356,7 +356,7 @@
 	// Create the required JSONP callback function for the request
 	function createJsonpCallback( requestSettings, mockHandler, origSettings ) {
 		var callbackContext = origSettings && origSettings.context || requestSettings;
-		jsonp = requestSettings.jsonpCallback || ("jsonp" + jsc++);
+		var jsonp = requestSettings.jsonpCallback || ("jsonp" + jsc++);
 
 		// Replace the =? sequence both in the query string and the data
 		if ( requestSettings.data ) {
@@ -369,8 +369,8 @@
 		// Handle JSONP-style loading
 		window[ jsonp ] = window[ jsonp ] || function( tmp ) {
 			data = tmp;
-      jsonpSuccess( requestSettings, callbackContext, mockHandler );
-      jsonpComplete( requestSettings, callbackContext, mockHandler );
+			jsonpSuccess( requestSettings, callbackContext, mockHandler );
+			jsonpComplete( requestSettings, callbackContext, mockHandler );
 			// Garbage collect
 			window[ jsonp ] = undefined;
 
@@ -566,4 +566,4 @@
 			return mockHandlers[i];
 		}
 	};
-})(self.jQuery);
+})(jQuery);
