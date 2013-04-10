@@ -14,11 +14,11 @@
 (function($) {
 	var _ajax = $.ajax,
 		mockHandlers = [],
-		CALLBACK_REGEX = /=\?(&|$)/, 
+		CALLBACK_REGEX = /=\?(&|$)/,
 		jsc = (new Date()).getTime();
 
-	
-	// Parse the given XML string. 
+
+	// Parse the given XML string.
 	function parseXML(xml) {
 		if ( window.DOMParser == undefined && window.ActiveXObject ) {
 			DOMParser = function() { };
@@ -53,7 +53,7 @@
 		(s.context ? $(s.context) : $.event).trigger(type, args);
 	}
 
-	// Check if the data field on the mock handler and the request match. This 
+	// Check if the data field on the mock handler and the request match. This
 	// can be used to restrict a mock handler to being used only when a certain
 	// set of data is passed to it.
 	function isMockDataEqual( mock, live ) {
@@ -101,7 +101,7 @@
 		} else {
 			// Look for a simple wildcard '*' or a direct URL match
 			var star = handler.url.indexOf('*');
-			if (handler.url !== requestSettings.url && star === -1 || 
+			if (handler.url !== requestSettings.url && star === -1 ||
 					!new RegExp(handler.url.replace(/[-[\]{}()+?.,\\^$|#\s]/g, "\\$&").replace(/\*/g, '.+')).test(requestSettings.url)) {
 				return null;
 			}
@@ -115,7 +115,7 @@
 			}
 		}
 		// Inspect the request type
-		if ( handler && handler.type && 
+		if ( handler && handler.type &&
 				handler.type.toLowerCase() != requestSettings.type.toLowerCase() ) {
 			// The request type doesn't match (GET vs. POST)
 			return null;
@@ -129,7 +129,7 @@
 		if ( window.console && console.log ) {
 			var message = 'MOCK ' + requestSettings.type.toUpperCase() + ': ' + requestSettings.url;
 			var request = $.extend({}, requestSettings);
-			
+
 			if (typeof console.log === 'function') {
 				console.log(message, request);
 			} else {
@@ -291,7 +291,7 @@
 			if(requestSettings.type.toUpperCase() === "GET" && remote ) {
 				var newMockReturn = processJsonpRequest( requestSettings, mockHandler, origSettings );
 
-				// Check if we are supposed to return a Deferred back to the mock call, or just 
+				// Check if we are supposed to return a Deferred back to the mock call, or just
 				// signal success
 				if(newMockReturn) {
 					return newMockReturn;
@@ -307,14 +307,14 @@
 	function processJsonpUrl( requestSettings ) {
 		if ( requestSettings.type.toUpperCase() === "GET" ) {
 			if ( !CALLBACK_REGEX.test( requestSettings.url ) ) {
-				requestSettings.url += (/\?/.test( requestSettings.url ) ? "&" : "?") + 
+				requestSettings.url += (/\?/.test( requestSettings.url ) ? "&" : "?") +
 					(requestSettings.jsonp || "callback") + "=?";
 			}
 		} else if ( !requestSettings.data || !CALLBACK_REGEX.test(requestSettings.data) ) {
 			requestSettings.data = (requestSettings.data ? requestSettings.data + "&" : "") + (requestSettings.jsonp || "callback") + "=?";
 		}
 	}
-	
+
 	// Process a JSONP request by evaluating the mocked response text
 	function processJsonpRequest( requestSettings, mockHandler, origSettings ) {
 		// Synthesize the mock request for adding a script tag
@@ -416,7 +416,7 @@
 	}
 
 
-	// The core $.ajax replacement.  
+	// The core $.ajax replacement.
 	function handleAjax( url, origSettings ) {
 		var mockRequest, requestSettings, mockHandler;
 
@@ -428,7 +428,7 @@
 			// work around to support 1.5 signature
 			origSettings.url = url;
 		}
-		
+
 		// Extend the original settings for the request
 		requestSettings = $.extend(true, {}, $.ajaxSettings, origSettings);
 
@@ -438,7 +438,7 @@
 			if ( !mockHandlers[k] ) {
 				continue;
 			}
-			
+
 			mockHandler = getMockForRequest( mockHandlers[k], requestSettings );
 			if(!mockHandler) {
 				// No valid mock found for this request
