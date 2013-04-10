@@ -278,7 +278,7 @@
 
 		requestSettings.dataType = "json";
 		if(requestSettings.data && CALLBACK_REGEX.test(requestSettings.data) || CALLBACK_REGEX.test(requestSettings.url)) {
-			createJsonpCallback(requestSettings, mockHandler);
+			createJsonpCallback(requestSettings, mockHandler, origSettings);
 
 			// We need to make sure
 			// that a JSONP style response is executed properly
@@ -336,8 +336,8 @@
 		}
 
 		// Successful response
-		jsonpSuccess( requestSettings, mockHandler );
-		jsonpComplete( requestSettings, mockHandler );
+		jsonpSuccess( requestSettings, callbackContext, mockHandler );
+		jsonpComplete( requestSettings, callbackContext, mockHandler );
 
 		// If we are running under jQuery 1.5+, return a deferred object
 		if($.Deferred){
@@ -354,8 +354,9 @@
 
 
 	// Create the required JSONP callback function for the request
-	function createJsonpCallback( requestSettings, mockHandler ) {
-		var jsonp = requestSettings.jsonpCallback || ("jsonp" + jsc++);
+	function createJsonpCallback( requestSettings, mockHandler, origSettings ) {
+		var callbackContext = origSettings && origSettings.context || requestSettings;
+		jsonp = requestSettings.jsonpCallback || ("jsonp" + jsc++);
 
 		// Replace the =? sequence both in the query string and the data
 		if ( requestSettings.data ) {
@@ -368,8 +369,8 @@
 		// Handle JSONP-style loading
 		window[ jsonp ] = window[ jsonp ] || function( tmp ) {
 			data = tmp;
-			jsonpSuccess( requestSettings, mockHandler );
-			jsonpComplete( requestSettings, mockHandler );
+      jsonpSuccess( requestSettings, callbackContext, mockHandler );
+      jsonpComplete( requestSettings, callbackContext, mockHandler );
 			// Garbage collect
 			window[ jsonp ] = undefined;
 
@@ -384,7 +385,7 @@
 	}
 
 	// The JSONP request was successful
-	function jsonpSuccess(requestSettings, mockHandler) {
+	function jsonpSuccess(requestSettings, callbackContext, mockHandler) {
 		// If a local callback was specified, fire it and pass it the data
 		if ( requestSettings.success ) {
 			requestSettings.success.call( callbackContext, ( mockHandler.response ? mockHandler.response.toString() : mockHandler.responseText || ''), status, {} );
@@ -397,7 +398,7 @@
 	}
 
 	// The JSONP request was completed
-	function jsonpComplete(requestSettings) {
+	function jsonpComplete(requestSettings, callbackContext, mockHandler) {
 		// Process result
 		if ( requestSettings.complete ) {
 			requestSettings.complete.call( callbackContext, {} , status );
@@ -565,4 +566,4 @@
 			return mockHandlers[i];
 		}
 	};
-})(jQuery);
+})(self.jQuery);
