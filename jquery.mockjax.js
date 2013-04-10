@@ -355,7 +355,7 @@
 
 	// Create the required JSONP callback function for the request
 	function createJsonpCallback( requestSettings, mockHandler ) {
-		jsonp = requestSettings.jsonpCallback || ("jsonp" + jsc++);
+		var jsonp = requestSettings.jsonpCallback || ("jsonp" + jsc++);
 
 		// Replace the =? sequence both in the query string and the data
 		if ( requestSettings.data ) {
