@@ -20,7 +20,7 @@
 	
 	// Parse the given XML string. 
 	function parseXML(xml) {
-		if ( window['DOMParser'] == undefined && window.ActiveXObject ) {
+		if ( window.DOMParser == undefined && window.ActiveXObject ) {
 			DOMParser = function() { };
 			DOMParser.prototype.parseFromString = function( xmlString ) {
 				var doc = new ActiveXObject('Microsoft.XMLDOM');
@@ -31,7 +31,7 @@
 		}
 
 		try {
-			var xmlDoc 	= ( new DOMParser() ).parseFromString( xml, 'text/xml' );
+			var xmlDoc = ( new DOMParser() ).parseFromString( xml, 'text/xml' );
 			if ( $.isXMLDoc( xmlDoc ) ) {
 				var err = $('parsererror', xmlDoc);
 				if ( err.length == 1 ) {
@@ -40,12 +40,12 @@
 			} else {
 				throw('Unable to parse XML');
 			}
+			return xmlDoc;
 		} catch( e ) {
 			var msg = ( e.name == undefined ? e : e.name + ': ' + e.message );
 			$(document).trigger('xmlParseError', [ msg ]);
 			return undefined;
 		}
-		return xmlDoc;
 	}
 
 	// Trigger a jQuery event
@@ -57,13 +57,13 @@
 	// can be used to restrict a mock handler to being used only when a certain
 	// set of data is passed to it.
 	function isMockDataEqual( mock, live ) {
-       		var identical = true;
+		var identical = true;
 		// Test for situations where the data is a querystring (not an object)
 		if (typeof live === 'string') {
 			// Querystring may be a regex
 			return $.isFunction( mock.test ) ? mock.test(live) : mock == live;
 		}
-		$.each(mock, function(k, v) {
+		$.each(mock, function(k) {
 			if ( live[k] === undefined ) {
 				identical = false;
 				return identical;
@@ -116,7 +116,7 @@
 		}
 		// Inspect the request type
 		if ( handler && handler.type && 
-				 handler.type.toLowerCase() != requestSettings.type.toLowerCase() ) {
+				handler.type.toLowerCase() != requestSettings.type.toLowerCase() ) {
 			// The request type doesn't match (GET vs. POST)
 			return null;
 		}
@@ -150,9 +150,9 @@
 			return function() {
 				return (function() {
 					// The request has returned
-					this.status 		= mockHandler.status;
-					this.statusText		= mockHandler.statusText;
-					this.readyState 	= 4;
+					this.status     = mockHandler.status;
+					this.statusText = mockHandler.statusText;
+					this.readyState	= 4;
 
 					// We have an executable function, call it to give
 					// the mock handler a chance to update it's data
@@ -200,7 +200,7 @@
 				type: mockHandler.proxyType,
 				data: mockHandler.data,
 				dataType: requestSettings.dataType === "script" ? "text/plain" : requestSettings.dataType,
-				complete: function(xhr, txt) {
+				complete: function(xhr) {
 					mockHandler.responseXML = xhr.responseXML;
 					mockHandler.responseText = xhr.responseText;
 					mockHandler.status = xhr.status;
@@ -397,7 +397,7 @@
 	}
 
 	// The JSONP request was completed
-	function jsonpComplete(requestSettings, mockHandler) {
+	function jsonpComplete(requestSettings) {
 		// Process result
 		if ( requestSettings.complete ) {
 			requestSettings.complete.call( callbackContext, {} , status );
@@ -463,12 +463,12 @@
 			mockHandler.timeout = requestSettings.timeout;
 			mockHandler.global = requestSettings.global;
 
-	  copyUrlParameters(mockHandler, origSettings);
+			copyUrlParameters(mockHandler, origSettings);
 
 			(function(mockHandler, requestSettings, origSettings, origHandler) {
 				mockRequest = _ajax.call($, $.extend(true, {}, origSettings, {
 					// Mock the XHR object
-					xhr: function() { return xhr( mockHandler, requestSettings, origSettings, origHandler ) }
+					xhr: function() { return xhr( mockHandler, requestSettings, origSettings, origHandler ); }
 				}));
 			})(mockHandler, requestSettings, origSettings, mockHandlers[k]);
 
@@ -523,8 +523,8 @@
 	$.mockjaxSettings = {
 		//url:        null,
 		//type:       'GET',
-		log:          function( msg ) {
-			if (window['console'] && window.console.log) {
+		log:          function() {
+			if (window.console && window.console.log) {
 				var log = Function.prototype.bind.call(console.log, console);
 				log.apply(console, arguments);
 			}
@@ -561,7 +561,7 @@
 		}
 	};
 	$.mockjax.handler = function(i) {
-	  if ( arguments.length == 1 ) {
+		if ( arguments.length == 1 ) {
 			return mockHandlers[i];
 		}
 	};
