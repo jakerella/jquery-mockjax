@@ -388,7 +388,7 @@
 	function jsonpSuccess(requestSettings, callbackContext, mockHandler) {
 		// If a local callback was specified, fire it and pass it the data
 		if ( requestSettings.success ) {
-			requestSettings.success.call( callbackContext, ( mockHandler.response ? mockHandler.response.toString() : mockHandler.responseText || ''), status, {} );
+			requestSettings.success.call( callbackContext, mockHandler.responseText || "", status, {} );
 		}
 
 		// Fire the global callback
