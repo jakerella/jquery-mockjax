@@ -1054,6 +1054,29 @@ asyncTest( 'Test bug fix for $.mockjaxSettings', function() {
 
     $.mockjaxClear();
 });
+
+asyncTest("Preserve responseText inside a response function when using jsonp and a success callback", function(){
+    $.mockjax({
+        url: "http://some/fake/jsonp/endpoint",
+        // The following line works...
+        // responseText: [{ "data" : "JSONP is cool" }]
+        // But doesn't not work when setting this.responseText in response
+        response: function() {
+            this.responseText = [{ "data" : "JSONP is cool" }];
+        }
+    });
+
+    $.ajax({
+        url: "http://some/fake/jsonp/endpoint",
+        dataType: "jsonp",
+        success: function(data) {
+            deepEqual(data, [{ "data" : "JSONP is cool" }]);
+            start();
+        }
+    });
+
+    $.mockjaxClear();
+});
 /*
 var id = $.mockjax({
    ...
