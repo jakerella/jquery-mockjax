@@ -124,28 +124,6 @@
 		return handler;
 	}
 
-	// If logging is enabled, log the mock to the console
-	function logMock( mockHandler, requestSettings ) {
-		if ( mockHandler.logging === false ||
-			 ( typeof mockHandler.logging === 'undefined' && $.mockjaxSettings.logging === false ) ) {
-			return;
-		}
-		if ( window.console && console.log ) {
-			var message = 'MOCK ' + requestSettings.type.toUpperCase() + ': ' + requestSettings.url;
-			var request = $.extend({}, requestSettings);
-
-			if (typeof console.log === 'function') {
-				console.log(message, request);
-			} else {
-				try {
-					console.log( message + ' ' + JSON.stringify(request) );
-				} catch (e) {
-					console.log(message);
-				}
-			}
-		}
-	}
-
 	// Process the xhr objects send operation
 	function _xhrSend(mockHandler, requestSettings, origSettings) {
 
@@ -449,8 +427,8 @@
 				continue;
 			}
 
-			// Handle console logging
-			logMock( mockHandler, requestSettings );
+			// If logging is enabled, log the mock to the console
+			$.mockjaxSettings.log( mockHandler, requestSettings );
 
 
 			if ( requestSettings.dataType === "jsonp" ) {
@@ -528,10 +506,24 @@
 	$.mockjaxSettings = {
 		//url:        null,
 		//type:       'GET',
-		log:          function() {
-			if (window.console && window.console.log) {
-				var log = Function.prototype.bind.call(console.log, console);
-				log.apply(console, arguments);
+		log:          function( mockHandler, requestSettings ) {
+			if ( mockHandler.logging === false ||
+				 ( typeof mockHandler.logging === 'undefined' && $.mockjaxSettings.logging === false ) ) {
+				return;
+			}
+			if ( window.console && console.log ) {
+				var message = 'MOCK ' + requestSettings.type.toUpperCase() + ': ' + requestSettings.url;
+				var request = $.extend({}, requestSettings);
+
+				if (typeof console.log === 'function') {
+					console.log(message, request);
+				} else {
+					try {
+						console.log( message + ' ' + JSON.stringify(request) );
+					} catch (e) {
+						console.log(message);
+					}
+				}
 			}
 		},
 		logging:      true,
