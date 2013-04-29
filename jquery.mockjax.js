@@ -126,6 +126,10 @@
 
 	// If logging is enabled, log the mock to the console
 	function logMock( mockHandler, requestSettings ) {
+		if ( mockHandler.logging === false ||
+			 ( typeof mockHandler.logging === 'undefined' && $.mockjaxSettings.logging === false ) ) {
+			return;
+		}
 		if ( window.console && console.log ) {
 			var message = 'MOCK ' + requestSettings.type.toUpperCase() + ': ' + requestSettings.url;
 			var request = $.extend({}, requestSettings);
@@ -446,10 +450,7 @@
 			}
 
 			// Handle console logging
-			logging = ($.extend(true, {}, $.mockjaxSettings, mockHandler)).logging
-			if(logging) {
-				logMock( mockHandler, requestSettings );
-			}
+			logMock( mockHandler, requestSettings );
 
 
 			if ( requestSettings.dataType === "jsonp" ) {
