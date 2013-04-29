@@ -446,7 +446,10 @@
 			}
 
 			// Handle console logging
-			logMock( mockHandler, requestSettings );
+			logging = ($.extend(true, {}, $.mockjaxSettings, mockHandler)).logging
+			if(logging) {
+				logMock( mockHandler, requestSettings );
+			}
 
 
 			if ( requestSettings.dataType === "jsonp" ) {
@@ -530,6 +533,7 @@
 				log.apply(console, arguments);
 			}
 		},
+		logging:      true,
 		status:       200,
 		statusText:   "OK",
 		responseTime: 500,
