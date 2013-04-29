@@ -126,6 +126,10 @@
 
 	// If logging is enabled, log the mock to the console
 	function logMock( mockHandler, requestSettings ) {
+		if ( mockHandler.logging === false ||
+			 ( typeof mockHandler.logging === 'undefined' && $.mockjaxSettings.logging === false ) ) {
+			return;
+		}
 		if ( window.console && console.log ) {
 			var message = 'MOCK ' + requestSettings.type.toUpperCase() + ': ' + requestSettings.url;
 			var request = $.extend({}, requestSettings);
@@ -530,6 +534,7 @@
 				log.apply(console, arguments);
 			}
 		},
+		logging:      true,
 		status:       200,
 		statusText:   "OK",
 		responseTime: 500,
