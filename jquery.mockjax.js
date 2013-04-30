@@ -148,6 +148,8 @@
 					} else if ( requestSettings.dataType == 'xml' ) {
 						if ( typeof mockHandler.responseXML == 'string' ) {
 							this.responseXML = parseXML(mockHandler.responseXML);
+							//in jQuery 1.9.1+, responseXML is processed differently and relies on responseText
+							this.responseText = mockHandler.responseXML;
 						} else {
 							this.responseXML = mockHandler.responseXML;
 						}
