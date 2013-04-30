@@ -834,7 +834,7 @@ asyncTest('Response time simulation and latency', function() {
 module('Headers');
 asyncTest('headers can be inspected via setRequestHeader()', function() {
     var mock;
-    $('html').ajaxSend(function(event, xhr, ajaxSettings) {
+    $(document).ajaxSend(function(event, xhr, ajaxSettings) {
         xhr.setRequestHeader('X-CSRFToken', '<this is a token>');
     });
     mock = $.mockjax({
