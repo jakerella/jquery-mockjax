@@ -436,7 +436,8 @@ asyncTest('Correct data matching on request', 1, function() {
         contentType: 'text/json',
         data: {
             foo: 'bar'
-        }
+        },
+        responseText: {}
     });
 
     $.ajax({
@@ -461,7 +462,8 @@ asyncTest('Correct data matching on request with empty object literals', 1, func
     $.mockjax({
         url: '/response-callback',
         contentType: 'text/json',
-        data: {}
+        data: {},
+        responseText: {}
     });
 
     $.ajax({
@@ -832,7 +834,7 @@ asyncTest('Response time simulation and latency', function() {
 module('Headers');
 asyncTest('headers can be inspected via setRequestHeader()', function() {
     var mock;
-    $('html').ajaxSend(function(event, xhr, ajaxSettings) {
+    $(document).ajaxSend(function(event, xhr, ajaxSettings) {
         xhr.setRequestHeader('X-CSRFToken', '<this is a token>');
     });
     mock = $.mockjax({
