@@ -131,6 +131,8 @@
 		var process = (function(that) {
 			return function() {
 				return (function() {
+					var onReady;
+
 					// The request has returned
 					this.status     = mockHandler.status;
 					this.statusText = mockHandler.statusText;
@@ -162,12 +164,15 @@
 					if( typeof mockHandler.statusText === "string") {
 						this.statusText = mockHandler.statusText;
 					}
+					// jQuery 2.0 renamed onreadystatechange to onload
+					onReady = this.onreadystatechange || this.onload;
+
 					// jQuery < 1.4 doesn't have onreadystate change for xhr
-					if ( $.isFunction(this.onreadystatechange) ) {
+					if ( $.isFunction( onReady ) ) {
 						if( mockHandler.isTimeout) {
 							this.status = -1;
 						}
-						this.onreadystatechange( mockHandler.isTimeout ? 'timeout' : undefined );
+						onReady.call( this, mockHandler.isTimeout ? 'timeout' : undefined );
 					} else if ( mockHandler.isTimeout ) {
 						// Fix for 1.3.2 timeout to keep success from firing.
 						this.status = -1;
