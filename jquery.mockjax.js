@@ -80,6 +80,14 @@
 			}
 		});
 
+		//loop through the live data to see if it has any additional properties
+		$.each(live, function(k) {
+			if ( mock[k] === undefined ) {
+				identical = false;
+				return identical;
+			}
+		});
+
 		return identical;
 	}
 
