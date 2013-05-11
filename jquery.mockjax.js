@@ -69,8 +69,8 @@
 				return identical;
 			} else {
 				if ( typeof live[k] == 'object' ) {
-					if ( $.isArray( live[k] ) ) {
-						identical = identical && $.isArray( mock[k] ) && live[k].length === mock[k].length;
+					if ( identical && $.isArray( live[k] ) ) {
+						identical = $.isArray( mock[k] ) && live[k].length === mock[k].length;
 					}
 					identical = identical && isMockDataEqual(mock[k], live[k]);
 				} else {
