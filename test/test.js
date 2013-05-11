@@ -431,32 +431,6 @@ asyncTest('Incorrect data matching on request', 1, function() {
     $.mockjaxClear();
 });
 
-asyncTest('Incorrect data matching on request - request has additional properties', 1, function() {
-  $.mockjax({
-    url: '/response-callback',
-    data: {
-      foo: 'bar'
-    }
-  });
-
-  $.ajax({
-    url: '/response-callback',
-    error: function() { ok(true, "Error called on bad mock/data matching"); },
-    data: {
-      foo: 'bar',
-      bar: 'baz'
-    },
-    success: function(json) {
-      ok( false, "Success should not be called" );
-    },
-    complete: function(xhr) {
-      start();
-    }
-  });
-
-  $.mockjaxClear();
-});
-
 asyncTest('Correct data matching on request', 1, function() {
     $.mockjax({
         url: '/response-callback',
@@ -482,6 +456,32 @@ asyncTest('Correct data matching on request', 1, function() {
     });
 
     $.mockjaxClear();
+});
+
+asyncTest('Correct data matching on request - request can have additional properties', 1, function() {
+  $.mockjax({
+    url: '/response-callback',
+    data: {
+      foo: 'bar'
+    }
+  });
+
+  $.ajax({
+    url: '/response-callback',
+    error: function() { ok( false, "Error called on bad mock/data matching"); },
+    data: {
+      foo: 'bar',
+      bar: 'baz'
+    },
+    success: function(json) {
+      ok( true, "Success should not be called" );
+    },
+    complete: function(xhr) {
+      start();
+    }
+  });
+
+  $.mockjaxClear();
 });
 
 // Related issue #80

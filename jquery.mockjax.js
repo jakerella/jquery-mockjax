@@ -69,6 +69,9 @@
 				return identical;
 			} else {
 				if ( typeof live[k] == 'object' ) {
+					if ( $.isArray( live[k] ) ) {
+						identical = identical && $.isArray( mock[k] ) && live[k].length === mock[k].length;
+					}
 					identical = identical && isMockDataEqual(mock[k], live[k]);
 				} else {
 					if ( $.isFunction( mock[k].test ) ) {
@@ -77,14 +80,6 @@
 						identical = identical && ( mock[k] == live[k] );
 					}
 				}
-			}
-		});
-
-		//loop through the live data to see if it has any additional properties
-		$.each(live, function(k) {
-			if ( mock[k] === undefined ) {
-				identical = false;
-				return identical;
 			}
 		});
 
