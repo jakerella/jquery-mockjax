@@ -251,6 +251,42 @@ asyncTest('Disable console logging', function() {
     });
 });
 
+asyncTest('Get mocked ajax calls', function() {
+    $.mockjaxClear();
+    $.mockjax({
+        url: '/api/example/*'
+    });
+    equals($.mockjax.mockedAjaxCalls().length, 0, 'Initially there are no saved ajax calls')
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/api/example/1',
+        complete: function() {
+            var actualCalls = $.mockjax.mockedAjaxCalls();
+            equals(actualCalls.length, 1, 'One mocked ajax call is saved');
+            equals(actualCalls[0].type, 'GET', 'Saved ajax call has expected method');
+            equals(actualCalls[0].url, '/api/example/1', 'Saved ajax call has expected url');
+            start();
+        }
+    });
+    $.ajax({
+        async: false,
+        type: 'POST',
+        url: '/api/example/2',
+        data: {a: 1},
+        complete: function() {
+            var actualCalls = $.mockjax.mockedAjaxCalls();
+            equals(actualCalls.length, 2, 'Two mocked ajax calls are saved');
+            equals(actualCalls[1].type, 'POST', 'Second ajax call has expected method');
+            equals(actualCalls[1].url, '/api/example/2', 'Second ajax call has expected url');
+            deepEqual(actualCalls[1].data, {a: 1}, 'Second ajax call has expected data');
+            $.mockjaxClear();
+            start();
+        }
+    });
+    $.mockjaxClear();
+});
+
 // These tests is only relevant in 1.5.2 and higher
 if( jQuery.Deferred ) {
     asyncTest('Preserve context when set in jsonp ajax requet', function(){

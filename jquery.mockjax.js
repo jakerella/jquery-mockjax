@@ -14,6 +14,7 @@
 (function($) {
 	var _ajax = $.ajax,
 		mockHandlers = [],
+		mockedAjaxCalls = [],
 		CALLBACK_REGEX = /=\?(&|$)/,
 		jsc = (new Date()).getTime();
 
@@ -456,6 +457,7 @@
 			copyUrlParameters(mockHandler, origSettings);
 
 			(function(mockHandler, requestSettings, origSettings, origHandler) {
+				mockedAjaxCalls.push(requestSettings);
 				mockRequest = _ajax.call($, $.extend(true, {}, origSettings, {
 					// Mock the XHR object
 					xhr: function() { return xhr( mockHandler, requestSettings, origSettings, origHandler ); }
@@ -564,10 +566,14 @@
 		} else {
 			mockHandlers = [];
 		}
+		mockedAjaxCalls = [];
 	};
 	$.mockjax.handler = function(i) {
 		if ( arguments.length == 1 ) {
 			return mockHandlers[i];
 		}
+	};
+	$.mockjax.mockedAjaxCalls = function() {
+		return mockedAjaxCalls;
 	};
 })(jQuery);
