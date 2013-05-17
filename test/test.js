@@ -300,7 +300,7 @@ asyncTest('Get mocked ajax calls', function() {
     });
     equals($.mockjax.mockedAjaxCalls().length, 3, 'Afterwords there should be three saved ajax calls')
     var mockedUrls = $.map($.mockjax.mockedAjaxCalls(), function(ajaxOptions) { return ajaxOptions.url })
-    deepEqual(mockedUrls, ['/api/example/1', '/api/example/2', '/api/example/jsonp?callback=foo123'], 'Mocked urls are saved in execution order')
+    deepEqual(mockedUrls, ['/api/example/1', '/api/example/2', '/api/example/jsonp?callback=foo123'], 'Mocked ajax calls are saved in execution order')
     $.mockjaxClear();
     equals($.mockjax.mockedAjaxCalls().length, 0, 'After clearing there are no saved ajax calls')
 });
