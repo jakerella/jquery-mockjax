@@ -435,6 +435,8 @@
 				continue;
 			}
 
+			mockedAjaxCalls.push(requestSettings);
+
 			// If logging is enabled, log the mock to the console
 			$.mockjaxSettings.log( mockHandler, requestSettings );
 
@@ -457,7 +459,6 @@
 			copyUrlParameters(mockHandler, origSettings);
 
 			(function(mockHandler, requestSettings, origSettings, origHandler) {
-				mockedAjaxCalls.push(requestSettings);
 				mockRequest = _ajax.call($, $.extend(true, {}, origSettings, {
 					// Mock the XHR object
 					xhr: function() { return xhr( mockHandler, requestSettings, origSettings, origHandler ); }

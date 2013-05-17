@@ -257,6 +257,7 @@ asyncTest('Get mocked ajax calls', function() {
         url: '/api/example/*'
     });
     equals($.mockjax.mockedAjaxCalls().length, 0, 'Initially there are no saved ajax calls')
+    // GET
     $.ajax({
         async: false,
         type: 'GET',
@@ -269,6 +270,7 @@ asyncTest('Get mocked ajax calls', function() {
             start();
         }
     });
+    // POST with some data
     $.ajax({
         async: false,
         type: 'POST',
@@ -280,11 +282,27 @@ asyncTest('Get mocked ajax calls', function() {
             equals(actualCalls[1].type, 'POST', 'Second ajax call has expected method');
             equals(actualCalls[1].url, '/api/example/2', 'Second ajax call has expected url');
             deepEqual(actualCalls[1].data, {a: 1}, 'Second ajax call has expected data');
-            $.mockjaxClear();
             start();
         }
     });
+    // JSONP
+    $.ajax({
+        async: false,
+        url: '/api/example/jsonp?callback=?',
+        jsonpCallback: 'foo123',
+        dataType: 'jsonp',
+        complete: function() {
+            var actualCalls = $.mockjax.mockedAjaxCalls();
+            equals(actualCalls.length, 3, 'Three mocked ajax calls are saved');
+            equals(actualCalls[2].url, '/api/example/jsonp?callback=foo123', 'Third ajax call has expected jsonp url');
+            start();
+        }
+    });
+    equals($.mockjax.mockedAjaxCalls().length, 3, 'Afterwords there should be three saved ajax calls')
+    var mockedUrls = $.map($.mockjax.mockedAjaxCalls(), function(ajaxOptions) { return ajaxOptions.url })
+    deepEqual(mockedUrls, ['/api/example/1', '/api/example/2', '/api/example/jsonp?callback=foo123'], 'Mocked urls are saved in execution order')
     $.mockjaxClear();
+    equals($.mockjax.mockedAjaxCalls().length, 0, 'After clearing there are no saved ajax calls')
 });
 
 // These tests is only relevant in 1.5.2 and higher
