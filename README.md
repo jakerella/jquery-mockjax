@@ -73,6 +73,8 @@ checkout this list:
 * `$.mockjaxClear(id)`
   * Remove a single mockjax handler.
   * `id` is the string returned from `$.mockjax`.
+* `$.mockjax.mockedAjaxCalls()`
+  * Returns all mocked ajax calls so you can e.g. check that expected data is sent to backend.
 
 ### Overview: Your First Mock
 
