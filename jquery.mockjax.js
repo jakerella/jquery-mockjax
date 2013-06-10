@@ -476,7 +476,7 @@
 	*/
 	function copyUrlParameters(mockHandler, origSettings) {
 		//parameters aren't captured if the URL isn't a RegExp
-		if (!mockHandler.url instanceof RegExp) {
+		if (!(mockHandler.url instanceof RegExp)) {
 			return;
 		}
 		//if no URL params were defined on the handler, don't attempt a capture
