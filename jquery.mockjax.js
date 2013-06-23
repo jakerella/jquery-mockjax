@@ -107,6 +107,29 @@
 			}
 		}
 
+        // Inspect the request headers submitted
+        if ( handler.requestHeaders )
+        {
+            console.log("checking headers");
+            if (requestSettings.headers == undefined)
+            {
+                console.log("no headers");
+                return null;
+            }
+            else
+            {
+                for (header in handler.requestHeaders)
+                {
+                    var h = requestSettings.headers[header];
+                    if(h == undefined )
+                        return null;
+                    if(h !== handler.requestHeaders[header])
+                        return null;
+                    
+                }
+            }
+        }
+
 		// Inspect the data submitted in the request (either POST body or GET query string)
 		if ( handler.data && requestSettings.data ) {
 			if ( !isMockDataEqual(handler.data, requestSettings.data) ) {
