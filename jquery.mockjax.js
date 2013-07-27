@@ -11,8 +11,30 @@
  * Dual licensed under the MIT or GPL licenses.
  * http://appendto.com/open-source-licenses
  */
-(function($) {
+(function ( root, name, definition ) {
+
+    if ( typeof define === 'function' && define.amd ) { // AMD definition
+        define(name, ['jquery'], definition);
+
+    } else if ( typeof module !== 'undefined' && module.exports ) { // CJS definition
+        module.exports = definition(require('jquery'));
+
+    } else { // traditional jQuery binding in browser
+        var $ = root.jQuery || root.$;
+        if ( $ ) {
+            $[name] = definition(jQuery);
+            $.extend({
+                ajax: $[name].ajax,
+                mockjaxSettings: $[name].settings,
+                mockjaxClear: $[name].clear
+            });
+        }
+    }
+
+}(this, 'mockjax', function ($) {
+
 	var _ajax = $.ajax,
+		default_settings = {},
 		mockHandlers = [],
 		mockedAjaxCalls = [],
 		CALLBACK_REGEX = /=\?(&|$)/,
@@ -212,7 +234,7 @@
 	// Construct a mocked XHR Object
 	function xhr(mockHandler, requestSettings, origSettings, origHandler) {
 		// Extend with our default mockjax settings
-		mockHandler = $.extend(true, {}, $.mockjaxSettings, mockHandler);
+		mockHandler = $.extend(true, {}, default_settings, mockHandler);
 
 		if (typeof mockHandler.headers === 'undefined') {
 			mockHandler.headers = {};
@@ -438,7 +460,7 @@
 			mockedAjaxCalls.push(requestSettings);
 
 			// If logging is enabled, log the mock to the console
-			$.mockjaxSettings.log( mockHandler, requestSettings );
+			default_settings.log( mockHandler, requestSettings );
 
 
 			if ( requestSettings.dataType === "jsonp" ) {
@@ -507,18 +529,12 @@
 	}
 
 
-	// Public
-
-	$.extend({
-		ajax: handleAjax
-	});
-
-	$.mockjaxSettings = {
+	default_settings = {
 		//url:        null,
 		//type:       'GET',
 		log:          function( mockHandler, requestSettings ) {
 			if ( mockHandler.logging === false ||
-				 ( typeof mockHandler.logging === 'undefined' && $.mockjaxSettings.logging === false ) ) {
+				 ( typeof mockHandler.logging === 'undefined' && default_settings.logging === false ) ) {
 				return;
 			}
 			if ( window.console && console.log ) {
@@ -556,12 +572,18 @@
 		}
 	};
 
-	$.mockjax = function(settings) {
+	// Public
+
+	var mockjax = function(settings) {
 		var i = mockHandlers.length;
 		mockHandlers[i] = settings;
 		return i;
 	};
-	$.mockjaxClear = function(i) {
+
+	mockjax.ajax = handleAjax;
+	mockjax.settings = default_settings;
+
+	mockjax.clear = function(i) {
 		if ( arguments.length == 1 ) {
 			mockHandlers[i] = null;
 		} else {
@@ -569,12 +591,14 @@
 		}
 		mockedAjaxCalls = [];
 	};
-	$.mockjax.handler = function(i) {
+	mockjax.handler = function(i) {
 		if ( arguments.length == 1 ) {
 			return mockHandlers[i];
 		}
 	};
-	$.mockjax.mockedAjaxCalls = function() {
+	mockjax.mockedAjaxCalls = function() {
 		return mockedAjaxCalls;
 	};
-})(jQuery);
+
+	return mockjax;
+}));
