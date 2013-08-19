@@ -8,7 +8,7 @@
     ".jshintrc",
     "*.md",
     "*.json",
-    "lib/*",
-    "test/*"
+    "lib",
+    "test"
   ]
 }
