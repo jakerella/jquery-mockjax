@@ -1,5 +1,0 @@
-{
-  "name": "jquery-mockjax",
-  "version": "1.5.2",
-  "main": ["jquery.mockjax.js"]
-}
