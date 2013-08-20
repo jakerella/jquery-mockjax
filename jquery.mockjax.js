@@ -69,10 +69,11 @@
 				identical = false;
 				return identical;
 			} else {
-				if ( typeof live[k] == 'object' ) {
+				// Previously typeof was used which incorrectly reported null as an object (#106)
+				if ( Object.prototype.toString.call( live[k] ) === '[object Object]' ) {
 					identical = identical && isMockDataEqual(mock[k], live[k]);
 				} else {
-					if ( $.isFunction( mock[k].test ) ) {
+					if ( mock[k] && $.isFunction( mock[k].test ) ) {
 						identical = identical && mock[k].test(live[k]);
 					} else {
 						identical = identical && ( mock[k] == live[k] );

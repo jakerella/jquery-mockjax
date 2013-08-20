@@ -129,8 +129,8 @@ asyncTest('Dynamic response status callback', function() {
         data: {
             response: 'Hello world'
         },
-        error: function(){ 
-            ok(true, "error callback was called"); 
+        error: function(){
+            ok(true, "error callback was called");
         },
         complete: function(xhr) {
             equals(xhr.status, 500, 'Dynamically set response status matches');
@@ -329,7 +329,7 @@ if( jQuery.Deferred ) {
                 });
             $.mockjaxClear();
     });
-    
+
     asyncTest('Validate this is the $.ajax object if context is not set', function(){
             $.mockjax({
                     url: '/jsonp*',
@@ -616,6 +616,36 @@ asyncTest('Multiple data matching requests', function() {
         dataType: 'json',
         success: function(resp) {
             deepEqual( resp, {"yes?": "yes"}, "correct mock hander" );
+        },
+        complete: function(xhr) {
+            start();
+        }
+    });
+
+    $.mockjaxClear();
+});
+
+// Test to prove issue #106
+asyncTest('Null matching on request', 1, function() {
+    $.mockjax({
+        url: '/response-callback',
+        contentType: 'text/json',
+        data: {
+            foo: 'bar',
+            bar: null
+        },
+        responseText: {}
+    });
+
+    $.ajax({
+        url: '/response-callback',
+        error: noErrorCallbackExpected,
+        data: {
+            foo: 'bar',
+            bar: null
+        },
+        success: function(json) {
+            ok( true, "Successfully matched data that contained null values" );
         },
         complete: function(xhr) {
             start();
@@ -1035,7 +1065,7 @@ asyncTest('Dynamic mock definition', function() {
     $.mockjax( function( settings ) {
         var service = settings.url.match(/\/users\/(.*)$/);
         if ( service ) {
-            return { 
+            return {
                 proxy: 'test_proxy.json'
             }
         }
