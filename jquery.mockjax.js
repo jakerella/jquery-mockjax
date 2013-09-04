@@ -469,8 +469,13 @@
 			return mockRequest;
 		}
 
-		// We don't have a mock request, trigger a normal request
-		return _ajax.apply($, [origSettings]);
+		// We don't have a mock request
+		if($.mockjaxSettings.throwUnmocked === true) {
+			throw('AJAX not mocked: ' + origSettings.url);
+		}
+		else { // trigger a normal request
+			return _ajax.apply($, [origSettings]);
+		}
 	}
 
 	/**
@@ -537,20 +542,21 @@
 				}
 			}
 		},
-		logging:      true,
-		status:       200,
-		statusText:   "OK",
-		responseTime: 500,
-		isTimeout:    false,
-		contentType:  'text/plain',
-		response:     '',
-		responseText: '',
-		responseXML:  '',
-		proxy:        '',
-		proxyType:    'GET',
+		logging:       true,
+		status:        200,
+		statusText:    "OK",
+		responseTime:  500,
+		isTimeout:     false,
+		throwUnmocked: false,
+		contentType:   'text/plain',
+		response:      '',
+		responseText:  '',
+		responseXML:   '',
+		proxy:         '',
+		proxyType:     'GET',
 
-		lastModified: null,
-		etag:         '',
+		lastModified:  null,
+		etag:          '',
 		headers: {
 			etag: 'IJF@H#@923uf8023hFO@I#H#',
 			'content-type' : 'text/plain'
