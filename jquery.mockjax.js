@@ -196,16 +196,21 @@
 					mockHandler.responseText = xhr.responseText;
 					mockHandler.status = xhr.status;
 					mockHandler.statusText = xhr.statusText;
-					this.responseTimer = setTimeout(process, mockHandler.responseTime || 0);
+					if ( requestSettings.async === false || mockHandler.responseTime < 0) {
+						// TODO: Blocking delay
+						process();
+					} else {
+						this.responseTimer = setTimeout(process, mockHandler.responseTime);
+					}
 				}
 			});
 		} else {
 			// type == 'POST' || 'GET' || 'DELETE'
-			if ( requestSettings.async === false ) {
+			if ( requestSettings.async === false || mockHandler.responseTime < 0) {
 				// TODO: Blocking delay
 				process();
 			} else {
-				this.responseTimer = setTimeout(process, mockHandler.responseTime || 50);
+				this.responseTimer = setTimeout(process, mockHandler.responseTime);
 			}
 		}
 	}
