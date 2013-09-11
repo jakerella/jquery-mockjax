@@ -457,9 +457,23 @@
 			mockHandler.timeout = requestSettings.timeout;
 			mockHandler.global = requestSettings.global;
 
+			// In the case of a timeout, we just need to ensure
+			// an actual jQuery timeout (That is, our reponse won't)
+			// return faster than the timeout setting.
+			if ( mockHandler.isTimeout ) {
+				if ( mockHandler.responseTime > 1 ) {
+					origSettings.timeout = mockHandler.responseTime - 1;
+				} else {
+					mockHandler.responseTime = 2;
+					origSettings.timeout = 1;
+				}
+				mockHandler.isTimeout = false;
+			}
+
 			copyUrlParameters(mockHandler, origSettings);
 
 			(function(mockHandler, requestSettings, origSettings, origHandler) {
+
 				mockRequest = _ajax.call($, $.extend(true, {}, origSettings, {
 					// Mock the XHR object
 					xhr: function() { return xhr( mockHandler, requestSettings, origSettings, origHandler ); }
