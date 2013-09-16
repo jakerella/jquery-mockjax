@@ -69,8 +69,8 @@
 				identical = false;
 				return identical;
 			} else {
-				// Previously typeof was used which incorrectly reported null as an object (#106)
-				if ( Object.prototype.toString.call( live[k] ) === '[object Object]' ) {
+				// This will allow to compare Arrays 
+				if ( typeof live[k] === 'object' && live[k] !== null ) {
 					identical = identical && isMockDataEqual(mock[k], live[k]);
 				} else {
 					if ( mock[k] && $.isFunction( mock[k].test ) ) {
