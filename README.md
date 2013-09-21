@@ -4,7 +4,7 @@
 jQuery Mockjax provides request/response mocking for ajax requests with
 jQuery and provides all standard behaviors in the request/response flow.
 
-You may report any issues you may find [https://github.com/appendto/jquery-mockjax/issues](in the github issue tracking).
+You may report any issues you may find [in the github issue tracking](https://github.com/appendto/jquery-mockjax/issues).
 
 ### jQuery Version Support ###
 
