@@ -1,6 +1,6 @@
 {
   "name": "jquery-mockjax",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "main": ["jquery.mockjax.js"],
   "ignore": [
     ".editorconfig",
