@@ -69,7 +69,7 @@
 				identical = false;
 				return identical;
 			} else {
-				// This will allow to compare Arrays 
+				// This will allow to compare Arrays
 				if ( typeof live[k] === 'object' && live[k] !== null ) {
 					identical = identical && isMockDataEqual(mock[k], live[k]);
 				} else {
@@ -84,6 +84,11 @@
 
 		return identical;
 	}
+
+    // See if a mock handler property matches the default settings
+    function isDefaultSetting(handler, property) {
+        return handler[property] === $.mockjaxSettings[property];
+    }
 
 	// Check the given handler should mock the given request
 	function getMockForRequest( handler, requestSettings ) {
@@ -194,8 +199,14 @@
 				complete: function(xhr) {
 					mockHandler.responseXML = xhr.responseXML;
 					mockHandler.responseText = xhr.responseText;
-					mockHandler.status = xhr.status;
-					mockHandler.statusText = xhr.statusText;
+                    // Don't override the handler status/statusText if it's specified by the config
+                    if (isDefaultSetting(mockHandler, 'status')) {
+					    mockHandler.status = xhr.status;
+                    }
+                    if (isDefaultSetting(mockHandler, 'statusText')) {
+					    mockHandler.statusText = xhr.statusText;
+                    }
+
 					this.responseTimer = setTimeout(process, mockHandler.responseTime || 0);
 				}
 			});

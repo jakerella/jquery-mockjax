@@ -1163,6 +1163,29 @@ asyncTest("Preserve responseText inside a response function when using jsonp and
 
     $.mockjaxClear();
 });
+
+asyncTest('Custom status when using proxy', function() {
+    $.mockjax({
+        url: '/response-callback',
+        status: 409,
+        proxy: 'test_proxy.json'
+    });
+
+    $.ajax({
+        url: '/response-callback',
+        error: function(){ ok(true, "error callback was called"); },
+        success: function(json) {
+            ok( false, "Success should not be called" );
+        },
+        complete: function(xhr) {
+            equals(xhr.status, 409, 'response status matches');
+            start();
+        }
+    });
+
+    $.mockjaxClear();
+});
+
 /*
 var id = $.mockjax({
    ...
