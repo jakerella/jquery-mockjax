@@ -460,9 +460,10 @@
 				}
 			}
 
-
-			// Removed to fix #54 - keep the mocking data object intact
-			//mockHandler.data = requestSettings.data;
+			// use original data object if the mock data is empty
+			if (typeof mockHandler.data === "undefined") {
+				mockHandler.data = requestSettings.data;
+			}
 
 			mockHandler.cache = requestSettings.cache;
 			mockHandler.timeout = requestSettings.timeout;
