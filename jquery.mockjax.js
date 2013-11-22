@@ -468,6 +468,22 @@
 			mockHandler.timeout = requestSettings.timeout;
 			mockHandler.global = requestSettings.global;
 
+			if ($.isFunction( mockHandler.onAfterSuccess )) {
+			    var originalSuccess = origSettings.success;
+			    origSettings.success = function() {
+				if ( $.isFunction(originalSuccess) ) originalSuccess.apply(this, arguments);
+				mockHandler.onAfterSuccess();
+			    }
+			}
+
+			if ($.isFunction( mockHandler.onAfterComplete )) {
+				var originalComplete = origSettings.complete;
+				origSettings.complete = function() {
+				if ( $.isFunction(originalComplete) ) originalComplete.apply(this, arguments);
+					mockHandler.onAfterComplete();
+				}
+			}
+
 			copyUrlParameters(mockHandler, origSettings);
 
 			(function(mockHandler, requestSettings, origSettings, origHandler) {

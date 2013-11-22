@@ -1186,6 +1186,58 @@ asyncTest('Custom status when using proxy', function() {
     $.mockjaxClear();
 });
 
+asyncTest('Call onAfterSuccess after success has been called', function() {
+    var onAfterSuccessCalled = false;
+    var successCalled = false;
+    $.mockjax({
+        url: '/response-callback',
+        onAfterSuccess: function() {
+        onAfterSuccessCalled = true;
+          equals(successCalled, true, 'success was not yet called');
+        }
+    });
+
+    $.ajax({
+        url: '/response-callback',
+        success: function() {
+            successCalled = true;
+        }
+    });
+
+    setTimeout(function() {
+        equals(onAfterSuccessCalled, true, 'onAfterSuccess was not called');
+        start(); 
+    }, 100);
+    
+    $.mockjaxClear();
+});
+
+asyncTest('Call onAfterComplete after complete has been called', function() {
+    var onAfterCompleteCalled = false;
+    var completeCalled = false;
+    $.mockjax({
+        url: '/response-callback',
+        onAfterComplete: function() {
+            onAfterCompleteCalled = true;
+            equals(completeCalled, true, 'complete was not yet called');
+        }
+    });
+
+    $.ajax({
+        url: '/response-callback',
+        complete: function() {
+            completeCalled = true;
+        }
+    });
+
+    setTimeout(function() {
+        equals(onAfterCompleteCalled, true, 'onAfterComplete was not called');
+        start(); 
+    }, 100);
+    
+    $.mockjaxClear();
+});
+
 /*
 var id = $.mockjax({
    ...
