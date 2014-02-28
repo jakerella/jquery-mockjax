@@ -82,32 +82,36 @@ Our first example will be for a simple REST service for a fortune app
 with the REST endpoint being `/restful/fortune` which returns the
 following JSON message:
 
-    {
-        "status": "success",
-        "fortune" : "Are you a turtle?"
-    }
+```json
+{
+    "status": "success",
+    "fortune" : "Are you a turtle?"
+}
+```
 
 To pull the fortune into our page, we’d use the following HTML & jQuery
 code:
 
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>Fortune App</title>
-        <script src="http://code.jquery.com/jquery-1.7.0.min.js"></script>
-      </head>
-    <body>
-      <div id="fortune"></div>
-    </body>
-    </html>
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Fortune App</title>
+    <script src="http://code.jquery.com/jquery-1.7.0.min.js"></script>
+  </head>
+<body>
+  <div id="fortune"></div>
+</body>
+</html>
 
-    $.getJSON('/restful/fortune', function(response) {
-      if ( response.status == 'success') {
-        $('#fortune').html( 'Your fortune is: ' + response.fortune );
-      } else {
-        $('#fortune').html( 'Things do not look good, no fortune was told' );
-      }
-    });
+$.getJSON('/restful/fortune', function(response) {
+  if ( response.status == 'success') {
+    $('#fortune').html( 'Your fortune is: ' + response.fortune );
+  } else {
+    $('#fortune').html( 'Things do not look good, no fortune was told' );
+  }
+});
+```
 
 At this point if we were to run this code it would fail since the REST
 service has yet to be implemented. This is where the benefit of the
@@ -118,14 +122,16 @@ Once you have that included, you can start intercepting Ajax requests
 and mocking the responses. So let’s mock out the service by including
 the following code:
 
-    $.mockjax({
-      url: '/restful/fortune',
-      responseTime: 750,
-      responseText: {
-        status: 'success',
-        fortune: 'Are you a turtle?'
-      }
-    });
+```javascript
+$.mockjax({
+  url: '/restful/fortune',
+  responseTime: 750,
+  responseText: {
+    status: 'success',
+    fortune: 'Are you a turtle?'
+  }
+});
+```
 
 **Defining a JSON string inline requires a `JSON.stringify` method to be
 available. For some browsers you may need to include
@@ -176,37 +182,47 @@ The first thing you need to do when mocking a request is define the URL
 end-point to intercept and mock. As with our example above this can be a
 simple string:
 
-    $.mockjax({
-      url: '/url/to/rest-service'
-    });
+```javascript
+$.mockjax({
+  url: '/url/to/rest-service'
+});
+```
 
 or contain a `*` as a wildcard:
 
-    $.mockjax({
-      // Matches /data/quote, /data/tweet etc.
-      url: '/data/*'
-    });
+```javascript
+$.mockjax({
+  // Matches /data/quote, /data/tweet etc.
+  url: '/data/*'
+});
+```
 
 or a full regular expression:
 
-    $.mockjax({
-      // Matches /data/quote, /data/tweet but not /data/quotes
-      url: /^\/data\/(quote|tweet)$/i
-    });
+```javascript
+$.mockjax({
+  // Matches /data/quote, /data/tweet but not /data/quotes
+  url: /^\/data\/(quote|tweet)$/i
+});
+```
 
 You can also match against the data option in addition to url:
 
-    $.mockjax({
-        url:  '/rest',
-        data: { action: "foo" },
-        responseText: { bar: "hello world" }
-    });
+```javascript
+$.mockjax({
+    url:  '/rest',
+    data: { action: "foo" },
+    responseText: { bar: "hello world" }
+});
+```
 
-    $.mockjax({
-        url:  '/rest',
-        data: { action: "bar" },
-        responseText: { bar: "hello world 2" }
-    });
+```javascript
+$.mockjax({
+    url:  '/rest',
+    data: { action: "bar" },
+    responseText: { bar: "hello world 2" }
+});
+```
 
 To capture URL parameters, use a capturing regular expression for the URL and a `urlParams` array to indicate, ordinally, the names of the paramters that will be captured.
 
@@ -236,18 +252,22 @@ Callback.
 
 A simple text response would be:
 
-    $.mockjax({
-      url: '/restful/api',
-      responseText: 'A text response from the server'
-    });
+```javascript
+$.mockjax({
+  url: '/restful/api',
+  responseText: 'A text response from the server'
+});
+```
 
 A simple XML response would be:
 
-    $.mockjax({
-      url: '/restful/api',
-      // Need to include the xmlDOM plugin to have this translated into a DOM
-      responseXML: '<document><quote>Hello world!</quote></document>'
-    });
+```javascript
+$.mockjax({
+  url: '/restful/api',
+  // Need to include the xmlDOM plugin to have this translated into a DOM
+  responseXML: '<document><quote>Hello world!</quote></document>'
+});
+```
 
 As you can quickly see, if you have a significant amount of data being
 mocked this becomes unwieldy. So that brings us to the next pattern,
@@ -258,10 +278,12 @@ proxying.
 In this example below, the Mockjax plugin will intercept requests for
 `/restful/api` and redirect them to `/mocks/data.json`.
 
-    $.mockjax({
-      url: '/restful/api',
-      proxy: '/mocks/data.json'
-    });
+```javascript
+$.mockjax({
+  url: '/restful/api',
+  proxy: '/mocks/data.json'
+});
+```
 
 #### Callback
 
@@ -269,12 +291,14 @@ In the final response pattern, we can define a callback on the
 `response` property and have it set `responseText` or `responseXML` as
 needed.
 
-    $.mockjax({
-      url: '/restful/api',
-      response: function() {
-        this.responseText = 'Hello world!';
-      }
-    });
+```javascript
+$.mockjax({
+  url: '/restful/api',
+  response: function() {
+    this.responseText = 'Hello world!';
+  }
+});
+```
 
 ### Advanced Mocking Techniques
 
@@ -287,54 +311,62 @@ contained in the plugin.
 Simulating network and server latency for a mock is as simple as adding
 a `responseTime` property to your mock definition:
 
-    $.mockjax({
-      url: '/restful/api',
-      // Simulate a network latency of 750ms
-      responseTime: 750,
-      responseText: 'A text response from the server'
-    });
+```javascript
+$.mockjax({
+  url: '/restful/api',
+  // Simulate a network latency of 750ms
+  responseTime: 750,
+  responseText: 'A text response from the server'
+});
+```
 
 #### Simulating HTTP Response Statuses
 
 It’s also possible to simulate response statuses other than 200 (default
 for Mockjax) by simply adding a `status` property.
 
-    $.mockjax({
-      url: '/restful/api',
-      // Server 500 error occurred
-      status: 500,
-      responseTime: 750,
-      responseText: 'A text response from the server'
-    });
+```javascript
+$.mockjax({
+  url: '/restful/api',
+  // Server 500 error occurred
+  status: 500,
+  responseTime: 750,
+  responseText: 'A text response from the server'
+});
+```
 
 #### Setting the Content-Type
 
 You can set the content type to associate with the mock response, in the
 example below, we’re setting a json content type.
 
-    $.mockjax({
-      url: '/restful/api',
-      contentType: 'text/json',
-      responseText: {
-        hello: 'World!'
-      }
-    });
+```javascript
+$.mockjax({
+  url: '/restful/api',
+  contentType: 'text/json',
+  responseText: {
+    hello: 'World!'
+  }
+});
+```
 
 #### Setting Additional HTTP Response Headers
 
 Additional HTTP Response Headers may be provided by setting a key in the
 headers object literal:
 
-    $.mockjax({
-      url: '/restful/api',
-      contentType: 'text/json',
-      responseText: {
-        hello: 'World!'
-      },
-      headers: {
-        etag: 'xyz123'
-      }
-    });
+```javascript
+$.mockjax({
+  url: '/restful/api',
+  contentType: 'text/json',
+  responseText: {
+    hello: 'World!'
+  },
+  headers: {
+    etag: 'xyz123'
+  }
+});
+```
 
 #### Force Simulation of Server Timeouts
 
@@ -343,10 +375,12 @@ jQuery’s internal timeout handling for requests. But if you’d like to
 force a timeout for a request you can do so by setting the `isTimeout`
 property to true:
 
-    $.mockjax({
-      url: '/restful/api',
-      isTimeout: true
-    });
+```javascript
+$.mockjax({
+  url: '/restful/api',
+  isTimeout: true
+});
+```
 
 #### Dynamically Generating Mock Definitions
 
@@ -357,47 +391,55 @@ either return false to allow the request to be handled natively, or
 return an object literal with relevant Mockjax parameters set. Below is
 an example that rewrites all Ajax requests to proxy to static mocks:
 
-    $.mockjax(function(settings) {
-      // settings.url == '/restful/<service>'
-      var service = settings.url.match(/\/restful\/(.*)$/);
-      if ( service ) {
-        return {
-          proxy: '/mocks/' + service[1] + '.json'
-        };
-      }
-      return;
-    });
+```javascript
+$.mockjax(function(settings) {
+  // settings.url == '/restful/<service>'
+  var service = settings.url.match(/\/restful\/(.*)$/);
+  if ( service ) {
+    return {
+      proxy: '/mocks/' + service[1] + '.json'
+    };
+  }
+  return;
+});
+```
 
 #### Dynamically Generating Mock Responses
 
 It’s also possible to dynamically generate the response text upon each
 request by implementing a callback function on the `response` parameter:
 
-    $.mockjax({
-      url: '/restful/webservice',
-      dataType: 'json',
-      response: function(settings) {
-        this.responseText = { say: 'random ' + Math.random() };
-      }
-    });
+```javascript
+$.mockjax({
+  url: '/restful/webservice',
+  dataType: 'json',
+  response: function(settings) {
+    this.responseText = { say: 'random ' + Math.random() };
+  }
+});
+```
 
 #### Data types
 
 The example above mocks a `json` response. You can also mock `xml`:
 
-    $.mockjax({
-      url: '/some/xml',
-      dataType: 'xml',
-      responseXML: '<document><say>Hello world XML</say></document>'
-    });
+```javascript
+$.mockjax({
+  url: '/some/xml',
+  dataType: 'xml',
+  responseXML: '<document><say>Hello world XML</say></document>'
+});
+```
 
 And `html`:
 
-    $.mockjax({
-      url: '/some/webservice',
-      dataType: 'html',
-      responseText: '<div>Hello there</div>'
-    });
+```javascript
+$.mockjax({
+  url: '/some/webservice',
+  dataType: 'html',
+  responseText: '<div>Hello there</div>'
+});
+```
 
 #### Globally Defining Mockjax Settings
 
@@ -405,34 +447,42 @@ It’s also possible to define the global defaults for all Mockjax
 requests by overwriting the `$.mockjaxSettings` object. By default the
 settings are as follows:
 
-    $.mockjaxSettings = {
-      status:        200,
-      statusText     'OK',
-      responseTime:  500,
-      isTimeout:     false,
-      contentType:   'text/plain',
-      response:      '',
-      responseText:  '',
-      responseXML:   '',
-      proxy:         '',
-      lastModified:  null,
-      etag:          ''
-    };
+```javascript
+$.mockjaxSettings = {
+  status:        200,
+  statusText     'OK',
+  responseTime:  500,
+  isTimeout:     false,
+  contentType:   'text/plain',
+  response:      '',
+  responseText:  '',
+  responseXML:   '',
+  proxy:         '',
+  lastModified:  null,
+  etag:          ''
+};
+```
 
 To overwrite a particular settings such as the default content-type, you
 would do the following:
 
-    $.mockjaxSettings.contentType = 'text/json';
+```javascript
+$.mockjaxSettings.contentType = 'text/json';
+```
 
 #### Removing Mockjax Handlers
 
 Remove all mockjax handlers:
 
-    $.mockjaxClear();
+```javascript
+$.mockjaxClear();
+```
 
 #### Remove Single Mockjax Handler
 
-    var id = $.mockjax({
-       ...
-    });
-    $.mockjaxClear(id);
+```javascript
+var id = $.mockjax({
+   ...
+});
+$.mockjaxClear(id);
+```
