@@ -217,7 +217,7 @@ $.mockjax({
   urlParams: ['authorID', 'isbnNumber'],
   response: function (settings) {
     var authorID = settings.urlParams.authorID;
-    var isbnNumber = settigns.urlParams.isbnNumber;
+    var isbnNumber = settings.urlParams.isbnNumber;
     //etc.
   }
 });
