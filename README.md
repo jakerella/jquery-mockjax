@@ -135,7 +135,7 @@ $.mockjax({
 
 **Defining a JSON string inline requires a `JSON.stringify` method to be
 available. For some browsers you may need to include
-[json2.js](http://json.org/json2.js), which is included in the `lib` folder**
+[json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js), which is included in the `lib` folder**
 
 **If you plan on mocking xml responses, you may also have to include
 `jquery.xmldom.js`, which can also be found in the `lib` folder.**
@@ -168,7 +168,7 @@ flexibility in Mockjax and creating responses.
 jQuery is able to handle and parse `Text`, `HTML`, `JSON`, `JSONP`,
 `Script` and `XML` data formats and Mockjax is able to mock any of those
 formats. Two things to note, depending upon how you mock out `JSON` and
-`JSONP` you may need to include [json2.js](http://json.org/json2.js) for
+`JSONP` you may need to include [json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js) for
 the `JSON.stringify()` method. Additionally if you mock XML inline,
 you’ll need to include the
 [`xmlDOM`](http://github.com/appendto/jquery-xmldom) plugin that
