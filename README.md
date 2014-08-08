@@ -9,7 +9,7 @@ You may report any issues you may find [in the github issue tracking](https://gi
 ### jQuery Version Support ###
 
 The current version of Mockjax has been tested with jQuery 1.3.2 through
-1.7.0 with QUnit unit tests, residing in /test.
+2.0.0 with QUnit unit tests, residing in /test.
 
 ### Browsers Tested ###
 Internet Explorer 6-9, Firefox 3.6 and stable, Safari 5.x, Chrome stable, Opera 9.6-latest.
