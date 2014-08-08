@@ -428,6 +428,7 @@
 			url = undefined;
 		} else {
 			// work around to support 1.5 signature
+			if ( typeof origSettings === "undefined" ) origSettings = {};
 			origSettings.url = url;
 		}
 
