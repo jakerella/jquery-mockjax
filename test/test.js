@@ -258,6 +258,28 @@ asyncTest('Get mocked ajax calls - GET', function() {
     });
 });
 
+asyncTest('Response settings correct using PUT method', function() {
+    $.mockjax({
+        url: '/put-request',
+        type: 'PUT',
+        responseText: 'this was a PUT'
+    });
+
+    $.ajax({
+        url: '/put-request',
+        type: 'PUT',
+        dataType: 'text',
+        complete: function(xhr) {
+            equal(xhr.status, 200, 'Response status matches default');
+
+            equal(xhr.responseText, 'this was a PUT', 'responseText is correct');
+            start();
+        }
+    });
+
+    $.mockjaxClear();
+});
+
 asyncTest('Get mocked ajax calls - POST with data', function() {
     $.mockjax({
         url: '/api/example/*'
