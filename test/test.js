@@ -105,7 +105,7 @@ asyncTest('Dynamic response callback', function() {
         },
         error: noErrorCallbackExpected,
         complete: function(xhr) {
-            equals(xhr.responseText, 'Hello world 2', 'Response Text matches');
+            equal(xhr.responseText, 'Hello world 2', 'Response Text matches');
             start();
         }
     });
@@ -133,12 +133,12 @@ asyncTest('Dynamic response status callback', function() {
             ok(true, "error callback was called");
         },
         complete: function(xhr) {
-            equals(xhr.status, 500, 'Dynamically set response status matches');
+            equal(xhr.status, 500, 'Dynamically set response status matches');
 
             if( $.fn.jquery !== '1.5.2') {
                 // This assertion fails in 1.5.2 due to this bug: http://bugs.jquery.com/ticket/9854
                 // The statusText is being modified internally by jQuery in 1.5.2
-                equals(xhr.statusText, "Internal Server Error", 'Dynamically set response statusText matches');
+                equal(xhr.statusText, "Internal Server Error", 'Dynamically set response statusText matches');
             }
 
             start();
@@ -160,16 +160,16 @@ asyncTest('Default Response Settings', function() {
             response: ''
         },
         complete: function(xhr) {
-            equals(xhr.status, 200, 'Response status matches default');
+            equal(xhr.status, 200, 'Response status matches default');
 
             if( $.fn.jquery !== '1.5.2') {
                 // This assertion fails in 1.5.2 due to this bug: http://bugs.jquery.com/ticket/9854
                 // The statusText is being modified internally by jQuery in 1.5.2
-                equals(xhr.statusText, "OK", 'Response statusText matches default');
+                equal(xhr.statusText, "OK", 'Response statusText matches default');
             }
 
-            equals(xhr.responseText.length, 0, 'responseText length should be 0');
-            equals(xhr.responseXml === undefined, true, 'responseXml should be undefined');
+            equal(xhr.responseText.length, 0, 'responseText length should be 0');
+            equal(xhr.responseXml === undefined, true, 'responseXml should be undefined');
             start();
         }
     });
@@ -194,7 +194,7 @@ test('Remove mockjax definition by id', function() {
     $.ajax({
         url: '/test',
         success: function(text) {
-            equals(text, 'test', 'Test handler responded');
+            equal(text, 'test', 'Test handler responded');
         },
         error: noErrorCallbackExpected,
         complete: function() {
@@ -204,11 +204,11 @@ test('Remove mockjax definition by id', function() {
             $.ajax({
                 url: '/test',
                 success: function(text) {
-                    equals(text, 'default', 'Default handler responded');
+                    equal(text, 'default', 'Default handler responded');
                 },
                 error: noErrorCallbackExpected,
                 complete: function(xhr) {
-                    equals(xhr.responseText, 'default', 'Default handler responded');
+                    equal(xhr.responseText, 'default', 'Default handler responded');
 
                     $.mockjaxClear();
                     start();
@@ -229,7 +229,7 @@ test('Remove mockjax definition by id', function() {
 //         url: '/console',
 //         type: 'GET',
 //         complete: function() {
-//             equals(msg, 'MOCK GET: /console', 'Mock request logged to console');
+//             equal(msg, 'MOCK GET: /console', 'Mock request logged to console');
 //             $.mockjaxClear();
 //             start();
 //         }
@@ -244,7 +244,7 @@ asyncTest('Disable console logging', function() {
     $.ajax({
         url: '/console',
         complete: function() {
-            equals(msg, null, 'Mock request not logged');
+            equal(msg, null, 'Mock request not logged');
             $.mockjaxClear();
             start();
         }
@@ -256,7 +256,7 @@ asyncTest('Get mocked ajax calls', function() {
     $.mockjax({
         url: '/api/example/*'
     });
-    equals($.mockjax.mockedAjaxCalls().length, 0, 'Initially there are no saved ajax calls')
+    equal($.mockjax.mockedAjaxCalls().length, 0, 'Initially there are no saved ajax calls')
     // GET
     $.ajax({
         async: false,
@@ -264,9 +264,9 @@ asyncTest('Get mocked ajax calls', function() {
         url: '/api/example/1',
         complete: function() {
             var actualCalls = $.mockjax.mockedAjaxCalls();
-            equals(actualCalls.length, 1, 'One mocked ajax call is saved');
-            equals(actualCalls[0].type, 'GET', 'Saved ajax call has expected method');
-            equals(actualCalls[0].url, '/api/example/1', 'Saved ajax call has expected url');
+            equal(actualCalls.length, 1, 'One mocked ajax call is saved');
+            equal(actualCalls[0].type, 'GET', 'Saved ajax call has expected method');
+            equal(actualCalls[0].url, '/api/example/1', 'Saved ajax call has expected url');
             start();
         }
     });
@@ -278,9 +278,9 @@ asyncTest('Get mocked ajax calls', function() {
         data: {a: 1},
         complete: function() {
             var actualCalls = $.mockjax.mockedAjaxCalls();
-            equals(actualCalls.length, 2, 'Two mocked ajax calls are saved');
-            equals(actualCalls[1].type, 'POST', 'Second ajax call has expected method');
-            equals(actualCalls[1].url, '/api/example/2', 'Second ajax call has expected url');
+            equal(actualCalls.length, 2, 'Two mocked ajax calls are saved');
+            equal(actualCalls[1].type, 'POST', 'Second ajax call has expected method');
+            equal(actualCalls[1].url, '/api/example/2', 'Second ajax call has expected url');
             deepEqual(actualCalls[1].data, {a: 1}, 'Second ajax call has expected data');
             start();
         }
@@ -293,16 +293,16 @@ asyncTest('Get mocked ajax calls', function() {
         dataType: 'jsonp',
         complete: function() {
             var actualCalls = $.mockjax.mockedAjaxCalls();
-            equals(actualCalls.length, 3, 'Three mocked ajax calls are saved');
-            equals(actualCalls[2].url, '/api/example/jsonp?callback=foo123', 'Third ajax call has expected jsonp url');
+            equal(actualCalls.length, 3, 'Three mocked ajax calls are saved');
+            equal(actualCalls[2].url, '/api/example/jsonp?callback=foo123', 'Third ajax call has expected jsonp url');
             start();
         }
     });
-    equals($.mockjax.mockedAjaxCalls().length, 3, 'Afterwords there should be three saved ajax calls')
+    equal($.mockjax.mockedAjaxCalls().length, 3, 'Afterwords there should be three saved ajax calls')
     var mockedUrls = $.map($.mockjax.mockedAjaxCalls(), function(ajaxOptions) { return ajaxOptions.url })
     deepEqual(mockedUrls, ['/api/example/1', '/api/example/2', '/api/example/jsonp?callback=foo123'], 'Mocked ajax calls are saved in execution order')
     $.mockjaxClear();
-    equals($.mockjax.mockedAjaxCalls().length, 0, 'After clearing there are no saved ajax calls')
+    equal($.mockjax.mockedAjaxCalls().length, 0, 'After clearing there are no saved ajax calls')
 });
 
 // These tests is only relevant in 1.5.2 and higher
@@ -384,7 +384,7 @@ asyncTest('Case-insensitive matching for request types', function() {
         type: 'get',
         error: noErrorCallbackExpected,
         complete: function(xhr) {
-            equals(xhr.responseText, 'uppercase type response', 'Request matched regardless of case');
+            equal(xhr.responseText, 'uppercase type response', 'Request matched regardless of case');
             start();
         }
     });
@@ -407,7 +407,7 @@ asyncTest('Exact string', function() {
         url: '/exact/string',
         error: noErrorCallbackExpected,
         complete: function(xhr) {
-            equals(xhr.responseText, 'exact string', 'Exact string url match');
+            equal(xhr.responseText, 'exact string', 'Exact string url match');
             start();
         }
     });
@@ -425,7 +425,7 @@ test('Wildcard match', 5, function() {
             url: url,
             error: noErrorCallbackExpected,
             complete: function(xhr) {
-                equals(xhr.responseText, response);
+                equal(xhr.responseText, response);
             }
         });
     }
@@ -451,7 +451,7 @@ asyncTest('RegEx match', 1, function() {
         url: '/regex-123456',
         error: noErrorCallbackExpected,
         complete: function(xhr) {
-            equals(xhr.responseText, 'regex match', 'RegEx match');
+            equal(xhr.responseText, 'regex match', 'RegEx match');
             start();
         }
     });
@@ -669,7 +669,7 @@ asyncTest('Response returns text', function() {
         dataType: 'text',
         error: noErrorCallbackExpected,
         complete: function(xhr) {
-            equals(xhr.getResponseHeader('Content-Type'), 'text/plain', 'Content type of text/plain');
+            equal(xhr.getResponseHeader('Content-Type'), 'text/plain', 'Content type of text/plain');
 
             start();
         }
@@ -686,11 +686,11 @@ asyncTest('Response returns html', function() {
         url: '/html',
         dataType: 'html',
         success: function(data) {
-            equals(data, '<div>String</div>', 'HTML String matches');
+            equal(data, '<div>String</div>', 'HTML String matches');
         },
         error: noErrorCallbackExpected,
         complete: function(xhr) {
-            equals(xhr.getResponseHeader('Content-Type'), 'text/html', 'Content type of text/html');
+            equal(xhr.getResponseHeader('Content-Type'), 'text/html', 'Content type of text/html');
             start();
         }
     });
@@ -710,7 +710,7 @@ asyncTest('Response returns json', function() {
         },
         error: noErrorCallbackExpected,
         complete: function(xhr) {
-            equals(xhr.getResponseHeader('Content-Type'), 'text/json', 'Content type of text/json');
+            equal(xhr.getResponseHeader('Content-Type'), 'text/json', 'Content type of text/json');
             start();
         }
     });
@@ -734,7 +734,7 @@ asyncTest('Response returns jsonp', 3, function() {
         dataType: 'jsonp',
         error: noErrorCallbackExpected,
         complete: function(xhr) {
-            equals(xhr.getResponseHeader('Content-Type'), 'text/json', 'Content type of text/json');
+            equal(xhr.getResponseHeader('Content-Type'), 'text/json', 'Content type of text/json');
             start();
         }
     });
@@ -785,8 +785,8 @@ asyncTest('Response executes script', function() {
         dataType: 'script',
         error: noErrorCallbackExpected,
         complete: function(xhr) {
-            equals(window.TEST_SCRIPT_VAR, 1, 'Script executed');
-            equals(xhr.getResponseHeader('Content-Type'), 'text/plain', 'Content type of text/plain');
+            equal(window.TEST_SCRIPT_VAR, 1, 'Script executed');
+            equal(xhr.getResponseHeader('Content-Type'), 'text/plain', 'Content type of text/plain');
 
             start();
         }
@@ -844,7 +844,7 @@ asyncTest('Response returns parsed XML', function() {
         error: noErrorCallbackExpected,
         complete: function(xhr, error) {
             ok(true, 'Error: ' + error);
-            equals(xhr.getResponseHeader('Content-Type'), 'text/xml', 'Content type of text/xml');
+            equal(xhr.getResponseHeader('Content-Type'), 'text/xml', 'Content type of text/xml');
             start();
         }
     });
@@ -905,7 +905,7 @@ asyncTest('Response time simulation and latency', function() {
         complete: function() {
             var delay = ((new Date()) - ts);
             ok( delay >= 150, 'Correct delay simulation (' + delay + ')' );
-            equals( executed, 1, 'Callback execution order correct');
+            equal( executed, 1, 'Callback execution order correct');
             start();
         }
     });
@@ -930,7 +930,7 @@ asyncTest('headers can be inspected via setRequestHeader()', function() {
             } else {
                 key = 'X-CSRFToken';
             }
-            equals(this.headers[key], '<this is a token>');
+            equal(this.headers[key], '<this is a token>');
             $.mockjaxClear(mock);
             start();
         }
@@ -953,7 +953,7 @@ asyncTest('Response status callback', function() {
         url: '/response-callback',
         error: function(){ ok(true, "error callback was called"); },
         complete: function(xhr) {
-            equals(xhr.status, 403, 'response status matches');
+            equal(xhr.status, 403, 'response status matches');
             start();
         }
     });
@@ -978,7 +978,7 @@ asyncTest('Setting the content-type', function() {
             deepEqual(json, { "foo" : "bar" }, 'JSON Object matches');
         },
         complete: function(xhr) {
-            equals(xhr.getResponseHeader('Content-Type'), 'text/json', 'Content type of json');
+            equal(xhr.getResponseHeader('Content-Type'), 'text/json', 'Content type of json');
             start();
         }
     });
@@ -999,10 +999,10 @@ asyncTest('Setting additional HTTP response headers', function() {
         url: '/response-callback',
         error: function(){ ok(false, "error callback was called"); },
         success: function(response) {
-            equals( response, "done", "Response text matches" );
+            equal( response, "done", "Response text matches" );
         },
         complete: function(xhr) {
-            equals( xhr.getResponseHeader( "X-Must-Exist" ), "yes", "Header matches" );
+            equal( xhr.getResponseHeader( "X-Must-Exist" ), "yes", "Header matches" );
             start();
         }
     });
@@ -1099,7 +1099,7 @@ asyncTest('Dynamic mock response generation', function() {
         dataType: 'json',
         error: noErrorCallbackExpected,
         success: function(json) {
-            equals( typeof json.currentTime, 'string', 'Dynamic response succeeded');
+            equal( typeof json.currentTime, 'string', 'Dynamic response succeeded');
         },
         complete: function(xhr) {
             start();
@@ -1178,7 +1178,7 @@ asyncTest('Custom status when using proxy', function() {
             ok( false, "Success should not be called" );
         },
         complete: function(xhr) {
-            equals(xhr.status, 409, 'response status matches');
+            equal(xhr.status, 409, 'response status matches');
             start();
         }
     });
