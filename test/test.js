@@ -1014,6 +1014,28 @@ asyncTest('Setting additional HTTP response headers', function() {
         }
     });
 });
+
+asyncTest('Testing that request headers do not overrite response headers', function() {
+    $.mockjax({
+        url: '/restful/fortune',
+        headers : {
+            prop: 'response'
+        }
+    });
+
+    $.ajax({
+        type: 'GET',
+        url: '/restful/fortune',
+        headers : {
+            prop : 'request'
+        },
+        success : function(res, status, xhr) { 
+            equal(xhr.getResponseHeader('prop'), 'response', 'response header should be correct');
+            start();
+        }
+    });
+});
+
 // FORCE SIMULATION OF SERVER TIMEOUTS
 asyncTest('Forcing timeout', function() {
     $.mockjax({
