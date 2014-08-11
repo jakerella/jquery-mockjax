@@ -108,25 +108,29 @@ asyncTest('Dynamic response callback', function() {
     });
 });
 
-asyncTest('Success callback should have access to xhr object', function() {
-    $.mockjax({
-        url: '/response'
-    });
+if ($().jquery >= "1.4") {
+	// The $.ajax() API changed in version 1.4 to include the third argument: xhr
+	asyncTest('Success callback should have access to xhr object', function() {
+	    $.mockjax({
+	        url: '/response'
+	    });
 
-    $.ajax({
-        type: 'GET',
-        url: '/response',
-        success: function() { 
-            ok(arguments[2], 'there is a third argument to the success callback');
-            ok(arguments[2] && arguments[2].status === 404, 'third argument appears to be an xhr object (proper status code)');
-            start();
-        },
-        error: function() {
-            ok(false, "should not result in error");
-            start();
-        }
-    });
-});
+	    $.ajax({
+	        type: 'GET',
+	        url: '/response',
+	        success: function() {
+	        	console.log(arguments);
+	            ok(arguments[2], 'there is a third argument to the success callback');
+	            ok(arguments[2] && arguments[2].status === 200, 'third argument appears to be an xhr object (proper status code)');
+	            start();
+	        },
+	        error: function() {
+	            ok(false, "should not result in error");
+	            start();
+	        }
+	    });
+	});
+}
 
 asyncTest('Dynamic response status callback', function() {
     $.mockjax({
@@ -1098,14 +1102,18 @@ asyncTest('Testing that request headers do not overwrite response headers', func
         }
     });
 
-    $.ajax({
+    var returnedXhr = $.ajax({
         type: 'GET',
         url: '/restful/fortune',
         headers : {
             prop : 'request'
         },
-        success: function(res, status, xhr) { 
-            equal(xhr && xhr.getResponseHeader('prop'), 'response', 'response header should be correct');
+        success: function(res, status, xhr) {
+            if (xhr) {
+                equal(xhr && xhr.getResponseHeader('prop'), 'response', 'response header should be correct');
+            } else {
+                equal(returnedXhr.getResponseHeader('prop'), 'response', 'response header should be correct');
+            }
             start();
         },
         error: function() {
