@@ -1,3 +1,5 @@
 *.DS_Store
 *.esproj
 *.swp
+.idea/
+*.iml
