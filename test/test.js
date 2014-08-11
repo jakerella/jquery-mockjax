@@ -117,7 +117,6 @@ asyncTest('Success callback should have access to xhr object', function() {
         type: 'GET',
         url: '/response',
         success: function() { 
-            console.log(arguments);
             ok(arguments[2], 'there is a third argument to the success callback');
             ok(arguments[2] && arguments[2].status === 404, 'third argument appears to be an xhr object (proper status code)');
             start();
@@ -1035,7 +1034,7 @@ asyncTest('Setting additional HTTP response headers', function() {
     });
 });
 
-asyncTest('Testing that request headers do not overrite response headers', function() {
+asyncTest('Testing that request headers do not overwrite response headers', function() {
     $.mockjax({
         url: '/restful/fortune',
         headers : {
@@ -1049,8 +1048,12 @@ asyncTest('Testing that request headers do not overrite response headers', funct
         headers : {
             prop : 'request'
         },
-        success : function(res, status, xhr) { 
-            equal(xhr.getResponseHeader('prop'), 'response', 'response header should be correct');
+        success: function(res, status, xhr) { 
+            equal(xhr && xhr.getResponseHeader('prop'), 'response', 'response header should be correct');
+            start();
+        },
+        error: function() {
+            ok(false, "should not result in error");
             start();
         }
     });
