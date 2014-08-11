@@ -69,8 +69,10 @@
 				identical = false;
 				return identical;
 			} else {
-				// This will allow to compare Arrays
 				if ( typeof live[k] === 'object' && live[k] !== null ) {
+					if ( identical && $.isArray( live[k] ) ) {
+						identical = $.isArray( mock[k] ) && live[k].length === mock[k].length;
+					}
 					identical = identical && isMockDataEqual(mock[k], live[k]);
 				} else {
 					if ( mock[k] && $.isFunction( mock[k].test ) ) {
