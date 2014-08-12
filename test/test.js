@@ -613,6 +613,38 @@ asyncTest('Correct data matching on request with empty object literals', 1, func
     });
 });
 
+asyncTest('Correct matching on request without data and mocks with and without data but same url', 1, function() {
+    $.mockjax({
+        url: '/response-callback',
+        data: {
+          foo: 'bar'
+        },
+        responseText: 'false match'
+    });
+    $.mockjax({
+        url: '/response-callback',
+        responseText: 'correct match'
+    });
+    $.mockjax({
+        url: '/response-callback',
+        data: {
+          bar: 'foo'
+        },
+        responseText: 'another false match'
+    });
+
+    $.ajax({
+        url: '/response-callback',
+        error: noErrorCallbackExpected,
+        complete: function(xhr) {
+            equals(xhr.responseText, 'correct match', 'Matched with correct mock');
+            start();
+        }
+    });
+
+    $.mockjaxClear();
+});
+
 // Related issue #68
 asyncTest('Incorrect data matching on request with arrays', 1, function() {
     $.mockjax({
