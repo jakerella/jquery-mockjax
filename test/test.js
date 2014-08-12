@@ -637,7 +637,7 @@ asyncTest('Correct matching on request without data and mocks with and without d
         url: '/response-callback',
         error: noErrorCallbackExpected,
         complete: function(xhr) {
-            equals(xhr.responseText, 'correct match', 'Matched with correct mock');
+            equal(xhr.responseText, 'correct match', 'Matched with correct mock');
             start();
         }
     });
