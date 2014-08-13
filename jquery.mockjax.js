@@ -456,7 +456,7 @@
 			$.mockjaxSettings.log( mockHandler, requestSettings );
 
 
-			if ( requestSettings.dataType === "jsonp" ) {
+			if ( requestSettings.dataType.toUpperCase() === 'JSONP' ) {
 				if ((mockRequest = processJsonpMock( requestSettings, mockHandler, origSettings ))) {
 					// This mock will handle the JSONP request
 					return mockRequest;
