@@ -248,7 +248,8 @@
 				clearTimeout(this.responseTimer);
 			},
 			setRequestHeader: function(header, value) {
-				mockHandler.headers[header] = value;
+				requestSettings.headers[header] = value;
+				// mockHandler.headers[header] = value;
 			},
 			getResponseHeader: function(header) {
 				// 'Last-modified', 'Etag', 'content-type' are all checked by jQuery
