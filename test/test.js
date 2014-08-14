@@ -109,27 +109,26 @@ asyncTest('Dynamic response callback', function() {
 });
 
 if ($().jquery >= "1.4") {
-	// The $.ajax() API changed in version 1.4 to include the third argument: xhr
-	asyncTest('Success callback should have access to xhr object', function() {
-	    $.mockjax({
-	        url: '/response'
-	    });
+    // The $.ajax() API changed in version 1.4 to include the third argument: xhr
+    asyncTest('Success callback should have access to xhr object', function() {
+        $.mockjax({
+            url: '/response'
+        });
 
-	    $.ajax({
-	        type: 'GET',
-	        url: '/response',
-	        success: function() {
-	        	console.log(arguments);
-	            ok(arguments[2], 'there is a third argument to the success callback');
-	            ok(arguments[2] && arguments[2].status === 200, 'third argument appears to be an xhr object (proper status code)');
-	            start();
-	        },
-	        error: function() {
-	            ok(false, "should not result in error");
-	            start();
-	        }
-	    });
-	});
+        $.ajax({
+            type: 'GET',
+            url: '/response',
+            success: function() {
+                ok(arguments[2], 'there is a third argument to the success callback');
+                ok(arguments[2] && arguments[2].status === 200, 'third argument appears to be an xhr object (proper status code)');
+                start();
+            },
+            error: function() {
+                ok(false, "should not result in error");
+                start();
+            }
+        });
+    });
 }
 
 asyncTest('Dynamic response status callback', function() {
