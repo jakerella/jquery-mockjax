@@ -51,7 +51,10 @@
 
 	// Trigger a jQuery event
 	function trigger(s, type, args) {
-		(s.context ? $(s.context) : $.event).trigger(type, args);
+		type = (typeof type === 'string') ? type : s.toString();
+		args = args || (type.splice && type) || [];
+
+		(s.context ? $(s.context) : $.event).trigger(type, args || []);
 	}
 
 	// Check if the data field on the mock handler and the request match. This
