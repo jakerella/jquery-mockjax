@@ -1190,7 +1190,7 @@ if(jQuery.Deferred) {
     asyncTest('Forcing timeout with Promises', function() {
         $.mockjax({
             url: '/response-callback',
-            isTimeout: true,
+            isTimeout: true
         });
 
         var request = $.ajax({
