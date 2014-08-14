@@ -598,4 +598,14 @@
 	$.mockjax.mockedAjaxCalls = function() {
 		return mockedAjaxCalls;
 	};
+	$.mockjax.unfiredHandlers = function() {
+		var results = [];
+		for (var i=0, len=mockHandlers.length; i<len; i++) {
+			var handler = mockHandlers[i];
+			if (!handler.fired) {
+				results.push(handler);
+			}
+		}
+		return results;
+	};
 })(jQuery);

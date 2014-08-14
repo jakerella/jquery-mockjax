@@ -281,6 +281,27 @@ asyncTest('Get mocked ajax calls - GET', function() {
     });
 });
 
+asyncTest('Get unfired handlers', function() {
+    $.mockjax({
+        url: '/api/example/1'
+    });
+    $.mockjax({
+        url: '/api/example/2'
+    });
+    
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/api/example/1',
+        complete: function() {
+            var handlersNotFired = $.mockjax.unfiredHandlers();
+            equal(handlersNotFired.length, 1, 'all mocks were fired');
+            equal(handlersNotFired[0].url, '/api/example/2', 'mockjax call has unexpected url');
+            start();
+        }
+    });
+});
+
 asyncTest('Response settings correct using PUT method', function() {
     $.mockjax({
         url: '/put-request',
