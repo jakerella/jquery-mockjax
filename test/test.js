@@ -685,7 +685,8 @@ asyncTest('Correct data matching on request with arrays', 1, function() {
     url: '/response-callback',
     contentType: 'text/json',
     data: {
-      values: [1,2,3]
+      values: [1,2,3],
+      responseText: {}
     }
   });
 
