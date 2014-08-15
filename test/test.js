@@ -693,7 +693,6 @@ asyncTest('Correct data matching on request with arrays', 1, function() {
   $.ajax({
     url: '/response-callback',
     error: function(xhr, status) {
-    	console.log(status);
       ok( false, "Error callback fired" );
     },
     data: {
