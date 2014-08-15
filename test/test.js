@@ -686,12 +686,13 @@ asyncTest('Correct data matching on request with arrays', 1, function() {
     contentType: 'text/json',
     data: {
       values: [1,2,3]
-    }
+    },
+    responseText: {}
   });
 
   $.ajax({
     url: '/response-callback',
-    error: function() {
+    error: function(xhr, status) {
       ok( false, "Error callback fired" );
     },
     data: {
