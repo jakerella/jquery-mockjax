@@ -353,18 +353,26 @@ asyncTest('Get mocked ajax calls - POST with data', function() {
 
 asyncTest('Get mocked ajax calls - JSONP', function() {
     $.mockjax({
-        url: '/api/example/*'
+        url: '/api/example/*',
+        contentType: 'text/json',
+        proxy: 'test_jsonp.js'
     });
+    var callbackExecuted = false;
+    window.abcdef123456 = function(json) {
+        ok( true, 'JSONP Callback executed');
+        callbackExecuted = true;
+    };
 
-    $.ajax({
-        async: false,
+    var ret = $.ajax({
         url: '/api/example/jsonp?callback=?',
-        jsonpCallback: 'foo123',
+        jsonpCallback: 'abcdef123456',
         dataType: 'jsonp',
-        complete: function() {
+        error: noErrorCallbackExpected,
+        complete: function(xhr) {
             var actualCalls = $.mockjax.mockedAjaxCalls();
             equal(actualCalls.length, 1, 'Mockjax call made');
-            equal(actualCalls[0].url, '/api/example/jsonp?callback=foo123', 'mockjax call has expected jsonp url');
+            equal(actualCalls[0].url, '/api/example/jsonp?callback=abcdef123456', 'mockjax call has expected jsonp url');
+            ok(callbackExecuted, 'The jsonp callback was executed');
             start();
         }
     });
@@ -640,6 +648,38 @@ asyncTest('Correct data matching on request with empty object literals', 1, func
     });
 });
 
+asyncTest('Correct matching on request without data and mocks with and without data but same url', 1, function() {
+    $.mockjax({
+        url: '/response-callback',
+        data: {
+          foo: 'bar'
+        },
+        responseText: 'false match'
+    });
+    $.mockjax({
+        url: '/response-callback',
+        responseText: 'correct match'
+    });
+    $.mockjax({
+        url: '/response-callback',
+        data: {
+          bar: 'foo'
+        },
+        responseText: 'another false match'
+    });
+
+    $.ajax({
+        url: '/response-callback',
+        error: noErrorCallbackExpected,
+        complete: function(xhr) {
+            equal(xhr.responseText, 'correct match', 'Matched with correct mock');
+            start();
+        }
+    });
+
+    $.mockjaxClear();
+});
+
 // Related issue #68
 asyncTest('Incorrect data matching on request with arrays', 1, function() {
     $.mockjax({
@@ -673,12 +713,13 @@ asyncTest('Correct data matching on request with arrays', 1, function() {
     contentType: 'text/json',
     data: {
       values: [1,2,3]
-    }
+    },
+    responseText: {}
   });
 
   $.ajax({
     url: '/response-callback',
-    error: function() {
+    error: function(xhr, status) {
       ok( false, "Error callback fired" );
     },
     data: {
