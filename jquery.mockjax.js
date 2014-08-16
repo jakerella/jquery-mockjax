@@ -187,7 +187,6 @@
 					// the mock handler a chance to update it's data
 					if ( $.isFunction(mockHandler.response) ) {
 						// Wait for it to finish
-						console.log( mockHandler.response.length );
 						if ( mockHandler.response.length === 2 ) {
 							mockHandler.response(origSettings, function () {
 								finishRequest.call(that);
