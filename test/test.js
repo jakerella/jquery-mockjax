@@ -281,6 +281,24 @@ asyncTest('Get mocked ajax calls - GET', function() {
     });
 });
 
+test('Throw new error when throwUnmocked is set to true and unmocked ajax calls are fired', function(assert) {
+    $.mockjaxSettings.throwUnmocked = true;
+
+    try {
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url: '/api/example/1',
+            complete: function() {
+                start();
+            }
+        });
+    } 
+    catch (e) {
+        ok(e instanceof Error);
+    }
+});
+
 asyncTest('Response settings correct using PUT method', function() {
     $.mockjax({
         url: '/put-request',
