@@ -231,6 +231,12 @@
 		if (typeof mockHandler.headers === 'undefined') {
 			mockHandler.headers = {};
 		}
+		if (typeof requestSettings.headers === 'undefined') {
+			requestSettings.headers = {};
+		}
+		if (typeof origSettings.headers === 'undefined') {
+			origSettings.headers = {};
+		}
 		if ( mockHandler.contentType ) {
 			mockHandler.headers['content-type'] = mockHandler.contentType;
 		}
@@ -248,7 +254,10 @@
 				clearTimeout(this.responseTimer);
 			},
 			setRequestHeader: function(header, value) {
-				mockHandler.headers[header] = value;
+				// we need to place this request header on both objects 
+				// since this 'xhr' object is acting as the real thing from the 
+				// POV of the calling code
+				requestSettings.headers[header] = origSettings.headers[header] = value;
 			},
 			getResponseHeader: function(header) {
 				// 'Last-modified', 'Etag', 'content-type' are all checked by jQuery

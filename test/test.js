@@ -1077,12 +1077,12 @@ asyncTest('headers can be inspected via setRequestHeader()', function() {
         url: '/inspect-headers',
         response: function(settings) {
             var key;
-            if (typeof this.headers['X-Csrftoken'] !== 'undefined') {
+            if (settings.headers && typeof settings.headers['X-Csrftoken'] !== 'undefined') {
                 key = 'X-Csrftoken';  // bugs in jquery 1.5
             } else {
                 key = 'X-CSRFToken';
             }
-            equal(this.headers[key], '<this is a token>');
+            equal(settings.headers && settings.headers[key], '<this is a token>');
             start();
         }
     });
