@@ -62,7 +62,7 @@ checkout this list:
       * `responseTime`: An integer that specifies a simulated network and server latency (in milliseconds).
       * `isTimeout`: A boolean value that determines whether or not the mock will force a timeout on the request.
       * `contentType`: A string which specifies the content type for the response.
-      * `response`: `function(settings) {}`, A function that allows for the dynamic setting of responseText/responseXML upon each request.
+      * `response`: `function(settings) {}`, A function that allows for the dynamic setting of responseText/responseXML upon each request. This request can be made asynchronous by supplying a second parameter to the callback function: `function(settings, done){}`. When supplied, the mock will wait until `done()` is invoked before continuing.
       * `responseText`: A string specifying the mocked text, or a mocked object literal, for the request.
       * `responseXML`: A string specifying the mocked XML for the request.
       * `proxy`: A string specifying a path to a file, from which the contents will be returned for the request.
@@ -296,6 +296,22 @@ $.mockjax({
   url: '/restful/api',
   response: function() {
     this.responseText = 'Hello world!';
+  }
+});
+```
+
+The default version of this callback is synchronous. If you provide both parameters
+to the callback function, you can use asynchronous code to set the dynamic response.
+
+```javascript
+$.mockjax({
+  url: '/restful/api',
+  response: function(settings, done) {
+    var self = this;
+    someAsyncMethod(function(data){
+      self.responseText = data;
+      done();
+    });
   }
 });
 ```
