@@ -36,10 +36,10 @@
 			if ( $.isXMLDoc( xmlDoc ) ) {
 				var err = $('parsererror', xmlDoc);
 				if ( err.length == 1 ) {
-					throw('Error: ' + $(xmlDoc).text() );
+					throw new Error('Error: ' + $(xmlDoc).text() );
 				}
 			} else {
-				throw('Unable to parse XML');
+				throw new Error('Unable to parse XML');
 			}
 			return xmlDoc;
 		} catch( e ) {
@@ -485,7 +485,7 @@
 
 		// We don't have a mock request
 		if($.mockjaxSettings.throwUnmocked === true) {
-			throw('AJAX not mocked: ' + origSettings.url);
+			throw new Error('AJAX not mocked: ' + origSettings.url);
 		}
 		else { // trigger a normal request
 			return _ajax.apply($, [origSettings]);
