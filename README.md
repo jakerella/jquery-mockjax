@@ -368,6 +368,34 @@ $.mockjax({
 });
 ```
 
+#### Accessing request headers
+
+In some situations, you may need access to the  request headers to determine
+matching or response bodies. To do this, you will need to specify a callback 
+function that is handed the `$.ajax` request settings:
+
+```javascript
+$.mockjax(function(requestSettings) {
+  if ( requestSettings.url === '/restful/user' ) {
+    return {
+      response: function(origSettings) {
+      	
+      	// now we check the request headers, which may be set directly 
+      	// on the xhr object through an ajaxSetup() call:
+      	
+      	if ( requestSettings.headers[Authentication] === 'some-token' ) {
+      	  this.responseText = { user: { id: 13 } };
+      	} else {
+  		  this.status = 403;
+  		  this.responseText = "You are not authorized";
+        }
+      }
+    };
+  }
+  return; // no url match
+});
+```
+
 #### Force Simulation of Server Timeouts
 
 Because of the way Mockjax was implemented, it takes advantage of
