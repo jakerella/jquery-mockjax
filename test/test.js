@@ -6,10 +6,12 @@ function noErrorCallbackExpected() {
 
 // Speed up our tests
 $.mockjaxSettings.responseTime = 0;
+var defaultSettings = $.extend({}, $.mockjaxSettings);
 
 QUnit.testDone(function() {
     // reset mockjax after each test
     $.mockjaxClear();
+    $.mockjaxSettings = $.extend({}, defaultSettings);
 });
 
 module('Core');
