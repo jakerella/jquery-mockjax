@@ -1070,25 +1070,33 @@ asyncTest('Response time simulation and latency', function() {
 
 module('Headers');
 asyncTest('headers can be inspected via setRequestHeader()', function() {
+    expect(1);
+    
     $(document).ajaxSend(function(event, xhr, ajaxSettings) {
         xhr.setRequestHeader('X-CSRFToken', '<this is a token>');
     });
-    $.mockjax({
-        url: '/inspect-headers',
-        response: function(settings) {
-            var key;
-            if (typeof this.headers['X-Csrftoken'] !== 'undefined') {
-                key = 'X-Csrftoken';  // bugs in jquery 1.5
-            } else {
-                key = 'X-CSRFToken';
-            }
-            equal(this.headers[key], '<this is a token>');
-            start();
+
+    $.mockjax( function ( requestSettings ) {
+        if ( "/inspect-headers" == requestSettings.url ) {
+            return {
+                response: function(origSettings) {
+                    if (typeof requestSettings.headers['X-Csrftoken'] !== 'undefined') {
+                        key = 'X-Csrftoken';  // bugs in jquery 1.5
+                    } else {
+                        key = 'X-CSRFToken';
+                    }
+                    equal(requestSettings.headers[key], '<this is a token>');
+                    this.responseText = {};
+                }
+            };
         }
     });
+
     $.ajax({
         url: '/inspect-headers',
-        complete: function() {}
+        complete: function() {
+            start();
+        }
     });
 });
 
