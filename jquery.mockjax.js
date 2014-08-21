@@ -231,6 +231,9 @@
 		if (typeof mockHandler.headers === 'undefined') {
 			mockHandler.headers = {};
 		}
+		if (typeof requestSettings.headers === 'undefined') {
+			requestSettings.headers = {};
+		}
 		if ( mockHandler.contentType ) {
 			mockHandler.headers['content-type'] = mockHandler.contentType;
 		}
@@ -248,7 +251,7 @@
 				clearTimeout(this.responseTimer);
 			},
 			setRequestHeader: function(header, value) {
-				mockHandler.headers[header] = value;
+				requestSettings.headers[header] = value;
 			},
 			getResponseHeader: function(header) {
 				// 'Last-modified', 'Etag', 'content-type' are all checked by jQuery
