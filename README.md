@@ -75,6 +75,8 @@ checkout this list:
   * `id` is the string returned from `$.mockjax`.
 * `$.mockjax.mockedAjaxCalls()`
   * Returns all mocked ajax calls so you can e.g. check that expected data is sent to backend.
+* `$.mockjax.unfiredHandlers()`
+  * Returns all mocks that have not been used e.g. check that you are not setting up unnecessary mocks.
 
 ### Overview: Your First Mock
 
