@@ -324,6 +324,31 @@ asyncTest('Get unfired handlers', function() {
     });
 });
 
+asyncTest('Get unfired handlers after calling mockjaxClear', function() {
+    $.mockjax({
+        url: '/api/example/1'
+    });
+    $.mockjax({
+        url: '/api/example/2'
+    });
+    $.mockjax({
+        url: '/api/example/3'
+    });
+
+    $.ajax({
+        async: false,
+        type: 'GET',
+        url: '/api/example/1',
+        complete: function() {
+            $.mockjaxClear(2)
+            var handlersNotFired = $.mockjax.unfiredHandlers();
+            equal(handlersNotFired.length, 1, 'all mocks were fired');
+            equal(handlersNotFired[0].url, '/api/example/2', 'mockjax call has unexpected url');
+            start();
+        }
+    });
+});
+
 asyncTest('Response settings correct using PUT method', function() {
 	$.mockjax({
 		url: '/put-request',
