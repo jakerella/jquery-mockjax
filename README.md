@@ -77,6 +77,8 @@ checkout this list:
   * Returns all mocked ajax calls so you can e.g. check that expected data is sent to backend.
 * `$.mockjax.unfiredHandlers()`
   * Returns all mocks that have not been used e.g. check that you are not setting up unnecessary mocks.
+* `$.mockjs.unmockedAjaxCalls()`
+  * Returns all unmocked Ajax calls that were made.
 
 ### Overview: Your First Mock
 

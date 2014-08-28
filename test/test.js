@@ -283,6 +283,39 @@ asyncTest('Get mocked ajax calls - GET', function() {
 	});
 });
 
+asyncTest('Test unmockedAjaxCalls returns the correct object when ajax call is not mocked and throwUnmocked is false', function() {
+  $.mockjaxSettings.throwUnmocked = false;
+
+	$.ajax({
+		async: true,
+		type: 'GET',
+		url: '/api/example/1',
+		complete: function() {
+			var unmockedAjaxCalls = $.mockjax.unmockedAjaxCalls();
+			equal(unmockedAjaxCalls.length, 1, 'Wrong number of unmocked ajax calls were returned');
+			equal(unmockedAjaxCalls[0].url, '/api/example/1', 'unmockedAjaxcall has unexpected url');
+			start();
+		}
+	});
+});
+
+asyncTest('Test unmockedAjaxCalls returns notihng when no unmocked ajax calls occur', function() {
+	$.mockjax({
+		url: '/api/example/1'
+	});
+
+	$.ajax({
+		async: true,
+		type: 'GET',
+		url: '/api/example/1',
+		complete: function() {
+			var unmockedAjaxCalls = $.mockjax.unmockedAjaxCalls();
+			equal(unmockedAjaxCalls.length, 0, 'No unmocked Ajax calls should have been returned');
+			start();
+		}
+	});
+});
+
 asyncTest('Throw new error when throwUnmocked is set to true and unmocked ajax calls are fired', function() {
 	$.mockjaxSettings.throwUnmocked = true;
 
