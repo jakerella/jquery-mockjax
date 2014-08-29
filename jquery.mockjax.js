@@ -488,7 +488,7 @@
 		}
 
 		// We don't have a mock request
-		unmockedAjaxCalls.push(origSettings)
+		unmockedAjaxCalls.push(origSettings);
 		if($.mockjaxSettings.throwUnmocked === true) {
 			throw new Error('AJAX not mocked: ' + origSettings.url);
 		}
