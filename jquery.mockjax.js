@@ -594,6 +594,7 @@
 			mockHandlers = [];
 		}
 		mockedAjaxCalls = [];
+		unmockedAjaxCalls = [];
 	};
 	$.mockjax.handler = function(i) {
 		if ( arguments.length == 1 ) {

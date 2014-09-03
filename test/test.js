@@ -299,7 +299,23 @@ asyncTest('Test unmockedAjaxCalls returns the correct object when ajax call is n
 	});
 });
 
-asyncTest('Test unmockedAjaxCalls returns notihng when no unmocked ajax calls occur', function() {
+asyncTest('Test unmockedAjaxCalls are cleared when mockjaxClear is called', function() {
+  $.mockjaxSettings.throwUnmocked = false;
+
+	$.ajax({
+		async: true,
+		type: 'GET',
+		url: '/api/example/1',
+		complete: function() {
+			equal($.mockjax.unmockedAjaxCalls().length, 1, 'Wrong number of unmocked ajax calls were returned');
+			$.mockjaxClear();
+			equal($.mockjax.unmockedAjaxCalls().length, 0, 'Unmocked ajax calls not removed by mockjaxClear');
+			start();
+		}
+	});
+});
+
+asyncTest('Test unmockedAjaxCalls returns nothing when no unmocked ajax calls occur', function() {
 	$.mockjax({
 		url: '/api/example/1'
 	});
