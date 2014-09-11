@@ -267,7 +267,7 @@ asyncTest('Get mocked ajax calls - GET', function() {
 	$.mockjax({
 		url: '/api/example/*'
 	});
-	
+
 	// GET
 	$.ajax({
 		async: false,
@@ -296,7 +296,7 @@ asyncTest('Throw new error when throwUnmocked is set to true and unmocked ajax c
 				start();
 			}
 		});
-	} 
+	}
 	catch (e) {
 		ok(e instanceof Error, "Error was not thrown with 'throwUnmocked' set to true and existing unmocked ajax request");
 		start();
@@ -310,7 +310,7 @@ asyncTest('Get unfired handlers', function() {
     $.mockjax({
         url: '/api/example/2'
     });
-    
+
     $.ajax({
         async: false,
         type: 'GET',
@@ -1067,6 +1067,10 @@ module('Connection Simulation', {
             proxy: 'test_jsonp.js',
             responseTime: 150
         });
+		$.mockjax({
+			url: '/variable-delay',
+			responseTime: [100, 300]
+		});
         $.mockjax({
             url: '*',
             responseText: '',
@@ -1144,10 +1148,28 @@ asyncTest('Response time with jsonp', function() {
     }, 30);
 });
 
+asyncTest('Response time with min and max values', function () {
+	var executed = 0,
+		ts = new Date();
+	$.ajax({
+		url: '/variable-delay',
+		complete: function () {
+			var delay = ((new Date()) - ts);
+			ok( delay >= 100 && delay <= 330, 'Variable delay within min and max, delay was ' + delay);
+			equal( executed, 1, 'Callback execution order correct');
+			start();
+		}
+	});
+	setTimeout(function () {
+		ok (executed == 0, 'No premature callback execution');
+		executed++;
+	}, 30);
+});
+
 module('Headers');
 asyncTest('headers can be inspected via setRequestHeader()', function() {
 	expect(1);
-	
+
 	$(document).ajaxSend(function(event, xhr, ajaxSettings) {
 		xhr.setRequestHeader('X-CSRFToken', '<this is a token>');
 	});

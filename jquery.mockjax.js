@@ -133,6 +133,16 @@
 		return handler;
 	}
 
+	function parseResponseTimeOpt(responseTime) {
+		if (responseTime instanceof Array) {
+			var min = responseTime[0];
+			var max = responseTime[1];
+			return Math.floor(Math.random() * (max - min)) + min;
+		} else {
+			return responseTime;
+		}
+	}
+
 	// Process the xhr objects send operation
 	function _xhrSend(mockHandler, requestSettings, origSettings) {
 
@@ -208,8 +218,7 @@
                     if (isDefaultSetting(mockHandler, 'statusText')) {
 					    mockHandler.statusText = xhr.statusText;
                     }
-
-					this.responseTimer = setTimeout(process, mockHandler.responseTime || 0);
+					this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime) || 0);
 				}
 			});
 		} else {
@@ -218,7 +227,7 @@
 				// TODO: Blocking delay
 				process();
 			} else {
-				this.responseTimer = setTimeout(process, mockHandler.responseTime || 50);
+				this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime) || 50);
 			}
 		}
 	}
