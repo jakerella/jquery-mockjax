@@ -413,7 +413,7 @@
 
 		// The request was completed
 		if ( requestSettings.global ) {
-			trigger( "ajaxComplete", [{}, requestSettings] );
+			trigger( requestSettings, "ajaxComplete", [{}, requestSettings] );
 		}
 
 		// Handle the global AJAX counter
