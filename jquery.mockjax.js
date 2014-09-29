@@ -427,7 +427,7 @@
 
 	// The core $.ajax replacement.
 	function handleAjax( url, origSettings ) {
-		var mockRequest, requestSettings, mockHandler;
+		var mockRequest, requestSettings, mockHandler, overrideCallback;
 
 		// If url is an object, simulate pre-1.5 signature
 		if ( typeof url === "object" ) {
@@ -441,6 +441,18 @@
 
 		// Extend the original settings for the request
 		requestSettings = $.extend(true, {}, $.ajaxSettings, origSettings);
+
+		// Generic function to override callback methods for use with 
+		// callback options (onAfterSuccess, onAfterError, onAfterComplete)
+		overrideCallback = function(action, mockHandler) {
+			var origHandler = origSettings[action.toLowerCase()];
+			return function() {
+				if ( $.isFunction(origHandler) ) {
+					origHandler.apply(this, [].slice.call(arguments));
+				}
+				mockHandler['onAfter' + action]();
+			};
+		};
 
 		// Iterate over our mock handlers (in registration order) until we find
 		// one that is willing to intercept the request
@@ -476,34 +488,15 @@
 			mockHandler.timeout = requestSettings.timeout;
 			mockHandler.global = requestSettings.global;
 
+			// Set up onAfter[X] callback functions
 			if ( $.isFunction( mockHandler.onAfterSuccess ) ) {
-				var originalSuccess = origSettings.success;
-				origSettings.success = function() {
-					if ( $.isFunction(originalSuccess) ) {
-						originalSuccess.apply(this, arguments);
-					}
-					mockHandler.onAfterSuccess();
-				};
+				origSettings.success = overrideCallback('Success', mockHandler);
 			}
-
 			if ( $.isFunction( mockHandler.onAfterError ) ) {
-				var originalError = origSettings.error;
-				origSettings.error = function() {
-					if ( $.isFunction(originalError) ) {
-						originalError.apply(this, arguments);
-					}
-					mockHandler.onAfterError();
-				};
+				origSettings.error = overrideCallback('Error', mockHandler);
 			}
-
 			if ( $.isFunction( mockHandler.onAfterComplete ) ) {
-				var originalComplete = origSettings.complete;
-				origSettings.complete = function() {
-					if ( $.isFunction(originalComplete) ) {
-						originalComplete.apply(this, arguments);
-					}
-					mockHandler.onAfterComplete();
-				};
+				origSettings.complete = overrideCallback('Complete', mockHandler);
 			}
 
 			copyUrlParameters(mockHandler, origSettings);
