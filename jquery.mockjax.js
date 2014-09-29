@@ -330,7 +330,7 @@
 		setTimeout(function() {
 			jsonpSuccess( requestSettings, callbackContext, mockHandler );
 			jsonpComplete( requestSettings, callbackContext, mockHandler );
-		}, mockHandler.responseTime || 0)
+		}, mockHandler.responseTime || 0);
 
 		// If we are running under jQuery 1.5+, return a deferred object
 		if($.Deferred){
