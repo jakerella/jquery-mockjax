@@ -266,7 +266,7 @@ asyncTest('Get mocked ajax calls - GET', function() {
 	$.mockjax({
 		url: '/api/example/*'
 	});
-	
+
 	// GET
 	$.ajax({
 		async: false,
@@ -295,7 +295,7 @@ asyncTest('Throw new error when throwUnmocked is set to true and unmocked ajax c
 				start();
 			}
 		});
-	} 
+	}
 	catch (e) {
 		ok(e instanceof Error, "Error was not thrown with 'throwUnmocked' set to true and existing unmocked ajax request");
 		start();
@@ -309,7 +309,7 @@ asyncTest('Get unfired handlers', function() {
     $.mockjax({
         url: '/api/example/2'
     });
-    
+
     $.ajax({
         async: false,
         type: 'GET',
@@ -1056,6 +1056,10 @@ asyncTest('Response returns parsed XML', function() {
 
 module('Connection Simulation', {
     setup: function() {
+		this.variableDelayMin = 100;
+		this.variableDelayMax = 300;
+		this.processingDuration = 30;
+
         $.mockjax({
             url: '/delay',
             responseTime: 150
@@ -1067,6 +1071,10 @@ module('Connection Simulation', {
             responseTime: 150,
             responseText: "{}"
         });
+		$.mockjax({
+			url: '/variable-delay',
+			responseTime: [this.variableDelayMin, this.variableDelayMax]
+		});
         $.mockjax({
             url: '*',
             responseText: '',
@@ -1144,10 +1152,29 @@ asyncTest('Response time with jsonp', function() {
     }, 30);
 });
 
+asyncTest('Response time with min and max values', function () {
+	var executed = 0,
+		that = this,
+		ts = new Date();
+	$.ajax({
+		url: '/variable-delay',
+		complete: function () {
+			var delay = ((new Date()) - ts);
+			ok( delay >= that.variableDelayMin && delay <= (that.variableDelayMax + that.processingDuration), 'Variable delay within min and max, delay was ' + delay);
+			equal( executed, 1, 'Callback execution order correct');
+			start();
+		}
+	});
+	setTimeout(function () {
+		ok (executed == 0, 'No premature callback execution');
+		executed++;
+	}, 30);
+});
+
 module('Headers');
 asyncTest('headers can be inspected via setRequestHeader()', function() {
 	expect(1);
-	
+
 	$(document).ajaxSend(function(event, xhr, ajaxSettings) {
 		xhr.setRequestHeader('X-CSRFToken', '<this is a token>');
 	});

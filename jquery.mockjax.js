@@ -128,6 +128,16 @@
 		return handler;
 	}
 
+	function parseResponseTimeOpt(responseTime) {
+		if ($.isArray(responseTime)) {
+			var min = responseTime[0];
+			var max = responseTime[1];
+			return (typeof min === 'number' && typeof max === 'number') ? Math.floor(Math.random() * (max - min)) + min : null;
+		} else {
+			return (typeof responseTime === 'number') ? responseTime: null;
+		}
+	}
+
 	// Process the xhr objects send operation
 	function _xhrSend(mockHandler, requestSettings, origSettings) {
 
@@ -203,8 +213,7 @@
                     if (isDefaultSetting(mockHandler, 'statusText')) {
 					    mockHandler.statusText = xhr.statusText;
                     }
-
-					this.responseTimer = setTimeout(process, mockHandler.responseTime || 0);
+					this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime) || 0);
 				}
 			});
 		} else {
@@ -213,7 +222,7 @@
 				// TODO: Blocking delay
 				process();
 			} else {
-				this.responseTimer = setTimeout(process, mockHandler.responseTime || 50);
+				this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime) || 50);
 			}
 		}
 	}
@@ -341,7 +350,7 @@
 		setTimeout(function() {
 			jsonpSuccess( requestSettings, callbackContext, mockHandler );
 			jsonpComplete( requestSettings, callbackContext, mockHandler );
-		}, mockHandler.responseTime || 0);
+		}, parseResponseTimeOpt(mockHandler.responseTime) || 0);
 
 		// If we are running under jQuery 1.5+, return a deferred object
 		if($.Deferred){
@@ -437,7 +446,7 @@
 		// Extend the original settings for the request
 		requestSettings = $.extend(true, {}, $.ajaxSettings, origSettings);
 
-		// Generic function to override callback methods for use with 
+		// Generic function to override callback methods for use with
 		// callback options (onAfterSuccess, onAfterError, onAfterComplete)
 		overrideCallback = function(action, mockHandler) {
 			var origHandler = origSettings[action.toLowerCase()];
