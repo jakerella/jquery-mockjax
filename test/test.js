@@ -1057,6 +1057,10 @@ asyncTest('Response returns parsed XML', function() {
 
 module('Connection Simulation', {
     setup: function() {
+		this.variableDelayMin = 100;
+		this.variableDelayMax = 300;
+		this.processingDuration = 30;
+
         $.mockjax({
             url: '/delay',
             responseTime: 150
@@ -1069,7 +1073,7 @@ module('Connection Simulation', {
         });
 		$.mockjax({
 			url: '/variable-delay',
-			responseTime: [100, 300]
+			responseTime: [this.variableDelayMin, this.variableDelayMax]
 		});
         $.mockjax({
             url: '*',
@@ -1150,12 +1154,13 @@ asyncTest('Response time with jsonp', function() {
 
 asyncTest('Response time with min and max values', function () {
 	var executed = 0,
+		that = this,
 		ts = new Date();
 	$.ajax({
 		url: '/variable-delay',
 		complete: function () {
 			var delay = ((new Date()) - ts);
-			ok( delay >= 100 && delay <= 330, 'Variable delay within min and max, delay was ' + delay);
+			ok( delay >= that.variableDelayMin && delay <= (that.variableDelayMax + that.processingDuration), 'Variable delay within min and max, delay was ' + delay);
 			equal( executed, 1, 'Callback execution order correct');
 			start();
 		}
