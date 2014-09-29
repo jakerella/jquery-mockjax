@@ -355,7 +355,7 @@
 		setTimeout(function() {
 			jsonpSuccess( requestSettings, callbackContext, mockHandler );
 			jsonpComplete( requestSettings, callbackContext, mockHandler );
-		}, mockHandler.responseTime || 0);
+		}, parseResponseTimeOpt(mockHandler.responseTime) || 0);
 
 		// If we are running under jQuery 1.5+, return a deferred object
 		if($.Deferred){
@@ -451,7 +451,7 @@
 		// Extend the original settings for the request
 		requestSettings = $.extend(true, {}, $.ajaxSettings, origSettings);
 
-		// Generic function to override callback methods for use with 
+		// Generic function to override callback methods for use with
 		// callback options (onAfterSuccess, onAfterError, onAfterComplete)
 		overrideCallback = function(action, mockHandler) {
 			var origHandler = origSettings[action.toLowerCase()];
