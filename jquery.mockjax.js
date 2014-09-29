@@ -1,7 +1,7 @@
 /*!
  * MockJax - jQuery Plugin to Mock Ajax requests
  *
- * Version:  1.5.2
+ * Version:  1.5.3
  * Released:
  * Home:   http://github.com/appendto/jquery-mockjax
  * Author:   Jonathan Sharp (http://jdsharp.com)
@@ -36,10 +36,10 @@
 			if ( $.isXMLDoc( xmlDoc ) ) {
 				var err = $('parsererror', xmlDoc);
 				if ( err.length == 1 ) {
-					throw('Error: ' + $(xmlDoc).text() );
+					throw new Error('Error: ' + $(xmlDoc).text() );
 				}
 			} else {
-				throw('Unable to parse XML');
+				throw new Error('Unable to parse XML');
 			}
 			return xmlDoc;
 		} catch( e ) {
@@ -69,8 +69,10 @@
 				identical = false;
 				return identical;
 			} else {
-				// Previously typeof was used which incorrectly reported null as an object (#106)
-				if ( Object.prototype.toString.call( live[k] ) === '[object Object]' ) {
+				if ( typeof live[k] === 'object' && live[k] !== null ) {
+					if ( identical && $.isArray( live[k] ) ) {
+						identical = $.isArray( mock[k] ) && live[k].length === mock[k].length;
+					}
 					identical = identical && isMockDataEqual(mock[k], live[k]);
 				} else {
 					if ( mock[k] && $.isFunction( mock[k].test ) ) {
@@ -84,6 +86,11 @@
 
 		return identical;
 	}
+
+    // See if a mock handler property matches the default settings
+    function isDefaultSetting(handler, property) {
+        return handler[property] === $.mockjaxSettings[property];
+    }
 
 	// Check the given handler should mock the given request
 	function getMockForRequest( handler, requestSettings ) {
@@ -110,8 +117,8 @@
 		}
 
 		// Inspect the data submitted in the request (either POST body or GET query string)
-		if ( handler.data && requestSettings.data ) {
-			if ( !isMockDataEqual(handler.data, requestSettings.data) ) {
+		if ( handler.data ) {
+			if ( ! requestSettings.data || !isMockDataEqual(handler.data, requestSettings.data) ) {
 				// They're not identical, do not mock this request
 				return null;
 			}
@@ -194,8 +201,14 @@
 				complete: function(xhr) {
 					mockHandler.responseXML = xhr.responseXML;
 					mockHandler.responseText = xhr.responseText;
-					mockHandler.status = xhr.status;
-					mockHandler.statusText = xhr.statusText;
+                    // Don't override the handler status/statusText if it's specified by the config
+                    if (isDefaultSetting(mockHandler, 'status')) {
+					    mockHandler.status = xhr.status;
+                    }
+                    if (isDefaultSetting(mockHandler, 'statusText')) {
+					    mockHandler.statusText = xhr.statusText;
+                    }
+
 					this.responseTimer = setTimeout(process, mockHandler.responseTime || 0);
 				}
 			});
@@ -218,6 +231,9 @@
 		if (typeof mockHandler.headers === 'undefined') {
 			mockHandler.headers = {};
 		}
+		if (typeof requestSettings.headers === 'undefined') {
+			requestSettings.headers = {};
+		}
 		if ( mockHandler.contentType ) {
 			mockHandler.headers['content-type'] = mockHandler.contentType;
 		}
@@ -235,7 +251,7 @@
 				clearTimeout(this.responseTimer);
 			},
 			setRequestHeader: function(header, value) {
-				mockHandler.headers[header] = value;
+				requestSettings.headers[header] = value;
 			},
 			getResponseHeader: function(header) {
 				// 'Last-modified', 'Etag', 'content-type' are all checked by jQuery
@@ -419,6 +435,7 @@
 			url = undefined;
 		} else {
 			// work around to support 1.5 signature
+			origSettings = origSettings || {};
 			origSettings.url = url;
 		}
 
@@ -444,7 +461,7 @@
 			$.mockjaxSettings.log( mockHandler, requestSettings );
 
 
-			if ( requestSettings.dataType === "jsonp" ) {
+			if ( requestSettings.dataType && requestSettings.dataType.toUpperCase() === 'JSONP' ) {
 				if ((mockRequest = processJsonpMock( requestSettings, mockHandler, origSettings ))) {
 					// This mock will handle the JSONP request
 					return mockRequest;
@@ -473,7 +490,7 @@
 
 		// We don't have a mock request
 		if($.mockjaxSettings.throwUnmocked === true) {
-			throw('AJAX not mocked: ' + origSettings.url);
+			throw new Error('AJAX not mocked: ' + origSettings.url);
 		}
 		else { // trigger a normal request
 			return _ajax.apply($, [origSettings]);
@@ -585,5 +602,15 @@
 	};
 	$.mockjax.mockedAjaxCalls = function() {
 		return mockedAjaxCalls;
+	};
+	$.mockjax.unfiredHandlers = function() {
+		var results = [];
+		for (var i=0, len=mockHandlers.length; i<len; i++) {
+			var handler = mockHandlers[i];
+            if (handler !== null && !handler.fired) {
+				results.push(handler);
+			}
+		}
+		return results;
 	};
 })(jQuery);
