@@ -1431,6 +1431,85 @@ asyncTest('Custom status when using proxy', function() {
 	});
 });
 
+asyncTest('Call onAfterSuccess after success has been called', function() {
+    var onAfterSuccessCalled = false;
+    var successCalled = false;
+    $.mockjax({
+        url: '/response-callback',
+        onAfterSuccess: function() {
+            onAfterSuccessCalled = true;
+            equal(successCalled, true, 'success was not yet called');
+        }
+    });
+
+    $.ajax({
+        url: '/response-callback',
+        success: function() {
+            successCalled = true;
+        }
+    });
+
+    setTimeout(function() {
+        equal(onAfterSuccessCalled, true, 'onAfterSuccess was not called');
+        start(); 
+    }, 100);
+    
+    $.mockjaxClear();
+});
+
+asyncTest('Call onAfterError after error has been called', function() {
+    var onAfterErrorCalled = false;
+    var errorCalled = false;
+    $.mockjax({
+        url: '/response-callback-bad',
+        status: 500,
+        onAfterError: function() {
+            onAfterErrorCalled = true;
+            equal(errorCalled, true, 'error was not yet called');
+        }
+    });
+
+    $.ajax({
+        url: '/response-callback-bad',
+        error: function() {
+            errorCalled = true;
+        }
+    });
+
+    setTimeout(function() {
+        equal(onAfterErrorCalled, true, 'onAfterError was not called');
+        start(); 
+    }, 100);
+    
+    $.mockjaxClear();
+});
+
+asyncTest('Call onAfterComplete after complete has been called', function() {
+    var onAfterCompleteCalled = false;
+    var completeCalled = false;
+    $.mockjax({
+        url: '/response-callback',
+        onAfterComplete: function() {
+            onAfterCompleteCalled = true;
+            equal(completeCalled, true, 'complete was not yet called');
+        }
+    });
+
+    $.ajax({
+        url: '/response-callback',
+        complete: function() {
+            completeCalled = true;
+        }
+    });
+
+    setTimeout(function() {
+        equal(onAfterCompleteCalled, true, 'onAfterComplete was not called');
+        start(); 
+    }, 100);
+    
+    $.mockjaxClear();
+});
+
 /*
 var id = $.mockjax({
    ...
