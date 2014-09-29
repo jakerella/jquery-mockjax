@@ -134,12 +134,12 @@
 	}
 
 	function parseResponseTimeOpt(responseTime) {
-		if (responseTime instanceof Array) {
+		if ($.isArray(responseTime)) {
 			var min = responseTime[0];
 			var max = responseTime[1];
-			return Math.floor(Math.random() * (max - min)) + min;
+			return (typeof min === 'number' && typeof max === 'number') ? Math.floor(Math.random() * (max - min)) + min : null;
 		} else {
-			return responseTime;
+			return (typeof responseTime === 'number') ? responseTime: null;
 		}
 	}
 
