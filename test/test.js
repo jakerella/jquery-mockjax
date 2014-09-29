@@ -1056,17 +1056,26 @@ asyncTest('Response returns parsed XML', function() {
 });
 
 module('Connection Simulation', {
-	setup: function() {
-		$.mockjax({
-			url: '/delay',
-			responseTime: 150
-		});
-		$.mockjax({
-			url: '*',
-			responseText: '',
-			responseTime: 50
-		});
-	}
+    setup: function() {
+        $.mockjax({
+            url: '/delay',
+            responseTime: 150
+        });
+        $.mockjax({
+            url: 'http://foobar.com/jsonp-delay?callback=?',
+            contentType: 'text/json',
+            proxy: 'test_jsonp.js',
+            responseTime: 150
+        });
+        $.mockjax({
+            url: '*',
+            responseText: '',
+            responseTime: 50
+        });
+    },
+    teardown: function() {
+        $.mockjaxClear();
+    }
 });
 asyncTest('Async test', function() {
 	var order = [];
@@ -1114,6 +1123,25 @@ asyncTest('Response time simulation and latency', function() {
 		ok( executed == 0, 'No premature callback execution');
 		executed++;
 	}, 30);
+});
+asyncTest('Response time with jsonp', function() {
+	var executed = false, ts = new Date();
+
+    $.ajax({
+        url: 'http://foobar.com/jsonp-delay?callback=?',
+        dataType: 'jsonp',
+        complete: function() {
+            var delay = ((new Date()) - ts);
+            ok( delay >= 150, 'Correct delay simulation (' + delay + ')' );
+            ok( executed, 'Callback execution order correct');
+            start();
+        }
+    });
+
+    setTimeout(function() {
+        ok( executed === false, 'No premature callback execution');
+        executed = true;
+    }, 30);
 });
 
 module('Headers');
