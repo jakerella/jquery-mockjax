@@ -69,6 +69,7 @@ checkout this list:
       * `lastModified`: A date string specifying the mocked last-modified time for the request. This is used by `$.ajax` to determine if the requested data is new since the last request.
       * `etag`: A string specifying a unique identifier referencing a specific version of the requested data. This is used by `$.ajax` to determine if the requested data is new since the last request. (see [HTTP_ETag](http://en.wikipedia.org/wiki/HTTP_ETag))
       * `onAfterSuccess`: A callback that will be called after the success method has been called, this is useful to check a condition after the call has been completed.
+      * `onAfterError`: A callback that will be called after the error method has been called, this is useful to check a condition after the call has been completed.
       * `onAfterComplete`: Similar to onAfterSuccess, but will be executed after the complete method has been called.
 * `$.mockjaxClear()`
   * Removes all mockjax handlers.
@@ -470,6 +471,21 @@ $.mockjax({
   url: '/some/webservice',
   dataType: 'html',
   responseText: '<div>Hello there</div>'
+});
+```
+
+#### Performing Actions After Request Completion
+
+If you need to perform some actions after a call has completed you can 
+use one of the `onAfter[X]` options. For example, to fire a method when 
+a request completes (either successfully or not):
+
+```javascript
+$.mockjax({
+  url: '/api/end/point',
+  onAfterComplete: function() {
+    // do any required cleanup
+  }
 });
 ```
 
