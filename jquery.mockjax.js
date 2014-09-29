@@ -484,6 +484,14 @@
 				};
 			}
 
+			if ($.isFunction( mockHandler.onAfterError )) {
+				var originalError = origSettings.error;
+				origSettings.error = function() {
+					if ( $.isFunction(originalError) ) originalError.apply(this, arguments);
+					mockHandler.onAfterError();
+				};
+			}
+
 			if ($.isFunction( mockHandler.onAfterComplete )) {
 				var originalComplete = origSettings.complete;
 				origSettings.complete = function() {

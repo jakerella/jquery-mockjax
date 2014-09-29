@@ -1437,8 +1437,8 @@ asyncTest('Call onAfterSuccess after success has been called', function() {
     $.mockjax({
         url: '/response-callback',
         onAfterSuccess: function() {
-        onAfterSuccessCalled = true;
-          equals(successCalled, true, 'success was not yet called');
+            onAfterSuccessCalled = true;
+            equal(successCalled, true, 'success was not yet called');
         }
     });
 
@@ -1450,7 +1450,34 @@ asyncTest('Call onAfterSuccess after success has been called', function() {
     });
 
     setTimeout(function() {
-        equals(onAfterSuccessCalled, true, 'onAfterSuccess was not called');
+        equal(onAfterSuccessCalled, true, 'onAfterSuccess was not called');
+        start(); 
+    }, 100);
+    
+    $.mockjaxClear();
+});
+
+asyncTest('Call onAfterError after error has been called', function() {
+    var onAfterErrorCalled = false;
+    var errorCalled = false;
+    $.mockjax({
+        url: '/response-callback-bad',
+        status: 500,
+        onAfterError: function() {
+            onAfterErrorCalled = true;
+            equal(errorCalled, true, 'error was not yet called');
+        }
+    });
+
+    $.ajax({
+        url: '/response-callback-bad',
+        error: function() {
+            errorCalled = true;
+        }
+    });
+
+    setTimeout(function() {
+        equal(onAfterErrorCalled, true, 'onAfterError was not called');
         start(); 
     }, 100);
     
@@ -1464,7 +1491,7 @@ asyncTest('Call onAfterComplete after complete has been called', function() {
         url: '/response-callback',
         onAfterComplete: function() {
             onAfterCompleteCalled = true;
-            equals(completeCalled, true, 'complete was not yet called');
+            equal(completeCalled, true, 'complete was not yet called');
         }
     });
 
@@ -1476,7 +1503,7 @@ asyncTest('Call onAfterComplete after complete has been called', function() {
     });
 
     setTimeout(function() {
-        equals(onAfterCompleteCalled, true, 'onAfterComplete was not called');
+        equal(onAfterCompleteCalled, true, 'onAfterComplete was not called');
         start(); 
     }, 100);
     
