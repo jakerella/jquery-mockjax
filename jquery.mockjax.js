@@ -49,11 +49,6 @@
 		}
 	}
 
-	// Trigger a jQuery event
-	function trigger(s, type, args) {
-		(s.context ? $(s.context) : $.event).trigger(type, args);
-	}
-
 	// Check if the data field on the mock handler and the request match. This
 	// can be used to restrict a mock handler to being used only when a certain
 	// set of data is passed to it.
@@ -402,7 +397,7 @@
 
 		// Fire the global callback
 		if ( requestSettings.global ) {
-			trigger(requestSettings, "ajaxSuccess", [{}, requestSettings] );
+			(requestSettings.context ? $(requestSettings.context) : $.event).trigger("ajaxSuccess", [{}, requestSettings]);
 		}
 	}
 
@@ -415,7 +410,7 @@
 
 		// The request was completed
 		if ( requestSettings.global ) {
-			trigger( "ajaxComplete", [{}, requestSettings] );
+			$.event.trigger( "ajaxComplete", [{}, requestSettings] );
 		}
 
 		// Handle the global AJAX counter

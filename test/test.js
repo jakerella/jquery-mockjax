@@ -121,7 +121,6 @@ if ($().jquery >= "1.4") {
 			type: 'GET',
 			url: '/response',
 			success: function() {
-				console.log(arguments);
 				ok(arguments[2], 'there is a third argument to the success callback');
 				ok(arguments[2] && arguments[2].status === 200, 'third argument appears to be an xhr object (proper status code)');
 				start();
@@ -1065,7 +1064,8 @@ module('Connection Simulation', {
             url: 'http://foobar.com/jsonp-delay?callback=?',
             contentType: 'text/json',
             proxy: 'test_jsonp.js',
-            responseTime: 150
+            responseTime: 150,
+            responseText: "{}"
         });
         $.mockjax({
             url: '*',
@@ -1295,7 +1295,7 @@ if(jQuery.Deferred) {
 	asyncTest('Forcing timeout with Promises', function() {
 		$.mockjax({
 			url: '/response-callback',
-			isTimeout: true,
+			isTimeout: true
 		});
 
 		var request = $.ajax({
