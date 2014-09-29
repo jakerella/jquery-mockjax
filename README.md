@@ -68,6 +68,8 @@ checkout this list:
       * `proxy`: A string specifying a path to a file, from which the contents will be returned for the request.
       * `lastModified`: A date string specifying the mocked last-modified time for the request. This is used by `$.ajax` to determine if the requested data is new since the last request.
       * `etag`: A string specifying a unique identifier referencing a specific version of the requested data. This is used by `$.ajax` to determine if the requested data is new since the last request. (see [HTTP_ETag](http://en.wikipedia.org/wiki/HTTP_ETag))
+      * `onAfterSuccess`: A callback that will be called after the success method has been called, this is useful to check a condition after the call has been completed.
+      * `onAfterComplete`: Similar to onAfterSuccess, but will be executed after the complete method has been called.
 * `$.mockjaxClear()`
   * Removes all mockjax handlers.
 * `$.mockjaxClear(id)`
