@@ -476,26 +476,32 @@
 			mockHandler.timeout = requestSettings.timeout;
 			mockHandler.global = requestSettings.global;
 
-			if ($.isFunction( mockHandler.onAfterSuccess )) {
+			if ( $.isFunction( mockHandler.onAfterSuccess ) ) {
 				var originalSuccess = origSettings.success;
 				origSettings.success = function() {
-					if ( $.isFunction(originalSuccess) ) originalSuccess.apply(this, arguments);
+					if ( $.isFunction(originalSuccess) ) {
+						originalSuccess.apply(this, arguments);
+					}
 					mockHandler.onAfterSuccess();
 				};
 			}
 
-			if ($.isFunction( mockHandler.onAfterError )) {
+			if ( $.isFunction( mockHandler.onAfterError ) ) {
 				var originalError = origSettings.error;
 				origSettings.error = function() {
-					if ( $.isFunction(originalError) ) originalError.apply(this, arguments);
+					if ( $.isFunction(originalError) ) {
+						originalError.apply(this, arguments);
+					}
 					mockHandler.onAfterError();
 				};
 			}
 
-			if ($.isFunction( mockHandler.onAfterComplete )) {
+			if ( $.isFunction( mockHandler.onAfterComplete ) ) {
 				var originalComplete = origSettings.complete;
 				origSettings.complete = function() {
-					if ( $.isFunction(originalComplete) ) originalComplete.apply(this, arguments);
+					if ( $.isFunction(originalComplete) ) {
+						originalComplete.apply(this, arguments);
+					}
 					mockHandler.onAfterComplete();
 				};
 			}
