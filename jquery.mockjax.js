@@ -15,6 +15,7 @@
 	var _ajax = $.ajax,
 		mockHandlers = [],
 		mockedAjaxCalls = [],
+		unmockedAjaxCalls = [],
 		CALLBACK_REGEX = /=\?(&|$)/,
 		jsc = (new Date()).getTime();
 
@@ -516,6 +517,7 @@
 		}
 
 		// We don't have a mock request
+		unmockedAjaxCalls.push(origSettings);
 		if($.mockjaxSettings.throwUnmocked === true) {
 			throw new Error('AJAX not mocked: ' + origSettings.url);
 		}
@@ -621,6 +623,7 @@
 			mockHandlers = [];
 		}
 		mockedAjaxCalls = [];
+		unmockedAjaxCalls = [];
 	};
 	$.mockjax.handler = function(i) {
 		if ( arguments.length == 1 ) {
@@ -639,5 +642,8 @@
 			}
 		}
 		return results;
+	};
+	$.mockjax.unmockedAjaxCalls = function() {
+		return unmockedAjaxCalls;
 	};
 })(jQuery);
