@@ -4,6 +4,41 @@ function noErrorCallbackExpected() {
 	ok( false, 'Error callback executed');
 }
 
+function compareSemver(v1, v2, op) {
+	var result = false,
+		p1 = normalizeSemVer(v1),
+		p2 = normalizeSemVer(v2);
+
+	if (/^===?$/.test(op)) {
+		result = semverEqual(p1, p2, 3);
+	} else if (/^</.test(op)) {
+		result = p1[0] < p2[0] || (semverEqual(p1, p2, 1) && p1[1] < p2[1]) || (semverEqual(p1, p2, 2) && p1[2] < p2[2]);
+		if (!result && /^<=$/.test(op)) {
+			result = semverEqual(p1, p2, 3);
+		}
+	} else if (/^>/.test(op)) {
+		result = p1[0] > p2[0] || (semverEqual(p1, p2, 1) && p1[1] > p2[1]) || (semverEqual(p1, p2, 2) && p1[2] > p2[2]);
+	}
+	if (!result && /^[<>]=$/.test(op)) {
+		result = semverEqual(p1, p2, 3);
+	}
+	return result;
+}
+function semverEqual(p1, p2, cnt) {
+	var i, equal = true;
+	for (i=0; i<cnt; ++i) {
+		equal = equal && (p1[i] === p2[i]);
+	}
+	return equal;
+}
+function normalizeSemVer(v) {
+	if (v.length < 1) { return "0.0.0"; }
+	var p = v.toString().split('.');
+	if (p.length < 2) { p[1] = "0"; }
+	if (p.length < 3) { p[2] = "0"; }
+	return [Number(p[0]), Number(p[1]), Number(p[2])];
+}
+
 // Speed up our tests
 $.mockjaxSettings.responseTime = 0;
 var defaultSettings = $.extend({}, $.mockjaxSettings);
@@ -1628,6 +1663,43 @@ asyncTest('Call onAfterComplete after complete has been called', function() {
 		start(); 
 	}, 100);
 });
+
+test('Test for bug #95: undefined responseText on success', function() {
+	expect(2);
+
+	var expected = { status: 'success', fortune: 'Are you a turtle?' };
+
+	$.mockjax({
+		url: 'test/something',
+		responseText: { status: 'success', fortune: 'Are you a turtle?' }
+	});
+
+	$.ajax({
+		type: 'GET',
+		url: 'test/something',
+		async: false,
+		success: function(data) {
+			// Before jQuery 1.5 the response is a stringified version of the 
+			// json data unless the 'dataType' option is set to "json"
+			var expectedResult = expected;
+			if (compareSemver($().jquery, "1.5", "<")) {
+				expectedResult = JSON.stringify(expected);
+			}
+			deepEqual(data, expectedResult, 'responseText is correct JSON object');
+		}
+	});
+
+	$.ajax({
+		type: 'GET',
+		url: 'test/something',
+		dataType: 'json',
+		async: false,
+		success: function(data) {
+			deepEqual(data, expected, 'responseText is correct JSON object');
+		}
+	});
+});
+
 
 /*
 var id = $.mockjax({

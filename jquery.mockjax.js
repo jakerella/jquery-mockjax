@@ -170,6 +170,10 @@
 						} else {
 							this.responseXML = mockHandler.responseXML;
 						}
+					} else if (typeof mockHandler.responseText === 'object' && mockHandler.responseText !== null) {
+						// since jQuery 1.9 responseText type has to match contentType
+						mockHandler.contentType = 'application/json';
+						this.responseText = JSON.stringify(mockHandler.responseText);
 					} else {
 						this.responseText = mockHandler.responseText;
 					}
@@ -273,6 +277,10 @@
 			},
 			getAllResponseHeaders: function() {
 				var headers = '';
+				// since jQuery 1.9 responseText type has to match contentType
+				if (mockHandler.contentType) {
+					mockHandler.headers['Content-Type'] = mockHandler.contentType;
+				}
 				$.each(mockHandler.headers, function(k, v) {
 					headers += k + ': ' + v + "\n";
 				});
