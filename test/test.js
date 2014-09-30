@@ -145,7 +145,7 @@ asyncTest('Dynamic response callback', function() {
 	});
 });
 
-if ($().jquery >= "1.4") {
+if (compareSemver($().jquery, "1.4", ">=")) {
 	// The $.ajax() API changed in version 1.4 to include the third argument: xhr
 	asyncTest('Success callback should have access to xhr object', function() {
 		$.mockjax({
