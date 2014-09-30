@@ -1,3 +1,15 @@
+## 2014-08-14
+    * Spelling corrections in README.md
+    * Update to newest version of QUnit (JS & CSS) and fixes for doing so
+    * Added further versions of jQuery to test with
+    * Added some tests for various issues and split out some tests for atomicity
+    * Fixed dataType check for JSONP (case insensitive)
+    * ensure request `data` matching occurs when url is matched and no data matching is required
+
+## 2013-09-28
+	* Fixed issue with proxy data and status codes (Thanks [Andrew Goodale](https://github.com/newyankeecodeshop)!)
+	* TODO: Update this file with all changes since previous version
+
 ## 2012-05-30
 	* Updated to version 1.5.2
 	* Added support for jQuery 1.8, 1.9, 2.0
