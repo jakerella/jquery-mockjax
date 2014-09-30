@@ -1438,7 +1438,9 @@ asyncTest('Forcing timeout', function() {
 
 	$.ajax({
 		url: '/response-callback',
-		error: function(xhr) {
+		error: function(xhr, textStatus, errorThrown ) {
+			equal( textStatus, "timeout", "Text status is equal to timeout" );
+			ok( errorThrown !== "OK", "errorThrown is undefined or timeout, not OK" );
 			ok(true, "error callback was called");
 		},
 		success: function(response) {
@@ -1449,6 +1451,7 @@ asyncTest('Forcing timeout', function() {
 		}
 	});
 });
+
 // FORCE SIMULATION OF SERVER TIMEOUTS WITH PROMISES
 
 if(jQuery.Deferred) {
