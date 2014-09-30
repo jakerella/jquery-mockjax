@@ -10,7 +10,7 @@ var defaultSettings = $.extend({}, $.mockjaxSettings);
 
 QUnit.testDone(function() {
 	// reset mockjax after each test
-	$.mockjaxClear();
+	$.mockjax.clear();
 	$.mockjaxSettings = $.extend({}, defaultSettings);
 });
 
@@ -213,7 +213,7 @@ test('Remove mockjax definition by id', function() {
 		},
 		error: noErrorCallbackExpected,
 		complete: function() {
-			$.mockjaxClear(id);
+			$.mockjax.clear(id);
 
 			// Reissue the request expecting the default handler
 			$.ajax({
@@ -298,7 +298,7 @@ asyncTest('Test unmockedAjaxCalls returns the correct object when ajax call is n
 	});
 });
 
-asyncTest('Test unmockedAjaxCalls are cleared when mockjaxClear is called', function() {
+asyncTest('Test unmockedAjaxCalls are cleared when mockjax.clear is called', function() {
   $.mockjaxSettings.throwUnmocked = false;
 
 	$.ajax({
@@ -307,8 +307,8 @@ asyncTest('Test unmockedAjaxCalls are cleared when mockjaxClear is called', func
 		url: '/api/example/1',
 		complete: function() {
 			equal($.mockjax.unmockedAjaxCalls().length, 1, 'Wrong number of unmocked ajax calls were returned');
-			$.mockjaxClear();
-			equal($.mockjax.unmockedAjaxCalls().length, 0, 'Unmocked ajax calls not removed by mockjaxClear');
+			$.mockjax.clear();
+			equal($.mockjax.unmockedAjaxCalls().length, 0, 'Unmocked ajax calls not removed by mockjax.clear');
 			start();
 		}
 	});
@@ -372,7 +372,7 @@ asyncTest('Get unfired handlers', function() {
     });
 });
 
-asyncTest('Get unfired handlers after calling mockjaxClear', function() {
+asyncTest('Get unfired handlers after calling mockjax.clear', function() {
     $.mockjax({
         url: '/api/example/1'
     });
@@ -388,7 +388,7 @@ asyncTest('Get unfired handlers after calling mockjaxClear', function() {
         type: 'GET',
         url: '/api/example/1',
         complete: function() {
-            $.mockjaxClear(2)
+            $.mockjax.clear(2);
             var handlersNotFired = $.mockjax.unfiredHandlers();
             equal(handlersNotFired.length, 1, 'all mocks were fired');
             equal(handlersNotFired[0].url, '/api/example/2', 'mockjax call has unexpected url');
@@ -416,7 +416,7 @@ asyncTest('Response settings correct using PUT method', function() {
 		}
 	});
 
-	$.mockjaxClear();
+	$.mockjax.clear();
 });
 
 asyncTest('Get mocked ajax calls - POST with data', function() {
@@ -494,7 +494,7 @@ test('multiple mockjax calls are made', function() {
 	equal($.mockjax.mockedAjaxCalls().length, 3, 'Afterwords there should be three saved ajax calls');
 	var mockedUrls = $.map($.mockjax.mockedAjaxCalls(), function(ajaxOptions) { return ajaxOptions.url });
 	deepEqual(mockedUrls, ['/api/example/1', '/api/example/2', '/api/example/jsonp?callback=foo123'], 'Mocked ajax calls are saved in execution order');
-	$.mockjaxClear();
+	$.mockjax.clear();
 	equal($.mockjax.mockedAjaxCalls().length, 0, 'After clearing there are no saved ajax calls');
 });
 
@@ -712,7 +712,7 @@ asyncTest('Correct data matching on request - request can have additional proper
 	}
   });
 
-  $.mockjaxClear();
+  $.mockjax.clear();
 });
 
 // Related issue #80
@@ -766,7 +766,7 @@ asyncTest('Correct matching on request without data and mocks with and without d
 		}
 	});
 
-	$.mockjaxClear();
+	$.mockjax.clear();
 });
 
 // Related issue #68
@@ -822,7 +822,7 @@ asyncTest('Correct data matching on request with arrays', 1, function() {
 	}
   });
 
-  $.mockjaxClear();
+  $.mockjax.clear();
 });
 
 
@@ -1131,7 +1131,7 @@ module('Connection Simulation', {
         });
     },
     teardown: function() {
-        $.mockjaxClear();
+        $.mockjax.clear();
     }
 });
 asyncTest('Async test', function() {
@@ -1530,7 +1530,7 @@ asyncTest('Call onAfterSuccess after success has been called', function() {
         start(); 
     }, 100);
     
-    $.mockjaxClear();
+    $.mockjax.clear();
 });
 
 asyncTest('Call onAfterError after error has been called', function() {
@@ -1557,7 +1557,7 @@ asyncTest('Call onAfterError after error has been called', function() {
         start(); 
     }, 100);
     
-    $.mockjaxClear();
+    $.mockjax.clear();
 });
 
 asyncTest('Call onAfterComplete after complete has been called', function() {
@@ -1583,14 +1583,14 @@ asyncTest('Call onAfterComplete after complete has been called', function() {
         start(); 
     }, 100);
     
-    $.mockjaxClear();
+    $.mockjax.clear();
 });
 
 /*
 var id = $.mockjax({
    ...
 });
-$.mockjaxClear(id);
+$.mockjax.clear(id);
 */
 
 /*

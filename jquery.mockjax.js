@@ -616,7 +616,7 @@
 		mockHandlers[i] = settings;
 		return i;
 	};
-	$.mockjaxClear = function(i) {
+	$.mockjax.clear = function(i) {
 		if ( arguments.length == 1 ) {
 			mockHandlers[i] = null;
 		} else {
@@ -624,6 +624,11 @@
 		}
 		mockedAjaxCalls = [];
 		unmockedAjaxCalls = [];
+	};
+	// support older, deprecated version
+	$.mockjaxClear = function(i) {
+		$.mockjaxSettings.log( 'DEPRECATED: The $.mockjaxClear() method has been deprecated in 1.6.0. Please use $.mockjax.clear() as the older function will be removed soon!' );
+		$.mockjax.clear();
 	};
 	$.mockjax.handler = function(i) {
 		if ( arguments.length == 1 ) {
