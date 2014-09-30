@@ -10,7 +10,7 @@ var defaultSettings = $.extend({}, $.mockjaxSettings);
 
 QUnit.testDone(function() {
 	// reset mockjax after each test
-	$.mockjaxClear();
+	$.mockjax.clear();
 	$.mockjaxSettings = $.extend({}, defaultSettings);
 });
 
@@ -213,7 +213,7 @@ test('Remove mockjax definition by id', function() {
 		},
 		error: noErrorCallbackExpected,
 		complete: function() {
-			$.mockjaxClear(id);
+			$.mockjax.clear(id);
 
 			// Reissue the request expecting the default handler
 			$.ajax({
@@ -230,6 +230,66 @@ test('Remove mockjax definition by id', function() {
 		}
 	});
 });
+
+asyncTest('Clearing mockjax removes all handlers', function() {
+	$.mockjax({
+		url: '/api/example/1',
+		responseText: 'test1'
+	});
+	$.mockjax({
+		url: '/api/example/2',
+		responseText: 'test2'
+	});
+
+	$.ajax({
+		async: true,
+		type: 'GET',
+		url: '/api/example/1',
+		success: function(text) {
+			equal('test1', text, 'First call is mocked');
+		},
+		error: noErrorCallbackExpected,
+		complete: function() {
+			$.mockjax.clear();
+
+			$.ajax({
+				async: true,
+				type: 'GET',
+				url: '/api/example/1',
+				success: function() {
+					ok( false, 'Call to first endpoint was mocked, but should not have been');
+				},
+				error: function(xhr) {
+					equal(404, xhr.status, 'First mock cleared after clear()');
+
+					$.ajax({
+						async: true,
+						type: 'GET',
+						url: '/api/example/2',
+						success: function() {
+							ok( false, 'Call to second endpoint was mocked, but should not have been');
+						},
+						error: function(xhr) {
+							equal(404, xhr.status, 'Second mock cleared after clear()');
+							start();
+						}
+					});
+				}
+			});
+		}
+	});
+});
+
+test('Old version of clearing mock handlers works', function() {
+	$.mockjax({
+		url: '/api/example/1'
+	});
+
+	$.mockjaxClear();
+
+	equal($.mockjax.handler(0), undefined, 'There are no mock handlers');
+});
+
 // asyncTest('Intercept log messages', function() {
 //	 var msg = null;
 //	 $.mockjaxSettings.log = function(inMsg, settings) {
@@ -298,7 +358,7 @@ asyncTest('Test unmockedAjaxCalls returns the correct object when ajax call is n
 	});
 });
 
-asyncTest('Test unmockedAjaxCalls are cleared when mockjaxClear is called', function() {
+asyncTest('Test unmockedAjaxCalls are cleared when mockjax.clear is called', function() {
   $.mockjaxSettings.throwUnmocked = false;
 
 	$.ajax({
@@ -307,8 +367,8 @@ asyncTest('Test unmockedAjaxCalls are cleared when mockjaxClear is called', func
 		url: '/api/example/1',
 		complete: function() {
 			equal($.mockjax.unmockedAjaxCalls().length, 1, 'Wrong number of unmocked ajax calls were returned');
-			$.mockjaxClear();
-			equal($.mockjax.unmockedAjaxCalls().length, 0, 'Unmocked ajax calls not removed by mockjaxClear');
+			$.mockjax.clear();
+			equal($.mockjax.unmockedAjaxCalls().length, 0, 'Unmocked ajax calls not removed by mockjax.clear');
 			start();
 		}
 	});
@@ -352,49 +412,49 @@ asyncTest('Throw new error when throwUnmocked is set to true and unmocked ajax c
 });
 
 asyncTest('Get unfired handlers', function() {
-    $.mockjax({
-        url: '/api/example/1'
-    });
-    $.mockjax({
-        url: '/api/example/2'
-    });
+	$.mockjax({
+		url: '/api/example/1'
+	});
+	$.mockjax({
+		url: '/api/example/2'
+	});
 
-    $.ajax({
-        async: false,
-        type: 'GET',
-        url: '/api/example/1',
-        complete: function() {
-            var handlersNotFired = $.mockjax.unfiredHandlers();
-            equal(handlersNotFired.length, 1, 'all mocks were fired');
-            equal(handlersNotFired[0].url, '/api/example/2', 'mockjax call has unexpected url');
-            start();
-        }
-    });
+	$.ajax({
+		async: false,
+		type: 'GET',
+		url: '/api/example/1',
+		complete: function() {
+			var handlersNotFired = $.mockjax.unfiredHandlers();
+			equal(handlersNotFired.length, 1, 'all mocks were fired');
+			equal(handlersNotFired[0].url, '/api/example/2', 'mockjax call has unexpected url');
+			start();
+		}
+	});
 });
 
-asyncTest('Get unfired handlers after calling mockjaxClear', function() {
-    $.mockjax({
-        url: '/api/example/1'
-    });
-    $.mockjax({
-        url: '/api/example/2'
-    });
-    $.mockjax({
-        url: '/api/example/3'
-    });
+asyncTest('Get unfired handlers after calling mockjax.clear', function() {
+	$.mockjax({
+		url: '/api/example/1'
+	});
+	$.mockjax({
+		url: '/api/example/2'
+	});
+	$.mockjax({
+		url: '/api/example/3'
+	});
 
-    $.ajax({
-        async: false,
-        type: 'GET',
-        url: '/api/example/1',
-        complete: function() {
-            $.mockjaxClear(2)
-            var handlersNotFired = $.mockjax.unfiredHandlers();
-            equal(handlersNotFired.length, 1, 'all mocks were fired');
-            equal(handlersNotFired[0].url, '/api/example/2', 'mockjax call has unexpected url');
-            start();
-        }
-    });
+	$.ajax({
+		async: false,
+		type: 'GET',
+		url: '/api/example/1',
+		complete: function() {
+			$.mockjax.clear(2);
+			var handlersNotFired = $.mockjax.unfiredHandlers();
+			equal(handlersNotFired.length, 1, 'all mocks were fired');
+			equal(handlersNotFired[0].url, '/api/example/2', 'mockjax call has unexpected url');
+			start();
+		}
+	});
 });
 
 asyncTest('Response settings correct using PUT method', function() {
@@ -415,8 +475,6 @@ asyncTest('Response settings correct using PUT method', function() {
 			start();
 		}
 	});
-
-	$.mockjaxClear();
 });
 
 asyncTest('Get mocked ajax calls - POST with data', function() {
@@ -494,7 +552,7 @@ test('multiple mockjax calls are made', function() {
 	equal($.mockjax.mockedAjaxCalls().length, 3, 'Afterwords there should be three saved ajax calls');
 	var mockedUrls = $.map($.mockjax.mockedAjaxCalls(), function(ajaxOptions) { return ajaxOptions.url });
 	deepEqual(mockedUrls, ['/api/example/1', '/api/example/2', '/api/example/jsonp?callback=foo123'], 'Mocked ajax calls are saved in execution order');
-	$.mockjaxClear();
+	$.mockjax.clear();
 	equal($.mockjax.mockedAjaxCalls().length, 0, 'After clearing there are no saved ajax calls');
 });
 
@@ -711,8 +769,6 @@ asyncTest('Correct data matching on request - request can have additional proper
 	  start();
 	}
   });
-
-  $.mockjaxClear();
 });
 
 // Related issue #80
@@ -765,8 +821,6 @@ asyncTest('Correct matching on request without data and mocks with and without d
 			start();
 		}
 	});
-
-	$.mockjaxClear();
 });
 
 // Related issue #68
@@ -821,8 +875,6 @@ asyncTest('Correct data matching on request with arrays', 1, function() {
 	  start();
 	}
   });
-
-  $.mockjaxClear();
 });
 
 
@@ -1104,35 +1156,32 @@ asyncTest('Response returns parsed XML', function() {
 });
 
 module('Connection Simulation', {
-    setup: function() {
+	setup: function() {
 		this.variableDelayMin = 100;
 		this.variableDelayMax = 300;
 		this.processingDuration = 30;
 
-        $.mockjax({
-            url: '/delay',
-            responseTime: 150
-        });
-        $.mockjax({
-            url: 'http://foobar.com/jsonp-delay?callback=?',
-            contentType: 'text/json',
-            proxy: 'test_jsonp.js',
-            responseTime: 150,
-            responseText: "{}"
-        });
+		$.mockjax({
+			url: '/delay',
+			responseTime: 150
+		});
+		$.mockjax({
+			url: 'http://foobar.com/jsonp-delay?callback=?',
+			contentType: 'text/json',
+			proxy: 'test_jsonp.js',
+			responseTime: 150,
+			responseText: "{}"
+		});
 		$.mockjax({
 			url: '/variable-delay',
 			responseTime: [this.variableDelayMin, this.variableDelayMax]
 		});
-        $.mockjax({
-            url: '*',
-            responseText: '',
-            responseTime: 50
-        });
-    },
-    teardown: function() {
-        $.mockjaxClear();
-    }
+		$.mockjax({
+			url: '*',
+			responseText: '',
+			responseTime: 50
+		});
+	}
 });
 asyncTest('Async test', function() {
 	var order = [];
@@ -1184,21 +1233,21 @@ asyncTest('Response time simulation and latency', function() {
 asyncTest('Response time with jsonp', function() {
 	var executed = false, ts = new Date();
 
-    $.ajax({
-        url: 'http://foobar.com/jsonp-delay?callback=?',
-        dataType: 'jsonp',
-        complete: function() {
-            var delay = ((new Date()) - ts);
-            ok( delay >= 150, 'Correct delay simulation (' + delay + ')' );
-            ok( executed, 'Callback execution order correct');
-            start();
-        }
-    });
+	$.ajax({
+		url: 'http://foobar.com/jsonp-delay?callback=?',
+		dataType: 'jsonp',
+		complete: function() {
+			var delay = ((new Date()) - ts);
+			ok( delay >= 150, 'Correct delay simulation (' + delay + ')' );
+			ok( executed, 'Callback execution order correct');
+			start();
+		}
+	});
 
-    setTimeout(function() {
-        ok( executed === false, 'No premature callback execution');
-        executed = true;
-    }, 30);
+	setTimeout(function() {
+		ok( executed === false, 'No premature callback execution');
+		executed = true;
+	}, 30);
 });
 
 asyncTest('Response time with min and max values', function () {
@@ -1508,89 +1557,83 @@ asyncTest('Custom status when using proxy', function() {
 });
 
 asyncTest('Call onAfterSuccess after success has been called', function() {
-    var onAfterSuccessCalled = false;
-    var successCalled = false;
-    $.mockjax({
-        url: '/response-callback',
-        onAfterSuccess: function() {
-            onAfterSuccessCalled = true;
-            equal(successCalled, true, 'success was not yet called');
-        }
-    });
+	var onAfterSuccessCalled = false;
+	var successCalled = false;
+	$.mockjax({
+		url: '/response-callback',
+		onAfterSuccess: function() {
+			onAfterSuccessCalled = true;
+			equal(successCalled, true, 'success was not yet called');
+		}
+	});
 
-    $.ajax({
-        url: '/response-callback',
-        success: function() {
-            successCalled = true;
-        }
-    });
+	$.ajax({
+		url: '/response-callback',
+		success: function() {
+			successCalled = true;
+		}
+	});
 
-    setTimeout(function() {
-        equal(onAfterSuccessCalled, true, 'onAfterSuccess was not called');
-        start(); 
-    }, 100);
-    
-    $.mockjaxClear();
+	setTimeout(function() {
+		equal(onAfterSuccessCalled, true, 'onAfterSuccess was not called');
+		start(); 
+	}, 100);
 });
 
 asyncTest('Call onAfterError after error has been called', function() {
-    var onAfterErrorCalled = false;
-    var errorCalled = false;
-    $.mockjax({
-        url: '/response-callback-bad',
-        status: 500,
-        onAfterError: function() {
-            onAfterErrorCalled = true;
-            equal(errorCalled, true, 'error was not yet called');
-        }
-    });
+	var onAfterErrorCalled = false;
+	var errorCalled = false;
+	$.mockjax({
+		url: '/response-callback-bad',
+		status: 500,
+		onAfterError: function() {
+			onAfterErrorCalled = true;
+			equal(errorCalled, true, 'error was not yet called');
+		}
+	});
 
-    $.ajax({
-        url: '/response-callback-bad',
-        error: function() {
-            errorCalled = true;
-        }
-    });
+	$.ajax({
+		url: '/response-callback-bad',
+		error: function() {
+			errorCalled = true;
+		}
+	});
 
-    setTimeout(function() {
-        equal(onAfterErrorCalled, true, 'onAfterError was not called');
-        start(); 
-    }, 100);
-    
-    $.mockjaxClear();
+	setTimeout(function() {
+		equal(onAfterErrorCalled, true, 'onAfterError was not called');
+		start(); 
+	}, 100);
 });
 
 asyncTest('Call onAfterComplete after complete has been called', function() {
-    var onAfterCompleteCalled = false;
-    var completeCalled = false;
-    $.mockjax({
-        url: '/response-callback',
-        onAfterComplete: function() {
-            onAfterCompleteCalled = true;
-            equal(completeCalled, true, 'complete was not yet called');
-        }
-    });
+	var onAfterCompleteCalled = false;
+	var completeCalled = false;
+	$.mockjax({
+		url: '/response-callback',
+		onAfterComplete: function() {
+			onAfterCompleteCalled = true;
+			equal(completeCalled, true, 'complete was not yet called');
+		}
+	});
 
-    $.ajax({
-        url: '/response-callback',
-        complete: function() {
-            completeCalled = true;
-        }
-    });
+	$.ajax({
+		url: '/response-callback',
+		complete: function() {
+			completeCalled = true;
+		}
+	});
 
-    setTimeout(function() {
-        equal(onAfterCompleteCalled, true, 'onAfterComplete was not called');
-        start(); 
-    }, 100);
-    
-    $.mockjaxClear();
+	setTimeout(function() {
+		equal(onAfterCompleteCalled, true, 'onAfterComplete was not called');
+		start(); 
+	}, 100);
 });
 
 /*
 var id = $.mockjax({
    ...
 });
-$.mockjaxClear(id);
+$.mockjax.clear(id);
 */
 
 /*
