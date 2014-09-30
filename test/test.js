@@ -465,8 +465,6 @@ asyncTest('Response settings correct using PUT method', function() {
 			start();
 		}
 	});
-
-	$.mockjax.clear();
 });
 
 asyncTest('Get mocked ajax calls - POST with data', function() {
@@ -761,8 +759,6 @@ asyncTest('Correct data matching on request - request can have additional proper
 	  start();
 	}
   });
-
-  $.mockjax.clear();
 });
 
 // Related issue #80
@@ -815,8 +811,6 @@ asyncTest('Correct matching on request without data and mocks with and without d
 			start();
 		}
 	});
-
-	$.mockjax.clear();
 });
 
 // Related issue #68
@@ -871,8 +865,6 @@ asyncTest('Correct data matching on request with arrays', 1, function() {
 	  start();
 	}
   });
-
-  $.mockjax.clear();
 });
 
 
@@ -1179,9 +1171,6 @@ module('Connection Simulation', {
             responseText: '',
             responseTime: 50
         });
-    },
-    teardown: function() {
-        $.mockjax.clear();
     }
 });
 asyncTest('Async test', function() {
@@ -1579,8 +1568,6 @@ asyncTest('Call onAfterSuccess after success has been called', function() {
         equal(onAfterSuccessCalled, true, 'onAfterSuccess was not called');
         start(); 
     }, 100);
-    
-    $.mockjax.clear();
 });
 
 asyncTest('Call onAfterError after error has been called', function() {
@@ -1606,8 +1593,6 @@ asyncTest('Call onAfterError after error has been called', function() {
         equal(onAfterErrorCalled, true, 'onAfterError was not called');
         start(); 
     }, 100);
-    
-    $.mockjax.clear();
 });
 
 asyncTest('Call onAfterComplete after complete has been called', function() {
@@ -1632,8 +1617,6 @@ asyncTest('Call onAfterComplete after complete has been called', function() {
         equal(onAfterCompleteCalled, true, 'onAfterComplete was not called');
         start(); 
     }, 100);
-    
-    $.mockjax.clear();
 });
 
 /*
