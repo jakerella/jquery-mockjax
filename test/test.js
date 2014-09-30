@@ -230,6 +230,56 @@ test('Remove mockjax definition by id', function() {
 		}
 	});
 });
+
+asyncTest('Clearing mockjax removes all handlers', function() {
+	$.mockjax({
+		url: '/api/example/1',
+		responseText: 'test1'
+	});
+	$.mockjax({
+		url: '/api/example/2',
+		responseText: 'test2'
+	});
+
+	$.ajax({
+		async: true,
+		type: 'GET',
+		url: '/api/example/1',
+		success: function(text) {
+			equal('test1', text, 'First call is mocked');
+		},
+		error: noErrorCallbackExpected,
+		complete: function() {
+			$.mockjax.clear();
+
+			$.ajax({
+				async: true,
+				type: 'GET',
+				url: '/api/example/1',
+				success: function() {
+					ok( false, 'Call to first endpoint was mocked, but should not have been');
+				},
+				error: function(xhr) {
+					equal(404, xhr.status, 'First mock cleared after clear()');
+
+					$.ajax({
+						async: true,
+						type: 'GET',
+						url: '/api/example/2',
+						success: function() {
+							ok( false, 'Call to second endpoint was mocked, but should not have been');
+						},
+						error: function(xhr) {
+							equal(404, xhr.status, 'Second mock cleared after clear()');
+							start();
+						}
+					});
+				}
+			});
+		}
+	});
+});
+
 // asyncTest('Intercept log messages', function() {
 //	 var msg = null;
 //	 $.mockjaxSettings.log = function(inMsg, settings) {
