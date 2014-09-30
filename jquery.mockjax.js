@@ -627,7 +627,7 @@
 	};
 	// support older, deprecated version
 	$.mockjaxClear = function(i) {
-		$.mockjaxSettings.log( 'DEPRECATED: The $.mockjaxClear() method has been deprecated in 1.6.0. Please use $.mockjax.clear() as the older function will be removed soon!' );
+		window.console && window.console.warn && window.console.warn( 'DEPRECATED: The $.mockjaxClear() method has been deprecated in 1.6.0. Please use $.mockjax.clear() as the older function will be removed soon!' );
 		$.mockjax.clear();
 	};
 	$.mockjax.handler = function(i) {

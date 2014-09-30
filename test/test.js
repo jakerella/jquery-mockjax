@@ -280,6 +280,16 @@ asyncTest('Clearing mockjax removes all handlers', function() {
 	});
 });
 
+test('Old version of clearing mock handlers works', function() {
+	$.mockjax({
+		url: '/api/example/1'
+	});
+
+	$.mockjaxClear();
+
+	equal($.mockjax.handler(0), undefined, 'There are no mock handlers');
+});
+
 // asyncTest('Intercept log messages', function() {
 //	 var msg = null;
 //	 $.mockjaxSettings.log = function(inMsg, settings) {
