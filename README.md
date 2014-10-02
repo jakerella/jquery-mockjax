@@ -1,10 +1,32 @@
 # jQuery Mockjax: Ajax request mocking #
 [http://github.com/appendto/jquery-mockjax/](http://github.com/appendto/jquery-mockjax/)
 
-jQuery Mockjax provides request/response mocking for ajax requests with
-jQuery and provides all standard behaviors in the request/response flow.
+jQuery Mockjax provides request/response mocking for ajax requests using the
+jQuery API and provides all standard behaviors in the request/response flow.
 
 You may report any issues you may find [in the github issue tracking](https://github.com/appendto/jquery-mockjax/issues).
+
+## About Mockjax and Its History ##
+
+Most backend developers are familiar with the concepts of [mocking
+objects](http://en.wikipedia.org/wiki/Mock_object) or stubbing in
+methods for unit testing. For those not familiar with mocking, it's the
+simulation of an interface or API for testing or integration development
+purposes. Mocking with front-end development though is still quite new. Mockjax
+gives front end developers the ability to define ajax requests that should be 
+mocked out, as well as how those requests should be responded to. These mocks
+can be extremely simple or quite complex, representing the entire request-response
+workflow.
+
+At [appendTo](http://appendto.com) we develop a lot of applications which use
+[RESTFUL](http://en.wikipedia.org/wiki/Representational_State_Transfer)
+web services, but much of the time those services are not yet created. 
+We spec out the service contract and data format at the beginning of a project 
+and develop the front-end interface against mock data while the back end team 
+builds the production services.
+
+This plugin was originally developed by appendTo in March 2010 and the 
+[team](http://twitter.com/appendto/team) has been using it in many projects since.
 
 ### jQuery Version Support ###
 
@@ -44,26 +66,6 @@ Copyright (c) 2012 appendTo.
 Dual licensed under the MIT or GPL licenses.
 
 [http://appendto.com/open-source-licenses](http://appendto.com/open-source-licenses)
-
-## Documentation ##
-
-Most backend developers are familiar with the concepts of [mocking
-objects](http://en.wikipedia.org/wiki/Mock_object) or stubbing in
-methods for unit testing. For those not familiar with mocking, it’s the
-simulation of an interface or API for testing or integration development
-purposes. Mocking with front-end development though is still quite new.
-
-Much of the development that [appendTo](http://appendto.com) does
-focuses on front-end development tied to
-[RESTFUL](http://en.wikipedia.org/wiki/Representational_State_Transfer)
-web services. **As such we’re able to spec out the service contract and
-data format at the beginning of a project and develop the front-end
-interface against mock data while the back end team builds the
-production services.**
-
-The plugin was originally developed by appendTo back in
-March 2010 and the [team](http://twitter.com/appendto/team) has been
-using it in all of its projects since.
 
 ### API
 
