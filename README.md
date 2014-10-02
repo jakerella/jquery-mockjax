@@ -84,7 +84,7 @@ following JSON message:
 }
 ```
 
-To pull the fortune into our page, we’d use the following HTML & jQuery
+To pull the fortune into our page, we'd use the following HTML and jQuery
 code:
 
 ```html
@@ -92,69 +92,79 @@ code:
 <html>
   <head>
     <title>Fortune App</title>
-    <script src="http://code.jquery.com/jquery-1.7.0.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
   </head>
 <body>
   <div id="fortune"></div>
 </body>
 </html>
-
-$.getJSON('/restful/fortune', function(response) {
-  if ( response.status == 'success') {
-    $('#fortune').html( 'Your fortune is: ' + response.fortune );
+```
+```javascript
+$.getJSON("/restful/fortune", function(response) {
+  if ( response.status == "success") {
+    $("#fortune").html( "Your fortune is: " + response.fortune );
   } else {
-    $('#fortune').html( 'Things do not look good, no fortune was told' );
+    $("#fortune").html( "Things do not look good, no fortune was told" );
   }
 });
 ```
 
 At this point if we were to run this code it would fail since the REST
 service has yet to be implemented. This is where the benefit of the
-Mockjax Plugin starts to pay off. The first step in using Mockjax is to
-include the plugin by just adding a regular script tag.
+Mockjax plugin starts to pay off. The first step in using Mockjax is to
+include the plugin by just adding a regular script tag:
+
+```html
+<head>
+  ...
+  <script src="vendor/jquery.mockjax.js"></script>
+</head>
+```
 
 Once you have that included, you can start intercepting Ajax requests
-and mocking the responses. So let’s mock out the service by including
+and mocking the responses. So let's mock out the service by including
 the following code:
 
 ```javascript
 $.mockjax({
-  url: '/restful/fortune',
-  responseTime: 750,
+  url: "/restful/fortune",
   responseText: {
-    status: 'success',
-    fortune: 'Are you a turtle?'
+    status: "success",
+    fortune: "Are you a mock turtle?"
   }
 });
 ```
 
-**Defining a JSON string inline requires a `JSON.stringify` method to be
+**Defining a JSON string inline requires a `JSON.stringify()` method to be
 available. For some browsers you may need to include
-[json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js), which is included in the `lib` folder**
+[json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js), 
+which is included in the `lib` folder.** However, you could also simply 
+provide an already stringified version of your JSON in the `responseText`
+property.
 
-**If you plan on mocking xml responses, you may also have to include
-`jquery.xmldom.js`, which can also be found in the `lib` folder.**
+_If you plan on mocking xml responses, you may also have to include
+`jquery.xmldom.js`, which can also be found in the `lib` folder._
 
-What Mockjax does at this point is replace the `$.ajax` method with a
+### Mockjax in Depth ###
+
+What Mockjax does at this point is replace the `$.ajax()` method with a
 wrapper that transparently checks the URL being requested. If the URL
-matches one defined by `$.mockjax()`, Mockjax intercepts the request
+matches one defined by `$.mockjax()`, it intercepts the request
 and sets up a mock `XMLHttpRequest` object before executing the
-`jQuery.ajax` handler. Otherwise, the request is handed back to the
-native `$.ajax` method for normal execution. One benefit in this
-implementation detail is by simulating the `XMLHttpRequest` object, the
-plugin continues to make use of jQuery’s native ajax handling.
+`jQuery.ajax()` handler. Otherwise, the request is handed back to the
+native `$.ajax()` method for normal execution. One benefit in this
+implementation detail is that by simulating the `XMLHttpRequest` object, 
+the plugin continues to make use of jQuery's native ajax handling, so 
+there are no concerns with implementing a custom Ajax workflow.
 
-As you write code to mock responses, there’s great value in the fact that there are no
-modifications required to production code. The mocks can be
+As you write code to mock responses, there's great value in the fact that 
+there are no modifications required to production code. The mocks can be
 transparently inserted. This provides easy integration into most
 frameworks by including the plugin and mock definitions through your
-build framework. It’s also possible to include it at run time by
-listening for a flag query string flag and injecting the plugin and
-definitions.
+build framework. It's also possible to include it at run time by
+listening for a query string flag and injecting the plugin and definitions.
 
-### Mockjax in Depth
-
-Now let’s look at the various approaches to defining mocks as offered by
+Now let's look at the various approaches to defining mocks as offered by
 the plugin. The sections below feature an extensive overview of the
 flexibility in Mockjax and creating responses.
 
