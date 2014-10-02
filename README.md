@@ -168,20 +168,22 @@ Now let's look at the various approaches to defining mocks as offered by
 the plugin. The sections below feature an extensive overview of the
 flexibility in Mockjax and creating responses.
 
-## Data Types Available for Mocking
+#### Data Types Available for Mocking ####
 
 jQuery is able to handle and parse `Text`, `HTML`, `JSON`, `JSONP`,
 `Script` and `XML` data formats and Mockjax is able to mock any of those
-formats. Two things to note, depending upon how you mock out `JSON` and
-`JSONP` you may need to include [json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js) for
-the `JSON.stringify()` method. Additionally if you mock XML inline,
-you’ll need to include the
-[`xmlDOM`](http://github.com/appendto/jquery-xmldom) plugin that
-transforms a string of XML into a DOM object. If you use the proxy
-approach outlined below, there’s no need to include either the JSON or
-XMLDOM plugins.
+formats. Two things to note: depending upon how you mock out `JSON` and
+`JSONP` you may need to include [json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js) 
+for the `JSON.stringify()` method (older browsers only, typically). Additionally 
+if you mock XML inline, you’ll need to include the [`xmlDOM`](http://github.com/appendto/jquery-xmldom) 
+plugin that transforms a string of XML into a DOM object. However, if you use 
+the proxy approach outlined below then there should be no need to include either 
+the JSON or XMLDOM plugins in any case.
 
-## Step 1. Define the URL
+
+## Detailed Request and Response Definition ##
+
+### Defining a Request to Match ###
 
 The first thing you need to do when mocking a request is define the URL
 end-point to intercept and mock. As with our example above this can be a
@@ -189,7 +191,7 @@ simple string:
 
 ```javascript
 $.mockjax({
-  url: '/url/to/rest-service'
+  url: "/url/to/rest-service"
 });
 ```
 
@@ -198,7 +200,7 @@ or contain a `*` as a wildcard:
 ```javascript
 $.mockjax({
   // Matches /data/quote, /data/tweet etc.
-  url: '/data/*'
+  url: "/data/*"
 });
 ```
 
@@ -215,97 +217,117 @@ You can also match against the data option in addition to url:
 
 ```javascript
 $.mockjax({
-    url:  '/rest',
-    data: { action: "foo" },
-    responseText: { bar: "hello world" }
+    url:  "/rest",
+    data: { action: "foo" }
 });
 ```
 
-```javascript
-$.mockjax({
-    url:  '/rest',
-    data: { action: "bar" },
-    responseText: { bar: "hello world 2" }
-});
-```
-
-To capture URL parameters, use a capturing regular expression for the URL and a `urlParams` array to indicate, ordinally, the names of the paramters that will be captured.
+To capture URL parameters, use a capturing regular expression for the 
+URL and a `urlParams` array to indicate, ordinally, the names of the 
+paramters that will be captured:
 
 ```javascript
 $.mockjax({
-  // matches /author/1234/isbn/1234-5678-9012-0
+  // matches /author/{any number here}/isbn/{any number with dashes here}
+  // for example: "/author/1234/isbn/1234-5678-9012-0"
   url: /^\/author\/([\d]+)\/isbn\/([\d\-]+)$/,
-  urlParams: ['authorID', 'isbnNumber'],
+  // names of matching params
+  urlParams: ["authorID", "isbnNumber"],
   response: function (settings) {
     var authorID = settings.urlParams.authorID;
     var isbnNumber = settings.urlParams.isbnNumber;
-    //etc.
+    // etc...
   }
 });
 ```
 
-### Step 2. Define the Response
+### Define a Response ###
 
-The second step is to define the type of response. The two main
-properties you’ll be dealing with are either `responseText` or
+The second step is to define the type and content of the response. The two main
+properties you will be dealing with are either `responseText` or
 `responseXML`. These properties mirror the native `XMLHttpRequest`
 object properties that are set during a live response. There are three
 different patterns for specifying the responses: Inline, Proxy, and
 Callback.
 
-#### Inline Responses
+#### Inline Responses ####
 
 A simple text response would be:
 
 ```javascript
 $.mockjax({
-  url: '/restful/api',
-  responseText: 'A text response from the server'
+  url: "/restful/api",
+  responseText: "A text response from the server"
 });
 ```
+
+A simple JSON response would be:
+
+```javascript
+$.mockjax({
+  url: "/restful/api",
+  // You may need to include the [json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js) library for older browsers
+  responseText: { "foo": "bar" }
+});
+```
+
+Also note that a JSON response is really just a text response that jQuery will 
+parse as JSON for you (and return a JSOn object to the `success` and `complete` 
+callbacks).
 
 A simple XML response would be:
 
 ```javascript
 $.mockjax({
-  url: '/restful/api',
-  // Need to include the xmlDOM plugin to have this translated into a DOM
-  responseXML: '<document><quote>Hello world!</quote></document>'
+  url: "/restful/api",
+  // Need to include the xmlDOM plugin to have this translated into a DOM object
+  responseXML: "<document><quote>Hello world!</quote></document>"
 });
 ```
 
-As you can quickly see, if you have a significant amount of data being
-mocked this becomes unwieldy. So that brings us to the next pattern,
-proxying.
+As you can see, if you have a significant amount of data being
+mocked this becomes unwieldy. So that brings us to the next pattern:
+the proxy.
 
-#### Proxy
+#### Proxy ####
 
 In this example below, the Mockjax plugin will intercept requests for
-`/restful/api` and redirect them to `/mocks/data.json`.
+`/restful/api` and redirect them to `/mocks/data.json`:
 
 ```javascript
 $.mockjax({
-  url: '/restful/api',
-  proxy: '/mocks/data.json'
+  url: "/restful/api",
+  proxy: "/mocks/data.json"
 });
 ```
 
-#### Callback
+The `/mocks/data.json` file can have any valid JSON content you want, and allows 
+you to maintain that mock data in its own file for maintainability.
 
-In the final response pattern, we can define a callback on the
+#### Callback ####
+
+In the final response pattern, we can define a callback function on the
 `response` property and have it set `responseText` or `responseXML` as
-needed.
+needed:
 
 ```javascript
 $.mockjax({
-  url: '/restful/api',
-  response: function() {
-    this.responseText = 'Hello world!';
+  url: "/restful/api",
+  response: function(settings) {
+    // Investigate the `settings` to determine the response...
+
+    this.responseText = "Hello world!";
   }
 });
 ```
 
-### Advanced Mocking Techniques
+Note that the callback is given the settings provided to the `$.mockjax({...})`
+method merged with any Ajax settings defined by jQuery or your application. This 
+allows you to thoroughly investigate the request before setting the response 
+body (or headers).
+
+
+### Advanced Mocking Techniques ###
 
 At this point we’ve looked at a series of basic mocking techniques with
 Mockjax and will now unpack some of the additional functionality
