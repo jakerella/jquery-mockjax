@@ -6,6 +6,36 @@ jQuery API and provides all standard behaviors in the request/response flow.
 
 You may report any issues you may find [in the github issue tracking](https://github.com/appendto/jquery-mockjax/issues).
 
+**Table of Contents**
+
+* [About Mockjax and Its History](#about-mockjax-and-its-history)
+* [Basic Documentation](#basic-documentation)
+  * [API Methods](#api-methods)
+  * [Overview: Your First Mock](#overview-your-first-mock)
+  * [Mockjax in Depth](#mockjax-in-depth)
+* [Detailed Request and Response Definition](#detailed-request-and-response-definition)
+  * [Defining a Request to Match](#defining-a-request-to-match)
+  * [Define a Response](#define-a-response)
+* [Advanced Mocking Techniques](#advanced-mocking-techniques)
+  * [Simulating Response Time and Latency](#simulating-response-time-and-latency)
+  * [Simulating HTTP Response Statuses](#simulating-http-response-statuses)
+  * [Setting the Content-Type](#setting-the-content-type)
+  * [Setting Additional HTTP Response Headers](#setting-additional-http-response-headers)
+  * [Dynamically Generating Mock Definitions](#dynamically-generating-mock-definitions)
+  * [Accessing Request Headers](#accessing-request-headers)
+  * [Forced Simulation of Server Timeouts](#forced-simulation-of-server-timeouts)
+  * [Dynamically Generating Mock Responses](#dynamically-generating-mock-responses)
+  * [Data Types](#data-types)
+  * [Performing Actions After Request Completion](#performing-actions-after-request-completion)
+  * [Globally Defining Mockjax Settings](#globally-defining-mockjax-settings)
+  * [Removing Mockjax Handlers](#removing-mockjax-handlers)
+* [Miscellaneous Information](#miscellaneous-information)
+  * [jQuery Version Support](#jquery-version-support)
+  * [Browsers Tested](#browsers-tested)
+  * [Release History](#release-history)
+  * [License](#license)
+
+
 ## About Mockjax and Its History ##
 
 Most backend developers are familiar with the concepts of [mocking
