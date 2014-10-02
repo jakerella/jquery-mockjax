@@ -29,46 +29,49 @@ This plugin was originally developed by appendTo in March 2010 and the
 [team](http://twitter.com/appendto/team) has been using it in many projects since.
 
 
-### API
+## Basic Documentation ##
 
-Mockjax consists of two methods, one to set up mocks, one to remove them.
-You'll find plenty of examples below. If you're looking for a specific option,
+### API Methods ###
+
+Mockjax consists of just a few methods, each listed below. You'll find plenty of 
+examples in the sections below, but if you're looking for a specific option,
 checkout this list:
 
-* `$.mockjax(options)`
-  * Sets up a mockjax handler.
-  * `options`: An object literal which defines the settings to use for the mocked request.
-      * `url`: A string or regular expression specifying the url of the request that the data should be mocked for. If the url is a string and contains any asterisks ( * ), they will be treated as a wildcard by translating to a regular expression. Any `*` will be replaced with `.+`. If you run into trouble with this shortcut, switch to using a full regular expression instead of a string and asterisk combination.
-      * `data`: In addition to the URL, match parameters.
-      * `type`: Specify what HTTP method to match, usually GET or POST. Case-insensitive, so `get` and `post` also work.
-      * `headers`: An object literal whose keys will be simulated as additional headers returned from the server for the request.
-      * `status`: An integer that specifies a valid server response code. This simulates a server response code.
-      * `statusText`: An string that specifies a valid server response code description. This simulates a server response code description.
-      * `responseTime`: An integer that specifies a simulated network and server latency (in milliseconds).
-      * `isTimeout`: A boolean value that determines whether or not the mock will force a timeout on the request.
-      * `contentType`: A string which specifies the content type for the response.
-      * `response`: `function(settings) {}`, A function that allows for the dynamic setting of responseText/responseXML upon each request.
-      * `responseText`: A string specifying the mocked text, or a mocked object literal, for the request.
-      * `responseXML`: A string specifying the mocked XML for the request.
-      * `proxy`: A string specifying a path to a file, from which the contents will be returned for the request.
-      * `lastModified`: A date string specifying the mocked last-modified time for the request. This is used by `$.ajax` to determine if the requested data is new since the last request.
-      * `etag`: A string specifying a unique identifier referencing a specific version of the requested data. This is used by `$.ajax` to determine if the requested data is new since the last request. (see [HTTP_ETag](http://en.wikipedia.org/wiki/HTTP_ETag))
-      * `onAfterSuccess`: A callback that will be called after the success method has been called, this is useful to check a condition after the call has been completed.
-      * `onAfterError`: A callback that will be called after the error method has been called, this is useful to check a condition after the call has been completed.
-      * `onAfterComplete`: Similar to onAfterSuccess, but will be executed after the complete method has been called.
-* `$.mockjaxClear()`
-  * Removes all mockjax handlers.
-* `$.mockjaxClear(id)`
-  * Remove a single mockjax handler.
-  * `id` is the string returned from `$.mockjax`.
-* `$.mockjax.mockedAjaxCalls()`
-  * Returns all mocked ajax calls so you can e.g. check that expected data is sent to backend.
-* `$.mockjax.unfiredHandlers()`
-  * Returns all mocks that have not been used e.g. check that you are not setting up unnecessary mocks.
-* `$.mockjs.unmockedAjaxCalls()`
-  * Returns all unmocked Ajax calls that were made.
+* `Number $.mockjax(/* Object */ options)`
+  * Sets up a mockjax handler for a matching request
+  * Returns that handler's index, can be used to clear individual handlers
+  * `options`: [Object] Defines the settings to use for the mocked request
+      * `url`: [String | RegExp] Specifies the url of the request that the data should be mocked for. If it is a string and contains any asterisks ( `*` ), they will be treated as a wildcard by translating to a regular expression. Any `*` will be replaced with `.+`. If you run into trouble with this shortcut, switch to using a full regular expression instead of a string and asterisk combination
+      * `data`: [Object] In addition to the URL, match parameters
+      * `type`: [String] Specify what HTTP method to match, usually GET or POST. Case-insensitive, so `get` and `post` also work
+      * `headers`: [Object] Keys will be simulated as additional headers returned from the server for the request (**NOTE: This is NOT used to match request headers!**)
+      * `status`: [Number] An integer that specifies a valid server response code. This simulates a server response code
+      * `statusText`: [String] Specifies a valid server response code description. This simulates a server response code description
+      * `responseTime`: [Number] An integer that specifies a simulated network and server latency (in milliseconds)
+      * `isTimeout`: [Boolean] Determines whether or not the mock will force a timeout on the request
+      * `contentType`: [String] Specifies the content type for the response
+      * `response`: [Function] A function that accepts the request settings and allows for the dynamic setting of response settings (including the body of the response) upon each request (see examples below)
+      * `responseText`: [String] Specifies the mocked text, or a mocked object literal, for the request
+      * `responseXML`: [String] Specifies the mocked XML for the request
+      * `proxy`: [String] Specifies a path to a file, from which the contents will be returned for the request
+      * `lastModified`: [String] A date string specifying the mocked last-modified time for the request. This is used by `$.ajax` to determine if the requested data is new since the last request
+      * `etag`: [String] Specifies a unique identifier referencing a specific version of the requested data. This is used by `$.ajax` to determine if the requested data is new since the last request. (see [HTTP_ETag](http://en.wikipedia.org/wiki/HTTP_ETag))
+      * `onAfterSuccess`: [Function] A callback that will be called after the success method has been called, this is useful to check a condition after the call has been completed
+      * `onAfterError`: [Function] A callback that will be called after the error method has been called, this is useful to check a condition after the call has been completed
+      * `onAfterComplete`: [Function] Similar to onAfterSuccess, but will be executed after the complete method has been called
+* `Object $.mockjax.handler(/* Number */ id)`
+  * Returns the mock request settings for the handler with the provided `id`
+* `void $.mockjax.clear([/* Number */ id])`
+  * If the `id` is provided, the handler with that ID is cleared (that is, requests matching it will no longer do so, the hnadler is completely removed)
+  * If no `id` is provided, all handlers are cleared, resetting Mockjax to its initial state
+* `Array<Object> $.mockjax.mockedAjaxCalls()`
+  * Returns an array of all mocked ajax calls with each entry being the request settings object as passed into the `$.mockjax()` function
+* `Array<Object> $.mockjax.unfiredHandlers()`
+  * Returns an array of all mock handler settings that have not been used. In other words, if a handler has been used for a `$.ajax()` call then it will _not_ appear in this array
+* `Array<Object> $.mockjax.unmockedAjaxCalls()`
+  * Returns an array of all unmocked Ajax calls that were made. The array contains the settings object passed into `$.ajax({...})`
 
-### Overview: Your First Mock
+### Overview: Your First Mock ###
 
 Our first example will be for a simple REST service for a fortune app
 with the REST endpoint being `/restful/fortune` which returns the
