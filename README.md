@@ -175,7 +175,7 @@ jQuery is able to handle and parse `Text`, `HTML`, `JSON`, `JSONP`,
 formats. Two things to note: depending upon how you mock out `JSON` and
 `JSONP` you may need to include [json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js) 
 for the `JSON.stringify()` method (older browsers only, typically). Additionally 
-if you mock XML inline, you’ll need to include the [`xmlDOM`](http://github.com/appendto/jquery-xmldom) 
+if you mock XML inline, you'll need to include the [`xmlDOM`](http://github.com/appendto/jquery-xmldom) 
 plugin that transforms a string of XML into a DOM object. However, if you use 
 the proxy approach outlined below then there should be no need to include either 
 the JSON or XMLDOM plugins in any case.
@@ -327,117 +327,78 @@ allows you to thoroughly investigate the request before setting the response
 body (or headers).
 
 
-### Advanced Mocking Techniques ###
+## Advanced Mocking Techniques ##
 
-At this point we’ve looked at a series of basic mocking techniques with
+At this point we've looked at a series of basic mocking techniques with
 Mockjax and will now unpack some of the additional functionality
 contained in the plugin.
 
-#### Simulating Response Time and Latency
+### Simulating Response Time and Latency ###
 
 Simulating network and server latency for a mock is as simple as adding
 a `responseTime` property to your mock definition:
 
 ```javascript
 $.mockjax({
-  url: '/restful/api',
+  url: "/restful/api",
   // Simulate a network latency of 750ms
   responseTime: 750,
-  responseText: 'A text response from the server'
+  responseText: "A text response from the server"
 });
 ```
 
-#### Simulating HTTP Response Statuses
+### Simulating HTTP Response Statuses ###
 
-It’s also possible to simulate response statuses other than 200 (default
+It's also possible to simulate response statuses other than 200 (default
 for Mockjax) by simply adding a `status` property.
 
 ```javascript
 $.mockjax({
-  url: '/restful/api',
+  url: "/restful/api",
   // Server 500 error occurred
   status: 500,
-  responseTime: 750,
-  responseText: 'A text response from the server'
+  responseText: "A text response from the server"
 });
 ```
 
-#### Setting the Content-Type
+These forced error status codes will be handled just as if the server had 
+returned the error: the `error` callback will get executed with the proper 
+arguments.
+
+### Setting the Content-Type ###
 
 You can set the content type to associate with the mock response, in the
-example below, we’re setting a json content type.
+example below, we're setting a JSON content type.
 
 ```javascript
 $.mockjax({
-  url: '/restful/api',
-  contentType: 'text/json',
+  url: "/restful/api",
+  contentType: "application/json",
   responseText: {
-    hello: 'World!'
+    hello: "World!"
   }
 });
 ```
 
-#### Setting Additional HTTP Response Headers
+### Setting Additional HTTP Response Headers ###
 
 Additional HTTP Response Headers may be provided by setting a key in the
 headers object literal:
 
 ```javascript
 $.mockjax({
-  url: '/restful/api',
-  contentType: 'text/json',
+  url: "/restful/api",
+  contentType: "application/json",
   responseText: {
-    hello: 'World!'
+    hello: "World!"
   },
   headers: {
-    etag: 'xyz123'
+    etag: "xyz123"
   }
 });
 ```
 
-#### Accessing request headers
-
-In some situations, you may need access to the  request headers to determine
-matching or response bodies. To do this, you will need to specify a callback 
-function that is handed the `$.ajax` request settings:
-
-```javascript
-$.mockjax(function(requestSettings) {
-  if ( requestSettings.url === '/restful/user' ) {
-    return {
-      response: function(origSettings) {
-      	
-      	// now we check the request headers, which may be set directly 
-      	// on the xhr object through an ajaxSetup() call:
-      	
-      	if ( requestSettings.headers[Authentication] === 'some-token' ) {
-      	  this.responseText = { user: { id: 13 } };
-      	} else {
-  		  this.status = 403;
-  		  this.responseText = "You are not authorized";
-        }
-      }
-    };
-  }
-  return; // no url match
-});
-```
-
-#### Force Simulation of Server Timeouts
-
-Because of the way Mockjax was implemented, it takes advantage of
-jQuery’s internal timeout handling for requests. But if you’d like to
-force a timeout for a request you can do so by setting the `isTimeout`
-property to true:
-
-```javascript
-$.mockjax({
-  url: '/restful/api',
-  isTimeout: true
-});
-```
-
-#### Dynamically Generating Mock Definitions
+### Dynamically Generating Mock Definitions ###
 
 In some situations, all of your REST calls are based upon a URL schema.
 Mockjax has the ability for you to specify a callback function that is
@@ -448,113 +409,175 @@ an example that rewrites all Ajax requests to proxy to static mocks:
 
 ```javascript
 $.mockjax(function(settings) {
-  // settings.url == '/restful/<service>'
+  
+  // settings.url might be: "/restful/<service>" such as "/restful/user"
+  
   var service = settings.url.match(/\/restful\/(.*)$/);
   if ( service ) {
     return {
-      proxy: '/mocks/' + service[1] + '.json'
+      proxy: "/mocks/" + service[1] + ".json"
     };
   }
+  // If you get here, there was no url match
   return;
 });
 ```
 
-#### Dynamically Generating Mock Responses
+### Accessing Request Headers ###
 
-It’s also possible to dynamically generate the response text upon each
+In some situations, you may need access to the  request headers to determine
+matching or response bodies. To do this, you will need to specify a 
+callback function that is handed the `$.ajax` request settings:
+
+```javascript
+$.mockjax(function( requestSettings ) {
+  // Here is our manual URL matching...
+  if ( requestSettings.url === "/restful/user" ) {
+    // We have a match, so we return a response callback...
+    return {
+      response: function( origSettings ) {
+      	
+      	// now we check the request headers, which may be set directly 
+      	// on the xhr object through an ajaxSetup() call or otherwise:
+      	
+      	if ( requestSettings.headers["Authentication"] === "some-token" ) {
+      	  this.responseText = { user: { id: 13 } };
+      	} else {
+  		  this.status = 403;
+  		  this.responseText = "You are not authorized";
+        }
+      }
+    };
+  }
+  // If you get here, there was no url match
+  return;
+});
+```
+
+### Forced Simulation of Server Timeouts ###
+
+Because of the way Mockjax was implemented, it takes advantage of
+jQuery's internal timeout handling for requests. But if you'd like to
+force a timeout for a request you can do so by setting the `isTimeout`
+property to true:
+
+```javascript
+$.mockjax({
+  url: '/restful/api',
+  responseTime: 1000,
+  isTimeout: true
+});
+```
+
+### Dynamically Generating Mock Responses ###
+
+It's also possible to dynamically generate the response text upon each
 request by implementing a callback function on the `response` parameter:
 
 ```javascript
 $.mockjax({
-  url: '/restful/webservice',
-  dataType: 'json',
+  url: "/restful/webservice",
+  dataType: "json",
   response: function(settings) {
-    this.responseText = { say: 'random ' + Math.random() };
+    this.responseText = {
+      randomText: "random " + Math.random()
+    };
   }
 });
 ```
 
-#### Data types
+### Data Types ###
 
-The example above mocks a `json` response. You can also mock `xml`:
+Many of the examples above mock a `json` response. You can also mock `xml`:
 
 ```javascript
 $.mockjax({
-  url: '/some/xml',
-  dataType: 'xml',
-  responseXML: '<document><say>Hello world XML</say></document>'
+  url: "/some/xml",
+  dataType: "xml",
+  responseXML: "<document><say>Hello world XML</say></document>"
 });
 ```
+
+(Don't forget that it's likely you'll need the [`xmlDOM`](http://github.com/appendto/jquery-xmldom) library as well!)
 
 And `html`:
 
 ```javascript
 $.mockjax({
-  url: '/some/webservice',
-  dataType: 'html',
-  responseText: '<div>Hello there</div>'
+  url: "/some/webservice",
+  dataType: "html",
+  responseText: "<div>Hello there</div>"
 });
 ```
 
-#### Performing Actions After Request Completion
+### Performing Actions After Request Completion ###
 
 If you need to perform some actions after a call has completed you can 
-use one of the `onAfter[X]` options. For example, to fire a method when 
+use one of the `onAfter{Xxxxx}` options. For example, to fire a method when 
 a request completes (either successfully or not):
 
 ```javascript
 $.mockjax({
-  url: '/api/end/point',
+  url: "/api/end/point",
   onAfterComplete: function() {
     // do any required cleanup
   }
 });
 ```
 
-#### Globally Defining Mockjax Settings
+### Globally Defining Mockjax Settings ###
 
-It’s also possible to define the global defaults for all Mockjax
+It is also possible to define the global defaults for all Mockjax
 requests by overwriting the `$.mockjaxSettings` object. By default the
 settings are as follows:
 
 ```javascript
-$.mockjaxSettings = {
+{
+  logging:       true,
   status:        200,
-  statusText     'OK',
+  statusText:    "OK",
   responseTime:  500,
   isTimeout:     false,
-  contentType:   'text/plain',
-  response:      '',
-  responseText:  '',
-  responseXML:   '',
-  proxy:         '',
+  throwUnmocked: false,
+  contentType:   "text/plain",
+  response:      "",
+  responseText:  "",
+  responseXML:   "",
+  proxy:         "",
+  proxyType:     "GET",
   lastModified:  null,
-  etag:          ''
-};
+  etag:          "",
+  headers: {
+    etag: "IJF@H#@923uf8023hFO@I#H#",
+    "content-type" : "text/plain"
+  }
+}
 ```
 
-To overwrite a particular settings such as the default content-type, you
+To overwrite a particular settings such as the default `content-type`, you
 would do the following:
 
 ```javascript
-$.mockjaxSettings.contentType = 'text/json';
+$.mockjaxSettings.contentType = "application/json";
 ```
 
-#### Removing Mockjax Handlers
+### Removing Mockjax Handlers ###
 
-Remove all mockjax handlers:
+If you need to reset the Mockjax handlers you've added, just call 
+`$.mockjax.clear()`. _This will NOT reset the `$.mockjaxSettings`!_
 
 ```javascript
-$.mockjaxClear();
+$.mockjax.clear();
 ```
 
-#### Remove Single Mockjax Handler
+You can also clear individual mock handlers using their ID:
 
 ```javascript
 var id = $.mockjax({
    ...
 });
-$.mockjaxClear(id);
+
+$.mockjax.clear(id);
 ```
 
 
