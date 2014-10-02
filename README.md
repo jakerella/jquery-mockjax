@@ -28,44 +28,6 @@ builds the production services.
 This plugin was originally developed by appendTo in March 2010 and the 
 [team](http://twitter.com/appendto/team) has been using it in many projects since.
 
-### jQuery Version Support ###
-
-We strive to ensure that Mockjax is tested on the furthest patch version of all 
-minor (and major) versions of jQuery beginning with 1.3.2 going all the way 
-through 2.x. In other words, we don't test 1.6.1, but rather 1.6.4 (the furthest
-patch version on the 1.6.x line). The QUnit tests in the `/test` directory include 
-links to each version of jQuery tested in the header.
-
-### Browsers Tested ###
-
-We use virtual machines to test current versions of the browsers below. In addition, 
-we test the minimum version specified next to the browser (with the exception of 
-IE which specifies the versions we test).
-
-* Internet Explorer 7-11
-* Firefox 3.6
-* Safari 5.1
-* Chrome (stable only, significantly older versions are not available)
-* Opera 9.6
-
-_Please note that while we strive to keep `master` as bug free as possible, we do 
-not necessarily run tests in all of the above browsers for every single commit. We  
-do, however, ensure all tests are passing before tagging a release._
-
-### Release History ##
-
-Please read the [CHANGELOG](https://github.com/appendto/jquery-mockjax/blob/master/CHANGELOG.md)
-for a list of changes per release.
-
-Note that all releases are tagged in Github for easy reference, the `master` branch 
-should *not* be considered a stable release!
-
-## License ##
-Copyright (c) 2012 appendTo.
-
-Dual licensed under the MIT or GPL licenses.
-
-[http://appendto.com/open-source-licenses](http://appendto.com/open-source-licenses)
 
 ### API
 
@@ -559,3 +521,46 @@ var id = $.mockjax({
 });
 $.mockjaxClear(id);
 ```
+
+
+## Miscellaneous Information ##
+
+### jQuery Version Support ###
+
+We strive to ensure that Mockjax is tested on the furthest patch version of all 
+minor (and major) versions of jQuery beginning with 1.3.2 going all the way 
+through 2.x. In other words, we don't test 1.6.1, but rather 1.6.4 (the furthest
+patch version on the 1.6.x line). The QUnit tests in the `/test` directory include 
+links to each version of jQuery tested in the header.
+
+### Browsers Tested ###
+
+We use virtual machines to test current versions of the browsers below. In addition, 
+we test the minimum version specified next to the browser (with the exception of 
+IE which specifies the versions we test).
+
+* Internet Explorer 7-11
+* Firefox 3.6
+* Safari 5.1
+* Chrome (stable only, significantly older versions are not available)
+* Opera 9.6
+
+_Please note that while we strive to keep `master` as bug free as possible, we do 
+not necessarily run tests in all of the above browsers for every single commit. We  
+do, however, ensure all tests are passing before tagging a release._
+
+### Release History ###
+
+Please read the [CHANGELOG](https://github.com/appendto/jquery-mockjax/blob/master/CHANGELOG.md)
+for a list of changes per release.
+
+Note that all releases are tagged in Github for easy reference, the `master` branch 
+should *not* be considered a stable release!
+
+### License ###
+
+Copyright (c) 2014 appendTo.
+
+Dual licensed under the MIT or GPL licenses.
+
+[http://appendto.com/open-source-licenses](http://appendto.com/open-source-licenses)
