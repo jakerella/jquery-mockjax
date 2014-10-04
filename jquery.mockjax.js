@@ -442,7 +442,7 @@
 
 		// The request was completed
 		if ( requestSettings.global ) {
-			$.event.trigger( "ajaxComplete", [{}, requestSettings] );
+			(requestSettings.context ? $(requestSettings.context) : $.event).trigger("ajaxComplete", [{}, requestSettings]);
 		}
 
 		// Handle the global AJAX counter
