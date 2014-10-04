@@ -149,9 +149,11 @@
 					// The request has returned
 					this.status     = mockHandler.status;
 					this.statusText = mockHandler.statusText;
-					this.readyState	= 4;
+					this.readyState	= 1;
 
 					var finishRequest = function () {
+						this.readyState	= 4;
+
 						var onReady;
 						// Copy over our mock to our xhr object before passing control back to
 						// jQuery's onreadystatechange callback
