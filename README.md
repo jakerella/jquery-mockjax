@@ -367,8 +367,6 @@ $.mockjax({
 });
 ```
 
-### Advanced Mocking Techniques
-
 Note that the callback is given the settings provided to the `$.mockjax({...})`
 method merged with any Ajax settings defined by jQuery or your application. This 
 allows you to thoroughly investigate the request before setting the response 
