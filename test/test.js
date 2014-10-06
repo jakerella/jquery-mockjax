@@ -145,6 +145,33 @@ asyncTest('Dynamic response callback', function() {
 	});
 });
 
+asyncTest('Dynamic asynchronous response callback', function() {
+    $.mockjax({
+        url: '/response-callback',
+        responseText: 'original response',
+        response: function(settings, done) {
+        	var that = this;
+            setTimeout(function() {
+            	that.responseText = settings.data.response + ' 3';
+            	done();
+            }, 30);
+        }
+    });
+
+    $.ajax({
+        url: '/response-callback',
+        dataType: 'text',
+        data: {
+            response: 'Hello world'
+        },
+        error: noErrorCallbackExpected,
+        complete: function(xhr) {
+            equal(xhr.responseText, 'Hello world 3', 'Response Text matches');
+            start();
+        }
+    });
+});
+
 if (compareSemver($().jquery, "1.4", ">=")) {
 	// The $.ajax() API changed in version 1.4 to include the third argument: xhr
 	asyncTest('Success callback should have access to xhr object', function() {
@@ -1614,7 +1641,7 @@ asyncTest('Call onAfterSuccess after success has been called', function() {
 
 	setTimeout(function() {
 		equal(onAfterSuccessCalled, true, 'onAfterSuccess was not called');
-		start(); 
+		start();
 	}, 100);
 });
 
@@ -1639,7 +1666,7 @@ asyncTest('Call onAfterError after error has been called', function() {
 
 	setTimeout(function() {
 		equal(onAfterErrorCalled, true, 'onAfterError was not called');
-		start(); 
+		start();
 	}, 100);
 });
 
@@ -1663,7 +1690,7 @@ asyncTest('Call onAfterComplete after complete has been called', function() {
 
 	setTimeout(function() {
 		equal(onAfterCompleteCalled, true, 'onAfterComplete was not called');
-		start(); 
+		start();
 	}, 100);
 });
 
@@ -1682,7 +1709,7 @@ test('Test for bug #95: undefined responseText on success', function() {
 		url: 'test/something',
 		async: false,
 		success: function(data) {
-			// Before jQuery 1.5 the response is a stringified version of the 
+			// Before jQuery 1.5 the response is a stringified version of the
 			// json data unless the 'dataType' option is set to "json"
 			var expectedResult = expected;
 			if (compareSemver($().jquery, "1.5", "<")) {

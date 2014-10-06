@@ -80,7 +80,7 @@ checkout this list:
       * `responseTime`: [Number] An integer that specifies a simulated network and server latency (in milliseconds)
       * `isTimeout`: [Boolean] Determines whether or not the mock will force a timeout on the request
       * `contentType`: [String] Specifies the content type for the response
-      * `response`: [Function] A function that accepts the request settings and allows for the dynamic setting of response settings (including the body of the response) upon each request (see examples below)
+      * `response`: [Function] A function that accepts the request settings and allows for the dynamic setting of response settings (including the body of the response) upon each request (see examples below).
       * `responseText`: [String] Specifies the mocked text, or a mocked object literal, for the request
       * `responseXML`: [String] Specifies the mocked XML for the request
       * `proxy`: [String] Specifies a path to a file, from which the contents will be returned for the request
@@ -351,11 +351,26 @@ $.mockjax({
 });
 ```
 
+The default version of this callback is synchronous. If you provide both parameters
+to the callback function, you can use asynchronous code to set the dynamic response.
+
+```javascript
+$.mockjax({
+  url: '/restful/api',
+  response: function(settings, done) {
+    var self = this;
+    someAsyncMethod(function(data){
+      self.responseText = data;
+      done();
+    });
+  }
+});
+```
+
 Note that the callback is given the settings provided to the `$.mockjax({...})`
 method merged with any Ajax settings defined by jQuery or your application. This 
 allows you to thoroughly investigate the request before setting the response 
 body (or headers).
-
 
 ## Advanced Mocking Techniques ##
 
