@@ -145,6 +145,33 @@ asyncTest('Dynamic response callback', function() {
 	});
 });
 
+asyncTest('Dynamic asynchronous response callback', function() {
+    $.mockjax({
+        url: '/response-callback',
+        responseText: 'original response',
+        response: function(settings, done) {
+        	var that = this;
+            setTimeout(function() {
+            	that.responseText = settings.data.response + ' 3';
+            	done();
+            }, 30);
+        }
+    });
+
+    $.ajax({
+        url: '/response-callback',
+        dataType: 'text',
+        data: {
+            response: 'Hello world'
+        },
+        error: noErrorCallbackExpected,
+        complete: function(xhr) {
+            equal(xhr.responseText, 'Hello world 3', 'Response Text matches');
+            start();
+        }
+    });
+});
+
 if (compareSemver($().jquery, "1.4", ">=")) {
 	// The $.ajax() API changed in version 1.4 to include the third argument: xhr
 	asyncTest('Success callback should have access to xhr object', function() {

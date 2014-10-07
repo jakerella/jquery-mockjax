@@ -351,6 +351,22 @@ $.mockjax({
 });
 ```
 
+The default version of this callback is synchronous. If you provide both parameters
+to the callback function, you can use asynchronous code to set the dynamic response.
+
+```javascript
+$.mockjax({
+  url: '/restful/api',
+  response: function(settings, done) {
+    var self = this;
+    someAsyncMethod(function(data){
+      self.responseText = data;
+      done();
+    });
+  }
+});
+```
+
 Note that the callback is given the settings provided to the `$.mockjax({...})`
 method merged with any Ajax settings defined by jQuery or your application. This 
 allows you to thoroughly investigate the request before setting the response 
