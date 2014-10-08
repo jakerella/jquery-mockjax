@@ -4,5 +4,8 @@
 		"console": false
 	},
 	"browser": true,
-	"jquery": true
+	"jquery": true,
+    "strict": true,
+    "validthis": true,
+    "loopfunc": true
 }
