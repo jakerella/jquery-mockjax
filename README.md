@@ -34,6 +34,7 @@ You may report any issues you may find [in the github issue tracking](https://gi
   * [Browsers Tested](#browsers-tested)
   * [Release History](#release-history)
   * [License](#license)
+  * [Contributing](#contributing)
 
 
 ## About Mockjax and Its History ##
@@ -668,3 +669,12 @@ Copyright (c) 2014 appendTo.
 Dual licensed under the MIT or GPL licenses.
 
 [http://appendto.com/open-source-licenses](http://appendto.com/open-source-licenses)
+
+### Contributing ###
+
+We welcome any contributions by the community, whether in the form of a Pull 
+Request, issue submission and comments, or just sharing on social media!
+
+If you want to contribute code to the project, please read our 
+[Contribution guidelines](CONTRIBUTING.md) to see what you need to do to get your 
+Pull Request ready for merging.
