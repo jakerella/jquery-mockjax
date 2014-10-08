@@ -1,17 +1,6 @@
-/*!
- * MockJax - jQuery Plugin to Mock Ajax requests
- *
- * Version:  1.5.3
- * Released:
- * Home:   http://github.com/appendto/jquery-mockjax
- * Author:   Jonathan Sharp (http://jdsharp.com)
- * License:  MIT,GPL
- *
- * Copyright (c) 2011 appendTo LLC.
- * Dual licensed under the MIT or GPL licenses.
- * http://appendto.com/open-source-licenses
- */
 (function($) {
+	'use strict';
+
 	var _ajax = $.ajax,
 		mockHandlers = [],
 		mockedAjaxCalls = [],
@@ -22,8 +11,8 @@
 
 	// Parse the given XML string.
 	function parseXML(xml) {
-		if ( window.DOMParser == undefined && window.ActiveXObject ) {
-			DOMParser = function() { };
+		if ( window.DOMParser === undefined && window.ActiveXObject ) {
+			window.DOMParser = function() { };
 			DOMParser.prototype.parseFromString = function( xmlString ) {
 				var doc = new ActiveXObject('Microsoft.XMLDOM');
 				doc.async = 'false';
@@ -44,7 +33,7 @@
 			}
 			return xmlDoc;
 		} catch( e ) {
-			var msg = ( e.name == undefined ? e : e.name + ': ' + e.message );
+			var msg = ( e.name === undefined ? e : e.name + ': ' + e.message );
 			$(document).trigger('xmlParseError', [ msg ]);
 			return undefined;
 		}
@@ -663,7 +652,9 @@
 	};
 	// support older, deprecated version
 	$.mockjaxClear = function(i) {
-		window.console && window.console.warn && window.console.warn( 'DEPRECATED: The $.mockjaxClear() method has been deprecated in 1.6.0. Please use $.mockjax.clear() as the older function will be removed soon!' );
+		if (window.console && window.console.warn) {
+			window.console.warn( 'DEPRECATED: The $.mockjaxClear() method has been deprecated in 1.6.0. Please use $.mockjax.clear() as the older function will be removed soon!' );
+		}
 		$.mockjax.clear();
 	};
 	$.mockjax.handler = function(i) {

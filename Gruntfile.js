@@ -5,11 +5,17 @@ module.exports = function(grunt) {
     grunt.initConfig({
         // Metadata.
         pkg: grunt.file.readJSON('package.json'),
-        banner: '/*! <%= pkg.title || pkg.name %> - v<%= pkg.version %> - ' +
-            '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-            '<%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
-            '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
-            ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n',
+        banner: '/*! MockJax - jQuery Plugin to Mock Ajax requests \n'+
+            '* <%= pkg.title || pkg.name %>\n' +
+            '* \n' +
+            '* Version: <%= pkg.version %> \n' +
+            '* Released: <%= grunt.template.today("yyyy-mm-dd") %> \n' +
+            '* Home: <%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
+            '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;\n' +
+            '* Dual licensed under the MIT or GPL licenses.\n' +
+            '* http://appendto.com/open-source-licenses\n' +
+            '*/\n',
+            
         // Task configuration.
         concat: {
             options: {
