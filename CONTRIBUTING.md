@@ -40,9 +40,37 @@ fixing a bug add a breaking test first, then the code that fixes that test. If y
 are developing a new feature, add complete tests for the feature. That includes 
 tests for success cases as well as failure cases!
 
-We use [QUnit] as our testing tool of choice, so please write them using that API.
+We use [QUnit](http://qunitjs.com/) as our testing tool of choice, so please write them using that API.
 For now you can simply add them to the `/test/test.js` file. There are `module`s in 
 there, so try to add the tests in a logical location.
+
+### Run tests over HTTP ###
+
+Due to the need to load some of the proxy files asynchronously, you'll need to view 
+the test files over HTTP. On many systems this could be a very simple local server:
+
+JavaScript:
+```javascript
+~$ npm install -g http-server
+~$ cd /path/to/mockjax
+mockjax/$ http-server -p 8080
+```
+
+Python:
+```python
+python -m SimpleHTTPServer 8080
+```
+
+PHP (5.4+):
+```php
+~$ cd /path/to/mockjax
+mockjax/$ php -S localhost:8080
+```
+
+Then just visit http://localhost:8080/test/index.html in the browser! Once there, 
+be sure to click through each of the jQuery versions in the header to run the tests 
+against each version. (If you have trouble running in different versions, make sure 
+you are viewing `/test/index.html` not just `/test/` .)
 
 ### Run your tests everywhere ###
 
