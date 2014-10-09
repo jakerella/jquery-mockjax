@@ -49,20 +49,21 @@ there, so try to add the tests in a logical location.
 Due to the need to load some of the proxy files asynchronously, you'll need to view 
 the test files over HTTP. On many systems this could be a very simple local server:
 
-JavaScript:
-```javascript
+Node:
+```bash
 ~$ npm install -g http-server
 ~$ cd /path/to/mockjax
 mockjax/$ http-server -p 8080
 ```
 
 Python:
-```python
-python -m SimpleHTTPServer 8080
+```bash
+~$ cd /path/to/mockjax
+mockjax/$ python -m SimpleHTTPServer 8080
 ```
 
 PHP (5.4+):
-```php
+```bash
 ~$ cd /path/to/mockjax
 mockjax/$ php -S localhost:8080
 ```
