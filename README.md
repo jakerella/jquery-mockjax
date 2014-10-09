@@ -640,15 +640,20 @@ links to each version of jQuery tested in the header.
 
 ### Browsers Tested ###
 
+Note that jQuery Mockjax generally supports whatever browser jQuery supports. 
+However, it is important to understand that various versions of jQuery have dropped 
+support for different versions of browsers over the years. The point is, be sure 
+to test on the browser versions you support!
+
 We use virtual machines to test current versions of the browsers below. In addition, 
 we test the minimum version specified next to the browser (with the exception of 
 IE which specifies the versions we test).
 
-* Internet Explorer 7-11
-* Firefox 3.6
-* Safari 5.1
+* Internet Explorer (7-11)
+* Firefox (3.6)
+* Safari (5.1)
 * Chrome (stable only, significantly older versions are not available)
-* Opera 9.6
+* Opera (9.6; although 9.x does not work with jQuery 1.9+)
 
 _Please note that while we strive to keep `master` as bug free as possible, we do 
 not necessarily run tests in all of the above browsers for every single commit. We  
