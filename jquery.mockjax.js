@@ -1,13 +1,13 @@
 /*!
  * MockJax - jQuery Plugin to Mock Ajax requests
  *
- * Version:  1.5.3
+ * Version:  1.6.0
  * Released:
  * Home:   http://github.com/appendto/jquery-mockjax
  * Author:   Jonathan Sharp (http://jdsharp.com)
  * License:  MIT,GPL
  *
- * Copyright (c) 2011 appendTo LLC.
+ * Copyright (c) 2014 appendTo LLC.
  * Dual licensed under the MIT or GPL licenses.
  * http://appendto.com/open-source-licenses
  */
