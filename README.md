@@ -1,6 +1,8 @@
 # jQuery Mockjax: Ajax request mocking #
 [http://github.com/appendto/jquery-mockjax/](http://github.com/appendto/jquery-mockjax/)
 
+**This is the v2 branch of mockjax and is a WIP**
+
 jQuery Mockjax provides request/response mocking for ajax requests using the
 jQuery API and provides all standard behaviors in the request/response flow.
 
