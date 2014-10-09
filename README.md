@@ -672,8 +672,8 @@ Dual licensed under the MIT or GPL licenses.
 
 ### Contributing ###
 
-We welcome any contributions by the community, whether in the form of a Pull 
-Request, issue submission and comments, or just sharing on social media!
+@appendTo welcomes any contributions by the community, whether in the form of a Pull 
+Request, issue submission and comments, or just sharing on social media ([@appendTo](http://twitter.com/appendto))!
 
 If you want to contribute code to the project, please read our 
 [Contribution guidelines](CONTRIBUTING.md) to see what you need to do to get your 
