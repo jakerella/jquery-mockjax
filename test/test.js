@@ -699,6 +699,124 @@ asyncTest('Case-insensitive matching for request types', function() {
 	});
 });
 
+
+module('Headers Matching');
+asyncTest('Not equal headers', function() {
+    $.mockjax({
+        url: '/exact/string',
+        requestHeaders: {
+            Authorization: "12345"
+        },
+        responseText: 'Exact headers'
+    });
+
+    $.ajax({
+        url: '/exact/string',
+        error: function() { ok(true, "Error called on bad request headers matching"); },
+        success: function() { ok(false, "Success should not be called"); },
+        complete: function(xhr) {
+            start();
+        }
+    });
+
+    $.mockjax.clear();
+});
+asyncTest('Not equal headers values', function() {
+    $.mockjax({
+        url: '/exact/string',
+        requestHeaders: {
+            Authorization: "12345"
+        },
+        responseText: 'Exact headers'
+    });
+
+    $.ajax({
+        url: '/exact/string',
+        headers: {
+            Authorization: "6789"
+        },
+        error: function() { ok(true, "Error called on bad request headers matching"); },
+        success: function() { ok(false, "Success should not be called"); },
+        complete: function(xhr) {
+            start();
+        }
+    });
+
+    $.mockjax.clear();
+});
+asyncTest('Not equal multiple headers', function() {
+    $.mockjax({
+        url: '/exact/string',
+        requestHeaders: {
+            Authorization: "12345",
+            MyHeader: "hello"
+        },
+        responseText: 'Exact headers'
+    });
+
+    $.ajax({
+        url: '/exact/string',
+        headers: {
+            Authorization: "12345"
+        },
+        error: function() { ok(true, "Error called on bad request headers matching"); },
+        success: function() { ok(false, "Success should not be called"); },
+        complete: function(xhr) {
+            start();
+        }
+    });
+
+    $.mockjax.clear();
+});
+asyncTest('Exact headers keys and values', function() {
+    $.mockjax({
+        url: '/exact/string',
+        requestHeaders: {
+            Authorization: "12345"
+        },
+        responseText: 'Exact headers'
+    });
+
+    $.ajax({
+        url: '/exact/string',
+        error: noErrorCallbackExpected,
+        headers: {
+            Authorization: "12345"
+        },
+        complete: function(xhr) {
+            equal(xhr.responseText, 'Exact headers', 'Exact headers keys and values');
+            start();
+        }
+    });
+
+    $.mockjax.clear();
+});
+asyncTest('Exact multiple headers keys and values', function() {
+    $.mockjax({
+        url: '/exact/string',
+        requestHeaders: {
+            Authorization: "12345",
+            MyHeader: "hello"
+        },
+        responseText: 'Exact multiple headers'
+    });
+
+    $.ajax({
+        url: '/exact/string',
+        error: noErrorCallbackExpected,
+        headers: {
+            Authorization: "12345",
+            MyHeader: "hello"
+        },
+        complete: function(xhr) {
+            equal(xhr.responseText, 'Exact multiple headers', 'Exact headers keys and values');
+            start();
+        }
+    });
+
+    $.mockjax.clear();
+});
+
 module('URL Matching');
 asyncTest('Exact string', function() {
 	$.mockjax({
