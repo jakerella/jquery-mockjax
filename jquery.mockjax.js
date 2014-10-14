@@ -113,24 +113,24 @@
 		}
 
 		// Inspect the request headers submitted
-		if ( handler.requestHeaders )
-		{
+		if ( handler.requestHeaders ) {
 			//No expectation for headers, do not mock this request
-			if (requestSettings.headers === undefined)
-			{
+			if (requestSettings.headers === undefined) {
 				return null;
 			}
-			else
-			{
+			else {
 				var headersMismatch = false;
 				$.each(handler.requestHeaders, function(key, value) {
 					var v = requestSettings.headers[key];
-					if(v === undefined || v !== value)
+					if(v === undefined || v !== value) {
 						headersMismatch = true;
+						return false;
+					}
 				});
 				//Headers do not match, do not mock this request
-				if (headersMismatch)
+				if (headersMismatch) {
 					return null;
+				}
 			}
 		}
 
