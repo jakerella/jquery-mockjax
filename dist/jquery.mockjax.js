@@ -2,11 +2,13 @@
 * jquery.mockjax
 * 
 * Version: 2.0.0-beta 
-* Released: 2014-10-08 
-* Home: * http://github.com/appendto/jquery-mockjax
-* Copyright (c) 2014 ;
+* Released: 2014-10-21 
+* Home: * https://github.com/jakerella/jquery-mockjax
+* Copyright (c) 2014 Jordan Kasper, formerly appendTo;
+* NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
+* 
 * Dual licensed under the MIT or GPL licenses.
-* http://appendto.com/open-source-licenses
+* http://opensource.org/licenses/MIT OR http://www.gnu.org/licenses/gpl-2.0.html
 */
 (function($) {
 	'use strict';

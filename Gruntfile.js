@@ -11,9 +11,11 @@ module.exports = function(grunt) {
             '* Version: <%= pkg.version %> \n' +
             '* Released: <%= grunt.template.today("yyyy-mm-dd") %> \n' +
             '* Home: <%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
-            '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;\n' +
+            '* Copyright (c) <%= grunt.template.today("yyyy") %> Jordan Kasper, formerly appendTo;\n' +
+            '* NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014\n' +
+            '* \n' +
             '* Dual licensed under the MIT or GPL licenses.\n' +
-            '* http://appendto.com/open-source-licenses\n' +
+            '* http://opensource.org/licenses/MIT OR http://www.gnu.org/licenses/gpl-2.0.html\n' +
             '*/\n',
             
         // Task configuration.
