@@ -1,10 +1,10 @@
 # jQuery Mockjax: Ajax request mocking #
-[http://github.com/appendto/jquery-mockjax/](http://github.com/appendto/jquery-mockjax/)
+[http://github.com/jakerella/jquery-mockjax/](http://github.com/jakerella/jquery-mockjax/)
 
 jQuery Mockjax provides request/response mocking for ajax requests using the
 jQuery API and provides all standard behaviors in the request/response flow.
 
-You may report any issues you may find [in the github issue tracking](https://github.com/appendto/jquery-mockjax/issues).
+You may report any issues you may find [in the github issue tracking](https://github.com/jakerella/jquery-mockjax/issues).
 
 **Table of Contents**
 
@@ -49,7 +49,7 @@ mocked out, as well as how those requests should be responded to. These mocks
 can be extremely simple or quite complex, representing the entire request-response
 workflow.
 
-At [appendTo](http://appendto.com) we develop a lot of applications which use
+At appendTo we developed a lot of applications which use
 [RESTFUL](http://en.wikipedia.org/wiki/Representational_State_Transfer)
 web services, but much of the time those services are not yet created. 
 We spec out the service contract and data format at the beginning of a project 
@@ -206,7 +206,7 @@ jQuery is able to handle and parse `Text`, `HTML`, `JSON`, `JSONP`,
 formats. Two things to note: depending upon how you mock out `JSON` and
 `JSONP` you may need to include [json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js) 
 for the `JSON.stringify()` method (older browsers only, typically). Additionally 
-if you mock XML inline, you'll need to include the [`xmlDOM`](http://github.com/appendto/jquery-xmldom) 
+if you mock XML inline, you'll need to include the [`xmlDOM`](http://github.com/jakerella/jquery-xmldom) 
 plugin that transforms a string of XML into a DOM object. However, if you use 
 the proxy approach outlined below then there should be no need to include either 
 the JSON or XMLDOM plugins in any case.
@@ -545,7 +545,7 @@ $.mockjax({
 });
 ```
 
-(Don't forget that it's likely you'll need the [`xmlDOM`](http://github.com/appendto/jquery-xmldom) library as well!)
+(Don't forget that it's likely you'll need the [`xmlDOM`](http://github.com/jakerella/jquery-xmldom) library as well!)
 
 And `html`:
 
@@ -661,7 +661,7 @@ do, however, ensure all tests are passing before tagging a release._
 
 ### Release History ###
 
-Please read the [CHANGELOG](https://github.com/appendto/jquery-mockjax/blob/master/CHANGELOG.md)
+Please read the [CHANGELOG](https://github.com/jakerella/jquery-mockjax/blob/master/CHANGELOG.md)
 for a list of changes per release.
 
 Note that all releases are tagged in Github for easy reference, the `master` branch 
@@ -669,17 +669,26 @@ should *not* be considered a stable release!
 
 ### License ###
 
-Copyright (c) 2014 appendTo.
+Copyright (c) 2014 appendTo, Jordan Kasper
 
-Dual licensed under the MIT or GPL licenses.
+NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
 
-[http://appendto.com/open-source-licenses](http://appendto.com/open-source-licenses)
+Dual licensed under the MIT or GPL licenses:
+[http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT)
+[http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
 
 ### Contributing ###
 
-@appendTo welcomes any contributions by the community, whether in the form of a Pull 
-Request, issue submission and comments, or just sharing on social media ([@appendTo](http://twitter.com/appendto))!
+We welcome any contributions by the community, whether in the form of a Pull 
+Request, issue submission and comments, or just sharing on social media!
 
 If you want to contribute code to the project, please read our 
 [Contribution guidelines](CONTRIBUTING.md) to see what you need to do to get your 
 Pull Request ready for merging.
+
+#### Admins ####
+
+All pull requests are reviewed by the wonderful collaborators on this project:
+* [Doug Neiner](https://github.com/dcneiner)
+* [Jonathan Creamer](https://github.com/jcreamer898)
+* [Jordan Kasper](https://github.com/jakerella)

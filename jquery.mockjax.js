@@ -3,13 +3,15 @@
  *
  * Version:  1.6.0
  * Released:
- * Home:   http://github.com/appendto/jquery-mockjax
+ * Home:   https://github.com/jakerella/jquery-mockjax
  * Author:   Jonathan Sharp (http://jdsharp.com)
  * License:  MIT,GPL
  *
- * Copyright (c) 2014 appendTo LLC.
+ * Copyright (c) 2014 appendTo, Jordan Kasper
+ * NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
+ * 
  * Dual licensed under the MIT or GPL licenses.
- * http://appendto.com/open-source-licenses
+ * http://opensource.org/licenses/MIT OR http://www.gnu.org/licenses/gpl-2.0.html
  */
 (function($) {
 	var _ajax = $.ajax,
