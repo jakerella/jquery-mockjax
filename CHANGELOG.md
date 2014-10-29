@@ -1,3 +1,8 @@
+## 2014-10-29
+    * Updated to version 1.6.1
+    * Changed all references to appendTo to point to github.com/jakerella (new owner)
+    * removed unused testswarm files
+
 ## 2014-10-09
     * Updated to version 1.6.0
     * Added `unfiredHandlers()` and `unmockedAjaxCalls()`
