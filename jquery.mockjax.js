@@ -470,6 +470,7 @@
 
 		// Extend the original settings for the request
 		requestSettings = $.extend(true, {}, $.ajaxSettings, origSettings);
+		requestSettings.type = requestSettings.method = requestSettings.method || requestSettings.type;
 
 		// Generic function to override callback methods for use with
 		// callback options (onAfterSuccess, onAfterError, onAfterComplete)
