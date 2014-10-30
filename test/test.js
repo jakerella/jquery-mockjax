@@ -1732,6 +1732,33 @@ test('Test for bug #95: undefined responseText on success', function() {
 	});
 });
 
+asyncTest('alias type to method', function() {
+	$.mockjax(function(settings) {
+		if (settings.url === '/get/property') {
+			equal(settings.type, settings.method);
+
+			return {
+				responseText: { status: 'success', fortune: 'Are you a ninja?' }
+			};
+		}
+
+		return false;
+	});
+
+	$.ajax({
+		url: '/get/property',
+		type: 'GET',
+		complete: function() {
+			$.ajax({
+				url: '/get/property',
+				method: 'POST',
+				complete: function() {
+					start();
+				}
+			});
+		}
+	});
+});
 
 /*
 var id = $.mockjax({
