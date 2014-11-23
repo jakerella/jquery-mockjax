@@ -41,6 +41,7 @@ function normalizeSemVer(v) {
 
 // Speed up our tests
 $.mockjaxSettings.responseTime = 0;
+$.mockjaxSettings.logging = false;
 var defaultSettings = $.extend({}, $.mockjaxSettings);
 
 QUnit.testDone(function() {
