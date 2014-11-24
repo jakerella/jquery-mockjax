@@ -353,6 +353,35 @@ test('Old version of clearing mock handlers works', function() {
 });
 
 asyncTest('Custom log handler', function() {
+	if ( !window ) {
+		// We aren't running in a context with window available
+		start();
+		return;
+	}
+
+	var _oldConsole = window.console;
+	var msg = null;
+	window.console = { log: function ( message ) {
+		msg = message;
+	}}
+	var _oldLogging = $.mockjaxSettings.logging;
+	$.mockjaxSettings.logging = true;
+	$.mockjax({
+		 url: '*'
+	});
+	$.ajax({
+		url: '/console',
+		type: 'GET',
+		complete: function() {
+			window.console = _oldConsole;
+			equal(msg, 'MOCK GET: /console', 'Default log handler was not called');
+			$.mockjaxSettings.logging = _oldLogging;
+			start();
+		}
+	});
+});
+
+asyncTest('Custom log handler', function() {
 	var msg = null;
 	var _oldLog = $.mockjaxSettings.log;
 	var _oldLogging = $.mockjaxSettings.logging;
