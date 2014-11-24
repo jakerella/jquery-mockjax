@@ -2,22 +2,6 @@
 module.exports = function(grunt) {
 	'use strict';
 
-	var jQueryVersions = [
-		'1.5.2',
-		'1.6.4',
-		'1.7.2',
-		'1.8.3',
-		'1.9.1',
-		'1.10.2',
-		'1.11.1',
-		'2.0.3',
-		'2.1.1',
-		'git',
-	];
-		/*
-		<a href="?jquery=1.9.1">jQuery 1.9.1</a>
-		 */
-
 	// Project configuration.
 	grunt.initConfig({
 		// Metadata.
