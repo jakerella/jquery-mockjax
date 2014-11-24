@@ -352,33 +352,76 @@ test('Old version of clearing mock handlers works', function() {
 	equal($.mockjax.handler(0), undefined, 'There are no mock handlers');
 });
 
-// asyncTest('Intercept log messages', function() {
-//	 var msg = null;
-//	 $.mockjaxSettings.log = function(inMsg, settings) {
-//		 msg = inMsg;
-//	 };
-//	 $.mockjax({
-//		 url: '*'
-//	 });
-//	 $.ajax({
-//		 url: '/console',
-//		 type: 'GET',
-//		 complete: function() {
-//			 equal(msg, 'MOCK GET: /console', 'Mock request logged to console');
-//			 start();
-//		 }
-//	 });
-// });
-asyncTest('Disable console logging', function() {
+asyncTest('Custom log handler', function() {
 	var msg = null;
-	$.mockjaxSettings.console = false;
+	var _oldLog = $.mockjaxSettings.log;
+	var _oldLogging = $.mockjaxSettings.logging;
+	$.mockjaxSettings.log = function( mockHandler, requestSettings) {
+		msg = requestSettings.type.toUpperCase() + ': ' + requestSettings.url;
+	};
+	$.mockjax({
+		 url: '*'
+	});
+	$.ajax({
+		url: '/console',
+		type: 'GET',
+		complete: function() {
+			equal(msg, 'GET: /console', 'Custom log handler was not called');
+			$.mockjaxSettings.log = _oldLog;
+			$.mockjaxSettings.logging = _oldLogging;
+			start();
+		}
+	});
+});
+asyncTest('Disable logging via `logging: false`', function() {
+	var called = false;
+	var _oldLog = $.mockjaxSettings.log;
+	var _oldLogging = $.mockjaxSettings.logging;
+
+	$.mockjaxSettings.log = function () {
+		called = true;
+	};
+
+	// Even though this is the suite default, we force it to be off
+	$.mockjaxSettings.logging = false;
+
 	$.mockjax({
 		url: '*'
 	});
 	$.ajax({
 		url: '/console',
 		complete: function() {
-			equal(msg, null, 'Mock request not logged');
+			equal(called, false, 'Logging method incorrectly called');
+			$.mockjaxSettings.log = _oldLog;
+			$.mockjaxSettings.logging = _oldLogging;
+			start();
+		}
+	});
+});
+
+asyncTest('Disable logging per mock via `logging: false`', function() {
+	var called = false;
+	var _oldLog = $.mockjaxSettings.log;
+	var _oldLogging = $.mockjaxSettings.logging;
+
+	$.mockjaxSettings.log = function () {
+		called = true;
+	};
+
+	// Even though this is the suite default, we force it to be on
+	$.mockjaxSettings.logging = true;
+
+	$.mockjax({
+		url: '*',
+		logging: false
+	});
+
+	$.ajax({
+		url: '/console',
+		complete: function() {
+			equal(called, false, 'Logging method incorrectly called');
+			$.mockjaxSettings.log = _oldLog;
+			$.mockjaxSettings.logging = _oldLogging;
 			start();
 		}
 	});
