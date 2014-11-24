@@ -499,8 +499,10 @@
 			mockedAjaxCalls.push(requestSettings);
 
 			// If logging is enabled, log the mock to the console
-			$.mockjaxSettings.log( mockHandler, requestSettings );
-
+			if ( mockHandler.logging === true ||
+				 ( typeof mockHandler.logging === 'undefined' && $.mockjaxSettings.logging === true ) ) {
+				$.mockjaxSettings.log( mockHandler, requestSettings );
+			}
 
 			if ( requestSettings.dataType && requestSettings.dataType.toUpperCase() === 'JSONP' ) {
 				if ((mockRequest = processJsonpMock( requestSettings, mockHandler, origSettings ))) {
@@ -609,10 +611,6 @@
 		//url:        null,
 		//type:       'GET',
 		log:          function( mockHandler, requestSettings ) {
-			if ( mockHandler.logging === false ||
-				 ( typeof mockHandler.logging === 'undefined' && $.mockjaxSettings.logging === false ) ) {
-				return;
-			}
 			if ( window.console && console.log ) {
 				var message = 'MOCK ' + requestSettings.type.toUpperCase() + ': ' + requestSettings.url;
 				var request = $.extend({}, requestSettings);
