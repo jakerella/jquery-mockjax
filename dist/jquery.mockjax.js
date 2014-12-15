@@ -2,7 +2,7 @@
 * jquery.mockjax
 * 
 * Version: 2.0.0-beta 
-* Released: 2014-10-21 
+* Released: 2014-12-20 
 * Home: * https://github.com/jakerella/jquery-mockjax
 * Copyright (c) 2014 Jordan Kasper, formerly appendTo;
 * NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
@@ -134,9 +134,9 @@
 		if ($.isArray(responseTime)) {
 			var min = responseTime[0];
 			var max = responseTime[1];
-			return (typeof min === 'number' && typeof max === 'number') ? Math.floor(Math.random() * (max - min)) + min : null;
+			return Math.floor(Math.random() * (max - min)) + min;
 		} else {
-			return (typeof responseTime === 'number') ? responseTime: null;
+			return responseTime;
 		}
 	}
 
@@ -233,7 +233,7 @@
                     if (isDefaultSetting(mockHandler, 'statusText')) {
 					    mockHandler.statusText = xhr.statusText;
                     }
-					this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime) || 0);
+					this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime));
 				}
 			});
 		} else {
@@ -242,7 +242,7 @@
 				// TODO: Blocking delay
 				process();
 			} else {
-				this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime) || 50);
+				this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime));
 			}
 		}
 	}
@@ -374,7 +374,7 @@
 		setTimeout(function() {
 			jsonpSuccess( requestSettings, callbackContext, mockHandler );
 			jsonpComplete( requestSettings, callbackContext, mockHandler );
-		}, parseResponseTimeOpt(mockHandler.responseTime) || 0);
+		}, parseResponseTimeOpt(mockHandler.responseTime));
 
 		// If we are running under jQuery 1.5+, return a deferred object
 		if($.Deferred){
@@ -469,6 +469,7 @@
 
 		// Extend the original settings for the request
 		requestSettings = $.extend(true, {}, $.ajaxSettings, origSettings);
+		requestSettings.type = requestSettings.method = requestSettings.method || requestSettings.type;
 
 		// Generic function to override callback methods for use with
 		// callback options (onAfterSuccess, onAfterError, onAfterComplete)

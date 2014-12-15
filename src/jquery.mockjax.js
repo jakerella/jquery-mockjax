@@ -122,9 +122,9 @@
 		if ($.isArray(responseTime)) {
 			var min = responseTime[0];
 			var max = responseTime[1];
-			return (typeof min === 'number' && typeof max === 'number') ? Math.floor(Math.random() * (max - min)) + min : null;
+			return Math.floor(Math.random() * (max - min)) + min;
 		} else {
-			return (typeof responseTime === 'number') ? responseTime: null;
+			return responseTime;
 		}
 	}
 
@@ -221,7 +221,7 @@
                     if (isDefaultSetting(mockHandler, 'statusText')) {
 					    mockHandler.statusText = xhr.statusText;
                     }
-					this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime) || 0);
+					this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime));
 				}
 			});
 		} else {
@@ -230,7 +230,7 @@
 				// TODO: Blocking delay
 				process();
 			} else {
-				this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime) || 50);
+				this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime));
 			}
 		}
 	}
@@ -362,7 +362,7 @@
 		setTimeout(function() {
 			jsonpSuccess( requestSettings, callbackContext, mockHandler );
 			jsonpComplete( requestSettings, callbackContext, mockHandler );
-		}, parseResponseTimeOpt(mockHandler.responseTime) || 0);
+		}, parseResponseTimeOpt(mockHandler.responseTime));
 
 		// If we are running under jQuery 1.5+, return a deferred object
 		if($.Deferred){
