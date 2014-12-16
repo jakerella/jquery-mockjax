@@ -395,6 +395,17 @@ $.mockjax({
 });
 ```
 
+You can also use an interval for `responseTime` to randomize latency:
+
+```javascript
+$.mockjax({
+  url: "/restful/api",
+  // Use a random value between 250ms and 750ms
+  responseTime: [250, 750],
+  responseText: "A text response from the server"
+});
+```
+
 ### Simulating HTTP Response Statuses ###
 
 It's also possible to simulate response statuses other than 200 (default
