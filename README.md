@@ -79,7 +79,7 @@ checkout this list:
       * `headers`: [Object] Keys will be simulated as additional headers returned from the server for the request (**NOTE: This is NOT used to match request headers!**)
       * `status`: [Number] An integer that specifies a valid server response code. This simulates a server response code
       * `statusText`: [String] Specifies a valid server response code description. This simulates a server response code description
-      * `responseTime`: [Number] An integer that specifies a simulated network and server latency (in milliseconds)
+      * `responseTime`: [Number] An integer that specifies a simulated network and server latency (in milliseconds). Setting this to 0 will minimize the simulated latency
       * `isTimeout`: [Boolean] Determines whether or not the mock will force a timeout on the request
       * `contentType`: [String] Specifies the content type for the response
       * `response`: [Function] A function that accepts the request settings and allows for the dynamic setting of response settings (including the body of the response) upon each request (see examples below)
