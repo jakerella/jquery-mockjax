@@ -130,14 +130,22 @@
 		return handler;
 	}
 
+	function isPosNum(value) {
+		return typeof value === 'number' && value >= 0;
+	}
+
 	function parseResponseTimeOpt(responseTime) {
-		if ($.isArray(responseTime)) {
+		if ($.isArray(responseTime) && responseTime.length === 2) {
 			var min = responseTime[0];
 			var max = responseTime[1];
-			return Math.floor(Math.random() * (max - min)) + min;
-		} else {
+			if(isPosNum(min) && isPosNum(max)) {
+				return Math.floor(Math.random() * (max - min)) + min;
+			}
+		} else if(isPosNum(responseTime)) {
 			return responseTime;
 		}
+		console.warn('invalid responseTime:', responseTime);
+		return 0;
 	}
 
 	// Process the xhr objects send operation
