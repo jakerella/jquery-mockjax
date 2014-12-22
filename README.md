@@ -79,7 +79,9 @@ checkout this list:
       * `headers`: [Object] Keys will be simulated as additional headers returned from the server for the request (**NOTE: This is NOT used to match request headers!**)
       * `status`: [Number] An integer that specifies a valid server response code. This simulates a server response code
       * `statusText`: [String] Specifies a valid server response code description. This simulates a server response code description
-      * `responseTime`: [Number] An integer that specifies a simulated network and server latency (in milliseconds)
+      * `responseTime`: [Number] An integer that specifies a simulated network
+         and server latency (in milliseconds). Default is `500`. Setting this
+	 to `0` will minimize the simulated latency
       * `isTimeout`: [Boolean] Determines whether or not the mock will force a timeout on the request
       * `contentType`: [String] Specifies the content type for the response
       * `response`: [Function] A function that accepts the request settings and allows for the dynamic setting of response settings (including the body of the response) upon each request (see examples below)
@@ -395,6 +397,17 @@ $.mockjax({
 });
 ```
 
+You can also use an interval for `responseTime` to randomize latency:
+
+```javascript
+$.mockjax({
+  url: "/restful/api",
+  // Use a random value between 250ms and 750ms
+  responseTime: [250, 750],
+  responseText: "A text response from the server"
+});
+```
+
 ### Simulating HTTP Response Statuses ###
 
 It's also possible to simulate response statuses other than 200 (default
@@ -672,6 +685,11 @@ NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
 Dual licensed under the MIT or GPL licenses:
 [http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT)
 [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
+
+### Troubleshooting ###
+
+If mockjax appears to be behaving unexpectedly, be sure to check the console
+logs for warnings.
 
 ### Contributing ###
 

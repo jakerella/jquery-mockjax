@@ -118,14 +118,22 @@
 		return handler;
 	}
 
+	function isPosNum(value) {
+		return typeof value === 'number' && value >= 0;
+	}
+
 	function parseResponseTimeOpt(responseTime) {
-		if ($.isArray(responseTime)) {
+		if ($.isArray(responseTime) && responseTime.length === 2) {
 			var min = responseTime[0];
 			var max = responseTime[1];
-			return (typeof min === 'number' && typeof max === 'number') ? Math.floor(Math.random() * (max - min)) + min : null;
-		} else {
-			return (typeof responseTime === 'number') ? responseTime: null;
+			if(isPosNum(min) && isPosNum(max)) {
+				return Math.floor(Math.random() * (max - min)) + min;
+			}
+		} else if(isPosNum(responseTime)) {
+			return responseTime;
 		}
+		console.warn('invalid responseTime:', responseTime);
+		return DEFAULT_RESPONSE_TIME;
 	}
 
 	// Process the xhr objects send operation
@@ -221,7 +229,7 @@
                     if (isDefaultSetting(mockHandler, 'statusText')) {
 					    mockHandler.statusText = xhr.statusText;
                     }
-					this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime) || 0);
+					this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime));
 				}
 			});
 		} else {
@@ -230,7 +238,7 @@
 				// TODO: Blocking delay
 				process();
 			} else {
-				this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime) || 50);
+				this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime));
 			}
 		}
 	}
@@ -362,7 +370,7 @@
 		setTimeout(function() {
 			jsonpSuccess( requestSettings, callbackContext, mockHandler );
 			jsonpComplete( requestSettings, callbackContext, mockHandler );
-		}, parseResponseTimeOpt(mockHandler.responseTime) || 0);
+		}, parseResponseTimeOpt(mockHandler.responseTime));
 
 		// If we are running under jQuery 1.5+, return a deferred object
 		if($.Deferred){
@@ -593,6 +601,8 @@
 		ajax: handleAjax
 	});
 
+	var DEFAULT_RESPONSE_TIME = 500;
+
 	$.mockjaxSettings = {
 		//url:        null,
 		//type:       'GET',
@@ -619,7 +629,7 @@
 		logging:       true,
 		status:        200,
 		statusText:    "OK",
-		responseTime:  500,
+		responseTime:  DEFAULT_RESPONSE_TIME,
 		isTimeout:     false,
 		throwUnmocked: false,
 		contentType:   'text/plain',
