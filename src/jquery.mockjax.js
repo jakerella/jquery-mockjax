@@ -133,7 +133,7 @@
 			return responseTime;
 		}
 		console.warn('invalid responseTime:', responseTime);
-		return 0;
+		return DEFAULT_RESPONSE_TIME;
 	}
 
 	// Process the xhr objects send operation
@@ -601,6 +601,8 @@
 		ajax: handleAjax
 	});
 
+	var DEFAULT_RESPONSE_TIME = 500;
+
 	$.mockjaxSettings = {
 		//url:        null,
 		//type:       'GET',
@@ -627,7 +629,7 @@
 		logging:       true,
 		status:        200,
 		statusText:    "OK",
-		responseTime:  500,
+		responseTime:  DEFAULT_RESPONSE_TIME,
 		isTimeout:     false,
 		throwUnmocked: false,
 		contentType:   'text/plain',

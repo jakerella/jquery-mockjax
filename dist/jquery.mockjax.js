@@ -2,7 +2,7 @@
 * jquery.mockjax
 * 
 * Version: 2.0.0-beta 
-* Released: 2014-12-20 
+* Released: 2014-12-22 
 * Home: * https://github.com/jakerella/jquery-mockjax
 * Copyright (c) 2014 Jordan Kasper, formerly appendTo;
 * NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
@@ -145,7 +145,7 @@
 			return responseTime;
 		}
 		console.warn('invalid responseTime:', responseTime);
-		return 0;
+		return DEFAULT_RESPONSE_TIME;
 	}
 
 	// Process the xhr objects send operation
@@ -613,6 +613,8 @@
 		ajax: handleAjax
 	});
 
+	var DEFAULT_RESPONSE_TIME = 500;
+
 	$.mockjaxSettings = {
 		//url:        null,
 		//type:       'GET',
@@ -639,7 +641,7 @@
 		logging:       true,
 		status:        200,
 		statusText:    "OK",
-		responseTime:  500,
+		responseTime:  DEFAULT_RESPONSE_TIME,
 		isTimeout:     false,
 		throwUnmocked: false,
 		contentType:   'text/plain',
