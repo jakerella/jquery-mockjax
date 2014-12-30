@@ -44,12 +44,6 @@
       "url": "http://www.gnu.org/licenses/gpl-2.0.html"
     }
   ],
-  "repositories": [
-    {
-      "type": "git",
-      "url": "http://github.com/jakerella/jquery-mockjax.git"
-    }
-  ],
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-contrib-qunit": "^0.5.2",
