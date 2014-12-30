@@ -23,11 +23,5 @@
          "type": "GPLv2",
          "url": "http://www.gnu.org/licenses/gpl-2.0.html"
      }
-  ],
-  "repositories": [
-     {
-         "type": "git",
-         "url": "https://github.com/jakerella/jquery-mockjax.git"
-     }
   ]
 }
