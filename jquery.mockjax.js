@@ -516,6 +516,9 @@
 			mockHandler.cache = requestSettings.cache;
 			mockHandler.timeout = requestSettings.timeout;
 			mockHandler.global = requestSettings.global;
+			
+			// hack to mock cross domain requests, per https://github.com/appendto/jquery-mockjax/issues/136
+			origSettings.crossDomain = false;
 
 			// In the case of a timeout, we just need to ensure
 			// an actual jQuery timeout (That is, our reponse won't)
