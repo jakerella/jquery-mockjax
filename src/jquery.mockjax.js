@@ -400,8 +400,7 @@
 
 
 		// Handle JSONP-style loading
-		window[ jsonp ] = window[ jsonp ] || function( tmp ) {
-			data = tmp;
+		window[ jsonp ] = window[ jsonp ] || function() {
 			jsonpSuccess( requestSettings, callbackContext, mockHandler );
 			jsonpComplete( requestSettings, callbackContext, mockHandler );
 			// Garbage collect
@@ -410,10 +409,6 @@
 			try {
 				delete window[ jsonp ];
 			} catch(e) {}
-
-			if ( head ) {
-				head.removeChild( script );
-			}
 		};
 	}
 
