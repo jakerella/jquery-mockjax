@@ -25,7 +25,7 @@
 			var xmlDoc = ( new DOMParser() ).parseFromString( xml, 'text/xml' );
 			if ( $.isXMLDoc( xmlDoc ) ) {
 				var err = $('parsererror', xmlDoc);
-				if ( err.length == 1 ) {
+				if ( err.length === 1 ) {
 					throw new Error('Error: ' + $(xmlDoc).text() );
 				}
 			} else {
@@ -47,7 +47,7 @@
 		// Test for situations where the data is a querystring (not an object)
 		if (typeof live === 'string') {
 			// Querystring may be a regex
-			return $.isFunction( mock.test ) ? mock.test(live) : mock == live;
+			return $.isFunction( mock.test ) ? mock.test(live) : mock === live;
 		}
 		$.each(mock, function(k) {
 			if ( live[k] === undefined ) {
@@ -63,7 +63,7 @@
 					if ( mock[k] && $.isFunction( mock[k].test ) ) {
 						identical = identical && mock[k].test(live[k]);
 					} else {
-						identical = identical && ( mock[k] == live[k] );
+						identical = identical && ( mock[k] === live[k] );
 					}
 				}
 			}
@@ -96,7 +96,7 @@
 			// Look for a simple wildcard '*' or a direct URL match
 			var star = handler.url.indexOf('*');
 			if (handler.url !== requestSettings.url && star === -1 ||
-					!new RegExp(handler.url.replace(/[-[\]{}()+?.,\\^$|#\s]/g, "\\$&").replace(/\*/g, '.+')).test(requestSettings.url)) {
+					!new RegExp(handler.url.replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&').replace(/\*/g, '.+')).test(requestSettings.url)) {
 				return null;
 			}
 		}
@@ -110,7 +110,7 @@
 		}
 		// Inspect the request type
 		if ( handler && handler.type &&
-				handler.type.toLowerCase() != requestSettings.type.toLowerCase() ) {
+				handler.type.toLowerCase() !== requestSettings.type.toLowerCase() ) {
 			// The request type doesn't match (GET vs. POST)
 			return null;
 		}
@@ -154,10 +154,10 @@
 						var onReady;
 						// Copy over our mock to our xhr object before passing control back to
 						// jQuery's onreadystatechange callback
-						if ( requestSettings.dataType == 'json' && ( typeof mockHandler.responseText == 'object' ) ) {
+						if ( requestSettings.dataType === 'json' && ( typeof mockHandler.responseText === 'object' ) ) {
 							this.responseText = JSON.stringify(mockHandler.responseText);
-						} else if ( requestSettings.dataType == 'xml' ) {
-							if ( typeof mockHandler.responseXML == 'string' ) {
+						} else if ( requestSettings.dataType === 'xml' ) {
+							if ( typeof mockHandler.responseXML === 'string' ) {
 								this.responseXML = parseXML(mockHandler.responseXML);
 								//in jQuery 1.9.1+, responseXML is processed differently and relies on responseText
 								this.responseText = mockHandler.responseXML;
@@ -171,10 +171,10 @@
 						} else {
 							this.responseText = mockHandler.responseText;
 						}
-						if( typeof mockHandler.status == 'number' || typeof mockHandler.status == 'string' ) {
+						if( typeof mockHandler.status === 'number' || typeof mockHandler.status === 'string' ) {
 							this.status = mockHandler.status;
 						}
-						if( typeof mockHandler.statusText === "string") {
+						if( typeof mockHandler.statusText === 'string') {
 							this.statusText = mockHandler.statusText;
 						}
 						// jQuery 2.0 renamed onreadystatechange to onload
@@ -218,7 +218,7 @@
 				url: mockHandler.proxy,
 				type: mockHandler.proxyType,
 				data: mockHandler.data,
-				dataType: requestSettings.dataType === "script" ? "text/plain" : requestSettings.dataType,
+				dataType: requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
 				complete: function(xhr) {
 					mockHandler.responseXML = xhr.responseXML;
 					mockHandler.responseText = xhr.responseText;
@@ -233,7 +233,7 @@
 				}
 			});
 		} else {
-			// type == 'POST' || 'GET' || 'DELETE'
+			// type: 'POST' || 'GET' || 'DELETE'
 			if ( requestSettings.async === false ) {
 				// TODO: Blocking delay
 				process();
@@ -278,11 +278,11 @@
 				if ( mockHandler.headers && mockHandler.headers[header] ) {
 					// Return arbitrary headers
 					return mockHandler.headers[header];
-				} else if ( header.toLowerCase() == 'last-modified' ) {
+				} else if ( header.toLowerCase() === 'last-modified' ) {
 					return mockHandler.lastModified || (new Date()).toString();
-				} else if ( header.toLowerCase() == 'etag' ) {
+				} else if ( header.toLowerCase() === 'etag' ) {
 					return mockHandler.etag || '';
-				} else if ( header.toLowerCase() == 'content-type' ) {
+				} else if ( header.toLowerCase() === 'content-type' ) {
 					return mockHandler.contentType || 'text/plain';
 				}
 			},
@@ -293,7 +293,7 @@
 					mockHandler.headers['Content-Type'] = mockHandler.contentType;
 				}
 				$.each(mockHandler.headers, function(k, v) {
-					headers += k + ': ' + v + "\n";
+					headers += k + ': ' + v + '\n';
 				});
 				return headers;
 			}
@@ -307,7 +307,7 @@
 
 		processJsonpUrl( requestSettings );
 
-		requestSettings.dataType = "json";
+		requestSettings.dataType = 'json';
 		if(requestSettings.data && CALLBACK_REGEX.test(requestSettings.data) || CALLBACK_REGEX.test(requestSettings.url)) {
 			createJsonpCallback(requestSettings, mockHandler, origSettings);
 
@@ -318,8 +318,8 @@
 				parts = rurl.exec( requestSettings.url ),
 				remote = parts && (parts[1] && parts[1] !== location.protocol || parts[2] !== location.host);
 
-			requestSettings.dataType = "script";
-			if(requestSettings.type.toUpperCase() === "GET" && remote ) {
+			requestSettings.dataType = 'script';
+			if(requestSettings.type.toUpperCase() === 'GET' && remote ) {
 				var newMockReturn = processJsonpRequest( requestSettings, mockHandler, origSettings );
 
 				// Check if we are supposed to return a Deferred back to the mock call, or just
@@ -336,13 +336,13 @@
 
 	// Append the required callback parameter to the end of the request URL, for a JSONP request
 	function processJsonpUrl( requestSettings ) {
-		if ( requestSettings.type.toUpperCase() === "GET" ) {
+		if ( requestSettings.type.toUpperCase() === 'GET' ) {
 			if ( !CALLBACK_REGEX.test( requestSettings.url ) ) {
-				requestSettings.url += (/\?/.test( requestSettings.url ) ? "&" : "?") +
-					(requestSettings.jsonp || "callback") + "=?";
+				requestSettings.url += (/\?/.test( requestSettings.url ) ? '&' : '?') +
+					(requestSettings.jsonp || 'callback') + '=?';
 			}
 		} else if ( !requestSettings.data || !CALLBACK_REGEX.test(requestSettings.data) ) {
-			requestSettings.data = (requestSettings.data ? requestSettings.data + "&" : "") + (requestSettings.jsonp || "callback") + "=?";
+			requestSettings.data = (requestSettings.data ? requestSettings.data + '&' : '') + (requestSettings.jsonp || 'callback') + '=?';
 		}
 	}
 
@@ -375,7 +375,7 @@
 		// If we are running under jQuery 1.5+, return a deferred object
 		if($.Deferred){
 			newMock = new $.Deferred();
-			if(typeof mockHandler.responseText == "object"){
+			if(typeof mockHandler.responseText === 'object'){
 				newMock.resolveWith( callbackContext, [mockHandler.responseText] );
 			}
 			else{
@@ -389,14 +389,14 @@
 	// Create the required JSONP callback function for the request
 	function createJsonpCallback( requestSettings, mockHandler, origSettings ) {
 		var callbackContext = origSettings && origSettings.context || requestSettings;
-		var jsonp = requestSettings.jsonpCallback || ("jsonp" + jsc++);
+		var jsonp = requestSettings.jsonpCallback || ('jsonp' + jsc++);
 
 		// Replace the =? sequence both in the query string and the data
 		if ( requestSettings.data ) {
-			requestSettings.data = (requestSettings.data + "").replace(CALLBACK_REGEX, "=" + jsonp + "$1");
+			requestSettings.data = (requestSettings.data + '').replace(CALLBACK_REGEX, '=' + jsonp + '$1');
 		}
 
-		requestSettings.url = requestSettings.url.replace(CALLBACK_REGEX, "=" + jsonp + "$1");
+		requestSettings.url = requestSettings.url.replace(CALLBACK_REGEX, '=' + jsonp + '$1');
 
 
 		// Handle JSONP-style loading
@@ -421,12 +421,12 @@
 	function jsonpSuccess(requestSettings, callbackContext, mockHandler) {
 		// If a local callback was specified, fire it and pass it the data
 		if ( requestSettings.success ) {
-			requestSettings.success.call( callbackContext, mockHandler.responseText || "", status, {} );
+			requestSettings.success.call( callbackContext, mockHandler.responseText || '', status, {} );
 		}
 
 		// Fire the global callback
 		if ( requestSettings.global ) {
-			(requestSettings.context ? $(requestSettings.context) : $.event).trigger("ajaxSuccess", [{}, requestSettings]);
+			(requestSettings.context ? $(requestSettings.context) : $.event).trigger('ajaxSuccess', [{}, requestSettings]);
 		}
 	}
 
@@ -439,12 +439,12 @@
 
 		// The request was completed
 		if ( requestSettings.global ) {
-			(requestSettings.context ? $(requestSettings.context) : $.event).trigger("ajaxComplete", [{}, requestSettings]);
+			(requestSettings.context ? $(requestSettings.context) : $.event).trigger('ajaxComplete', [{}, requestSettings]);
 		}
 
 		// Handle the global AJAX counter
 		if ( requestSettings.global && ! --$.active ) {
-			$.event.trigger( "ajaxStop" );
+			$.event.trigger( 'ajaxStop' );
 		}
 	}
 
@@ -454,7 +454,7 @@
 		var mockRequest, requestSettings, mockHandler, overrideCallback;
 
 		// If url is an object, simulate pre-1.5 signature
-		if ( typeof url === "object" ) {
+		if ( typeof url === 'object' ) {
 			origSettings = url;
 			url = undefined;
 		} else {
@@ -539,6 +539,7 @@
 
 			copyUrlParameters(mockHandler, origSettings);
 
+			/*jshint loopfunc:true*/
 			(function(mockHandler, requestSettings, origSettings, origHandler) {
 
 				mockRequest = _ajax.call($, $.extend(true, {}, origSettings, {
@@ -546,6 +547,7 @@
 					xhr: function() { return xhr( mockHandler, requestSettings, origSettings, origHandler ); }
 				}));
 			})(mockHandler, requestSettings, origSettings, mockHandlers[k]);
+			/*jshint loopfunc:false*/
 
 			return mockRequest;
 		}
@@ -608,7 +610,7 @@
 		//type:       'GET',
 		log:          function( mockHandler, requestSettings ) {
 			if ( mockHandler.logging === false ||
-				 ( typeof mockHandler.logging === 'undefined' && $.mockjaxSettings.logging === false ) ) {
+				( typeof mockHandler.logging === 'undefined' && $.mockjaxSettings.logging === false ) ) {
 				return;
 			}
 			if ( window.console && console.log ) {
@@ -628,7 +630,7 @@
 		},
 		logging:       true,
 		status:        200,
-		statusText:    "OK",
+		statusText:    'OK',
 		responseTime:  DEFAULT_RESPONSE_TIME,
 		isTimeout:     false,
 		throwUnmocked: false,
@@ -653,7 +655,7 @@
 		return i;
 	};
 	$.mockjax.clear = function(i) {
-		if ( arguments.length == 1 ) {
+		if ( arguments.length === 1 ) {
 			mockHandlers[i] = null;
 		} else {
 			mockHandlers = [];
@@ -662,14 +664,16 @@
 		unmockedAjaxCalls = [];
 	};
 	// support older, deprecated version
-	$.mockjaxClear = function(i) {
+	$.mockjaxClear = function() {
 		if (window.console && window.console.warn) {
+			/*jshint maxlen:200*/
 			window.console.warn( 'DEPRECATED: The $.mockjaxClear() method has been deprecated in 1.6.0. Please use $.mockjax.clear() as the older function will be removed soon!' );
+			/*jshint maxlen:140*/
 		}
 		$.mockjax.clear();
 	};
 	$.mockjax.handler = function(i) {
-		if ( arguments.length == 1 ) {
+		if ( arguments.length === 1 ) {
 			return mockHandlers[i];
 		}
 	};
