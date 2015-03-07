@@ -2,15 +2,30 @@
 * jquery.mockjax
 * 
 * Version: 2.0.0-beta 
-* Released: 2014-12-22 
+* Released: 2015-03-13 
 * Home: * https://github.com/jakerella/jquery-mockjax
-* Copyright (c) 2014 Jordan Kasper, formerly appendTo;
+* Copyright (c) 2015 Jordan Kasper, formerly appendTo;
 * NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
 * 
 * Dual licensed under the MIT or GPL licenses.
 * http://opensource.org/licenses/MIT OR http://www.gnu.org/licenses/gpl-2.0.html
 */
-(function($) {
+(function(root, factory) {
+	'use strict';
+
+	// AMDJS module definition
+	if ( typeof define === 'function' && define.amd ) {
+		define(['jquery'], function($) {
+			return factory($);
+		});
+	// CommonJS module definition
+	} else if ( typeof exports === 'object') {
+		module.exports = factory(require('jquery'));
+	// Global jQuery in web browsers
+	} else {
+		return factory(root.jQuery || root.$);
+	}
+}(this, function($) {
 	'use strict';
 
 	var _ajax = $.ajax,
@@ -701,4 +716,7 @@
 	$.mockjax.unmockedAjaxCalls = function() {
 		return unmockedAjaxCalls;
 	};
-})(jQuery);
+
+	return $.mockjax;
+
+}));
