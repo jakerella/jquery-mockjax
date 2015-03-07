@@ -1,4 +1,19 @@
-(function($) {
+(function(root, factory) {
+	'use strict';
+
+	// AMDJS module definition
+	if ( typeof define === 'function' && define.amd ) {
+		define(['jquery'], function($) {
+			return factory($);
+		});
+	// CommonJS module definition
+	} else if ( typeof exports === 'object') {
+		module.exports = factory(require('jquery'));
+	// Global jQuery in web browsers
+	} else {
+		return factory(root.jQuery || root.$);
+	}
+}(this, function($) {
 	'use strict';
 
 	var _ajax = $.ajax,
@@ -710,4 +725,7 @@
 	$.mockjax.unmockedAjaxCalls = function() {
 		return unmockedAjaxCalls;
 	};
-})(jQuery);
+
+	return $.mockjax;
+
+}));
