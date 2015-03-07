@@ -472,10 +472,11 @@
 		overrideCallback = function(action, mockHandler) {
 			var origHandler = origSettings[action.toLowerCase()];
 			return function() {
+				var parameters = [].slice.call(arguments);
+				mockHandler['onAfter' + action].apply(this, parameters);
 				if ( $.isFunction(origHandler) ) {
-					origHandler.apply(this, [].slice.call(arguments));
+					origHandler.apply(this, parameters);
 				}
-				mockHandler['onAfter' + action]();
 			};
 		};
 
