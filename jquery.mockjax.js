@@ -13,7 +13,20 @@
  * Dual licensed under the MIT or GPL licenses.
  * http://opensource.org/licenses/MIT OR http://www.gnu.org/licenses/gpl-2.0.html
  */
-(function($) {
+(function(root, factory) {
+	// AMDJS module definition
+	if ( typeof define === 'function' && define.amd ) {
+		define(['jquery'], function($) {
+			return factory($);
+		});
+	// CommonJS module definition
+	} else if ( typeof exports === 'object') {
+		module.exports = factory(require('jquery'));
+	// Global jQuery in web browsers
+	} else {
+		return factory(root.jQuery || root.$);
+	}
+}(this, function($) {
 	var _ajax = $.ajax,
 		mockHandlers = [],
 		mockedAjaxCalls = [],
@@ -689,4 +702,7 @@
 	$.mockjax.unmockedAjaxCalls = function() {
 		return unmockedAjaxCalls;
 	};
-})(jQuery);
+
+	return $.mockjax;
+
+}));
