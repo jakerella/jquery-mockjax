@@ -580,11 +580,22 @@ a request completes (either successfully or not):
 ```javascript
 $.mockjax({
   url: "/api/end/point",
-  onAfterComplete: function() {
+  onAfterSuccess: function( Anything data, String textStatus, jqXHR jqXHR ) {
+    // do any reponse checks
+  },
+  onAfterError: function( jqXHR jqXHR, String textStatus, String errorThrown ) {
+    // do any additional error processing
+  },
+  onAfterComplete: function(jqXHR jqXHR, String textStatus) {
     // do any required cleanup
   }
 });
 ```
+
+Arguments of the `onAfter{Xxxxx}` callbacks are the same as those sent to
+their original jQuery counterparts.  The `onAfter{Xxxxx}` callbacks are
+called before the original jQuery success/error/complete callbacks, so that
+you have a chance to perform an action before the `$.ajax` caller.
 
 ### Globally Defining Mockjax Settings ###
 
