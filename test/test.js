@@ -406,6 +406,51 @@ asyncTest('Get mocked ajax calls - GET', function() {
 	});
 });
 
+asyncTest('Test that passedThroughAjaxCalls counts the pass-through calls', function() {
+	$.mockjaxSettings.throwUnmocked = false;
+
+	$.mockjax({
+		url: '/api/example/*',
+		passThrough: true
+	});
+
+	$.ajax({
+		async: true,
+		type: 'GET',
+		url: '/api/example/1',
+		complete: function() {
+			var passedThroughAjaxCalls = $.mockjax.passedThroughAjaxCalls();
+			equal(passedThroughAjaxCalls.length, 1, 'Wrong number of passed-through ajax calls were returned');
+			equal(passedThroughAjaxCalls[0].url, '/api/example/1', 'The remembered passed-through settings include a wrong url');
+			var unmockedAjaxCalls = $.mockjax.unmockedAjaxCalls();
+			equal(unmockedAjaxCalls.length, 1, 'passed-through ajax calls were not recognized as unmocked');
+			equal(unmockedAjaxCalls[0].url, '/api/example/1', 'The remembered unmocked settings include a wrong url');
+			start();
+		}
+	});
+});
+
+asyncTest('Test passedThroughAjaxCalls are cleared when mockjax.clear is called', function() {
+	$.mockjaxSettings.throwUnmocked = false;
+
+	$.mockjax({
+		url: '/api/example/*',
+		passThrough: true
+	});
+
+	$.ajax({
+		async: true,
+		type: 'GET',
+		url: '/api/example/1',
+		complete: function() {
+			equal($.mockjax.passedThroughAjaxCalls().length, 1, 'Wrong number of passed-through ajax calls were returned');
+			$.mockjax.clear();
+			equal($.mockjax.passedThroughAjaxCalls().length, 0, 'Passed-through ajax calls not removed by mockjax.clear');
+			start();
+		}
+	});
+});
+
 asyncTest('Test unmockedAjaxCalls returns the correct object when ajax call is not mocked and throwUnmocked is false', function() {
   $.mockjaxSettings.throwUnmocked = false;
 
