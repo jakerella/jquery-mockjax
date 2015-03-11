@@ -96,7 +96,7 @@ checkout this list:
 * `Object $.mockjax.handler(/* Number */ id)`
   * Returns the mock request settings for the handler with the provided `id`
 * `void $.mockjax.clear([/* Number */ id])`
-  * If the `id` is provided, the handler with that ID is cleared (that is, requests matching it will no longer do so, the hnadler is completely removed)
+  * If the `id` is provided, the handler with that ID is cleared (that is, requests matching it will no longer do so, the handler is completely removed)
   * If no `id` is provided, all handlers are cleared, resetting Mockjax to its initial state
 * `Array<Object> $.mockjax.mockedAjaxCalls()`
   * Returns an array of all mocked ajax calls with each entry being the request settings object as passed into the `$.mockjax()` function
