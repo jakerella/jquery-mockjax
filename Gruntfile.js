@@ -47,7 +47,7 @@ module.exports = function(grunt) {
             }
         },
         qunit: {
-            all: ['test/index.html']
+            all: ['test/index.html', 'test/requirejs/index.html']
         },
         watch: {
             gruntfile: {
