@@ -49,6 +49,12 @@ module.exports = function(grunt) {
         qunit: {
             all: ['test/index.html', 'test/requirejs/index.html']
         },
+        'node-qunit': {
+            all: {
+                code: 'src/<%= pkg.name %>.js',
+                tests: ['test/nodejs/test.js']
+            }
+        },
         watch: {
             gruntfile: {
                 files: '<%= jshint.gruntfile.src %>',
@@ -64,6 +70,7 @@ module.exports = function(grunt) {
     require('load-grunt-tasks')(grunt);
 
     grunt.registerTask('build', ['concat', 'uglify']);
-    grunt.registerTask('default', ['jshint', 'qunit', 'build']);
+    grunt.registerTask('test', ['qunit', 'node-qunit']);
+    grunt.registerTask('default', ['jshint', 'test', 'build']);
 
 };
