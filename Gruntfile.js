@@ -50,17 +50,30 @@ module.exports = function(grunt) {
 		},
 		qunit: { all: [] },  // NOTE: these tests are all run by the `test` task below to run against each jQuery version supported
 		test: {
-			jQueryVersions: [
-				'1.5.2',
-				'1.6.4',
-				'1.7.2',
-				'1.8.3',
-				'1.9.1',
-				'1.10.2',
-				'1.11.2',
-				'2.0.3',
-				'2.1.3'
-			],
+			all: {
+				jQueryVersions: [
+					'1.5.2',
+					'1.6.4',
+					'1.7.2',
+					'1.8.3',
+					'1.9.1',
+					'1.10.2',
+					'1.11.2',
+					'2.0.3',
+					'2.1.3'
+				]
+			},
+			requirejs: {
+				jQueryVersions: [
+					'1.7.2',
+					'1.8.3',
+					'1.9.1',
+					'1.10.2',
+					'1.11.2',
+					'2.0.3',
+					'2.1.3'
+				]
+			},
 			latestInBranch: {
 				jQueryVersions: [
 					'1.11.2',
@@ -91,7 +104,7 @@ module.exports = function(grunt) {
 
 	require('load-grunt-tasks')(grunt);
 
-	grunt.registerTask('dev', ['jshint', 'test']);
+	grunt.registerTask('dev', ['jshint', 'test:all', 'test:requirejs']);
     grunt.registerTask('build', ['dev', 'concat', 'uglify']);
     grunt.registerTask('default', ['dev']);
 
@@ -99,11 +112,17 @@ module.exports = function(grunt) {
 	grunt.registerTask('test', 'Executes QUnit tests with all supported jQuery versions', function() {
 		var i, l,
 			versionUrls = [],
-			versions = grunt.config.get('test' + ((arguments[0]) ? '.' + arguments[0] : '') + '.jQueryVersions') || [];
+			source = arguments[0] || 'all',
+			versions = grunt.config.get('test' + ('.' + source) + '.jQueryVersions') || [];
 
 		for (i=0, l=versions.length; i<l; ++i) {
 			grunt.log.writeln('Adding jQuery version to test: ' + versions[i]);
-			versionUrls.push('./test/index.html?jquery=' + versions[i]);
+			
+			if (arguments[0] === 'requirejs') {
+				versionUrls.push('./test/requirejs/index.html?jquery=' + versions[i]);
+			} else {
+				versionUrls.push('./test/index.html?jquery=' + versions[i]);
+			}
 		}
 
 		grunt.config.set('qunit.options.urls', versionUrls);
