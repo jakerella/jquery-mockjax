@@ -1623,14 +1623,14 @@ asyncTest('Custom status when using proxy', function() {
 	});
 });
 
-asyncTest('Call onAfterSuccess after success has been called', function() {
+asyncTest('Call onAfterSuccess before success has been called', function() {
 	var onAfterSuccessCalled = false;
 	var successCalled = false;
 	$.mockjax({
 		url: '/response-callback',
 		onAfterSuccess: function() {
 			onAfterSuccessCalled = true;
-			equal(successCalled, true, 'success was not yet called');
+			equal(successCalled, false, 'success has been already called');
 		}
 	});
 
@@ -1647,7 +1647,7 @@ asyncTest('Call onAfterSuccess after success has been called', function() {
 	}, 100);
 });
 
-asyncTest('Call onAfterError after error has been called', function() {
+asyncTest('Call onAfterError before error has been called', function() {
 	var onAfterErrorCalled = false;
 	var errorCalled = false;
 	$.mockjax({
@@ -1655,7 +1655,7 @@ asyncTest('Call onAfterError after error has been called', function() {
 		status: 500,
 		onAfterError: function() {
 			onAfterErrorCalled = true;
-			equal(errorCalled, true, 'error was not yet called');
+			equal(errorCalled, false, 'error has been already called');
 		}
 	});
 
@@ -1672,14 +1672,14 @@ asyncTest('Call onAfterError after error has been called', function() {
 	}, 100);
 });
 
-asyncTest('Call onAfterComplete after complete has been called', function() {
+asyncTest('Call onAfterComplete before complete has been called', function() {
 	var onAfterCompleteCalled = false;
 	var completeCalled = false;
 	$.mockjax({
 		url: '/response-callback',
 		onAfterComplete: function() {
 			onAfterCompleteCalled = true;
-			equal(completeCalled, true, 'complete was not yet called');
+			equal(completeCalled, false, 'complete has been already called');
 		}
 	});
 

@@ -2,9 +2,9 @@
 * jquery.mockjax
 * 
 * Version: 2.0.0-beta 
-* Released: 2014-12-22 
+* Released: 2015-03-13 
 * Home: * https://github.com/jakerella/jquery-mockjax
-* Copyright (c) 2014 Jordan Kasper, formerly appendTo;
+* Copyright (c) 2015 Jordan Kasper, formerly appendTo;
 * NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
 * 
 * Dual licensed under the MIT or GPL licenses.
@@ -484,10 +484,11 @@
 		overrideCallback = function(action, mockHandler) {
 			var origHandler = origSettings[action.toLowerCase()];
 			return function() {
+				var parameters = [].slice.call(arguments);
+				mockHandler['onAfter' + action].apply(this, parameters);
 				if ( $.isFunction(origHandler) ) {
-					origHandler.apply(this, [].slice.call(arguments));
+					origHandler.apply(this, parameters);
 				}
-				mockHandler['onAfter' + action]();
 			};
 		};
 
