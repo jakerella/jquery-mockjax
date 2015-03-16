@@ -4,6 +4,7 @@
 	var _ajax = $.ajax,
 		mockHandlers = [],
 		mockedAjaxCalls = [],
+		passedThroughAjaxCalls = [],
 		unmockedAjaxCalls = [],
 		CALLBACK_REGEX = /=\?(&|$)/,
 		jsc = (new Date()).getTime();
@@ -451,7 +452,8 @@
 
 	// The core $.ajax replacement.
 	function handleAjax( url, origSettings ) {
-		var mockRequest, requestSettings, mockHandler, overrideCallback;
+		var mockRequest, requestSettings, mockHandler, overrideCallback,
+			passThroughCallbacks;
 
 		// If url is an object, simulate pre-1.5 signature
 		if ( typeof url === "object" ) {
@@ -479,6 +481,19 @@
 			};
 		};
 
+		// Set up onAfter[X] callback functions
+		passThroughCallbacks = function (mockHandler) {
+			if ( $.isFunction( mockHandler.onAfterSuccess ) ) {
+				origSettings.success = overrideCallback('Success', mockHandler);
+			}
+			if ( $.isFunction( mockHandler.onAfterError ) ) {
+				origSettings.error = overrideCallback('Error', mockHandler);
+			}
+			if ( $.isFunction( mockHandler.onAfterComplete ) ) {
+				origSettings.complete = overrideCallback('Complete', mockHandler);
+			}
+		};
+
 		// Iterate over our mock handlers (in registration order) until we find
 		// one that is willing to intercept the request
 		for(var k = 0; k < mockHandlers.length; k++) {
@@ -490,6 +505,15 @@
 			if(!mockHandler) {
 				// No valid mock found for this request
 				continue;
+			}
+
+			// If requested, set up the onAfter[X] callbacks and perform the original AJAX call
+			if ( mockHandler.passThrough ) {
+				passThroughCallbacks(mockHandler);
+				passedThroughAjaxCalls.push(origSettings);
+				unmockedAjaxCalls.push(origSettings);
+				// trigger a normal request
+				return _ajax.apply($, [origSettings]);
 			}
 
 			mockedAjaxCalls.push(requestSettings);
@@ -526,16 +550,7 @@
 				mockHandler.isTimeout = false;
 			}
 
-			// Set up onAfter[X] callback functions
-			if ( $.isFunction( mockHandler.onAfterSuccess ) ) {
-				origSettings.success = overrideCallback('Success', mockHandler);
-			}
-			if ( $.isFunction( mockHandler.onAfterError ) ) {
-				origSettings.error = overrideCallback('Error', mockHandler);
-			}
-			if ( $.isFunction( mockHandler.onAfterComplete ) ) {
-				origSettings.complete = overrideCallback('Complete', mockHandler);
-			}
+			passThroughCallbacks(mockHandler);
 
 			copyUrlParameters(mockHandler, origSettings);
 
@@ -659,6 +674,7 @@
 			mockHandlers = [];
 		}
 		mockedAjaxCalls = [];
+		passedThroughAjaxCalls = [];
 		unmockedAjaxCalls = [];
 	};
 	// support older, deprecated version
@@ -685,6 +701,9 @@
 			}
 		}
 		return results;
+	};
+	$.mockjax.passedThroughAjaxCalls = function() {
+		return passedThroughAjaxCalls;
 	};
 	$.mockjax.unmockedAjaxCalls = function() {
 		return unmockedAjaxCalls;
