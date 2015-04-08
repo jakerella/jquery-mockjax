@@ -1,41 +1,42 @@
-/*global module:false*/
 module.exports = function(grunt) {
+    'use strict';
 
     // Project configuration.
     grunt.initConfig({
         // Metadata.
         pkg: grunt.file.readJSON('package.json'),
-        banner: '/*! MockJax - jQuery Plugin to Mock Ajax requests \n'+
-            '* <%= pkg.title || pkg.name %>\n' +
-            '* \n' +
-            '* Version: <%= pkg.version %> \n' +
-            '* Released: <%= grunt.template.today("yyyy-mm-dd") %> \n' +
-            '* Home: <%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>' +
-            '* Copyright (c) <%= grunt.template.today("yyyy") %> Jordan Kasper, formerly appendTo;\n' +
-            '* NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014\n' +
-            '* \n' +
-            '* Dual licensed under the MIT or GPL licenses.\n' +
-            '* http://opensource.org/licenses/MIT OR http://www.gnu.org/licenses/gpl-2.0.html\n' +
-            '*/\n',
-            
-        // Task configuration.
+        banner: [
+            '/*! <%= pkg.title || pkg.name %>',
+            ' * A Plugin providing simple and flexible mocking of ajax requests and responses',
+            ' * ',
+            ' * Version: <%= pkg.version %>',
+            ' * Home: <%= pkg.homepage %>',
+            ' * Copyright (c) <%= grunt.template.today("yyyy") %> Jordan Kasper, formerly appendTo;',
+            ' * NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014',
+            ' * ',
+            ' * Dual licensed under the MIT or GPL licenses.',
+            ' * http://opensource.org/licenses/MIT OR http://www.gnu.org/licenses/gpl-2.0.html',
+            ' */\n'
+        ].join('\n'),
+        
+        // Task configuration
         concat: {
             options: {
                 banner: '<%= banner %>',
                 stripBanners: true
             },
             dist: {
-                src: ['src/<%= pkg.name %>.js'],
-                dest: 'dist/<%= pkg.name %>.js'
+                src: ['./src/jquery.mockjax.js'],
+                dest: './dist/jquery.mockjax.js'
             }
         },
         uglify: {
             options: {
-                banner: '<%= banner %>'
+                preserveComments: 'some',
             },
             dist: {
-                src: '<%= concat.dist.dest %>',
-                dest: 'dist/<%= pkg.name %>.min.js'
+                src: './dist/jquery.mockjax.js',
+                dest: './dist/jquery.mockjax.min.js'
             }
         },
         jshint: {
@@ -43,27 +44,27 @@ module.exports = function(grunt) {
                 jshintrc: true
             },
             all: {
-                src: 'src/**/*.js'
+                src: ['./src/**/*.js', './Gruntfile.js']
             }
         },
         qunit: {
-            all: ['test/index.html']
+            all: ['./test/index.html']
         },
         watch: {
             gruntfile: {
-                files: '<%= jshint.gruntfile.src %>',
-                tasks: ['jshint:gruntfile']
+                files: './Gruntfile.js'
             },
-            lib_test: {
-                files: '<%= jshint.lib_test.src %>',
-                tasks: ['jshint:lib_test', 'nodeunit']
+            source: {
+                files: './src/*.js',
+                tasks: ['jshint', 'qunit']
             }
         }
     });
 
     require('load-grunt-tasks')(grunt);
 
-    grunt.registerTask('build', ['concat', 'uglify']);
-    grunt.registerTask('default', ['jshint', 'qunit', 'build']);
+    grunt.registerTask('dev', ['jshint', 'qunit']);
+    grunt.registerTask('build', ['dev', 'concat', 'uglify']);
+    grunt.registerTask('default', ['dev']);
 
 };

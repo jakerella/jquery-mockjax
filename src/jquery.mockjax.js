@@ -651,11 +651,11 @@
 		return i;
 	};
 	$.mockjax.clear = function(i) {
-		if ( arguments.length === 1 ) {
-			mockHandlers[i] = null;
-		} else {
-			mockHandlers = [];
-		}
+		if ( i || i === 0 ) {
+            mockHandlers[i] = null;
+        } else {
+            mockHandlers = [];
+        }
 		mockedAjaxCalls = [];
 		unmockedAjaxCalls = [];
 	};
