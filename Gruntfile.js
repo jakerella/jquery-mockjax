@@ -1,11 +1,12 @@
 module.exports = function(grunt) {
     'use strict';
 
-    // Project configuration.
+    // Project configuration
     grunt.initConfig({
-        // Metadata.
+        // Metadata
         pkg: grunt.file.readJSON('package.json'),
-        banner: [
+
+		banner: [
             '/*! <%= pkg.title || pkg.name %>',
             ' * A Plugin providing simple and flexible mocking of ajax requests and responses',
             ' * ',
@@ -18,9 +19,9 @@ module.exports = function(grunt) {
             ' * http://opensource.org/licenses/MIT OR http://www.gnu.org/licenses/gpl-2.0.html',
             ' */\n'
         ].join('\n'),
-        
-        // Task configuration
-        concat: {
+		
+		// Task configuration
+		concat: {
             options: {
                 banner: '<%= banner %>',
                 stripBanners: true
@@ -30,7 +31,7 @@ module.exports = function(grunt) {
                 dest: './dist/jquery.mockjax.js'
             }
         },
-        uglify: {
+		uglify: {
             options: {
                 preserveComments: 'some',
             },
@@ -39,32 +40,74 @@ module.exports = function(grunt) {
                 dest: './dist/jquery.mockjax.min.js'
             }
         },
-        jshint: {
-            options: {
-                jshintrc: true
-            },
-            all: {
-                src: ['./src/**/*.js', './Gruntfile.js']
+		jshint: {
+			options: {
+				jshintrc: true
+			},
+			all: {
+				src: ['./src/**/*.js', './Gruntfile.js']
+			}
+		},
+		qunit: { all: [] },  // NOTE: these tests are all run by the `test` task below to run against each jQuery version supported
+		test: {
+			jQueryVersions: [
+				'1.5.2',
+				'1.6.4',
+				'1.7.2',
+				'1.8.3',
+				'1.9.1',
+				'1.10.2',
+				'1.11.2',
+				'2.0.3',
+				'2.1.3'
+			],
+			latestInBranch: {
+				jQueryVersions: [
+					'1.11.2',
+					'2.1.3'
+				]
+			},
+			oldestAndLatest: {
+				jQueryVersions: [
+					'1.5.2',
+					'1.11.2',
+					'2.1.3'
+				]
+			},
+            edge: {
+                jQueryVersions: ['git']
             }
-        },
-        qunit: {
-            all: ['./test/index.html']
-        },
-        watch: {
-            gruntfile: {
+		},
+		watch: {
+			gruntfile: {
                 files: './Gruntfile.js'
             },
             source: {
                 files: './src/*.js',
                 tasks: ['jshint', 'qunit']
             }
-        }
-    });
+		}
+	});
 
-    require('load-grunt-tasks')(grunt);
+	require('load-grunt-tasks')(grunt);
 
-    grunt.registerTask('dev', ['jshint', 'qunit']);
+	grunt.registerTask('dev', ['jshint', 'test']);
     grunt.registerTask('build', ['dev', 'concat', 'uglify']);
     grunt.registerTask('default', ['dev']);
+
+
+	grunt.registerTask('test', 'Executes QUnit tests with all supported jQuery versions', function() {
+		var i, l,
+			versionUrls = [],
+			versions = grunt.config.get('test' + ((arguments[0]) ? '.' + arguments[0] : '') + '.jQueryVersions') || [];
+
+		for (i=0, l=versions.length; i<l; ++i) {
+			grunt.log.writeln('Adding jQuery version to test: ' + versions[i]);
+			versionUrls.push('./test/index.html?jquery=' + versions[i]);
+		}
+
+		grunt.config.set('qunit.options.urls', versionUrls);
+		grunt.task.run('qunit');
+	});
 
 };

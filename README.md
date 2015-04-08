@@ -647,7 +647,7 @@ $.mockjax.clear(id);
 ### jQuery Version Support ###
 
 We strive to ensure that Mockjax is tested on the furthest patch version of all 
-minor (and major) versions of jQuery beginning with 1.3.2 going all the way 
+minor (and major) versions of jQuery beginning with 1.5.2 going all the way 
 through 2.x. In other words, we don't test 1.6.1, but rather 1.6.4 (the furthest
 patch version on the 1.6.x line). The QUnit tests in the `/test` directory include 
 links to each version of jQuery tested in the header.
@@ -655,14 +655,13 @@ links to each version of jQuery tested in the header.
 ### Browsers Tested ###
 
 We use virtual machines to test current versions of the browsers below. In addition, 
-we test the minimum version specified next to the browser (with the exception of 
-IE which specifies the versions we test).
+we test the specific versions of IE specified.
 
-* Internet Explorer 7-11
-* Firefox 3.6
-* Safari 5.1
-* Chrome (stable only, significantly older versions are not available)
-* Opera 9.6
+* Internet Explorer 8-11
+* Firefox
+* Safari
+* Chrome
+* Opera
 
 _Please note that while we strive to keep `master` as bug free as possible, we do 
 not necessarily run tests in all of the above browsers for every single commit. We  
