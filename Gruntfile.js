@@ -57,21 +57,21 @@ module.exports = function(grunt) {
 				'1.8.3',
 				'1.9.1',
 				'1.10.2',
-				'1.11.1',
+				'1.11.2',
 				'2.0.3',
-				'2.1.1'
+				'2.1.3'
 			],
 			latestInBranch: {
 				jQueryVersions: [
-					'1.11.1',
-					'2.1.1'
+					'1.11.2',
+					'2.1.3'
 				]
 			},
 			oldestAndLatest: {
 				jQueryVersions: [
 					'1.5.2',
-					'1.11.1',
-					'2.1.1'
+					'1.11.2',
+					'2.1.3'
 				]
 			},
             edge: {
