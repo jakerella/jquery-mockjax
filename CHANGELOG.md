@@ -1,3 +1,9 @@
+## 2015-04-08
+    * Updated to version 1.6.2
+    * Update jQuery library test versions on both 1.x and 2.x branches
+    * Remove duplicate "repositories" value in package.json (@wfortin)
+    * Remove undefined "head" variable in jsonp request mocking
+
 ## 2014-10-29
     * Updated to version 1.6.1
     * Changed all references to appendTo to point to github.com/jakerella (new owner)
