@@ -1,3 +1,29 @@
+## 2015-04-08
+    * Updated to version 1.6.2
+    * Update jQuery library test versions on both 1.x and 2.x branches
+    * Remove duplicate "repositories" value in package.json (@wfortin)
+    * Remove undefined "head" variable in jsonp request mocking
+
+## 2014-10-29
+    * Updated to version 1.6.1
+    * Changed all references to appendTo to point to github.com/jakerella (new owner)
+    * removed unused testswarm files
+
+## 2014-10-09
+    * Updated to version 1.6.0
+    * Added `unfiredHandlers()` and `unmockedAjaxCalls()`
+    * Numerous bug fixes and breaking tests
+    * Internal method cleanup
+    * Switched to throwing proper `Error` objects
+    * Switched to tab indentation everywhere
+    * Added `main` field to package.json
+    * Fixed responseTime for jsonp and allowed for variable setting with array min/max
+    * Added `onAfterXxxxx` callbacks
+    * Updated `$.mockjaxClear()` to be `$.mockjax.clear()` with deprecation notice
+    * Complete README documentation overhaul
+    * Fixed issue with Async actions in response callback
+    * Added "contributing" documentation
+
 ## 2014-08-14
     * Spelling corrections in README.md
     * Update to newest version of QUnit (JS & CSS) and fixes for doing so
