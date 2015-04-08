@@ -6,17 +6,17 @@ module.exports = function(grunt) {
         // Metadata.
         pkg: grunt.file.readJSON('package.json'),
         banner: [
-            '/*! MockJax - jQuery Plugin to Mock Ajax requests',
-            '* <%= pkg.title || pkg.name %>',
-            '* ',
-            '* Version: <%= pkg.version %> ',
-            '* Home: <%= pkg.homepage ? "* " + pkg.homepage + "\\n" : "" %>',
-            '* Copyright (c) <%= grunt.template.today("yyyy") %> Jordan Kasper, formerly appendTo;',
-            '* NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014',
-            '* ',
-            '* Dual licensed under the MIT or GPL licenses.',
-            '* http://opensource.org/licenses/MIT OR http://www.gnu.org/licenses/gpl-2.0.html',
-            '*/\n'
+            '/* <%= pkg.title || pkg.name %>',
+            ' * A Plugin providing simple and flexible mocking of ajax requests and responses',
+            ' * ',
+            ' * Version: <%= pkg.version %>',
+            ' * Home: <%= pkg.homepage %>',
+            ' * Copyright (c) <%= grunt.template.today("yyyy") %> Jordan Kasper, formerly appendTo;',
+            ' * NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014',
+            ' * ',
+            ' * Dual licensed under the MIT or GPL licenses.',
+            ' * http://opensource.org/licenses/MIT OR http://www.gnu.org/licenses/gpl-2.0.html',
+            ' */\n'
         ].join('\n'),
         
         // Task configuration
