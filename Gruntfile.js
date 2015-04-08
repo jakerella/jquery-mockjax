@@ -6,7 +6,7 @@ module.exports = function(grunt) {
         // Metadata.
         pkg: grunt.file.readJSON('package.json'),
         banner: [
-            '/* <%= pkg.title || pkg.name %>',
+            '/*! <%= pkg.title || pkg.name %>',
             ' * A Plugin providing simple and flexible mocking of ajax requests and responses',
             ' * ',
             ' * Version: <%= pkg.version %>',
@@ -26,17 +26,17 @@ module.exports = function(grunt) {
                 stripBanners: true
             },
             dist: {
-                src: ['src/<%= pkg.name %>.js'],
-                dest: 'dist/<%= pkg.name %>.js'
+                src: ['./src/jquery.mockjax.js'],
+                dest: './dist/jquery.mockjax.js'
             }
         },
         uglify: {
             options: {
-                banner: '<%= banner %>'
+                preserveComments: 'some',
             },
             dist: {
-                src: '<%= concat.dist.dest %>',
-                dest: 'dist/<%= pkg.name %>.min.js'
+                src: './dist/jquery.mockjax.js',
+                dest: './dist/jquery.mockjax.min.js'
             }
         },
         jshint: {
@@ -48,23 +48,23 @@ module.exports = function(grunt) {
             }
         },
         qunit: {
-            all: ['test/index.html']
+            all: ['./test/index.html']
         },
         watch: {
             gruntfile: {
-                files: '<%= jshint.gruntfile.src %>',
-                tasks: ['jshint:gruntfile']
+                files: './Gruntfile.js'
             },
-            lib_test: {
-                files: '<%= jshint.lib_test.src %>',
-                tasks: ['jshint:lib_test', 'nodeunit']
+            source: {
+                files: './src/*.js',
+                tasks: ['jshint', 'qunit']
             }
         }
     });
 
     require('load-grunt-tasks')(grunt);
 
-    grunt.registerTask('build', ['concat', 'uglify']);
-    grunt.registerTask('default', ['jshint', 'qunit', 'build']);
+    grunt.registerTask('dev', ['jshint', 'qunit']);
+    grunt.registerTask('build', ['dev', 'concat', 'uglify']);
+    grunt.registerTask('default', ['dev']);
 
 };
