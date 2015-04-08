@@ -114,6 +114,27 @@
 			}
 		}
 
+		// Inspect the request headers submitted
+		if ( handler.requestHeaders ) {
+			//No expectation for headers, do not mock this request
+			if (requestSettings.headers === undefined) {
+				return null;
+			} else {
+				var headersMismatch = false;
+				$.each(handler.requestHeaders, function(key, value) {
+					var v = requestSettings.headers[key];
+					if(v !== value) {
+						headersMismatch = true;
+						return false;
+					}
+				});
+				//Headers do not match, do not mock this request
+				if (headersMismatch) {
+					return null;
+				}
+			}
+		}
+
 		// Inspect the data submitted in the request (either POST body or GET query string)
 		if ( handler.data ) {
 			if ( ! requestSettings.data || !isMockDataEqual(handler.data, requestSettings.data) ) {
