@@ -411,9 +411,6 @@
 				delete window[ jsonp ];
 			} catch(e) {}
 
-			if ( head ) {
-				head.removeChild( script );
-			}
 		};
 	}
 
