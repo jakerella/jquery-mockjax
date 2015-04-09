@@ -91,13 +91,18 @@ module.exports = function(grunt) {
 				jQueryVersions: ['git']
 			}
 		},
+		mochaTest: {
+			nodejs: {
+				src: ['./test/nodejs/*.js']
+			}
+		},
 		watch: {
 			gruntfile: {
 				files: './Gruntfile.js'
 			},
 			source: {
 				files: './src/*.js',
-				tasks: ['jshint', 'qunit']
+				tasks: ['jshint', 'test:oldestAndLatest']
 			}
 		}
 	});
