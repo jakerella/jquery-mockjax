@@ -4,6 +4,15 @@ First of all, thank you for helping make Mockjax the best plugin it can be! We t
 appreciate the support. Before you submit that Pull Request, please be sure to 
 follow these guidelines.
 
+## Key Points
+
+* Write small, atomic commits with good messages
+* Writes tests (for both passing and failing conditions)
+* **Run** the tests (`grunt test`, but also in various browsers)
+* Generate a distribution build (`grunt build`)
+* Write a good PR!
+
+
 ## Accurately describe your code submission ##
 
 Be sure to identify everything that is within your pull request in the description. 
@@ -95,3 +104,21 @@ main [README](README.md#browsers-tested) file for the browsers we support. If yo
 don't have access to one of those browsers, try running the tests using a virtual 
 machine or via a service like [BrowserStack](http://www.browserstack.com), 
 [Sauce Labs](https://saucelabs.com), or [Modern.IE](https://www.modern.ie).
+
+## Be sure to generate a build!
+
+Running the default `grunt` task will only lint and test the files, it does not 
+produce a distribution as that isn't necessary most of the time. Instead, you 
+should generate a new set of "dist" files before submitting your PR. To do this, 
+just run `grunt build`
+
+## Submit Your PR
+
+This is the last step! First, be sure you're merging with the correct branch! Version 
+2.0 of Mockjax will be the `master` branch very soon (hopefully we remember to update 
+this message), but if you're submitting a bug fix, it should be submitted to the `v1.x` 
+branch as well as `master` (if the bug exists in both).
+
+You should also write a good PR message with information on why this feature or fix is 
+necesary or a good idea. For features, be sure to include information on _how to use_ 
+the feature; and for bugs, information on how to reproduce the bug is helpful!
