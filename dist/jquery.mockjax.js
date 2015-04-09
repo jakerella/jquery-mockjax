@@ -15,16 +15,23 @@
 	// AMDJS module definition
 	if ( typeof define === 'function' && define.amd && define.amd.jQuery ) {
 		define(['jquery'], function($) {
-			return factory($);
+			return factory($, root);
 		});
+		
 	// CommonJS module definition
 	} else if ( typeof exports === 'object') {
-		module.exports = factory(require('jquery'));
+		
+		// NOTE: To use Mockjax as a Node module you MUST provide the factory with 
+		// a valid version of jQuery and a window object (the global scope):
+		// var mockjax = require('jquery.mockjax')(jQuery, window);
+		
+		module.exports = factory;
+		
 	// Global jQuery in web browsers
 	} else {
-		return factory(root.jQuery || root.$);
+		return factory(root.jQuery || root.$, root);
 	}
-}(this, function($) {
+}(this, function($, window) {
 	'use strict';
 
 	var _ajax = $.ajax,
