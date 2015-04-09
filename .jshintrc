@@ -57,6 +57,7 @@
     "jquery": true,
     "node": true,
     "globals": {
+    	"define": true,
         "ActiveXObject": true
     }
 }
