@@ -175,7 +175,6 @@
 		} else if(isPosNum(responseTime)) {
 			return responseTime;
 		}
-		console.warn('invalid responseTime:', responseTime);
 		return DEFAULT_RESPONSE_TIME;
 	}
 
