@@ -1965,6 +1965,33 @@ asyncTest('alias type to method', function() {
 	});
 });
 
+
+asyncTest('Test for bug #26: jsonp mock fails with remote URL and proxy', function() {
+    $.mockjax({
+        url: 'http://example.com/jsonp*',
+        contentType: 'text/json',
+        proxy: 'test_jsonp.js'
+    });
+    var callbackExecuted = false;
+    window.abcdef123456 = function(json) {
+        callbackExecuted = true;
+        deepEqual(json, { "data" : "JSONP is cool" }, 'The proxied data is correct');
+    };
+
+    $.ajax({
+        url: 'http://example.com/jsonp?callback=?',
+        jsonpCallback: 'abcdef123456',
+        dataType: 'jsonp',
+        error: noErrorCallbackExpected,
+        complete: function(xhr) {
+            ok(callbackExecuted, 'The jsonp callback was executed');
+            equal(xhr.statusText, 'success', 'Response was successful');
+            start();
+        }
+    });
+});
+
+
 /*
 var id = $.mockjax({
    ...

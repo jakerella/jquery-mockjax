@@ -392,40 +392,63 @@
 	function processJsonpRequest( requestSettings, mockHandler, origSettings ) {
 		// Synthesize the mock request for adding a script tag
 		var callbackContext = origSettings && origSettings.context || requestSettings,
-			newMock = null;
-
+			// If we are running under jQuery 1.5+, return a deferred object
+            newMock = ($.Deferred) ? (new $.Deferred()) : null;
 
 		// If the response handler on the moock is a function, call it
 		if ( mockHandler.response && $.isFunction(mockHandler.response) ) {
-			mockHandler.response(origSettings);
-		} else {
-
-			// Evaluate the responseText javascript in a global context
-			if( typeof mockHandler.responseText === 'object' ) {
-				$.globalEval( '(' + JSON.stringify( mockHandler.responseText ) + ')');
-			} else {
-				$.globalEval( '(' + mockHandler.responseText + ')');
-			}
+			
+            mockHandler.response(origSettings);
+            
+            
+		} else if ( typeof mockHandler.responseText === 'object' ) {
+            // Evaluate the responseText javascript in a global context
+			$.globalEval( '(' + JSON.stringify( mockHandler.responseText ) + ')');
+			
+        } else if (mockHandler.proxy) {
+            
+            // This handles the unique case where we have a remote URL, but want to proxy the JSONP
+            // response to another file (not the same URL as the mock matching)
+            _ajax({
+                global: false,
+                url: mockHandler.proxy,
+                type: mockHandler.proxyType,
+                data: mockHandler.data,
+                dataType: requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
+                complete: function(xhr) {
+                    $.globalEval( '(' + xhr.responseText + ')');
+                    completeJsonpCall( requestSettings, mockHandler, callbackContext, newMock );
+                }
+            });
+            
+            return newMock;
+            
+        } else {
+			$.globalEval( '(' + mockHandler.responseText + ')');
 		}
 
-		// Successful response
-		setTimeout(function() {
-			jsonpSuccess( requestSettings, callbackContext, mockHandler );
-			jsonpComplete( requestSettings, callbackContext, mockHandler );
-		}, parseResponseTimeOpt(mockHandler.responseTime));
-
-		// If we are running under jQuery 1.5+, return a deferred object
-		if($.Deferred){
-			newMock = new $.Deferred();
-			if(typeof mockHandler.responseText === 'object'){
-				newMock.resolveWith( callbackContext, [mockHandler.responseText] );
-			}
-			else{
-				newMock.resolveWith( callbackContext, [$.parseJSON( mockHandler.responseText )] );
-			}
-		}
+		completeJsonpCall( requestSettings, mockHandler, callbackContext, newMock );
+        
 		return newMock;
 	}
+    
+    function completeJsonpCall( requestSettings, mockHandler, callbackContext, newMock ) {
+        var json;
+        
+        // Successful response
+        setTimeout(function() {
+            jsonpSuccess( requestSettings, callbackContext, mockHandler );
+            jsonpComplete( requestSettings, callbackContext, mockHandler );
+        }, parseResponseTimeOpt( mockHandler.responseTime ));
+
+        if ( newMock ) {
+            try {
+                json = $.parseJSON( mockHandler.responseText );
+            } catch (err) { /* just checking... */ }
+            
+            newMock.resolveWith( callbackContext, [json || mockHandler.responseText] );
+        }
+    }
 
 
 	// Create the required JSONP callback function for the request
@@ -459,7 +482,7 @@
 	function jsonpSuccess(requestSettings, callbackContext, mockHandler) {
 		// If a local callback was specified, fire it and pass it the data
 		if ( requestSettings.success ) {
-			requestSettings.success.call( callbackContext, mockHandler.responseText || '', status, {} );
+			requestSettings.success.call( callbackContext, mockHandler.responseText || '', 'success', {} );
 		}
 
 		// Fire the global callback
@@ -469,10 +492,14 @@
 	}
 
 	// The JSONP request was completed
-	function jsonpComplete(requestSettings, callbackContext) {
-		// Process result
-		if ( requestSettings.complete ) {
-			requestSettings.complete.call( callbackContext, {} , status );
+	function jsonpComplete(requestSettings, callbackContext, mockHandler) {
+        // Only call complete() if we're not proxied as _ajax() will do it for us
+        // if ( requestSettings.complete && !mockHandler.proxy ) {
+        if ( requestSettings.complete ) {
+			requestSettings.complete.call( callbackContext, {
+                statusText: 'success',
+                status: 200
+            } , 'success' );
 		}
 
 		// The request was completed
