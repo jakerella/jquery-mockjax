@@ -89,7 +89,21 @@ module.exports = function(grunt) {
 			},
 			edge: {
 				jQueryVersions: ['git']
-			}
+			},
+            dist: {
+                file: 'dist-min.html',
+                jQueryVersions: [
+                    '1.5.2',
+                    '1.6.4',
+                    '1.7.2',
+                    '1.8.3',
+                    '1.9.1',
+                    '1.10.2',
+                    '1.11.2',
+                    '2.0.3',
+                    '2.1.3'
+                ]
+            },
 		},
 		mochaTest: {
 			nodejs: {
@@ -118,15 +132,16 @@ module.exports = function(grunt) {
 		var i, l,
 			versionUrls = [],
 			source = arguments[0] || 'all',
-			versions = grunt.config.get('test' + ('.' + source) + '.jQueryVersions') || [];
+			versions = grunt.config.get('test' + ('.' + source) + '.jQueryVersions') || [],
+            file = grunt.config.get('test' + ('.' + source) + '.file') || 'index.html';
 
 		for (i=0, l=versions.length; i<l; ++i) {
 			grunt.log.writeln('Adding jQuery version to test: ' + versions[i]);
 			
 			if (arguments[0] === 'requirejs') {
-				versionUrls.push('./test/requirejs/index.html?jquery=' + versions[i]);
+				versionUrls.push('./test/requirejs/' + file + '?jquery=' + versions[i]);
 			} else {
-				versionUrls.push('./test/index.html?jquery=' + versions[i]);
+				versionUrls.push('./test/' + file + '?jquery=' + versions[i]);
 			}
 		}
 
