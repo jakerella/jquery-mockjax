@@ -438,7 +438,7 @@
         // Successful response
         setTimeout(function() {
             jsonpSuccess( requestSettings, callbackContext, mockHandler );
-            jsonpComplete( requestSettings, callbackContext, mockHandler );
+            jsonpComplete( requestSettings, callbackContext );
         }, parseResponseTimeOpt( mockHandler.responseTime ));
 
         if ( newMock ) {
@@ -467,7 +467,7 @@
 		// Handle JSONP-style loading
 		window[ jsonp ] = window[ jsonp ] || function() {
 			jsonpSuccess( requestSettings, callbackContext, mockHandler );
-			jsonpComplete( requestSettings, callbackContext, mockHandler );
+			jsonpComplete( requestSettings, callbackContext );
 			// Garbage collect
 			window[ jsonp ] = undefined;
 
@@ -492,9 +492,7 @@
 	}
 
 	// The JSONP request was completed
-	function jsonpComplete(requestSettings, callbackContext, mockHandler) {
-        // Only call complete() if we're not proxied as _ajax() will do it for us
-        // if ( requestSettings.complete && !mockHandler.proxy ) {
+	function jsonpComplete(requestSettings, callbackContext) {
         if ( requestSettings.complete ) {
 			requestSettings.complete.call( callbackContext, {
                 statusText: 'success',
