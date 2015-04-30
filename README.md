@@ -3,6 +3,7 @@
 
 **This is the v2 branch of mockjax and is a WIP**
 
+[![Code Climate](https://codeclimate.com/github/jakerella/jquery-mockjax/badges/gpa.svg)](https://codeclimate.com/github/jakerella/jquery-mockjax)
 [![Codacy Badge](https://www.codacy.com/project/badge/72d5f8c1c29ee60f6282d7d3fa9cb52c)](https://www.codacy.com/app/mikehostetler_1249/jquery-mockjax/dashboard)
 
 jQuery Mockjax provides request/response mocking for ajax requests using the

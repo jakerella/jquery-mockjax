@@ -1,0 +1,9 @@
+# Remove any languages you don't want analyzed.
+languages:
+   Ruby: true
+   JavaScript: true
+   Python: true
+   PHP: true
+exclude_paths:
+- lib/*
+- test/*
