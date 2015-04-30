@@ -94,10 +94,10 @@
 		return identical;
 	}
 
-    // See if a mock handler property matches the default settings
-    function isDefaultSetting(handler, property) {
-        return handler[property] === $.mockjaxSettings[property];
-    }
+	// See if a mock handler property matches the default settings
+	function isDefaultSetting(handler, property) {
+		return handler[property] === $.mockjaxSettings[property];
+	}
 
 	// Check the given handler should mock the given request
 	function getMockForRequest( handler, requestSettings ) {
@@ -186,7 +186,7 @@
 			return function() {
 				return (function() {
 					// The request has returned
-					this.status     = mockHandler.status;
+					this.status = mockHandler.status;
 					this.statusText = mockHandler.statusText;
 					this.readyState	= 1;
 
@@ -264,13 +264,13 @@
 				complete: function(xhr) {
 					mockHandler.responseXML = xhr.responseXML;
 					mockHandler.responseText = xhr.responseText;
-                    // Don't override the handler status/statusText if it's specified by the config
-                    if (isDefaultSetting(mockHandler, 'status')) {
-					    mockHandler.status = xhr.status;
-                    }
-                    if (isDefaultSetting(mockHandler, 'statusText')) {
-					    mockHandler.statusText = xhr.statusText;
-                    }
+					// Don't override the handler status/statusText if it's specified by the config
+					if (isDefaultSetting(mockHandler, 'status')) {
+						mockHandler.status = xhr.status;
+					}
+					if (isDefaultSetting(mockHandler, 'statusText')) {
+						mockHandler.statusText = xhr.statusText;
+					}
 					this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime));
 				}
 			});
@@ -393,62 +393,62 @@
 		// Synthesize the mock request for adding a script tag
 		var callbackContext = origSettings && origSettings.context || requestSettings,
 			// If we are running under jQuery 1.5+, return a deferred object
-            newMock = ($.Deferred) ? (new $.Deferred()) : null;
+			newMock = ($.Deferred) ? (new $.Deferred()) : null;
 
 		// If the response handler on the moock is a function, call it
 		if ( mockHandler.response && $.isFunction(mockHandler.response) ) {
 			
-            mockHandler.response(origSettings);
-            
-            
+			mockHandler.response(origSettings);
+			
+			
 		} else if ( typeof mockHandler.responseText === 'object' ) {
-            // Evaluate the responseText javascript in a global context
+			// Evaluate the responseText javascript in a global context
 			$.globalEval( '(' + JSON.stringify( mockHandler.responseText ) + ')');
 			
-        } else if (mockHandler.proxy) {
-            
-            // This handles the unique case where we have a remote URL, but want to proxy the JSONP
-            // response to another file (not the same URL as the mock matching)
-            _ajax({
-                global: false,
-                url: mockHandler.proxy,
-                type: mockHandler.proxyType,
-                data: mockHandler.data,
-                dataType: requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
-                complete: function(xhr) {
-                    $.globalEval( '(' + xhr.responseText + ')');
-                    completeJsonpCall( requestSettings, mockHandler, callbackContext, newMock );
-                }
-            });
-            
-            return newMock;
-            
-        } else {
+		} else if (mockHandler.proxy) {
+			
+			// This handles the unique case where we have a remote URL, but want to proxy the JSONP
+			// response to another file (not the same URL as the mock matching)
+			_ajax({
+				global: false,
+				url: mockHandler.proxy,
+				type: mockHandler.proxyType,
+				data: mockHandler.data,
+				dataType: requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
+				complete: function(xhr) {
+					$.globalEval( '(' + xhr.responseText + ')');
+					completeJsonpCall( requestSettings, mockHandler, callbackContext, newMock );
+				}
+			});
+			
+			return newMock;
+			
+		} else {
 			$.globalEval( '(' + mockHandler.responseText + ')');
 		}
 
 		completeJsonpCall( requestSettings, mockHandler, callbackContext, newMock );
-        
+		
 		return newMock;
 	}
-    
-    function completeJsonpCall( requestSettings, mockHandler, callbackContext, newMock ) {
-        var json;
-        
-        // Successful response
-        setTimeout(function() {
-            jsonpSuccess( requestSettings, callbackContext, mockHandler );
-            jsonpComplete( requestSettings, callbackContext );
-        }, parseResponseTimeOpt( mockHandler.responseTime ));
+	
+	function completeJsonpCall( requestSettings, mockHandler, callbackContext, newMock ) {
+		var json;
+		
+		// Successful response
+		setTimeout(function() {
+			jsonpSuccess( requestSettings, callbackContext, mockHandler );
+			jsonpComplete( requestSettings, callbackContext );
+		}, parseResponseTimeOpt( mockHandler.responseTime ));
 
-        if ( newMock ) {
-            try {
-                json = $.parseJSON( mockHandler.responseText );
-            } catch (err) { /* just checking... */ }
-            
-            newMock.resolveWith( callbackContext, [json || mockHandler.responseText] );
-        }
-    }
+		if ( newMock ) {
+			try {
+				json = $.parseJSON( mockHandler.responseText );
+			} catch (err) { /* just checking... */ }
+			
+			newMock.resolveWith( callbackContext, [json || mockHandler.responseText] );
+		}
+	}
 
 
 	// Create the required JSONP callback function for the request
@@ -493,11 +493,11 @@
 
 	// The JSONP request was completed
 	function jsonpComplete(requestSettings, callbackContext) {
-        if ( requestSettings.complete ) {
+		if ( requestSettings.complete ) {
 			requestSettings.complete.call( callbackContext, {
-                statusText: 'success',
-                status: 200
-            } , 'success' );
+				statusText: 'success',
+				status: 200
+			} , 'success' );
 		}
 
 		// The request was completed
@@ -602,7 +602,7 @@
 
 			copyUrlParameters(mockHandler, origSettings);
 
-            /* jshint loopfunc:true */
+			/* jshint loopfunc:true */
 			(function(mockHandler, requestSettings, origSettings, origHandler) {
 
 				mockRequest = _ajax.call($, $.extend(true, {}, origSettings, {
@@ -610,7 +610,7 @@
 					xhr: function() { return xhr( mockHandler, requestSettings, origSettings, origHandler ); }
 				}));
 			})(mockHandler, requestSettings, origSettings, mockHandlers[k]);
-            /* jshint loopfunc:true */
+			/* jshint loopfunc:true */
 
 			return mockRequest;
 		}
@@ -668,10 +668,11 @@
 
 	var DEFAULT_RESPONSE_TIME = 500;
 
+    
 	$.mockjaxSettings = {
-		//url:        null,
-		//type:       'GET',
-		log:          function( mockHandler, requestSettings ) {
+		//url:  null,
+		//type: 'GET',
+		log: function( mockHandler, requestSettings ) {
 			if ( mockHandler.logging === false ||
 				 ( typeof mockHandler.logging === 'undefined' && $.mockjaxSettings.logging === false ) ) {
 				return;
@@ -719,19 +720,19 @@
 	};
 	$.mockjax.clear = function(i) {
 		if ( i || i === 0 ) {
-            mockHandlers[i] = null;
-        } else {
-            mockHandlers = [];
-        }
+			mockHandlers[i] = null;
+		} else {
+			mockHandlers = [];
+		}
 		mockedAjaxCalls = [];
 		unmockedAjaxCalls = [];
 	};
 	// support older, deprecated version
 	$.mockjaxClear = function(i) {
 		if (window.console && window.console.warn) {
-            /* jshint maxlen:180 */
+			/* jshint maxlen:180 */
 			window.console.warn( 'DEPRECATED: The $.mockjaxClear() method has been deprecated in 1.6.0. Please use $.mockjax.clear() as the older function will be removed soon!' );
-            /* jshint maxlen:140 */
+			/* jshint maxlen:140 */
 		}
 		$.mockjax.clear(i);
 	};
@@ -747,7 +748,7 @@
 		var results = [];
 		for (var i=0, len=mockHandlers.length; i<len; i++) {
 			var handler = mockHandlers[i];
-            if (handler !== null && !handler.fired) {
+			if (handler !== null && !handler.fired) {
 				results.push(handler);
 			}
 		}
