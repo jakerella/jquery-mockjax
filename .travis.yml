@@ -7,3 +7,5 @@ branches:
     - master
     - v2
     - v1.x
+notifications:
+  email: false
