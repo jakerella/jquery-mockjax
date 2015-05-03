@@ -502,7 +502,7 @@
 		}
 
 		// Extend the original settings for the request
-		requestSettings = $.extend(true, {}, $.ajaxSettings, origSettings);
+		requestSettings = $.ajaxSetup({}, origSettings);
 		requestSettings.type = requestSettings.method = requestSettings.method || requestSettings.type;
 
 		// Generic function to override callback methods for use with
@@ -653,7 +653,7 @@
 			}
 			if ( window.console && console.log ) {
 				var message = 'MOCK ' + requestSettings.type.toUpperCase() + ': ' + requestSettings.url;
-				var request = $.extend({}, requestSettings);
+				var request = $.ajaxSetup({}, requestSettings);
 
 				if (typeof console.log === 'function') {
 					console.log(message, request);
