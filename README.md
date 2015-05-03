@@ -1,10 +1,13 @@
 # jQuery Mockjax: Ajax request mocking #
 [http://github.com/jakerella/jquery-mockjax/](http://github.com/jakerella/jquery-mockjax/)
 
-**This is the v2 branch of mockjax and is a WIP**
-
 [![Codacy Badge](https://www.codacy.com/project/badge/72d5f8c1c29ee60f6282d7d3fa9cb52c)](https://www.codacy.com/app/mikehostetler_1249/jquery-mockjax/dashboard)
 [![Travis CI Badge](https://travis-ci.org/jakerella/jquery-mockjax.svg?branch=v2)](https://travis-ci.org/jakerella/jquery-mockjax)
+
+**Note that we recently switched the `master` branch to version 2!** There are some 
+minor breaking changes in v2, so if you need an older version, please check the 
+[v1.x](https://github.com/jakerella/jquery-mockjax/tree/v1.x) branch or the list of 
+[releases](https://github.com/jakerella/jquery-mockjax/tags) in Github.
 
 jQuery Mockjax provides request/response mocking for ajax requests using the
 jQuery API and provides all standard behaviors in the request/response flow.
