@@ -345,16 +345,6 @@ asyncTest('Clearing mockjax removes all handlers', function() {
 	});
 });
 
-test('Old version of clearing mock handlers works', function() {
-	$.mockjax({
-		url: '/api/example/1'
-	});
-
-	$.mockjaxClear();
-
-	equal($.mockjax.handler(0), undefined, 'There are no mock handlers');
-});
-
 
 asyncTest('Get mocked ajax calls - GET', function() {
 	$.mockjax({

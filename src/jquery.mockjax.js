@@ -527,7 +527,7 @@
 		}
 
 		// Extend the original settings for the request
-		requestSettings = $.extend(true, {}, $.ajaxSettings, origSettings);
+		requestSettings = $.ajaxSetup({}, origSettings);
 		requestSettings.type = requestSettings.method = requestSettings.method || requestSettings.type;
 
 		// Generic function to override callback methods for use with
@@ -679,7 +679,7 @@
 			}
 			if ( window.console && console.log ) {
 				var message = 'MOCK ' + requestSettings.type.toUpperCase() + ': ' + requestSettings.url;
-				var request = $.extend({}, requestSettings);
+				var request = $.ajaxSetup({}, requestSettings);
 
 				if (typeof console.log === 'function') {
 					console.log(message, request);
@@ -726,15 +726,6 @@
 		}
 		mockedAjaxCalls = [];
 		unmockedAjaxCalls = [];
-	};
-	// support older, deprecated version
-	$.mockjaxClear = function(i) {
-		if (window.console && window.console.warn) {
-			/* jshint maxlen:180 */
-			window.console.warn( 'DEPRECATED: The $.mockjaxClear() method has been deprecated in 1.6.0. Please use $.mockjax.clear() as the older function will be removed soon!' );
-			/* jshint maxlen:140 */
-		}
-		$.mockjax.clear(i);
 	};
 	$.mockjax.handler = function(i) {
 		if ( arguments.length === 1 ) {
