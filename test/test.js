@@ -147,30 +147,30 @@ asyncTest('Dynamic response callback', function() {
 });
 
 asyncTest('Dynamic asynchronous response callback', function() {
-    $.mockjax({
-        url: '/response-callback',
-        responseText: 'original response',
-        response: function(settings, done) {
-        	var that = this;
-            setTimeout(function() {
-            	that.responseText = settings.data.response + ' 3';
-            	done();
-            }, 30);
-        }
-    });
+	$.mockjax({
+		url: '/response-callback',
+		responseText: 'original response',
+		response: function(settings, done) {
+			var that = this;
+			setTimeout(function() {
+				that.responseText = settings.data.response + ' 3';
+				done();
+			}, 30);
+		}
+	});
 
-    $.ajax({
-        url: '/response-callback',
-        dataType: 'text',
-        data: {
-            response: 'Hello world'
-        },
-        error: noErrorCallbackExpected,
-        complete: function(xhr) {
-            equal(xhr.responseText, 'Hello world 3', 'Response Text matches');
-            start();
-        }
-    });
+	$.ajax({
+		url: '/response-callback',
+		dataType: 'text',
+		data: {
+			response: 'Hello world'
+		},
+		error: noErrorCallbackExpected,
+		complete: function(xhr) {
+			equal(xhr.responseText, 'Hello world 3', 'Response Text matches');
+			start();
+		}
+	});
 });
 
 if (compareSemver($().jquery, "1.4", ">=")) {
@@ -323,7 +323,7 @@ asyncTest('Clearing mockjax removes all handlers', function() {
 					ok( false, 'Call to first endpoint was mocked, but should not have been');
 				},
 				error: function(xhr) {
-                    // Test against 0, might want to look at this more in depth
+					// Test against 0, might want to look at this more in depth
 					ok(404 === xhr.status || 0 === xhr.status, 'First mock cleared after clear()');
 
 					$.ajax({
@@ -334,7 +334,7 @@ asyncTest('Clearing mockjax removes all handlers', function() {
 							ok( false, 'Call to second endpoint was mocked, but should not have been');
 						},
 						error: function(xhr) {
-                            // Test against 0, might want to look at this more in depth
+							// Test against 0, might want to look at this more in depth
 							ok(404 === xhr.status || 0 === xhr.status, 'Second mock cleared after clear()');
 							start();
 						}
@@ -1955,66 +1955,28 @@ asyncTest('alias type to method', function() {
 	});
 });
 
-/*
-var id = $.mockjax({
-   ...
-});
-$.mockjax.clear(id);
-*/
 
-/*
-(function($) {
-	$(function() {
-		$.ajax({
-			url: 'test.json',
-			success: function(data) {
-				$('ul').append('<li>test.json: completed (' + data.test + ')</li>');
-			}
-		});
-
-		$.mockjax({
-			url: 'test.json',
-			contentType: 'text/json',
-			responseText: { "test": "mock message" }
-		});
-
-		$.ajax({
-			url: 'test.json',
-			dataType: 'json',
-			success: function(data) {
-				$('ul').append('<li>test.json: completed (' + data.test + ')</li>');
-			},
-			error: function(xhr, status, error) {
-				alert('error: ' + status + ' ' + error);
-			},
-			complete: function() {
-			}
-		});
-
-		$.mockjax({
-			url: 'http://google.com',
-			responseText: 'alert("Hello world");'
-		});
-
-		$.mockjax({
-			url: 'http://another-cross-domain.com',
-			responseText: function() {
-				alert("Get script mock");
-			}
-		});
-
-		$.ajax({
-			url: 'http://google.com',
-			dataType: 'script',
-			success: function(data) {
-				$('ul').append('<li>script: completed (' + data.test + ')</li>');
-			},
-			error: function(xhr, status, error) {
-				alert('error: ' + status + ' ' + error);
-			},
-			complete: function() {
-			}
-		});
+asyncTest('Test for bug #26: jsonp mock fails with remote URL and proxy', function() {
+	$.mockjax({
+		url: 'http://example.com/jsonp*',
+		contentType: 'text/json',
+		proxy: 'test_jsonp.js'
 	});
-})(jQuery);
-*/
+	var callbackExecuted = false;
+	window.abcdef123456 = function(json) {
+		callbackExecuted = true;
+		deepEqual(json, { "data" : "JSONP is cool" }, 'The proxied data is correct');
+	};
+
+	$.ajax({
+		url: 'http://example.com/jsonp?callback=?',
+		jsonpCallback: 'abcdef123456',
+		dataType: 'jsonp',
+		error: noErrorCallbackExpected,
+		complete: function(xhr) {
+			ok(callbackExecuted, 'The jsonp callback was executed');
+			equal(xhr.statusText, 'success', 'Response was successful');
+			start();
+		}
+	});
+});

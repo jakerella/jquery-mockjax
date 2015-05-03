@@ -45,7 +45,7 @@
     "multistr": false,  //suppresses warnings about multi-line strings
     "proto": false,  //suppresses warnings about the `__proto__` property
     "scripturl": true,  //suppresses warnings about the use of script-targeted URLs—such as `javascript:...`
-    "smarttabs": false,  //suppresses warnings about mixed tabs and spaces when the latter are used for alignmnent only
+    "smarttabs": true,  //suppresses warnings about mixed tabs and spaces when the latter are used for alignmnent only
     "shadow": false,  //suppresses warnings about variable shadowing
     "sub": false,  //suppresses warnings about using `[]` notation when it can be expressed in dot notation
     "supernew": false,  //suppresses warnings about "weird" constructions like `new function () { ... }` and `new Object;`
