@@ -1,8 +1,23 @@
+## 2015-05-03
+    * Updated to version 2.0.0-beta
+    * Reorganized codebase and implemented Grunt build process
+    * Implemented automated QUnit tests via Grunt and "shortcut" button in web tests
+    * Added JSHint task for catching issues earlier
+    * Implemented UMD pattern for use with require, browser, Node, etc
+    * Removesd support for jQuery < 1.5.x
+    * Removed deprecated `$.mockjaxClear()` method in favor of `$.mockjax.clear()`
+    * Fixed numerous bugs (see issues for more info)
+    * Refactored tests a bit (needs a lot more)
+    * Added Travis CI for tests and Codacy for static code analysis
+
 ## 2015-04-08
     * Updated to version 1.6.2
     * Update jQuery library test versions on both 1.x and 2.x branches
     * Remove duplicate "repositories" value in package.json (@wfortin)
     * Remove undefined "head" variable in jsonp request mocking
+    * Added async `response` function ability
+    * Added ability to specify range for responseTime with random selection
+    * Reorganized documentation significantly
 
 ## 2014-10-29
     * Updated to version 1.6.1

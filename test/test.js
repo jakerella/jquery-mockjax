@@ -41,6 +41,7 @@ function normalizeSemVer(v) {
 
 // Speed up our tests
 $.mockjaxSettings.responseTime = 0;
+$.mockjaxSettings.logging = false;
 var defaultSettings = $.extend({}, $.mockjaxSettings);
 
 QUnit.testDone(function() {
@@ -146,30 +147,30 @@ asyncTest('Dynamic response callback', function() {
 });
 
 asyncTest('Dynamic asynchronous response callback', function() {
-    $.mockjax({
-        url: '/response-callback',
-        responseText: 'original response',
-        response: function(settings, done) {
-        	var that = this;
-            setTimeout(function() {
-            	that.responseText = settings.data.response + ' 3';
-            	done();
-            }, 30);
-        }
-    });
+	$.mockjax({
+		url: '/response-callback',
+		responseText: 'original response',
+		response: function(settings, done) {
+			var that = this;
+			setTimeout(function() {
+				that.responseText = settings.data.response + ' 3';
+				done();
+			}, 30);
+		}
+	});
 
-    $.ajax({
-        url: '/response-callback',
-        dataType: 'text',
-        data: {
-            response: 'Hello world'
-        },
-        error: noErrorCallbackExpected,
-        complete: function(xhr) {
-            equal(xhr.responseText, 'Hello world 3', 'Response Text matches');
-            start();
-        }
-    });
+	$.ajax({
+		url: '/response-callback',
+		dataType: 'text',
+		data: {
+			response: 'Hello world'
+		},
+		error: noErrorCallbackExpected,
+		complete: function(xhr) {
+			equal(xhr.responseText, 'Hello world 3', 'Response Text matches');
+			start();
+		}
+	});
 });
 
 if (compareSemver($().jquery, "1.4", ">=")) {
@@ -322,7 +323,8 @@ asyncTest('Clearing mockjax removes all handlers', function() {
 					ok( false, 'Call to first endpoint was mocked, but should not have been');
 				},
 				error: function(xhr) {
-					equal(404, xhr.status, 'First mock cleared after clear()');
+					// Test against 0, might want to look at this more in depth
+					ok(404 === xhr.status || 0 === xhr.status, 'First mock cleared after clear()');
 
 					$.ajax({
 						async: true,
@@ -332,7 +334,8 @@ asyncTest('Clearing mockjax removes all handlers', function() {
 							ok( false, 'Call to second endpoint was mocked, but should not have been');
 						},
 						error: function(xhr) {
-							equal(404, xhr.status, 'Second mock cleared after clear()');
+							// Test against 0, might want to look at this more in depth
+							ok(404 === xhr.status || 0 === xhr.status, 'Second mock cleared after clear()');
 							start();
 						}
 					});
@@ -342,47 +345,6 @@ asyncTest('Clearing mockjax removes all handlers', function() {
 	});
 });
 
-test('Old version of clearing mock handlers works', function() {
-	$.mockjax({
-		url: '/api/example/1'
-	});
-
-	$.mockjaxClear();
-
-	equal($.mockjax.handler(0), undefined, 'There are no mock handlers');
-});
-
-// asyncTest('Intercept log messages', function() {
-//	 var msg = null;
-//	 $.mockjaxSettings.log = function(inMsg, settings) {
-//		 msg = inMsg;
-//	 };
-//	 $.mockjax({
-//		 url: '*'
-//	 });
-//	 $.ajax({
-//		 url: '/console',
-//		 type: 'GET',
-//		 complete: function() {
-//			 equal(msg, 'MOCK GET: /console', 'Mock request logged to console');
-//			 start();
-//		 }
-//	 });
-// });
-asyncTest('Disable console logging', function() {
-	var msg = null;
-	$.mockjaxSettings.console = false;
-	$.mockjax({
-		url: '*'
-	});
-	$.ajax({
-		url: '/console',
-		complete: function() {
-			equal(msg, null, 'Mock request not logged');
-			start();
-		}
-	});
-});
 
 asyncTest('Get mocked ajax calls - GET', function() {
 	$.mockjax({
@@ -665,6 +627,124 @@ if( jQuery.Deferred ) {
 	});
 }
 
+
+module('Logging');
+asyncTest('Default log handler', function() {
+	if ( !window ) {
+		// We aren't running in a context with window available
+		start();
+		return;
+	}
+
+	var _oldConsole = window.console;
+	var msg = null;
+	window.console = { log: function ( message ) {
+		msg = message;
+	}}
+	var _oldLogging = $.mockjaxSettings.logging;
+	$.mockjaxSettings.logging = true;
+	$.mockjax({
+		 url: '*'
+	});
+	$.ajax({
+		url: '/console',
+		type: 'GET',
+		complete: function() {
+			window.console = _oldConsole;
+			equal(msg, 'MOCK GET: /console', 'Default log handler was not called');
+			$.mockjaxSettings.logging = _oldLogging;
+			start();
+		}
+	});
+});
+
+asyncTest('Custom log handler', function() {
+	var msg = null;
+	var _oldLog = $.mockjaxSettings.log;
+	$.mockjaxSettings.log = function( mockHandler, requestSettings) {
+		msg = requestSettings.type.toUpperCase() + ': ' + requestSettings.url;
+	};
+	$.mockjax({
+		 url: '*'
+	});
+	$.ajax({
+		url: '/console',
+		type: 'GET',
+		complete: function() {
+			equal(msg, 'GET: /console', 'Custom log handler was not called');
+			$.mockjaxSettings.log = _oldLog;
+			start();
+		}
+	});
+});
+
+asyncTest('Disable logging via `logging: false`', function() {
+	if ( !window ) {
+		// We aren't running in a context with window available
+		start();
+		return;
+	}
+
+	var _oldConsole = window.console;
+	var msg = null;
+	window.console = { log: function ( message ) {
+		msg = message;
+	}}
+
+	var _oldLogging = $.mockjaxSettings.logging;
+
+	// Even though this is the suite default, we force it to be off
+	$.mockjaxSettings.logging = false;
+
+	$.mockjax({
+		url: '*'
+	});
+	$.ajax({
+		url: '/console',
+		complete: function() {
+			window.console = _oldConsole;
+			equal(msg, null, 'Logging method incorrectly called');
+			$.mockjaxSettings.logging = _oldLogging;
+			start();
+		}
+	});
+});
+
+asyncTest('Disable logging per mock via `logging: false`', function() {
+	if ( !window ) {
+		// We aren't running in a context with window available
+		start();
+		return;
+	}
+
+	var _oldConsole = window.console;
+	var msg = null;
+	window.console = { log: function ( message ) {
+		msg = message;
+	}}
+
+	var _oldLogging = $.mockjaxSettings.logging;
+
+	// Even though this is the suite default, we force it to be on
+	$.mockjaxSettings.logging = true;
+
+	$.mockjax({
+		url: '*',
+		logging: false
+	});
+
+	$.ajax({
+		url: '/console',
+		complete: function() {
+			window.console = _oldConsole;
+			equal(msg, null, 'Logging method incorrectly called');
+			$.mockjaxSettings.logging = _oldLogging;
+			start();
+		}
+	});
+});
+
+
 module('Request Property Inspection');
 test('Inspecting $.mockjax.handler(id) after request has fired', function() {
   var ID = $.mockjax({
@@ -694,6 +774,123 @@ asyncTest('Case-insensitive matching for request types', function() {
 		error: noErrorCallbackExpected,
 		complete: function(xhr) {
 			equal(xhr.responseText, 'uppercase type response', 'Request matched regardless of case');
+			start();
+		}
+	});
+});
+
+module('Headers Matching');
+asyncTest('Not equal headers', function() {
+	$.mockjax({
+		url: '/exact/string',
+		requestHeaders: {
+			Authorization: "12345"
+		},
+		responseText: 'Exact headers'
+	});
+
+	$.ajax({
+		url: '/exact/string',
+		error: function() { ok(true, "Error called on bad request headers matching"); },
+		success: function() { ok(false, "Success should not be called"); },
+		complete: function(xhr) {
+			var mockedAjaxCalls = $.mockjax.mockedAjaxCalls();
+			equal(mockedAjaxCalls.length, 0, 'No mocked Ajax calls should have been returned');
+			start();
+		}
+	});
+});
+asyncTest('Not equal headers values', function() {
+	$.mockjax({
+		url: '/exact/string',
+		requestHeaders: {
+			Authorization: "12345"
+		},
+		responseText: 'Exact headers'
+	});
+
+	$.ajax({
+		url: '/exact/string',
+		headers: {
+			Authorization: "6789"
+		},
+		error: function() { ok(true, "Error called on bad request headers matching"); },
+		success: function() { ok(false, "Success should not be called"); },
+		complete: function(xhr) {
+			var mockedAjaxCalls = $.mockjax.mockedAjaxCalls();
+			equal(mockedAjaxCalls.length, 0, 'No mocked Ajax calls should have been returned');
+			start();
+		}
+	});
+});
+asyncTest('Not equal multiple headers', function() {
+	$.mockjax({
+		url: '/exact/string',
+		requestHeaders: {
+			Authorization: "12345",
+			MyHeader: "hello"
+		},
+		responseText: 'Exact headers'
+	});
+
+	$.ajax({
+		url: '/exact/string',
+		headers: {
+			Authorization: "12345"
+		},
+		error: function() { ok(true, "Error called on bad request headers matching"); },
+		success: function() { ok(false, "Success should not be called"); },
+		complete: function(xhr) {
+			var mockedAjaxCalls = $.mockjax.mockedAjaxCalls();
+			equal(mockedAjaxCalls.length, 0, 'No mocked Ajax calls should have been returned');
+			start();
+		}
+	});
+});
+asyncTest('Exact headers keys and values', function() {
+	$.mockjax({
+		url: '/exact/string',
+		requestHeaders: {
+			Authorization: "12345"
+		},
+		responseText: 'Exact headers'
+	});
+
+	$.ajax({
+		url: '/exact/string',
+		error: noErrorCallbackExpected,
+		headers: {
+			Authorization: "12345"
+		},
+		complete: function(xhr) {
+			var mockedAjaxCalls = $.mockjax.mockedAjaxCalls();
+			equal(mockedAjaxCalls.length, 1, 'A mocked Ajax calls should have been returned');
+			equal(xhr.responseText, 'Exact headers', 'Exact headers keys and values');
+			start();
+		}
+	});
+});
+asyncTest('Exact multiple headers keys and values', function() {
+	$.mockjax({
+		url: '/exact/string',
+		requestHeaders: {
+			Authorization: "12345",
+			MyHeader: "hello"
+		},
+		responseText: 'Exact multiple headers'
+	});
+
+	$.ajax({
+		url: '/exact/string',
+		error: noErrorCallbackExpected,
+		headers: {
+			Authorization: "12345",
+			MyHeader: "hello"
+		},
+		complete: function(xhr) {
+			var mockedAjaxCalls = $.mockjax.mockedAjaxCalls();
+			equal(mockedAjaxCalls.length, 1, 'A mocked Ajax calls should have been returned');
+			equal(xhr.responseText, 'Exact multiple headers', 'Exact headers keys and values');
 			start();
 		}
 	});
@@ -1730,67 +1927,56 @@ test('Test for bug #95: undefined responseText on success', function() {
 	});
 });
 
+asyncTest('alias type to method', function() {
+	$.mockjax(function(settings) {
+		if (settings.url === '/get/property') {
+			equal(settings.type, settings.method);
 
-/*
-var id = $.mockjax({
-   ...
-});
-$.mockjax.clear(id);
-*/
+			return {
+				responseText: { status: 'success', fortune: 'Are you a ninja?' }
+			};
+		}
 
-/*
-(function($) {
-	$(function() {
-		$.ajax({
-			url: 'test.json',
-			success: function(data) {
-				$('ul').append('<li>test.json: completed (' + data.test + ')</li>');
-			}
-		});
-
-		$.mockjax({
-			url: 'test.json',
-			contentType: 'text/json',
-			responseText: { "test": "mock message" }
-		});
-
-		$.ajax({
-			url: 'test.json',
-			dataType: 'json',
-			success: function(data) {
-				$('ul').append('<li>test.json: completed (' + data.test + ')</li>');
-			},
-			error: function(xhr, status, error) {
-				alert('error: ' + status + ' ' + error);
-			},
-			complete: function() {
-			}
-		});
-
-		$.mockjax({
-			url: 'http://google.com',
-			responseText: 'alert("Hello world");'
-		});
-
-		$.mockjax({
-			url: 'http://another-cross-domain.com',
-			responseText: function() {
-				alert("Get script mock");
-			}
-		});
-
-		$.ajax({
-			url: 'http://google.com',
-			dataType: 'script',
-			success: function(data) {
-				$('ul').append('<li>script: completed (' + data.test + ')</li>');
-			},
-			error: function(xhr, status, error) {
-				alert('error: ' + status + ' ' + error);
-			},
-			complete: function() {
-			}
-		});
+		return false;
 	});
-})(jQuery);
-*/
+
+	$.ajax({
+		url: '/get/property',
+		type: 'GET',
+		complete: function() {
+			$.ajax({
+				url: '/get/property',
+				method: 'POST',
+				complete: function() {
+					start();
+				}
+			});
+		}
+	});
+});
+
+
+asyncTest('Test for bug #26: jsonp mock fails with remote URL and proxy', function() {
+	$.mockjax({
+		url: 'http://example.com/jsonp*',
+		contentType: 'text/json',
+		proxy: 'test_jsonp.js'
+	});
+	var callbackExecuted = false;
+	window.abcdef123456 = function(json) {
+		callbackExecuted = true;
+		deepEqual(json, { "data" : "JSONP is cool" }, 'The proxied data is correct');
+	};
+
+	$.ajax({
+		url: 'http://example.com/jsonp?callback=?',
+		jsonpCallback: 'abcdef123456',
+		dataType: 'jsonp',
+		error: noErrorCallbackExpected,
+		complete: function(xhr) {
+			ok(callbackExecuted, 'The jsonp callback was executed');
+			equal(xhr.statusText, 'success', 'Response was successful');
+			start();
+		}
+	});
+});

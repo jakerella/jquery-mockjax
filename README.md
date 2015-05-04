@@ -1,6 +1,14 @@
 # jQuery Mockjax: Ajax request mocking #
 [http://github.com/jakerella/jquery-mockjax/](http://github.com/jakerella/jquery-mockjax/)
 
+[![Codacy Badge](https://www.codacy.com/project/badge/72d5f8c1c29ee60f6282d7d3fa9cb52c)](https://www.codacy.com/app/mikehostetler_1249/jquery-mockjax/dashboard)
+[![Travis CI Badge](https://travis-ci.org/jakerella/jquery-mockjax.svg?branch=v2)](https://travis-ci.org/jakerella/jquery-mockjax)
+
+**Note that we recently switched the `master` branch to version 2!** There are some 
+minor breaking changes in v2, so if you need an older version, please check the 
+[v1.x](https://github.com/jakerella/jquery-mockjax/tree/v1.x) branch or the list of 
+[releases](https://github.com/jakerella/jquery-mockjax/tags) in Github.
+
 jQuery Mockjax provides request/response mocking for ajax requests using the
 jQuery API and provides all standard behaviors in the request/response flow.
 
@@ -34,7 +42,6 @@ You may report any issues you may find [in the github issue tracking](https://gi
   * [Browsers Tested](#browsers-tested)
   * [Release History](#release-history)
   * [License](#license)
-  * [Contributing](#contributing)
 
 
 ## About Mockjax and Its History ##
@@ -78,7 +85,9 @@ checkout this list:
       * `headers`: [Object] Keys will be simulated as additional headers returned from the server for the request (**NOTE: This is NOT used to match request headers!**)
       * `status`: [Number] An integer that specifies a valid server response code. This simulates a server response code
       * `statusText`: [String] Specifies a valid server response code description. This simulates a server response code description
-      * `responseTime`: [Number] An integer that specifies a simulated network and server latency (in milliseconds)
+      * `responseTime`: [Number] An integer that specifies a simulated network
+         and server latency (in milliseconds). Default is `500`. Setting this
+	 to `0` will minimize the simulated latency
       * `isTimeout`: [Boolean] Determines whether or not the mock will force a timeout on the request
       * `contentType`: [String] Specifies the content type for the response
       * `response`: [Function] A function that accepts the request settings and allows for the dynamic setting of response settings (including the body of the response) upon each request (see examples below)
@@ -93,7 +102,7 @@ checkout this list:
 * `Object $.mockjax.handler(/* Number */ id)`
   * Returns the mock request settings for the handler with the provided `id`
 * `void $.mockjax.clear([/* Number */ id])`
-  * If the `id` is provided, the handler with that ID is cleared (that is, requests matching it will no longer do so, the hnadler is completely removed)
+  * If the `id` is provided, the handler with that ID is cleared (that is, requests matching it will no longer do so, the handler is completely removed)
   * If no `id` is provided, all handlers are cleared, resetting Mockjax to its initial state
 * `Array<Object> $.mockjax.mockedAjaxCalls()`
   * Returns an array of all mocked ajax calls with each entry being the request settings object as passed into the `$.mockjax()` function
@@ -394,6 +403,17 @@ $.mockjax({
 });
 ```
 
+You can also use an interval for `responseTime` to randomize latency:
+
+```javascript
+$.mockjax({
+  url: "/restful/api",
+  // Use a random value between 250ms and 750ms
+  responseTime: [250, 750],
+  responseText: "A text response from the server"
+});
+```
+
 ### Simulating HTTP Response Statuses ###
 
 It's also possible to simulate response statuses other than 200 (default
@@ -633,27 +653,21 @@ $.mockjax.clear(id);
 ### jQuery Version Support ###
 
 We strive to ensure that Mockjax is tested on the furthest patch version of all 
-minor (and major) versions of jQuery beginning with 1.3.2 going all the way 
+minor (and major) versions of jQuery beginning with 1.5.2 going all the way 
 through 2.x. In other words, we don't test 1.6.1, but rather 1.6.4 (the furthest
 patch version on the 1.6.x line). The QUnit tests in the `/test` directory include 
 links to each version of jQuery tested in the header.
 
 ### Browsers Tested ###
 
-Note that jQuery Mockjax generally supports whatever browser jQuery supports. 
-However, it is important to understand that various versions of jQuery have dropped 
-support for different versions of browsers over the years. The point is, be sure 
-to test on the browser versions you support!
-
 We use virtual machines to test current versions of the browsers below. In addition, 
-we test the minimum version specified next to the browser (with the exception of 
-IE which specifies the versions we test).
+we test the specific versions of IE specified.
 
-* Internet Explorer (7-11)
-* Firefox (3.6)
-* Safari (5.1)
-* Chrome (stable only, significantly older versions are not available)
-* Opera (9.6; although 9.x does not work with jQuery 1.9+)
+* Internet Explorer 8-11
+* Firefox
+* Safari
+* Chrome
+* Opera
 
 _Please note that while we strive to keep `master` as bug free as possible, we do 
 not necessarily run tests in all of the above browsers for every single commit. We  
@@ -669,13 +683,18 @@ should *not* be considered a stable release!
 
 ### License ###
 
-Copyright (c) 2014 appendTo, Jordan Kasper
+Copyright (c) 2014 Jordan Kasper, formerly appendTo
 
 NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
 
 Dual licensed under the MIT or GPL licenses:
 [http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT)
 [http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
+
+### Troubleshooting ###
+
+If mockjax appears to be behaving unexpectedly, be sure to check the console
+logs for warnings.
 
 ### Contributing ###
 
