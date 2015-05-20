@@ -1997,3 +1997,20 @@ asyncTest('url should be namespaced via global mockjax settings', function() {
     }
   });
 });
+
+asyncTest('should be able to override global namespace per-mock', function() {
+  $.mockjaxSettings.namespace = '/api/v1';
+
+  $.mockjax({
+    url: 'myservice',
+    namespace: '/api/v2'
+  });
+
+  $.ajax({
+    url: '/api/v2/myservice',
+    complete: function(xhr) {
+      equal(xhr.status, 200, 'Response was successful');
+      start();
+    }
+  });
+});
