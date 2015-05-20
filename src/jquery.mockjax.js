@@ -115,6 +115,16 @@
 				return null;
 			}
 		} else {
+
+			// Apply namespace prefix to the mock handler's url.
+			var namespace = handler.namespace || $.mockjaxSettings.namespace;
+			if (!!namespace) {
+				handler.url = [
+						namespace,
+						handler.url
+					].join('/');
+			}
+
 			// Look for a simple wildcard '*' or a direct URL match
 			var star = handler.url.indexOf('*');
 			if (handler.url !== requestSettings.url && star === -1 ||
