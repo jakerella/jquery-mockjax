@@ -1838,7 +1838,7 @@ asyncTest('Call onAfterSuccess after success has been called', function() {
 
 	setTimeout(function() {
 		equal(onAfterSuccessCalled, true, 'onAfterSuccess was not called');
-		start(); 
+		start();
 	}, 100);
 });
 
@@ -1863,7 +1863,7 @@ asyncTest('Call onAfterError after error has been called', function() {
 
 	setTimeout(function() {
 		equal(onAfterErrorCalled, true, 'onAfterError was not called');
-		start(); 
+		start();
 	}, 100);
 });
 
@@ -1887,7 +1887,7 @@ asyncTest('Call onAfterComplete after complete has been called', function() {
 
 	setTimeout(function() {
 		equal(onAfterCompleteCalled, true, 'onAfterComplete was not called');
-		start(); 
+		start();
 	}, 100);
 });
 
@@ -1906,7 +1906,7 @@ test('Test for bug #95: undefined responseText on success', function() {
 		url: 'test/something',
 		async: false,
 		success: function(data) {
-			// Before jQuery 1.5 the response is a stringified version of the 
+			// Before jQuery 1.5 the response is a stringified version of the
 			// json data unless the 'dataType' option is set to "json"
 			var expectedResult = expected;
 			if (compareSemver($().jquery, "1.5", "<")) {
