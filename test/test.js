@@ -1980,3 +1980,20 @@ asyncTest('Test for bug #26: jsonp mock fails with remote URL and proxy', functi
 		}
 	});
 });
+
+module('namespace')
+asyncTest('url should be namespaced via global mockjax settings', function() {
+  $.mockjaxSettings.namespace = '/api/v1';
+
+  $.mockjax({
+    url: 'myservice'
+  });
+
+  $.ajax({
+    url: '/api/v1/myservice',
+    complete: function(xhr) {
+      equal(xhr.status, 200, 'Response was successful');
+      start();
+    }
+  });
+});
