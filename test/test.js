@@ -2014,3 +2014,64 @@ asyncTest('should be able to override global namespace per-mock', function() {
     }
   });
 });
+
+asyncTest('should not mock a non-matching url within a namespace', function() {
+  $.mockjaxSettings.namespace = '/api/v1';
+
+  $.mockjax({
+    url: 'myservice'
+  });
+
+  $.ajax({
+    url: '/api/v1/yourservice',
+    error: function(){
+      ok(true, "error callback was called");
+      start();
+    }
+  });
+});
+
+asyncTest('should handle multiple mocks in a row within a namespace', function() {
+  $.mockjaxSettings.namespace = '/api/v1';
+
+  $.mockjax({
+    url: 'one'
+  });
+
+  $.mockjax({
+    url: 'two'
+  });
+
+  $.ajax({
+    url: '/api/v1/one',
+    complete: function(xhr) {
+      equal(xhr.status, 200, 'Response was successful');
+      $.ajax({
+        url: '/api/v1/two',
+        complete: function(xhr) {
+          equal(xhr.status, 200, 'Response was successful');
+          start();
+        }
+      });
+    }
+  });
+});
+
+asyncTest('should pass the correct url to the response settings', function() {
+  $.mockjaxSettings.namespace = '/api/v1';
+
+  $.mockjax({
+    url: 'myservice',
+    response: function(settings) {
+      equal(settings.url, '/api/v1/myservice');
+    }
+  });
+
+  $.ajax({
+    url: '/api/v1/myservice',
+    complete: function(xhr) {
+      equal(xhr.status, 200, 'Response was successful');
+      start();
+    }
+  });
+});
