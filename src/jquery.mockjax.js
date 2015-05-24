@@ -702,6 +702,7 @@
 			}
 		},
 		logging:       true,
+		namespace:     null,
 		status:        200,
 		statusText:    'OK',
 		responseTime:  DEFAULT_RESPONSE_TIME,

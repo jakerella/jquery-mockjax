@@ -601,7 +601,7 @@ settings are as follows:
 ```javascript
 {
   logging:       true,
-  namespace:     "",
+  namespace:     null,
   status:        200,
   statusText:    "OK",
   responseTime:  500,
