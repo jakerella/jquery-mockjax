@@ -36,6 +36,7 @@ You may report any issues you may find [in the github issue tracking](https://gi
   * [Data Types](#data-types)
   * [Performing Actions After Request Completion](#performing-actions-after-request-completion)
   * [Globally Defining Mockjax Settings](#globally-defining-mockjax-settings)
+  * [Setting a Global URL Namespace](#setting-global-url-namespace)
   * [Removing Mockjax Handlers](#removing-mockjax-handlers)
 * [Miscellaneous Information](#miscellaneous-information)
   * [jQuery Version Support](#jquery-version-support)
@@ -627,6 +628,32 @@ would do the following:
 
 ```javascript
 $.mockjaxSettings.contentType = "application/json";
+```
+
+### Setting a Global URL Namespace ###
+
+The namespace option in `$.mockjaxSettings` allows you to apply a prefix to
+all of your mocked urls, such as `/api/v1`.
+
+```javascript
+$.mockjaxSettings.namespace = "/api/v1";
+```
+
+Then the following mock will match `/api/v1/rest`:
+
+```javascript
+$.mockjax({
+    url: "/rest"
+})
+```
+
+The global namespace option can also be overwritten on a particular mock.
+
+```javascript
+$.mockjax({
+    url: "/rest-2",
+    namespace: null
+})
 ```
 
 ### Removing Mockjax Handlers ###
