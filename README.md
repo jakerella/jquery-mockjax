@@ -656,6 +656,8 @@ $.mockjax({
 })
 ```
 
+Note that the namespace prefix does not apply to proxies.
+
 ### Removing Mockjax Handlers ###
 
 If you need to reset the Mockjax handlers you've added, just call
