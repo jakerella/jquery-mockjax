@@ -119,10 +119,9 @@
 			// Apply namespace prefix to the mock handler's url.
 			var namespace = handler.namespace || $.mockjaxSettings.namespace;
 			if (!!namespace) {
-				handler.url = [
-						namespace,
-						handler.url
-					].join('/');
+				var namespacedUrl = [namespace, handler.url].join('/');
+				namespacedUrl = namespacedUrl.replace(/(\/+)/g, "/");
+				handler.url = namespacedUrl;
 			}
 
 			// Look for a simple wildcard '*' or a direct URL match

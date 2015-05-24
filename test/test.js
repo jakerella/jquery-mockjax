@@ -2075,3 +2075,20 @@ asyncTest('should pass the correct url to the response settings', function() {
     }
   });
 });
+
+module('namespace')
+asyncTest('should handle extra slashes', function() {
+  $.mockjaxSettings.namespace = '/api/v1/';
+
+  $.mockjax({
+    url: '/myservice'
+  });
+
+  $.ajax({
+    url: '/api/v1/myservice',
+    complete: function(xhr) {
+      equal(xhr.status, 200, 'Response was successful');
+      start();
+    }
+  });
+});
