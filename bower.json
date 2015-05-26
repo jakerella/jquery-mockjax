@@ -3,7 +3,7 @@
   "version": "2.0.0-beta",
   "main": ["dist/jquery.mockjax.js"],
   "dependencies": {
-    "jquery": "*"
+    "jquery": "~2.1.3"
   },
   "ignore": [
     ".editorconfig",
