@@ -120,7 +120,7 @@
 			var namespace = handler.namespace || $.mockjaxSettings.namespace;
 			if (!!namespace) {
 				var namespacedUrl = [namespace, handler.url].join('/');
-				namespacedUrl = namespacedUrl.replace(/(\/+)/g, "/");
+				namespacedUrl = namespacedUrl.replace(/(\/+)/g, '/');
 				handler.url = namespacedUrl;
 			}
 
