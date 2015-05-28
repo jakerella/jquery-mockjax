@@ -2010,7 +2010,13 @@ asyncTest('should be able to override global namespace per-mock', function() {
     url: '/api/v2/myservice',
     complete: function(xhr) {
       equal(xhr.status, 200, 'Response was successful');
-      start();
+      $.ajax({
+        url: '/api/v1/myservice',
+        error: function(){
+          ok(true, "error callback was called");
+          start();
+        }
+      });
     }
   });
 });
