@@ -1,3 +1,7 @@
+## 2015-06-11
+    * Updated to version 2.0.0
+    * Fixed issue with isTimeout switch
+
 ## 2015-05-03
     * Updated to version 2.0.0-beta
     * Reorganized codebase and implemented Grunt build process

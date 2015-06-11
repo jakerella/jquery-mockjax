@@ -1,7 +1,7 @@
 {
   "name": "jquery.mockjax",
   "title": "jQuery Mockjax",
-  "version": "2.0.0-beta",
+  "version": "2.0.0",
   "main": "./src/jquery.mockjax.js",
   "description": "The jQuery Mockjax Plugin provides a simple and extremely flexible interface for mocking or simulating ajax requests and responses.",
   "url": "https://github.com/jakerella/jquery-mockjax",

@@ -1,7 +1,7 @@
 /*! jQuery Mockjax
  * A Plugin providing simple and flexible mocking of ajax requests and responses
  * 
- * Version: 2.0.0-beta
+ * Version: 2.0.0
  * Home: https://github.com/jakerella/jquery-mockjax
  * Copyright (c) 2015 Jordan Kasper, formerly appendTo;
  * NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
@@ -597,7 +597,6 @@
 					mockHandler.responseTime = 2;
 					origSettings.timeout = 1;
 				}
-				mockHandler.isTimeout = false;
 			}
 
 			// Set up onAfter[X] callback functions
