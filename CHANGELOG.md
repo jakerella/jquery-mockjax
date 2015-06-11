@@ -1,4 +1,8 @@
 ## 2015-06-11
+    * Updated to version 2.0.1
+    * Fixed name in package.json for coordination among package management systems
+
+## 2015-06-11
     * Updated to version 2.0.0
     * Fixed issue with isTimeout switch
 

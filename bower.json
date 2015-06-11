@@ -1,6 +1,6 @@
 {
   "name": "jquery-mockjax",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "main": ["dist/jquery.mockjax.js"],
   "dependencies": {
     "jquery": "~2.1.3"
