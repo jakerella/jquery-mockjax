@@ -586,7 +586,6 @@
 					mockHandler.responseTime = 2;
 					origSettings.timeout = 1;
 				}
-				mockHandler.isTimeout = false;
 			}
 
 			// Set up onAfter[X] callback functions
