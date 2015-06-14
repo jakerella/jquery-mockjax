@@ -2113,3 +2113,39 @@ asyncTest('should handle missing slashes', function() {
     }
   });
 });
+
+asyncTest('Test for bug #254: subsequent timeouts', function() {
+    $.mockjax({
+        url: '/timeout-check',
+        responseTime: 20,
+        isTimeout: true,
+        responseText: 'foobar'
+    });
+
+    $.ajax({
+        url: '/timeout-check',
+        error: function(xhr, textStatus, errorThrown ) {
+            equal( textStatus, 'timeout', 'Text status on call #1 is equal to timeout' );
+            ok( errorThrown !== 'OK', 'errorThrown is not "OK" on call #1' );
+        },
+        success: function() {
+            ok(false, 'call #1 should not be be successful');
+        },
+        complete: function() {
+            // do a second call and ensure we still timeout
+            $.ajax({
+                url: '/timeout-check',
+                error: function(xhr, textStatus, errorThrown ) {
+                    equal( textStatus, 'timeout', 'Text status on call #2 is equal to timeout' );
+                    ok( errorThrown !== 'OK', 'errorThrown is not "OK" on call #2' );
+                },
+                success: function() {
+                    ok(false, 'call #2 should not be be successful');
+                },
+                complete: function() {
+                    start();
+                }
+            });
+        }
+    });
+});

@@ -1,7 +1,7 @@
 /*! jQuery Mockjax
  * A Plugin providing simple and flexible mocking of ajax requests and responses
  * 
- * Version: 2.0.0-beta
+ * Version: 2.0.1
  * Home: https://github.com/jakerella/jquery-mockjax
  * Copyright (c) 2015 Jordan Kasper, formerly appendTo;
  * NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
@@ -130,10 +130,9 @@
 			// Apply namespace prefix to the mock handler's url.
 			var namespace = handler.namespace || $.mockjaxSettings.namespace;
 			if (!!namespace) {
-				handler.url = [
-						namespace,
-						handler.url
-					].join('/');
+				var namespacedUrl = [namespace, handler.url].join('/');
+				namespacedUrl = namespacedUrl.replace(/(\/+)/g, '/');
+				handler.url = namespacedUrl;
 			}
 
 			// Look for a simple wildcard '*' or a direct URL match
@@ -607,7 +606,6 @@
 					mockHandler.responseTime = 2;
 					origSettings.timeout = 1;
 				}
-				mockHandler.isTimeout = false;
 			}
 
 			// Set up onAfter[X] callback functions
@@ -714,6 +712,7 @@
 			}
 		},
 		logging:       true,
+		namespace:     null,
 		status:        200,
 		statusText:    'OK',
 		responseTime:  DEFAULT_RESPONSE_TIME,

@@ -1,7 +1,7 @@
 {
-  "name": "jquery.mockjax",
+  "name": "jquery-mockjax",
   "title": "jQuery Mockjax",
-  "version": "2.0.0-beta",
+  "version": "2.0.1",
   "main": "./src/jquery.mockjax.js",
   "description": "The jQuery Mockjax Plugin provides a simple and extremely flexible interface for mocking or simulating ajax requests and responses.",
   "url": "https://github.com/jakerella/jquery-mockjax",
@@ -48,6 +48,9 @@
       "url": "http://www.gnu.org/licenses/gpl-2.0.html"
     }
   ],
+  "dependencies": {
+    "jquery": "^2.1.3"
+  },
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-contrib-concat": "^0.5.0",
@@ -56,7 +59,6 @@
     "grunt-contrib-uglify": "^0.6.0",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-mocha-test": "^0.12.7",
-    "jquery": "^2.1.3",
     "jsdom": "^4.2.0",
     "load-grunt-tasks": "^0.6.0",
     "mocha": "^2.2.4",
