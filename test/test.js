@@ -1,4 +1,7 @@
 (function(qunit, $) {
+    'use strict';
+    
+    var t = qunit.test;
     
     qunit.begin(function() {
         
@@ -19,8 +22,11 @@
     });
 
 
-    module('Core');
-    test('Return XMLHttpRequest object from $.ajax', function() {
+    /* ----------------- */
+    qunit.module( 'Core' );
+    /* ----------------- */
+    
+    t('Return XMLHttpRequest object from $.ajax', function() {
     	$.mockjax({
     		url: '/xmlhttprequest',
     		responseText: "Hello Word"
@@ -33,10 +39,13 @@
     	xhr && xhr.abort && xhr.abort();
 
     	ok(xhr, "XHR object is not null or undefined");
-    	if (jQuery.Deferred) {
+    	
+        if ($.Deferred) {
     		ok(xhr.done && xhr.fail, "Got Promise methods");
     	}
     });
+    
+    
     asyncTest('Intercept and proxy (sub-ajax request)', function() {
     	$.mockjax({
     		url: '/proxy',
@@ -224,7 +233,7 @@
     	});
     });
 
-    test('Remove mockjax definition by id', function() {
+    t('Remove mockjax definition by id', function() {
     	var id = $.mockjax({
     		url: '/test',
     		contentType: 'text/plain',
@@ -518,7 +527,7 @@
     	});
     });
 
-    test('multiple mockjax calls are made', function() {
+    t('multiple mockjax calls are made', function() {
     	$.mockjax({
     		url: '/api/example/*'
     	});
@@ -549,8 +558,7 @@
     	equal($.mockjax.mockedAjaxCalls().length, 0, 'After clearing there are no saved ajax calls');
     });
 
-    // These tests is only relevant in 1.5.2 and higher
-    if( jQuery.Deferred ) {
+    if ($.Deferred) {
     	asyncTest('Preserve context when set in jsonp ajax requet', function(){
     		$.mockjax({
     				url: '/jsonp*',
@@ -595,9 +603,56 @@
     		var settings = $.ajaxSettings;
     	});
     }
+    
+    asyncTest('Dynamic mock definition', function() {
+        $.mockjax( function( settings ) {
+            var service = settings.url.match(/\/users\/(.*)$/);
+            if ( service ) {
+                return {
+                    proxy: 'test_proxy.json'
+                }
+            }
+        });
+
+        $.ajax({
+            url: '/users/test',
+            dataType: 'json',
+            error: qunit.noErrorCallbackExpected,
+            success: function(json) {
+                ok(json && json.proxy, 'Proxy request succeeded');
+            },
+            complete: function(xhr) {
+                start();
+            }
+        });
+    });
+
+    asyncTest('Dynamic mock response generation', function() {
+        $.mockjax({
+            url: '/response-callback',
+            response: function( settings ) {
+                this.responseText = { currentTime: 'now: ' + new Date() };
+            }
+        });
+
+        $.ajax({
+            url: '/response-callback',
+            dataType: 'json',
+            error: qunit.noErrorCallbackExpected,
+            success: function(json) {
+                equal( typeof json.currentTime, 'string', 'Dynamic response succeeded');
+            },
+            complete: function(xhr) {
+                start();
+            }
+        });
+    });
 
 
-    module('Logging');
+    /* -------------------- */
+    qunit.module( 'Logging' );
+    /* -------------------- */
+    
     asyncTest('Default log handler', function() {
     	if ( !window ) {
     		// We aren't running in a context with window available
@@ -713,9 +768,7 @@
     	});
     });
 
-
-    module('Request Property Inspection');
-    test('Inspecting $.mockjax.handler(id) after request has fired', function() {
+    t('Inspecting $.mockjax.handler(id) after request has fired', function() {
       var ID = $.mockjax({
     	url: '/mockjax_properties',
     	responseText: "Hello Word"
@@ -729,7 +782,6 @@
       ok($.mockjax.handler(ID).fired, "Sets the mock's fired property to true");
     });
 
-    module('Type Matching');
     asyncTest('Case-insensitive matching for request types', function() {
     	$.mockjax({
     		url: '/case_insensitive_match',
@@ -748,7 +800,11 @@
     	});
     });
 
-    module('Headers Matching');
+    
+    /* ----------------------------- */
+    qunit.module( 'Headers Matching' );
+    /* ----------------------------- */
+    
     asyncTest('Not equal headers', function() {
     	$.mockjax({
     		url: '/exact/string',
@@ -769,6 +825,7 @@
     		}
     	});
     });
+    
     asyncTest('Not equal headers values', function() {
     	$.mockjax({
     		url: '/exact/string',
@@ -792,6 +849,7 @@
     		}
     	});
     });
+    
     asyncTest('Not equal multiple headers', function() {
     	$.mockjax({
     		url: '/exact/string',
@@ -816,6 +874,7 @@
     		}
     	});
     });
+    
     asyncTest('Exact headers keys and values', function() {
     	$.mockjax({
     		url: '/exact/string',
@@ -839,6 +898,7 @@
     		}
     	});
     });
+    
     asyncTest('Exact multiple headers keys and values', function() {
     	$.mockjax({
     		url: '/exact/string',
@@ -865,7 +925,11 @@
     	});
     });
 
-    module('URL Matching');
+    
+    /* ------------------------- */
+    qunit.module( 'URL Matching' );
+    /* ------------------------- */
+    
     asyncTest('Exact string', function() {
     	$.mockjax({
     		url: '/exact/string',
@@ -885,7 +949,8 @@
     		}
     	});
     });
-    test('Wildcard match', 5, function() {
+    
+    t('Wildcard match', 5, function() {
     	function mock(mockUrl, url, response) {
     		$.mockjax({
     			url: mockUrl,
@@ -906,6 +971,7 @@
     	mock('z*', 'z/wildcard/123456', 'z');
     	mock('/wildcard*aa/second/*/nice', '/wildcard/123456/aa/second/9991231/nice', 'aa');
     });
+    
     asyncTest('RegEx match', 1, function() {
     	$.mockjax({
     		url: /^\/regex-([0-9]+)/i,
@@ -926,7 +992,11 @@
     	});
     });
 
-    module('Request Data Matching');
+
+    /* ---------------------------------- */
+    qunit.module( 'Request Data Matching' );
+    /* ---------------------------------- */
+    
     asyncTest('Incorrect data matching on request', 1, function() {
     	$.mockjax({
     		url: '/response-callback',
@@ -999,8 +1069,7 @@
       });
     });
 
-    // Related issue #80
-    asyncTest('Correct data matching on request with empty object literals', 1, function() {
+    asyncTest('Bug #80: Correct data matching on request with empty object literals', 1, function() {
     	$.mockjax({
     		url: '/response-callback',
     		contentType: 'text/json',
@@ -1052,7 +1121,7 @@
     });
 
     // Related issue #68
-    asyncTest('Incorrect data matching on request with arrays', 1, function() {
+    asyncTest('Bug #68: Incorrect data matching on request with arrays', 1, function() {
     	$.mockjax({
     		url: '/response-callback',
     		contentType: 'text/json',
@@ -1163,8 +1232,7 @@
     	});
     });
 
-    // Test to prove issue #106
-    asyncTest('Null matching on request', 1, function() {
+    asyncTest('Bug #106: Null matching on request', 1, function() {
     	$.mockjax({
     		url: '/response-callback',
     		contentType: 'text/json',
@@ -1191,9 +1259,11 @@
     	});
     });
 
-    // Test Data Types [Text, HTML, JSON, JSONP, Script and XML]
-    module('Data Types');
-    // Text
+
+    /* ----------------------- */
+    qunit.module( 'Data Types' );
+    /* ----------------------- */
+    
     asyncTest('Response returns text', function() {
     	$.mockjax({
     		url: '/text',
@@ -1211,6 +1281,7 @@
     		}
     	});
     });
+    
     asyncTest('Response returns html', function() {
     	$.mockjax({
     		url: '/html',
@@ -1230,6 +1301,7 @@
     		}
     	});
     });
+    
     asyncTest('Response returns json', function() {
     	$.mockjax({
     		url: '/json',
@@ -1273,36 +1345,33 @@
     	});
     });
 
+    if ($.Deferred) {
+        asyncTest('Response returns jsonp and return value from ajax is a promise if supported', function() {
+        	window.rquery =  /\?/;
 
-    asyncTest('Response returns jsonp and return value from ajax is a promise if supported', function() {
-    	window.rquery =  /\?/;
+        	$.mockjax({
+        		url:"http://api*",
+        		responseText:{
+        			success:true,
+        			ids:[21327211]
+        		},
+        		dataType:"jsonp",
+        		contentType: 'text/json'
+        	});
 
-    	$.mockjax({
-    		url:"http://api*",
-    		responseText:{
-    			success:true,
-    			ids:[21327211]
-    		},
-    		dataType:"jsonp",
-    		contentType: 'text/json'
-    	});
+        	var promiseObject = $.ajax({
+        		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
+        		dataType:"jsonp"
+        	});
 
-    	var promiseObject = $.ajax({
-    		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
-    		dataType:"jsonp"
-    	});
-
-    	if (jQuery.Deferred) {
     		ok(promiseObject.done && promiseObject.fail, "Got Promise methods");
     		promiseObject.then(function(){
     			ok(true, "promise object then is executed");
     		});
-    	} else {
-    		ok(true, "No deferred support, passing as succesful");
-    	}
 
-    	start();
-    });
+        	start();
+        });
+    }
 
     asyncTest('Response executes script', function() {
     	$.mockjax({
@@ -1324,42 +1393,42 @@
     		}
     	});
     });
-    asyncTest('Grouping deferred responses, if supported', function() {
-    	window.rquery =  /\?/;
+    
+    if ($.Deferred) {
+        asyncTest('Grouping deferred responses, if supported', function() {
+        	window.rquery =  /\?/;
 
-    	$.mockjax({
-    		url:"http://api*",
-    		responseText:{
-    			success:true,
-    			ids:[21327211]
-    		},
-    		dataType:"jsonp",
-    		contentType: 'text/json'
-    	});
+        	$.mockjax({
+        		url:"http://api*",
+        		responseText:{
+        			success:true,
+        			ids:[21327211]
+        		},
+        		dataType:"jsonp",
+        		contentType: 'text/json'
+        	});
 
-    	var req1 = $.ajax({
-    		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
-    		dataType:"jsonp"
-    	});
-    	var req2 = $.ajax({
-    		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
-    		dataType:"jsonp"
-    	});
-    	var req3 = $.ajax({
-    		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
-    		dataType:"jsonp"
-    	});
+        	var req1 = $.ajax({
+        		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
+        		dataType:"jsonp"
+        	});
+        	var req2 = $.ajax({
+        		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
+        		dataType:"jsonp"
+        	});
+        	var req3 = $.ajax({
+        		url:"http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user",
+        		dataType:"jsonp"
+        	});
 
-    	if (jQuery.Deferred) {
     		$.when(req1, req2, req3).done(function(a, b, c) {
     			ok(true, "Successfully grouped deferred responses");
     		});
-    	} else {
-    		ok(true, "No deferred support, passing as succesful");
-    	}
 
-    	start();
-    });
+        	start();
+        });
+    }
+    
     asyncTest('Response returns parsed XML', function() {
     	$.mockjax({
     		url: '/xml',
@@ -1370,7 +1439,7 @@
     		url: '/xml',
     		dataType: 'xml',
     		success: function(xmlDom) {
-    			ok( jQuery.isXMLDoc( xmlDom ), 'Data returned is an XML DOM');
+    			ok( $.isXMLDoc( xmlDom ), 'Data returned is an XML DOM');
     		},
     		error: qunit.noErrorCallbackExpected,
     		complete: function(xhr, error) {
@@ -1381,8 +1450,11 @@
     	});
     });
 
-    module('Connection Simulation', {
-    	setup: function() {
+    
+    /* -------------------------------- */
+    qunit.module( 'Connection Simulation', {
+    /* -------------------------------- */
+    	beforeEach: function() {
     		this.variableDelayMin = 100;
     		this.variableDelayMax = 300;
     		this.processingDuration = 30;
@@ -1391,6 +1463,7 @@
     			url: '/delay',
     			responseTime: 150
     		});
+            
     		$.mockjax({
     			url: 'http://foobar.com/jsonp-delay?callback=?',
     			contentType: 'text/json',
@@ -1398,10 +1471,12 @@
     			responseTime: 150,
     			responseText: "{}"
     		});
+            
     		$.mockjax({
     			url: '/variable-delay',
     			responseTime: [this.variableDelayMin, this.variableDelayMax]
     		});
+            
     		$.mockjax({
     			url: '*',
     			responseText: '',
@@ -1409,6 +1484,7 @@
     		});
     	}
     });
+    
     asyncTest('Async test', function() {
     	var order = [];
     	$.ajax({
@@ -1426,7 +1502,8 @@
     	order.push('a');
     	deepEqual(order, ['a'], 'Order of execution correct, 1');
     });
-    test('Sync test', function() {
+    
+    t('Sync test', function() {
     	var order = [];
     	$.ajax({
     		async: false,
@@ -1440,6 +1517,7 @@
     	order.push('a');
     	deepEqual(order, ['b', 'a'], 'Order of execution correct, 2');
     });
+    
     asyncTest('Response time simulation and latency', function() {
     	var executed = 0, ts = new Date();
     	$.ajax({
@@ -1456,6 +1534,7 @@
     		executed++;
     	}, 30);
     });
+    
     asyncTest('Response time with jsonp', function() {
     	var executed = false, ts = new Date();
 
@@ -1495,7 +1574,11 @@
     	}, 30);
     });
 
-    module('Headers');
+
+    /* -------------------- */
+    qunit.module( 'Headers' );
+    /* -------------------- */
+    
     asyncTest('headers can be inspected via setRequestHeader()', function() {
     	expect(1);
 
@@ -1504,7 +1587,9 @@
     	});
 
     	$.mockjax( function ( requestSettings ) {
-    		if ( "/inspect-headers" == requestSettings.url ) {
+    		var key;
+            
+            if ( "/inspect-headers" == requestSettings.url ) {
     			return {
     				response: function(origSettings) {
     					if (typeof requestSettings.headers['X-Csrftoken'] !== 'undefined') {
@@ -1527,8 +1612,6 @@
     	});
     });
 
-
-    // SIMULATING HTTP RESPONSE STATUSES
     asyncTest('Response status callback', function() {
     	$.mockjax({
     		url: '/response-callback',
@@ -1537,14 +1620,16 @@
 
     	$.ajax({
     		url: '/response-callback',
-    		error: function(){ ok(true, "error callback was called"); },
+    		success: function() {
+                ok(false, 'Success handler should not have been called');
+            },
     		complete: function(xhr) {
     			equal(xhr.status, 403, 'response status matches');
     			start();
     		}
     	});
     });
-    // SETTING THE CONTENT-TYPE
+    
     asyncTest('Setting the content-type', function() {
     	$.mockjax({
     		url: '/response-callback',
@@ -1557,7 +1642,7 @@
     	$.ajax({
     		url: '/response-callback',
     		dataType: 'json',
-    		error: function(){ ok(false, "error callback was called"); },
+    		error: qunit.noErrorCallbackExpected,
     		success: function(json) {
     			deepEqual(json, { "foo" : "bar" }, 'JSON Object matches');
     		},
@@ -1567,7 +1652,7 @@
     		}
     	});
     });
-    // SETTING ADDITIONAL HTTP RESPONSE HEADERS
+    
     asyncTest('Setting additional HTTP response headers', function() {
     	$.mockjax({
     		url: '/response-callback',
@@ -1618,8 +1703,12 @@
     		}
     	});
     });
+    
+    
+    /* --------------------- */
+    qunit.module( 'Timeouts' );
+    /* --------------------- */
 
-    // FORCE SIMULATION OF SERVER TIMEOUTS
     asyncTest('Forcing timeout', function() {
     	$.mockjax({
     		url: '/response-callback',
@@ -1643,9 +1732,7 @@
     	});
     });
 
-    // FORCE SIMULATION OF SERVER TIMEOUTS WITH PROMISES
-
-    if(jQuery.Deferred) {
+    if ($.Deferred) {
     	asyncTest('Forcing timeout with Promises', function() {
     		$.mockjax({
     			url: '/response-callback',
@@ -1669,54 +1756,13 @@
     		});
     	});
     }
-    // DYNAMICALLY GENERATING MOCK DEFINITIONS
-    asyncTest('Dynamic mock definition', function() {
-    	$.mockjax( function( settings ) {
-    		var service = settings.url.match(/\/users\/(.*)$/);
-    		if ( service ) {
-    			return {
-    				proxy: 'test_proxy.json'
-    			}
-    		}
-    	});
-
-    	$.ajax({
-    		url: '/users/test',
-    		dataType: 'json',
-    		error: qunit.noErrorCallbackExpected,
-    		success: function(json) {
-    			ok(json && json.proxy, 'Proxy request succeeded');
-    		},
-    		complete: function(xhr) {
-    			start();
-    		}
-    	});
-    });
-    // DYNAMICALLY GENERATING MOCK RESPONSES
-    asyncTest('Dynamic mock response generation', function() {
-    	$.mockjax({
-    		url: '/response-callback',
-    		response: function( settings ) {
-    			this.responseText = { currentTime: 'now: ' + new Date() };
-    		}
-    	});
-
-    	$.ajax({
-    		url: '/response-callback',
-    		dataType: 'json',
-    		error: qunit.noErrorCallbackExpected,
-    		success: function(json) {
-    			equal( typeof json.currentTime, 'string', 'Dynamic response succeeded');
-    		},
-    		complete: function(xhr) {
-    			start();
-    		}
-    	});
-    });
 
 
-    module( 'BugFixes' );
-    asyncTest( 'Test bug fix for $.mockjaxSettings', function() {
+    /* ------------------------------------ */
+    qunit.module( 'Miscellaneous Bug Tests' );
+    /* ------------------------------------ */
+    
+    asyncTest('Test bug fix for $.mockjaxSettings', function() {
     	$.mockjaxSettings.headers = {
     		"content-type": "text/plain",
     		etag: "IJF@H#@923uf8023hFO@I#H#"
@@ -1744,22 +1790,22 @@
     	});
     });
 
-    asyncTest("Preserve responseText inside a response function when using jsonp and a success callback", function(){
+    asyncTest('Preserve responseText inside a response function when using jsonp and a success callback', function() {
     	$.mockjax({
-    		url: "http://some/fake/jsonp/endpoint",
+    		url: 'http://some/fake/jsonp/endpoint',
     		// The following line works...
     		// responseText: [{ "data" : "JSONP is cool" }]
     		// But doesn't not work when setting this.responseText in response
     		response: function() {
-    			this.responseText = [{ "data" : "JSONP is cool" }];
+    			this.responseText = [{ 'data' : 'JSONP is cool' }];
     		}
     	});
 
     	$.ajax({
-    		url: "http://some/fake/jsonp/endpoint",
-    		dataType: "jsonp",
+    		url: 'http://some/fake/jsonp/endpoint',
+    		dataType: 'jsonp',
     		success: function(data) {
-    			deepEqual(data, [{ "data" : "JSONP is cool" }]);
+    			deepEqual(data, [{ 'data' : 'JSONP is cool' }]);
     			start();
     		}
     	});
@@ -1858,7 +1904,7 @@
     	}, 100);
     });
 
-    test('Test for bug #95: undefined responseText on success', function() {
+    t('Bug #95: undefined responseText on success', function() {
     	expect(2);
 
     	var expected = { status: 'success', fortune: 'Are you a turtle?' };
@@ -1922,8 +1968,7 @@
     	});
     });
 
-
-    asyncTest('Test for bug #26: jsonp mock fails with remote URL and proxy', function() {
+    asyncTest('Bug #26: jsonp mock fails with remote URL and proxy', function() {
     	$.mockjax({
     		url: 'http://example.com/jsonp*',
     		contentType: 'text/json',
@@ -1948,8 +1993,7 @@
     	});
     });
 
-
-    asyncTest('Test for bug #254: subsequent timeouts', function() {
+    asyncTest('Bug #254: subsequent timeouts', function() {
         $.mockjax({
             url: '/timeout-check',
             responseTime: 20,
