@@ -124,7 +124,7 @@ module.exports = function(grunt) {
 	require('load-grunt-tasks')(grunt);
 
 	grunt.registerTask('dev', ['jshint', 'test:all', 'test:requirejs']);
-	grunt.registerTask('build', ['dev', 'concat', 'uglify']);
+	grunt.registerTask('build', ['dev', 'concat', 'uglify', 'test:dist']);
 	grunt.registerTask('default', ['dev']);
 
 
