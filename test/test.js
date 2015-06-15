@@ -1838,7 +1838,7 @@ asyncTest('Call onAfterSuccess after success has been called', function() {
 
 	setTimeout(function() {
 		equal(onAfterSuccessCalled, true, 'onAfterSuccess was not called');
-		start(); 
+		start();
 	}, 100);
 });
 
@@ -1863,7 +1863,7 @@ asyncTest('Call onAfterError after error has been called', function() {
 
 	setTimeout(function() {
 		equal(onAfterErrorCalled, true, 'onAfterError was not called');
-		start(); 
+		start();
 	}, 100);
 });
 
@@ -1887,7 +1887,7 @@ asyncTest('Call onAfterComplete after complete has been called', function() {
 
 	setTimeout(function() {
 		equal(onAfterCompleteCalled, true, 'onAfterComplete was not called');
-		start(); 
+		start();
 	}, 100);
 });
 
@@ -1906,7 +1906,7 @@ test('Test for bug #95: undefined responseText on success', function() {
 		url: 'test/something',
 		async: false,
 		success: function(data) {
-			// Before jQuery 1.5 the response is a stringified version of the 
+			// Before jQuery 1.5 the response is a stringified version of the
 			// json data unless the 'dataType' option is set to "json"
 			var expectedResult = expected;
 			if (compareSemver($().jquery, "1.5", "<")) {
@@ -1981,6 +1981,138 @@ asyncTest('Test for bug #26: jsonp mock fails with remote URL and proxy', functi
 	});
 });
 
+module('namespace')
+asyncTest('url should be namespaced via global mockjax settings', function() {
+  $.mockjaxSettings.namespace = '/api/v1';
+
+  $.mockjax({
+    url: 'myservice'
+  });
+
+  $.ajax({
+    url: '/api/v1/myservice',
+    complete: function(xhr) {
+      equal(xhr.status, 200, 'Response was successful');
+      start();
+    }
+  });
+});
+
+asyncTest('should be able to override global namespace per-mock', function() {
+  $.mockjaxSettings.namespace = '/api/v1';
+
+  $.mockjax({
+    url: 'myservice',
+    namespace: '/api/v2'
+  });
+
+  $.ajax({
+    url: '/api/v2/myservice',
+    complete: function(xhr) {
+      equal(xhr.status, 200, 'Response was successful');
+      $.ajax({
+        url: '/api/v1/myservice',
+        error: function(){
+          ok(true, "error callback was called");
+          start();
+        }
+      });
+    }
+  });
+});
+
+asyncTest('should not mock a non-matching url within a namespace', function() {
+  $.mockjaxSettings.namespace = '/api/v1';
+
+  $.mockjax({
+    url: 'myservice'
+  });
+
+  $.ajax({
+    url: '/api/v1/yourservice',
+    error: function(){
+      ok(true, "error callback was called");
+      start();
+    }
+  });
+});
+
+asyncTest('should handle multiple mocks in a row within a namespace', function() {
+  $.mockjaxSettings.namespace = '/api/v1';
+
+  $.mockjax({
+    url: 'one'
+  });
+
+  $.mockjax({
+    url: 'two'
+  });
+
+  $.ajax({
+    url: '/api/v1/one',
+    complete: function(xhr) {
+      equal(xhr.status, 200, 'Response was successful');
+      $.ajax({
+        url: '/api/v1/two',
+        complete: function(xhr) {
+          equal(xhr.status, 200, 'Response was successful');
+          start();
+        }
+      });
+    }
+  });
+});
+
+asyncTest('should pass the correct url to the response settings', function() {
+  $.mockjaxSettings.namespace = '/api/v1';
+
+  $.mockjax({
+    url: 'myservice',
+    response: function(settings) {
+      equal(settings.url, '/api/v1/myservice');
+    }
+  });
+
+  $.ajax({
+    url: '/api/v1/myservice',
+    complete: function(xhr) {
+      equal(xhr.status, 200, 'Response was successful');
+      start();
+    }
+  });
+});
+
+asyncTest('should handle extra slashes', function() {
+  $.mockjaxSettings.namespace = '/api/v1/';
+
+  $.mockjax({
+    url: '/myservice'
+  });
+
+  $.ajax({
+    url: '/api/v1/myservice',
+    complete: function(xhr) {
+      equal(xhr.status, 200, 'Response was successful');
+      start();
+    }
+  });
+});
+
+asyncTest('should handle missing slashes', function() {
+  $.mockjaxSettings.namespace = '/api/v1';
+
+  $.mockjax({
+    url: 'myservice'
+  });
+
+  $.ajax({
+    url: '/api/v1/myservice',
+    complete: function(xhr) {
+      equal(xhr.status, 200, 'Response was successful');
+      start();
+    }
+  });
+});
 
 asyncTest('Test for bug #254: subsequent timeouts', function() {
     $.mockjax({
@@ -1989,7 +2121,7 @@ asyncTest('Test for bug #254: subsequent timeouts', function() {
         isTimeout: true,
         responseText: 'foobar'
     });
-    
+
     $.ajax({
         url: '/timeout-check',
         error: function(xhr, textStatus, errorThrown ) {
