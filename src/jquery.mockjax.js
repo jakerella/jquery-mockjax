@@ -667,6 +667,22 @@
 		origSettings.urlParams = paramValues;
 	}
 
+	/**
+	 * Clears handlers that mock given url
+	 * @param url
+	 * @returns {Array}
+	 */
+	function clearByUrl(url) {
+		var results = [];
+		for (var i=0, len=mockHandlers.length; i<len; i++) {
+			var handler = mockHandlers[i];
+			if (handler.url !== url) {
+				results.push(handler);
+			}
+		}
+		return results;
+	}
+
 
 	// Public
 
@@ -728,7 +744,9 @@
 		return i;
 	};
 	$.mockjax.clear = function(i) {
-		if ( i || i === 0 ) {
+		if ( typeof i === 'string' ) {
+			mockHandlers = clearByUrl(i);
+		} else if ( i || i === 0 ) {
 			mockHandlers[i] = null;
 		} else {
 			mockHandlers = [];

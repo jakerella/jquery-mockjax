@@ -294,6 +294,45 @@ test('Remove mockjax definition by id', function() {
 	});
 });
 
+test('Remove mockjax definition by url', function() {
+	$.mockjax({
+		url: '/test',
+		contentType: 'text/plain',
+		responseText: 'test'
+	});
+
+	$.mockjax({
+		url: '*',
+		contentType: 'text/plain',
+		responseText: 'default'
+	});
+
+	stop();
+	$.ajax({
+		url: '/test',
+		success: function(text) {
+			equal(text, 'test', 'Test handler responded');
+		},
+		error: noErrorCallbackExpected,
+		complete: function() {
+			$.mockjax.clear('/test');
+
+			// Reissue the request expecting the default handler
+			$.ajax({
+				url: '/test',
+				success: function(text) {
+					equal(text, 'default', 'Default handler responded');
+				},
+				error: noErrorCallbackExpected,
+				complete: function(xhr) {
+					equal(xhr.responseText, 'default', 'Default handler responded');
+					start();
+				}
+			});
+		}
+	});
+});
+
 asyncTest('Clearing mockjax removes all handlers', function() {
 	$.mockjax({
 		url: '/api/example/1',
