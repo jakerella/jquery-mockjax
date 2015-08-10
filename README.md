@@ -278,6 +278,8 @@ $.mockjax({
     var authorID = settings.urlParams.authorID;
     var isbnNumber = settings.urlParams.isbnNumber;
     // etc...
+    //gets the request data/body sent via ajax
+    var requestBody = settings.data 
   }
 });
 ```
