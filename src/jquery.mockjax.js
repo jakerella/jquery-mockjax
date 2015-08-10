@@ -675,10 +675,13 @@
 	function clearByUrl(url) {
 		var i, len,
 			handler,
-			results = [];
+			results = [],
+			match=url instanceof RegExp ?
+				function(testUrl) { return url.test(testUrl); } :
+				function(testUrl) { return url === testUrl; };
 		for (i=0, len=mockHandlers.length; i<len; i++) {
 			handler = mockHandlers[i];
-			if (handler.url !== url) {
+			if (!match(handler.url)) {
 				results.push(handler);
 			}
 		}
@@ -746,7 +749,7 @@
 		return i;
 	};
 	$.mockjax.clear = function(i) {
-		if ( typeof i === 'string' ) {
+		if ( typeof i === 'string' || i instanceof RegExp) {
 			mockHandlers = clearByUrl(i);
 		} else if ( i || i === 0 ) {
 			mockHandlers[i] = null;
