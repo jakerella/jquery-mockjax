@@ -673,9 +673,11 @@
 	 * @returns {Array}
 	 */
 	function clearByUrl(url) {
-		var results = [];
-		for (var i=0, len=mockHandlers.length; i<len; i++) {
-			var handler = mockHandlers[i];
+		var i, len,
+			handler,
+			results = [];
+		for (i=0, len=mockHandlers.length; i<len; i++) {
+			handler = mockHandlers[i];
 			if (handler.url !== url) {
 				results.push(handler);
 			}
