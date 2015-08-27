@@ -294,6 +294,238 @@ test('Remove mockjax definition by id', function() {
 	});
 });
 
+test('Remove mockjax definition by url', function() {
+	$.mockjax({
+		url: '/test',
+		contentType: 'text/plain',
+		responseText: 'test'
+	});
+
+	$.mockjax({
+		url: '*',
+		contentType: 'text/plain',
+		responseText: 'default'
+	});
+
+	stop();
+	$.ajax({
+		url: '/test',
+		success: function(text) {
+			equal(text, 'test', 'Test handler responded');
+		},
+		error: noErrorCallbackExpected,
+		complete: function() {
+			$.mockjax.clear('/test');
+
+			// Reissue the request expecting the default handler
+			$.ajax({
+				url: '/test',
+				success: function(text) {
+					equal(text, 'default', 'Default handler responded');
+				},
+				error: noErrorCallbackExpected,
+				complete: function(xhr) {
+					equal(xhr.responseText, 'default', 'Default handler responded');
+					start();
+				}
+			});
+		}
+	});
+});
+
+test('Remove mockjax definition by url (no default handler)', function() {
+	$.mockjax({
+		url: '/test',
+		contentType: 'text/plain',
+		responseText: 'test'
+	});
+
+	stop();
+	$.ajax({
+		url: '/test',
+		success: function(text) {
+			equal(text, 'test', 'Test handler responded');
+		},
+		error: noErrorCallbackExpected,
+		complete: function() {
+			$.mockjax.clear('/test');
+
+			// Reissue the request expecting the error
+			$.ajax({
+				url: '/test',
+				success: function() {
+					ok(false, 'The mock was not cleared by url');
+				},
+				error: function(xhr) {
+					// Test against 0, might want to look at this more in depth
+					ok(404 === xhr.status || 0 === xhr.status, 'The mock was cleared by url');
+					start();
+				}
+			});
+		}
+	});
+});
+
+test('Attempt to clear a non-existent but similar url', function() {
+	$.mockjax({
+		url: '/test',
+		contentType: 'text/plain',
+		responseText: 'test'
+	});
+
+	$.mockjax({
+		url: '*',
+		contentType: 'text/plain',
+		responseText: 'default'
+	});
+
+	stop();
+	$.ajax({
+		url: '/test',
+		success: function(text) {
+			equal(text, 'test', 'Test handler responded');
+		},
+		error: noErrorCallbackExpected,
+		complete: function() {
+			$.mockjax.clear('/tes');
+
+			$.ajax({
+				url: '/test',
+				success: function(text) {
+					equal(text, 'test', 'Test handler responded');
+					start();
+				},
+				error: noErrorCallbackExpected
+			});
+		}
+	});
+});
+
+test('Remove mockjax definition, but not a subpath', function() {
+	$.mockjax({
+		url: '/test',
+		contentType: 'text/plain',
+		responseText: 'test'
+	});
+
+	$.mockjax({
+		url: '/test/foo',
+		contentType: 'text/plain',
+		responseText: 'foo'
+	});
+
+	stop();
+	$.ajax({
+		url: '/test',
+		success: function(text) {
+			equal(text, 'test', 'Test handler responded');
+		},
+		error: noErrorCallbackExpected,
+		complete: function() {
+			$.mockjax.clear('/test');
+
+			$.ajax({
+				url: '/test/foo',
+				success: function(text) {
+					equal(text, 'foo', 'Test handler responded');
+					start();
+				},
+				error: noErrorCallbackExpected
+			});
+		}
+	});
+});
+
+test('Remove mockjax definition by RegExp', function() {
+	$.mockjax({
+		url: '/test',
+		contentType: 'text/plain',
+		responseText: 'test'
+	});
+
+	$.mockjax({
+		url: '*',
+		contentType: 'text/plain',
+		responseText: 'default'
+	});
+
+	stop();
+	$.ajax({
+		url: '/test',
+		success: function(text) {
+			equal(text, 'test', 'Test handler responded');
+		},
+		error: noErrorCallbackExpected,
+		complete: function() {
+			$.mockjax.clear(/test/);
+
+			// Reissue the request expecting the default handler
+			$.ajax({
+				url: '/test',
+				success: function(text) {
+					equal(text, 'default', 'Default handler responded');
+				},
+				error: noErrorCallbackExpected,
+				complete: function(xhr) {
+					equal(xhr.responseText, 'default', 'Default handler responded');
+					start();
+				}
+			});
+		}
+	});
+});
+
+test('Remove several mockjax definition by RegExp', function() {
+	$.mockjax({
+		url: '/test',
+		contentType: 'text/plain',
+		responseText: 'test'
+	});
+
+	$.mockjax({
+		url: '/test1',
+		contentType: 'text/plain',
+		responseText: 'test'
+	});
+
+	$.mockjax({
+		url: '/test/foo',
+		contentType: 'text/plain',
+		responseText: 'test'
+	});
+
+	$.mockjax({
+		url: '*',
+		contentType: 'text/plain',
+		responseText: 'default'
+	});
+
+	stop();
+	$.ajax({
+		url: '/test',
+		success: function(text) {
+			equal(text, 'test', 'Test handler responded');
+		},
+		error: noErrorCallbackExpected,
+		complete: function() {
+			$.mockjax.clear(/test/);
+
+			// Reissue the request expecting the default handler
+			$.ajax({
+				url: '/test',
+				success: function(text) {
+					equal(text, 'default', 'Default handler responded');
+				},
+				error: noErrorCallbackExpected,
+				complete: function(xhr) {
+					equal(xhr.responseText, 'default', 'Default handler responded');
+					start();
+				}
+			});
+		}
+	});
+});
+
 asyncTest('Clearing mockjax removes all handlers', function() {
 	$.mockjax({
 		url: '/api/example/1',
