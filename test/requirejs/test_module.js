@@ -1,37 +1,39 @@
-define(["jquery", "jquery.mockjax"], function ($, mockjax) {
-    "use strict";
+/* globals define,QUnit */
 
-    module("jquery.mockjax used as AMD module");
+define(['jquery', 'jquery.mockjax'], function ($, mockjax) {
+    'use strict';
 
-    test("returns the mockjax object", function() {
-        ok(mockjax, "mockjax object is returned");
+    QUnit.module('jquery.mockjax used as AMD module');
+
+    QUnit.test('returns the mockjax object', function(assert) {
+        assert.ok(mockjax, 'mockjax object is returned');
     });
 
-    test("sets the mockjax object to the jQuery object", function() {
-        ok($.mockjax, "$.mockjax object is set");
+    QUnit.test('sets the mockjax object to the jQuery object', function(assert) {
+        assert.ok($.mockjax, '$.mockjax object is set');
     });
 
-    test("returns the same object as it sets to $.mockjax", function() {
-        ok(mockjax === $.mockjax, "returned mockjax object is the same as $.mockjax object");
+    QUnit.test('returns the same object as it sets to $.mockjax', function(assert) {
+        assert.strictEqual(mockjax, $.mockjax, 'returned mockjax object is the same as $.mockjax object');
     });
 
-    asyncTest("mocks a simple request", function () {
+    QUnit.test('mocks a simple request', function (assert) {
+        var done = assert.async();
+        
         $.mockjax({
-            url: "/resource",
-            responseText: "content"
+            url: '/resource',
+            responseText: 'content'
         });
 
         $.ajax({
-            url: "/resource",
+            url: '/resource',
             success: function(response) {
-                equal(response, "content");
+                assert.equal(response, 'content');
             },
             error: function () {
-                ok(false, "error callback executed");
+                assert.ok(false, 'error callback executed');
             },
-            complete: function () {
-                start();
-            }
+            complete: done
         });
     });
 });

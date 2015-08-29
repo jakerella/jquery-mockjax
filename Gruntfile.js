@@ -45,7 +45,13 @@ module.exports = function(grunt) {
 				jshintrc: true
 			},
 			all: {
-				src: ['./src/**/*.js', './Gruntfile.js', 'test/test.js']
+				src: [
+                    './src/**/*.js',
+                    './Gruntfile.js',
+                    'test/test.js',
+                    'test/requirejs/*.js',
+                    'test/nodejs/*.js'
+                ]
 			}
 		},
 		qunit: { all: [] },  // NOTE: these tests are all run by the `test` task below to run against each jQuery version supported
