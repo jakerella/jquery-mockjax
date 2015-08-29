@@ -41,10 +41,7 @@
 		}
 
 		assert.ok(xhr, 'XHR object is not null or undefined');
-		
-		if ($.Deferred) {
-			assert.ok(xhr.done && xhr.fail, 'Got Promise methods');
-		}
+		assert.ok(xhr.done && xhr.fail, 'Got Promise methods');
 	});
 	
 	
@@ -508,54 +505,52 @@
 		assert.equal($.mockjax.mockedAjaxCalls().length, 0, 'After clearing there are no saved ajax calls');
 	});
 
-	if ($.Deferred) {
-		t('Preserve context when set in jsonp ajax requet', function(assert) {
-			var done = assert.async();
-			
-			$.mockjax({
-					url: '/jsonp*',
-					contentType: 'text/json',
-					proxy: 'test_jsonp.js'
-			});
-
-			window.abcdef123456 = function() {};
-			var cxt = {context: 'context'};
-
-			$.ajax({
-					url: '/jsonp?callback=?',
-					jsonpCallback: 'abcdef123456',
-					dataType: 'jsonp',
-					error: qunit.noErrorCallbackExpected,
-					context: cxt})
-				.done(function() {
-					assert.deepEqual(this, cxt, 'this is equal to context object');
-					done();
-				});
+	t('Preserve context when set in jsonp ajax requet', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+				url: '/jsonp*',
+				contentType: 'text/json',
+				proxy: 'test_jsonp.js'
 		});
 
-		t('Validate this is the $.ajax object if context is not set', function(assert) {
-			var done = assert.async();
-			
-			$.mockjax({
-					url: '/jsonp*',
-					contentType: 'text/json',
-					proxy: 'test_jsonp.js'
-			});
+		window.abcdef123456 = function() {};
+		var cxt = {context: 'context'};
 
-			window.abcdef123456 = function() {};
-
-			$.ajax({
+		$.ajax({
 				url: '/jsonp?callback=?',
 				jsonpCallback: 'abcdef123456',
 				dataType: 'jsonp',
-				error: qunit.noErrorCallbackExpected
-			})
+				error: qunit.noErrorCallbackExpected,
+				context: cxt})
 			.done(function() {
-				assert.ok(this.jsonp, '\'this\' is the $.ajax object for this request.');
+				assert.deepEqual(this, cxt, 'this is equal to context object');
 				done();
 			});
+	});
+
+	t('Validate this is the $.ajax object if context is not set', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+				url: '/jsonp*',
+				contentType: 'text/json',
+				proxy: 'test_jsonp.js'
 		});
-	}
+
+		window.abcdef123456 = function() {};
+
+		$.ajax({
+			url: '/jsonp?callback=?',
+			jsonpCallback: 'abcdef123456',
+			dataType: 'jsonp',
+			error: qunit.noErrorCallbackExpected
+		})
+		.done(function() {
+			assert.ok(this.jsonp, '\'this\' is the $.ajax object for this request.');
+			done();
+		});
+	});
 	
 	t('Dynamic mock definition', function(assert) {
 		var done = assert.async();
@@ -1676,35 +1671,33 @@
 		});
 	});
 
-	if ($.Deferred) {
-		t('Response returns jsonp and return value from ajax is a promise if supported', function(assert) {
-			var done = assert.async();
-			
-			window.rquery = /\?/;
+	t('Response returns jsonp and return value from ajax is a promise if supported', function(assert) {
+		var done = assert.async();
+		
+		window.rquery = /\?/;
 
-			$.mockjax({
-				url:'http://api*',
-				responseText:{
-					success:true,
-					ids:[21327211]
-				},
-				dataType:'jsonp',
-				contentType: 'text/json'
-			});
-
-			var promiseObject = $.ajax({
-				url:'http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user',
-				dataType:'jsonp'
-			});
-
-			assert.ok(promiseObject.done && promiseObject.fail, 'Got Promise methods');
-			promiseObject.then(function() {
-				assert.ok(true, 'promise object then is executed');
-			});
-
-			done();
+		$.mockjax({
+			url:'http://api*',
+			responseText:{
+				success:true,
+				ids:[21327211]
+			},
+			dataType:'jsonp',
+			contentType: 'text/json'
 		});
-	}
+
+		var promiseObject = $.ajax({
+			url:'http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user',
+			dataType:'jsonp'
+		});
+
+		assert.ok(promiseObject.done && promiseObject.fail, 'Got Promise methods');
+		promiseObject.then(function() {
+			assert.ok(true, 'promise object then is executed');
+		});
+
+		done();
+	});
 
 	t('Response executes script', function(assert) {
 		var done = assert.async();
@@ -1729,42 +1722,40 @@
 		});
 	});
 	
-	if ($.Deferred) {
-		t('Grouping deferred responses, if supported', function(assert) {
-			var done = assert.async();
-			
-			window.rquery = /\?/;
+	t('Grouping deferred responses, if supported', function(assert) {
+		var done = assert.async();
+		
+		window.rquery = /\?/;
 
-			$.mockjax({
-				url:'http://api*',
-				responseText:{
-					success:true,
-					ids:[21327211]
-				},
-				dataType:'jsonp',
-				contentType: 'text/json'
-			});
-
-			var req1 = $.ajax({
-				url:'http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user',
-				dataType:'jsonp'
-			});
-			var req2 = $.ajax({
-				url:'http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user',
-				dataType:'jsonp'
-			});
-			var req3 = $.ajax({
-				url:'http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user',
-				dataType:'jsonp'
-			});
-
-			$.when(req1, req2, req3).done(function() {
-				assert.ok(true, 'Successfully grouped deferred responses');
-			});
-
-			done();
+		$.mockjax({
+			url:'http://api*',
+			responseText:{
+				success:true,
+				ids:[21327211]
+			},
+			dataType:'jsonp',
+			contentType: 'text/json'
 		});
-	}
+
+		var req1 = $.ajax({
+			url:'http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user',
+			dataType:'jsonp'
+		});
+		var req2 = $.ajax({
+			url:'http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user',
+			dataType:'jsonp'
+		});
+		var req3 = $.ajax({
+			url:'http://api.twitter.com/1/followers/ids.json?screen_name=test_twitter_user',
+			dataType:'jsonp'
+		});
+
+		$.when(req1, req2, req3).done(function() {
+			assert.ok(true, 'Successfully grouped deferred responses');
+		});
+
+		done();
+	});
 	
 	t('Response returns parsed XML', function(assert) {
 		var done = assert.async();
@@ -2085,30 +2076,28 @@
 		});
 	});
 
-	if ($.Deferred) {
-		t('Forcing timeout with Promises', function(assert) {
-			var done = assert.async();
-			
-			$.mockjax({
-				url: '/response-callback',
-				isTimeout: true
-			});
-
-			var request = $.ajax({
-				url: '/response-callback'
-			});
-
-			request.done(function() {
-				assert.ok(false, 'Should not be successful');
-			});
-
-			request.fail(function() {
-				assert.ok(true, 'error callback was called');
-			});
-
-			request.complete(done);
+	t('Forcing timeout with Promises', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/response-callback',
+			isTimeout: true
 		});
-	}
+
+		var request = $.ajax({
+			url: '/response-callback'
+		});
+
+		request.done(function() {
+			assert.ok(false, 'Should not be successful');
+		});
+
+		request.fail(function() {
+			assert.ok(true, 'error callback was called');
+		});
+
+		request.complete(done);
+	});
 
 
 	/* ------------------------------------ */
