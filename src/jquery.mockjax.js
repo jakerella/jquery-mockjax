@@ -609,7 +609,7 @@
 					xhr: function() { return xhr( mockHandler, requestSettings, origSettings, origHandler ); }
 				}));
 			})(mockHandler, requestSettings, origSettings, mockHandlers[k]);
-			/* jshint loopfunc:true */
+			/* jshint loopfunc:false */
 
 			return mockRequest;
 		}

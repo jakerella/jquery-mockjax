@@ -103,7 +103,7 @@ module.exports = function(grunt) {
                     '2.0.3',
                     '2.1.4'
                 ]
-            },
+            }
 		},
 		mochaTest: {
 			nodejs: {
@@ -116,14 +116,14 @@ module.exports = function(grunt) {
 			},
 			source: {
 				files: './src/*.js',
-				tasks: ['jshint', 'test:oldestAndLatest']
+				tasks: ['jshint', 'test:latestInBranch']
 			}
 		}
 	});
 
 	require('load-grunt-tasks')(grunt);
 
-	grunt.registerTask('dev', ['jshint', 'test:all', 'test:requirejs']);
+	grunt.registerTask('dev', ['jshint', 'test:all', 'test:requirejs', 'mochaTest']);
 	grunt.registerTask('build', ['dev', 'concat', 'uglify', 'test:dist']);
 	grunt.registerTask('default', ['dev']);
 

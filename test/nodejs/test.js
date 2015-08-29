@@ -8,7 +8,6 @@ describe('Node module setup', function() {
 	beforeEach(function(done) {
 		jsDomEnv('<html></html>', function (error, window) {
 			if (error) {
-				console.error('jsdom initialization failed');
 				assert(false);
 			} else {
 				win = window;
@@ -52,7 +51,6 @@ describe('Node module setup', function() {
 					assert.equal(response, 'content');
 				},
 				error: function () {
-					console.error('error callback executed!');
 					assert(false);
 				},
 				complete: function () {
@@ -75,7 +73,6 @@ describe('Node module setup', function() {
 					assert.equal(response, 'bar');
 				},
 				error: function () {
-					console.error('error callback executed!');
 					assert(false);
 				},
 				complete: function () {
