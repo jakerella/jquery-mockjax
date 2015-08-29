@@ -17,16 +17,16 @@
 		define(['jquery'], function($) {
 			return factory($, root);
 		});
-		
+
 	// CommonJS module definition
 	} else if ( typeof exports === 'object') {
-		
-		// NOTE: To use Mockjax as a Node module you MUST provide the factory with 
+
+		// NOTE: To use Mockjax as a Node module you MUST provide the factory with
 		// a valid version of jQuery and a window object (the global scope):
 		// var mockjax = require('jquery.mockjax')(jQuery, window);
-		
+
 		module.exports = factory;
-		
+
 	// Global jQuery in web browsers
 	} else {
 		return factory(root.jQuery || root.$, root);
@@ -126,6 +126,15 @@
 				return null;
 			}
 		} else {
+
+			// Apply namespace prefix to the mock handler's url.
+			var namespace = handler.namespace || $.mockjaxSettings.namespace;
+			if (!!namespace) {
+				var namespacedUrl = [namespace, handler.url].join('/');
+				namespacedUrl = namespacedUrl.replace(/(\/+)/g, '/');
+				handler.url = namespacedUrl;
+			}
+
 			// Look for a simple wildcard '*' or a direct URL match
 			var star = handler.url.indexOf('*');
 			if (handler.url !== requestSettings.url && star === -1 ||
@@ -408,16 +417,16 @@
 
 		// If the response handler on the moock is a function, call it
 		if ( mockHandler.response && $.isFunction(mockHandler.response) ) {
-			
+
 			mockHandler.response(origSettings);
-			
-			
+
+
 		} else if ( typeof mockHandler.responseText === 'object' ) {
 			// Evaluate the responseText javascript in a global context
 			$.globalEval( '(' + JSON.stringify( mockHandler.responseText ) + ')');
-			
+
 		} else if (mockHandler.proxy) {
-			
+
 			// This handles the unique case where we have a remote URL, but want to proxy the JSONP
 			// response to another file (not the same URL as the mock matching)
 			_ajax({
@@ -431,21 +440,21 @@
 					completeJsonpCall( requestSettings, mockHandler, callbackContext, newMock );
 				}
 			});
-			
+
 			return newMock;
-			
+
 		} else {
 			$.globalEval( '(' + mockHandler.responseText + ')');
 		}
 
 		completeJsonpCall( requestSettings, mockHandler, callbackContext, newMock );
-		
+
 		return newMock;
 	}
-	
+
 	function completeJsonpCall( requestSettings, mockHandler, callbackContext, newMock ) {
 		var json;
-		
+
 		// Successful response
 		setTimeout(function() {
 			jsonpSuccess( requestSettings, callbackContext, mockHandler );
@@ -456,7 +465,7 @@
 			try {
 				json = $.parseJSON( mockHandler.responseText );
 			} catch (err) { /* just checking... */ }
-			
+
 			newMock.resolveWith( callbackContext, [json || mockHandler.responseText] );
 		}
 	}
@@ -620,7 +629,7 @@
 					xhr: function() { return xhr( mockHandler, requestSettings, origSettings, origHandler ); }
 				}));
 			})(mockHandler, requestSettings, origSettings, mockHandlers[k]);
-			/* jshint loopfunc:true */
+			/* jshint loopfunc:false */
 
 			return mockRequest;
 		}
@@ -669,6 +678,27 @@
 		origSettings.urlParams = paramValues;
 	}
 
+	/**
+	 * Clears handlers that mock given url
+	 * @param url
+	 * @returns {Array}
+	 */
+	function clearByUrl(url) {
+		var i, len,
+			handler,
+			results = [],
+			match=url instanceof RegExp ?
+				function(testUrl) { return url.test(testUrl); } :
+				function(testUrl) { return url === testUrl; };
+		for (i=0, len=mockHandlers.length; i<len; i++) {
+			handler = mockHandlers[i];
+			if (!match(handler.url)) {
+				results.push(handler);
+			}
+		}
+		return results;
+	}
+
 
 	// Public
 
@@ -678,7 +708,7 @@
 
 	var DEFAULT_RESPONSE_TIME = 500;
 
-    
+
 	$.mockjaxSettings = {
 		//url:  null,
 		//type: 'GET',
@@ -703,6 +733,7 @@
 			}
 		},
 		logging:       true,
+		namespace:     null,
 		status:        200,
 		statusText:    'OK',
 		responseTime:  DEFAULT_RESPONSE_TIME,
@@ -729,7 +760,9 @@
 		return i;
 	};
 	$.mockjax.clear = function(i) {
-		if ( i || i === 0 ) {
+		if ( typeof i === 'string' || i instanceof RegExp) {
+			mockHandlers = clearByUrl(i);
+		} else if ( i || i === 0 ) {
 			mockHandlers[i] = null;
 		} else {
 			mockHandlers = [];

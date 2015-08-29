@@ -4,9 +4,9 @@
 [![Codacy Badge](https://www.codacy.com/project/badge/72d5f8c1c29ee60f6282d7d3fa9cb52c)](https://www.codacy.com/app/mikehostetler_1249/jquery-mockjax/dashboard)
 [![Travis CI Badge](https://travis-ci.org/jakerella/jquery-mockjax.svg?branch=master)](https://travis-ci.org/jakerella/jquery-mockjax)
 
-**Note that we recently switched the `master` branch to version 2!** There are some 
-minor breaking changes in v2, so if you need an older version, please check the 
-[v1.x](https://github.com/jakerella/jquery-mockjax/tree/v1.x) branch or the list of 
+**Note that we recently switched the `master` branch to version 2!** There are some
+minor breaking changes in v2, so if you need an older version, please check the
+[v1.x](https://github.com/jakerella/jquery-mockjax/tree/v1.x) branch or the list of
 [releases](https://github.com/jakerella/jquery-mockjax/tags) in Github.
 
 jQuery Mockjax provides request/response mocking for ajax requests using the
@@ -36,6 +36,7 @@ You may report any issues you may find [in the github issue tracking](https://gi
   * [Data Types](#data-types)
   * [Performing Actions After Request Completion](#performing-actions-after-request-completion)
   * [Globally Defining Mockjax Settings](#globally-defining-mockjax-settings)
+  * [Setting a Global URL Namespace](#setting-global-url-namespace)
   * [Removing Mockjax Handlers](#removing-mockjax-handlers)
 * [Miscellaneous Information](#miscellaneous-information)
   * [jQuery Version Support](#jquery-version-support)
@@ -51,19 +52,19 @@ objects](http://en.wikipedia.org/wiki/Mock_object) or stubbing in
 methods for unit testing. For those not familiar with mocking, it's the
 simulation of an interface or API for testing or integration development
 purposes. Mocking with front-end development though is still quite new. Mockjax
-gives front end developers the ability to define ajax requests that should be 
+gives front end developers the ability to define ajax requests that should be
 mocked out, as well as how those requests should be responded to. These mocks
 can be extremely simple or quite complex, representing the entire request-response
 workflow.
 
 At appendTo we developed a lot of applications which use
 [RESTFUL](http://en.wikipedia.org/wiki/Representational_State_Transfer)
-web services, but much of the time those services are not yet created. 
-We spec out the service contract and data format at the beginning of a project 
-and develop the front-end interface against mock data while the back end team 
+web services, but much of the time those services are not yet created.
+We spec out the service contract and data format at the beginning of a project
+and develop the front-end interface against mock data while the back end team
 builds the production services.
 
-This plugin was originally developed by appendTo in March 2010 and the 
+This plugin was originally developed by appendTo in March 2010 and the
 [team](http://twitter.com/appendto/team) has been using it in many projects since.
 
 
@@ -71,7 +72,7 @@ This plugin was originally developed by appendTo in March 2010 and the
 
 ### API Methods ###
 
-Mockjax consists of just a few methods, each listed below. You'll find plenty of 
+Mockjax consists of just a few methods, each listed below. You'll find plenty of
 examples in the sections below, but if you're looking for a specific option,
 checkout this list:
 
@@ -177,8 +178,8 @@ $.mockjax({
 
 **Defining a JSON string inline requires a `JSON.stringify()` method to be
 available. For some browsers you may need to include
-[json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js), 
-which is included in the `lib` folder.** However, you could also simply 
+[json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js),
+which is included in the `lib` folder.** However, you could also simply
 provide an already stringified version of your JSON in the `responseText`
 property.
 
@@ -193,11 +194,11 @@ matches one defined by `$.mockjax()`, it intercepts the request
 and sets up a mock `XMLHttpRequest` object before executing the
 `jQuery.ajax()` handler. Otherwise, the request is handed back to the
 native `$.ajax()` method for normal execution. One benefit in this
-implementation detail is that by simulating the `XMLHttpRequest` object, 
-the plugin continues to make use of jQuery's native ajax handling, so 
+implementation detail is that by simulating the `XMLHttpRequest` object,
+the plugin continues to make use of jQuery's native ajax handling, so
 there are no concerns with implementing a custom Ajax workflow.
 
-As you write code to mock responses, there's great value in the fact that 
+As you write code to mock responses, there's great value in the fact that
 there are no modifications required to production code. The mocks can be
 transparently inserted. This provides easy integration into most
 frameworks by including the plugin and mock definitions through your
@@ -213,11 +214,11 @@ flexibility in Mockjax and creating responses.
 jQuery is able to handle and parse `Text`, `HTML`, `JSON`, `JSONP`,
 `Script` and `XML` data formats and Mockjax is able to mock any of those
 formats. Two things to note: depending upon how you mock out `JSON` and
-`JSONP` you may need to include [json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js) 
-for the `JSON.stringify()` method (older browsers only, typically). Additionally 
-if you mock XML inline, you'll need to include the [`xmlDOM`](http://github.com/jakerella/jquery-xmldom) 
-plugin that transforms a string of XML into a DOM object. However, if you use 
-the proxy approach outlined below then there should be no need to include either 
+`JSONP` you may need to include [json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js)
+for the `JSON.stringify()` method (older browsers only, typically). Additionally
+if you mock XML inline, you'll need to include the [`xmlDOM`](http://github.com/jakerella/jquery-xmldom)
+plugin that transforms a string of XML into a DOM object. However, if you use
+the proxy approach outlined below then there should be no need to include either
 the JSON or XMLDOM plugins in any case.
 
 
@@ -262,8 +263,8 @@ $.mockjax({
 });
 ```
 
-To capture URL parameters, use a capturing regular expression for the 
-URL and a `urlParams` array to indicate, ordinally, the names of the 
+To capture URL parameters, use a capturing regular expression for the
+URL and a `urlParams` array to indicate, ordinally, the names of the
 paramters that will be captured:
 
 ```javascript
@@ -311,8 +312,8 @@ $.mockjax({
 });
 ```
 
-Also note that a JSON response is really just a text response that jQuery will 
-parse as JSON for you (and return a JSOn object to the `success` and `complete` 
+Also note that a JSON response is really just a text response that jQuery will
+parse as JSON for you (and return a JSOn object to the `success` and `complete`
 callbacks).
 
 A simple XML response would be:
@@ -341,7 +342,7 @@ $.mockjax({
 });
 ```
 
-The `/mocks/data.json` file can have any valid JSON content you want, and allows 
+The `/mocks/data.json` file can have any valid JSON content you want, and allows
 you to maintain that mock data in its own file for maintainability.
 
 #### Callback ####
@@ -378,8 +379,8 @@ $.mockjax({
 ```
 
 Note that the callback is given the settings provided to the `$.mockjax({...})`
-method merged with any Ajax settings defined by jQuery or your application. This 
-allows you to thoroughly investigate the request before setting the response 
+method merged with any Ajax settings defined by jQuery or your application. This
+allows you to thoroughly investigate the request before setting the response
 body (or headers).
 
 
@@ -428,8 +429,8 @@ $.mockjax({
 });
 ```
 
-These forced error status codes will be handled just as if the server had 
-returned the error: the `error` callback will get executed with the proper 
+These forced error status codes will be handled just as if the server had
+returned the error: the `error` callback will get executed with the proper
 arguments.
 
 ### Setting the Content-Type ###
@@ -476,9 +477,9 @@ an example that rewrites all Ajax requests to proxy to static mocks:
 
 ```javascript
 $.mockjax(function(settings) {
-  
+
   // settings.url might be: "/restful/<service>" such as "/restful/user"
-  
+
   var service = settings.url.match(/\/restful\/(.*)$/);
   if ( service ) {
     return {
@@ -493,7 +494,7 @@ $.mockjax(function(settings) {
 ### Accessing Request Headers ###
 
 In some situations, you may need access to the  request headers to determine
-matching or response bodies. To do this, you will need to specify a 
+matching or response bodies. To do this, you will need to specify a
 callback function that is handed the `$.ajax` request settings:
 
 ```javascript
@@ -503,10 +504,10 @@ $.mockjax(function( requestSettings ) {
     // We have a match, so we return a response callback...
     return {
       response: function( origSettings ) {
-      	
-      	// now we check the request headers, which may be set directly 
+
+      	// now we check the request headers, which may be set directly
       	// on the xhr object through an ajaxSetup() call or otherwise:
-      	
+
       	if ( requestSettings.headers["Authentication"] === "some-token" ) {
       	  this.responseText = { user: { id: 13 } };
       	} else {
@@ -579,8 +580,8 @@ $.mockjax({
 
 ### Performing Actions After Request Completion ###
 
-If you need to perform some actions after a call has completed you can 
-use one of the `onAfter{Xxxxx}` options. For example, to fire a method when 
+If you need to perform some actions after a call has completed you can
+use one of the `onAfter{Xxxxx}` options. For example, to fire a method when
 a request completes (either successfully or not):
 
 ```javascript
@@ -601,6 +602,7 @@ settings are as follows:
 ```javascript
 {
   logging:       true,
+  namespace:     null,
   status:        200,
   statusText:    "OK",
   responseTime:  500,
@@ -628,9 +630,37 @@ would do the following:
 $.mockjaxSettings.contentType = "application/json";
 ```
 
+### Setting a Global URL Namespace ###
+
+The namespace option in `$.mockjaxSettings` allows you to apply a prefix to
+all of your mocked urls, such as `/api/v1`.
+
+```javascript
+$.mockjaxSettings.namespace = "/api/v1";
+```
+
+Then the following mock will match `/api/v1/rest`:
+
+```javascript
+$.mockjax({
+    url: "/rest"
+})
+```
+
+The global namespace option can also be overwritten on a particular mock.
+
+```javascript
+$.mockjax({
+    url: "/rest-2",
+    namespace: null
+})
+```
+
+Note that the namespace prefix does not apply to proxies.
+
 ### Removing Mockjax Handlers ###
 
-If you need to reset the Mockjax handlers you've added, just call 
+If you need to reset the Mockjax handlers you've added, just call
 `$.mockjax.clear()`. _This will NOT reset the `$.mockjaxSettings`!_
 
 ```javascript
@@ -652,15 +682,15 @@ $.mockjax.clear(id);
 
 ### jQuery Version Support ###
 
-We strive to ensure that Mockjax is tested on the furthest patch version of all 
-minor (and major) versions of jQuery beginning with 1.5.2 going all the way 
+We strive to ensure that Mockjax is tested on the furthest patch version of all
+minor (and major) versions of jQuery beginning with 1.5.2 going all the way
 through 2.x. In other words, we don't test 1.6.1, but rather 1.6.4 (the furthest
-patch version on the 1.6.x line). The QUnit tests in the `/test` directory include 
+patch version on the 1.6.x line). The QUnit tests in the `/test` directory include
 links to each version of jQuery tested in the header.
 
 ### Browsers Tested ###
 
-We use virtual machines to test current versions of the browsers below. In addition, 
+We use virtual machines to test current versions of the browsers below. In addition,
 we test the specific versions of IE specified.
 
 * Internet Explorer 8-11
@@ -669,8 +699,8 @@ we test the specific versions of IE specified.
 * Chrome
 * Opera
 
-_Please note that while we strive to keep `master` as bug free as possible, we do 
-not necessarily run tests in all of the above browsers for every single commit. We  
+_Please note that while we strive to keep `master` as bug free as possible, we do
+not necessarily run tests in all of the above browsers for every single commit. We
 do, however, ensure all tests are passing before tagging a release._
 
 ### Release History ###
@@ -678,7 +708,7 @@ do, however, ensure all tests are passing before tagging a release._
 Please read the [CHANGELOG](https://github.com/jakerella/jquery-mockjax/blob/master/CHANGELOG.md)
 for a list of changes per release.
 
-Note that all releases are tagged in Github for easy reference, the `master` branch 
+Note that all releases are tagged in Github for easy reference, the `master` branch
 should *not* be considered a stable release!
 
 ### License ###
@@ -698,11 +728,11 @@ logs for warnings.
 
 ### Contributing ###
 
-We welcome any contributions by the community, whether in the form of a Pull 
+We welcome any contributions by the community, whether in the form of a Pull
 Request, issue submission and comments, or just sharing on social media!
 
-If you want to contribute code to the project, please read our 
-[Contribution guidelines](CONTRIBUTING.md) to see what you need to do to get your 
+If you want to contribute code to the project, please read our
+[Contribution guidelines](CONTRIBUTING.md) to see what you need to do to get your
 Pull Request ready for merging.
 
 #### Admins ####

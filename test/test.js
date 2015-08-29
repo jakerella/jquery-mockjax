@@ -199,7 +199,7 @@
 			data: {
 				response: 'Hello world'
 			},
-			error: function(){
+			error: function() {
 				assert.ok(true, 'error callback was called');
 			},
 			complete: function(xhr) {
@@ -244,100 +244,6 @@
 			}
 		});
 	});
-
-	t('Remove mockjax definition by id', function(assert) {
-		var done = assert.async();
-		
-		var id = $.mockjax({
-			url: '/test',
-			contentType: 'text/plain',
-			responseText: 'test'
-		});
-
-		$.mockjax({
-			url: '*',
-			contentType: 'text/plain',
-			responseText: 'default'
-		});
-
-		$.ajax({
-			url: '/test',
-			success: function(text) {
-				assert.equal(text, 'test', 'Test handler responded');
-			},
-			error: qunit.noErrorCallbackExpected,
-			complete: function() {
-				$.mockjax.clear(id);
-
-				// Reissue the request expecting the default handler
-				$.ajax({
-					url: '/test',
-					success: function(text) {
-						assert.equal(text, 'default', 'Default handler responded');
-					},
-					error: qunit.noErrorCallbackExpected,
-					complete: function(xhr) {
-						assert.equal(xhr.responseText, 'default', 'Default handler responded');
-						done();
-					}
-				});
-			}
-		});
-	});
-
-	t('Clearing mockjax removes all handlers', function(assert) {
-		var done = assert.async();
-		
-		$.mockjax({
-			url: '/api/example/1',
-			responseText: 'test1'
-		});
-		$.mockjax({
-			url: '/api/example/2',
-			responseText: 'test2'
-		});
-
-		$.ajax({
-			async: true,
-			type: 'GET',
-			url: '/api/example/1',
-			success: function(text) {
-				assert.equal('test1', text, 'First call is mocked');
-			},
-			error: qunit.noErrorCallbackExpected,
-			complete: function() {
-				$.mockjax.clear();
-
-				$.ajax({
-					async: true,
-					type: 'GET',
-					url: '/api/example/1',
-					success: function() {
-						assert.ok( false, 'Call to first endpoint was mocked, but should not have been');
-					},
-					error: function(xhr) {
-						// Test against 0, might want to look at this more in depth
-						assert.ok(404 === xhr.status || 0 === xhr.status, 'First mock cleared after clear()');
-
-						$.ajax({
-							async: true,
-							type: 'GET',
-							url: '/api/example/2',
-							success: function() {
-								assert.ok( false, 'Call to second endpoint was mocked, but should not have been');
-							},
-							error: function(xhr) {
-								// Test against 0, might want to look at this more in depth
-								assert.ok(404 === xhr.status || 0 === xhr.status, 'Second mock cleared after clear()');
-								done();
-							}
-						});
-					}
-				});
-			}
-		});
-	});
-
 
 	t('Get mocked ajax calls - GET', function(assert) {
 		var done = assert.async();
@@ -621,7 +527,7 @@
 					dataType: 'jsonp',
 					error: qunit.noErrorCallbackExpected,
 					context: cxt})
-				.done(function(){
+				.done(function() {
 					assert.deepEqual(this, cxt, 'this is equal to context object');
 					done();
 				});
@@ -644,7 +550,7 @@
 				dataType: 'jsonp',
 				error: qunit.noErrorCallbackExpected
 			})
-			.done(function(){
+			.done(function() {
 				assert.ok(this.jsonp, '\'this\' is the $.ajax object for this request.');
 				done();
 			});
@@ -694,7 +600,343 @@
 			complete: done
 		});
 	});
+	
+	
+	/* ---------------------------------- */
+	qunit.module( 'Mock Handler Clearing' );
+	/* ---------------------------------- */
+	
+	t('Remove mockjax definition by url', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/test',
+			contentType: 'text/plain',
+			responseText: 'test'
+		});
 
+		$.mockjax({
+			url: '*',
+			contentType: 'text/plain',
+			responseText: 'default'
+		});
+
+		$.ajax({
+			url: '/test',
+			success: function(text) {
+				assert.equal(text, 'test', 'Test handler responded');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: function() {
+				$.mockjax.clear('/test');
+
+				// Reissue the request expecting the default handler
+				$.ajax({
+					url: '/test',
+					success: function(text) {
+						assert.equal(text, 'default', 'Default handler responded');
+					},
+					error: qunit.noErrorCallbackExpected,
+					complete: function(xhr) {
+						assert.equal(xhr.responseText, 'default', 'Default handler responded');
+						done();
+					}
+				});
+			}
+		});
+	});
+
+	t('Remove mockjax definition by url (no default handler)', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/test',
+			contentType: 'text/plain',
+			responseText: 'test'
+		});
+
+		$.ajax({
+			url: '/test',
+			success: function(text) {
+				assert.equal(text, 'test', 'Test handler responded');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: function() {
+				$.mockjax.clear('/test');
+
+				// Reissue the request expecting the error
+				$.ajax({
+					url: '/test',
+					success: function() {
+						assert.ok(false, 'The mock was not cleared by url');
+					},
+					error: function(xhr) {
+						// Test against 0, might want to look at this more in depth
+						assert.ok(404 === xhr.status || 0 === xhr.status, 'The mock was cleared by url');
+						done();
+					}
+				});
+			}
+		});
+	});
+
+	t('Attempt to clear a non-existent but similar url', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/test',
+			contentType: 'text/plain',
+			responseText: 'test'
+		});
+
+		$.mockjax({
+			url: '*',
+			contentType: 'text/plain',
+			responseText: 'default'
+		});
+
+		$.ajax({
+			url: '/test',
+			success: function(text) {
+				assert.equal(text, 'test', 'Test handler responded');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: function() {
+				$.mockjax.clear('/tes');
+
+				$.ajax({
+					url: '/test',
+					success: function(text) {
+						assert.equal(text, 'test', 'Test handler responded');
+						done();
+					},
+					error: qunit.noErrorCallbackExpected
+				});
+			}
+		});
+	});
+
+	t('Remove mockjax definition, but not a subpath', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/test',
+			contentType: 'text/plain',
+			responseText: 'test'
+		});
+
+		$.mockjax({
+			url: '/test/foo',
+			contentType: 'text/plain',
+			responseText: 'foo'
+		});
+
+		$.ajax({
+			url: '/test',
+			success: function(text) {
+				assert.equal(text, 'test', 'Test handler responded');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: function() {
+				$.mockjax.clear('/test');
+
+				$.ajax({
+					url: '/test/foo',
+					success: function(text) {
+						assert.equal(text, 'foo', 'Test handler responded');
+						done();
+					},
+					error: qunit.noErrorCallbackExpected
+				});
+			}
+		});
+	});
+
+	t('Remove mockjax definition by RegExp', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/test',
+			contentType: 'text/plain',
+			responseText: 'test'
+		});
+
+		$.mockjax({
+			url: '*',
+			contentType: 'text/plain',
+			responseText: 'default'
+		});
+
+		$.ajax({
+			url: '/test',
+			success: function(text) {
+				assert.equal(text, 'test', 'Test handler responded');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: function() {
+				$.mockjax.clear(/test/);
+
+				// Reissue the request expecting the default handler
+				$.ajax({
+					url: '/test',
+					success: function(text) {
+						assert.equal(text, 'default', 'Default handler responded');
+					},
+					error: qunit.noErrorCallbackExpected,
+					complete: function(xhr) {
+						assert.equal(xhr.responseText, 'default', 'Default handler responded');
+						done();
+					}
+				});
+			}
+		});
+	});
+
+	t('Remove several mockjax definition by RegExp', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/test',
+			contentType: 'text/plain',
+			responseText: 'test'
+		});
+
+		$.mockjax({
+			url: '/test1',
+			contentType: 'text/plain',
+			responseText: 'test'
+		});
+
+		$.mockjax({
+			url: '/test/foo',
+			contentType: 'text/plain',
+			responseText: 'test'
+		});
+
+		$.mockjax({
+			url: '*',
+			contentType: 'text/plain',
+			responseText: 'default'
+		});
+
+		$.ajax({
+			url: '/test',
+			success: function(text) {
+				assert.equal(text, 'test', 'Test handler responded');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: function() {
+				$.mockjax.clear(/test/);
+
+				// Reissue the request expecting the default handler
+				$.ajax({
+					url: '/test',
+					success: function(text) {
+						assert.equal(text, 'default', 'Default handler responded');
+					},
+					error: qunit.noErrorCallbackExpected,
+					complete: function(xhr) {
+						assert.equal(xhr.responseText, 'default', 'Default handler responded');
+						done();
+					}
+				});
+			}
+		});
+	});
+
+	t('Remove mockjax definition by id', function(assert) {
+		var done = assert.async();
+		
+		var id = $.mockjax({
+			url: '/test',
+			contentType: 'text/plain',
+			responseText: 'test'
+		});
+
+		$.mockjax({
+			url: '*',
+			contentType: 'text/plain',
+			responseText: 'default'
+		});
+
+		$.ajax({
+			url: '/test',
+			success: function(text) {
+				assert.equal(text, 'test', 'Test handler responded');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: function() {
+				$.mockjax.clear(id);
+
+				// Reissue the request expecting the default handler
+				$.ajax({
+					url: '/test',
+					success: function(text) {
+						assert.equal(text, 'default', 'Default handler responded');
+					},
+					error: qunit.noErrorCallbackExpected,
+					complete: function(xhr) {
+						assert.equal(xhr.responseText, 'default', 'Default handler responded');
+						done();
+					}
+				});
+			}
+		});
+	});
+
+	t('Clearing mockjax removes all handlers', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/api/example/1',
+			responseText: 'test1'
+		});
+		$.mockjax({
+			url: '/api/example/2',
+			responseText: 'test2'
+		});
+
+		$.ajax({
+			async: true,
+			type: 'GET',
+			url: '/api/example/1',
+			success: function(text) {
+				assert.equal('test1', text, 'First call is mocked');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: function() {
+				$.mockjax.clear();
+
+				$.ajax({
+					async: true,
+					type: 'GET',
+					url: '/api/example/1',
+					success: function() {
+						assert.ok( false, 'Call to first endpoint was mocked, but should not have been');
+					},
+					error: function(xhr) {
+						// Test against 0, might want to look at this more in depth
+						assert.ok(404 === xhr.status || 0 === xhr.status, 'First mock cleared after clear()');
+
+						$.ajax({
+							async: true,
+							type: 'GET',
+							url: '/api/example/2',
+							success: function() {
+								assert.ok( false, 'Call to second endpoint was mocked, but should not have been');
+							},
+							error: function(xhr) {
+								// Test against 0, might want to look at this more in depth
+								assert.ok(404 === xhr.status || 0 === xhr.status, 'Second mock cleared after clear()');
+								done();
+							}
+						});
+					}
+				});
+			}
+		});
+	});
+	
 
 	/* -------------------- */
 	qunit.module( 'Logging' );
@@ -1456,7 +1698,7 @@
 			});
 
 			assert.ok(promiseObject.done && promiseObject.fail, 'Got Promise methods');
-			promiseObject.then(function(){
+			promiseObject.then(function() {
 				assert.ok(true, 'promise object then is executed');
 			});
 
@@ -2000,30 +2242,30 @@
 	});
 
 	t('Call onAfterComplete after complete has been called', function(assert) {
-		var done = assert.async();
-		
-		var onAfterCompleteCalled = false;
-		var completeCalled = false;
-		$.mockjax({
-			url: '/response-callback',
-			onAfterComplete: function() {
-				onAfterCompleteCalled = true;
-				assert.equal(completeCalled, true, 'complete was not yet called');
-			}
-		});
+    	var done = assert.async();
+    	
+    	var onAfterCompleteCalled = false;
+    	var completeCalled = false;
+    	$.mockjax({
+    		url: '/response-callback',
+    		onAfterComplete: function() {
+    			onAfterCompleteCalled = true;
+    			assert.equal(completeCalled, true, 'complete was not yet called');
+    		}
+    	});
 
-		$.ajax({
-			url: '/response-callback',
-			complete: function() {
-				completeCalled = true;
-			}
-		});
+    	$.ajax({
+    		url: '/response-callback',
+    		complete: function() {
+    			completeCalled = true;
+    		}
+    	});
 
-		setTimeout(function() {
-			assert.equal(onAfterCompleteCalled, true, 'onAfterComplete was not called');
-			done(); 
-		}, 100);
-	});
+    	setTimeout(function() {
+    		assert.equal(onAfterCompleteCalled, true, 'onAfterComplete was not called');
+    		done(); 
+    	}, 100);
+    });
 
 	t('Bug #95: undefined responseText on success', function(assert) {
 		assert.expect(2);
@@ -2041,7 +2283,7 @@
 			async: false,
 			success: function(data) {
 				// Before jQuery 1.5 the response is a stringified version of the 
-				// json data unless the 'dataType' option is set to 'json'
+				// json data unless the 'dataType' option is set to "json"
 				var expectedResult = expected;
 				if (qunit.compareSemver($().jquery, '1.5', '<')) {
 					expectedResult = JSON.stringify(expected);
@@ -2133,7 +2375,7 @@
 				assert.ok( errorThrown !== 'OK', 'errorThrown is not "OK" on call #1' );
 			},
 			success: function() {
-				assert.ok(false, 'call #1 should not be be successful');
+				assert.ok(false, 'call #1 should not be successful');
 			},
 			complete: function() {
 				// do a second call and ensure we still timeout
@@ -2148,6 +2390,166 @@
 					},
 					complete: done
 				});
+			}
+		});
+	});
+
+	
+	/* -------------------- */
+	qunit.module('namespace');
+	/* -------------------- */
+	
+	t('url should be namespaced via global mockjax settings', function(assert) {
+		var done = assert.async();
+
+		$.mockjaxSettings.namespace = '/api/v1';
+
+		$.mockjax({
+			url: 'myservice'
+		});
+
+		$.ajax({
+			url: '/api/v1/myservice',
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 200, 'Response was successful');
+				done();
+			}
+		});
+	});
+
+	t('should be able to override global namespace per-mock', function(assert) {
+		var done = assert.async();
+
+		$.mockjaxSettings.namespace = '/api/v1';
+
+		$.mockjax({
+			url: 'myservice',
+			namespace: '/api/v2'
+		});
+
+		$.ajax({
+			url: '/api/v2/myservice',
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 200, 'Response was successful');
+				$.ajax({
+					url: '/api/v1/myservice',
+					error: function() {
+						assert.ok(true, 'error callback was called');
+						done();
+					}
+				});
+			}
+			});
+	});
+
+	t('should not mock a non-matching url within a namespace', function(assert) {
+		var done = assert.async();
+
+		$.mockjaxSettings.namespace = '/api/v1';
+
+		$.mockjax({
+			url: 'myservice'
+		});
+
+		$.ajax({
+			url: '/api/v1/yourservice',
+			success: function() {
+				assert.ok(false, 'call should not be successful');
+			},
+			error: function() {
+				assert.ok(true, 'error callback was called');
+				done();
+			}
+		});
+	});
+
+	t('should handle multiple mocks in a row within a namespace', function(assert) {
+		var done = assert.async();
+
+		$.mockjaxSettings.namespace = '/api/v1';
+
+		$.mockjax({
+			url: 'one'
+		});
+
+		$.mockjax({
+			url: 'two'
+		});
+
+		$.ajax({
+			url: '/api/v1/one',
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 200, 'Response was successful');
+				$.ajax({
+					url: '/api/v1/two',
+					complete: function(xhr) {
+						assert.equal(xhr.status, 200, 'Response was successful');
+						done();
+					}
+				});
+			}
+		});
+	});
+
+	t('should pass the correct url to the response settings', function(assert) {
+		var done = assert.async();
+
+		$.mockjaxSettings.namespace = '/api/v1';
+
+		$.mockjax({
+			url: 'myservice',
+			response: function(settings) {
+				assert.equal(settings.url, '/api/v1/myservice');
+			}
+		});
+
+		$.ajax({
+			url: '/api/v1/myservice',
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 200, 'Response was successful');
+				done();
+			}
+		});
+	});
+
+	t('should handle extra slashes', function(assert) {
+		var done = assert.async();
+
+		$.mockjaxSettings.namespace = '/api/v1/';
+
+		$.mockjax({
+			url: '/myservice'
+		});
+
+		$.ajax({
+			url: '/api/v1/myservice',
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 200, 'Response was successful');
+				done();
+			}
+		});
+	});
+
+	t('should handle missing slashes', function(assert) {
+		var done = assert.async();
+
+		$.mockjaxSettings.namespace = '/api/v1';
+
+		$.mockjax({
+			url: 'myservice'
+		});
+
+		$.ajax({
+			url: '/api/v1/myservice',
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 200, 'Response was successful');
+				done();
 			}
 		});
 	});
