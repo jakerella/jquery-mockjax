@@ -1,14 +1,16 @@
+/* globals describe,beforeEach,afterEach,it */
 
-var jsDomEnv = require('jsdom').env;
+var jsDomEnv = require('jsdom').env,
 	assert = require('assert');
 
 describe('Node module setup', function() {
+    'use strict';
+    
 	var $, xhr, win;
 	
 	beforeEach(function(done) {
 		jsDomEnv('<html></html>', function (error, window) {
 			if (error) {
-				console.error('jsdom initialization failed');
 				assert(false);
 			} else {
 				win = window;
@@ -16,7 +18,9 @@ describe('Node module setup', function() {
 				xhr = require('xmlhttprequest').XMLHttpRequest;
 				$.support.cors = true;
 				$.ajaxSettings.xhr = function () {
-					return new xhr();
+					/*jshint newcap:false*/
+                    return new xhr();
+                    /*jshint newcap:true*/
 				};
 			}
 			done();
@@ -52,7 +56,6 @@ describe('Node module setup', function() {
 					assert.equal(response, 'content');
 				},
 				error: function () {
-					console.error('error callback executed!');
 					assert(false);
 				},
 				complete: function () {
@@ -75,7 +78,6 @@ describe('Node module setup', function() {
 					assert.equal(response, 'bar');
 				},
 				error: function () {
-					console.error('error callback executed!');
 					assert(false);
 				},
 				complete: function () {

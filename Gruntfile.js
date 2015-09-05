@@ -45,7 +45,13 @@ module.exports = function(grunt) {
 				jshintrc: true
 			},
 			all: {
-				src: ['./src/**/*.js', './Gruntfile.js']
+				src: [
+                    './src/**/*.js',
+                    './Gruntfile.js',
+                    'test/test.js',
+                    'test/requirejs/*.js',
+                    'test/nodejs/*.js'
+                ]
 			}
 		},
 		qunit: { all: [] },  // NOTE: these tests are all run by the `test` task below to run against each jQuery version supported
@@ -103,7 +109,7 @@ module.exports = function(grunt) {
                     '2.0.3',
                     '2.1.4'
                 ]
-            },
+            }
 		},
 		mochaTest: {
 			nodejs: {
@@ -116,15 +122,15 @@ module.exports = function(grunt) {
 			},
 			source: {
 				files: './src/*.js',
-				tasks: ['jshint', 'test:oldestAndLatest']
+				tasks: ['jshint', 'test:latestInBranch']
 			}
 		}
 	});
 
 	require('load-grunt-tasks')(grunt);
 
-	grunt.registerTask('dev', ['jshint', 'test:all', 'test:requirejs']);
-	grunt.registerTask('build', ['dev', 'concat', 'uglify']);
+	grunt.registerTask('dev', ['jshint', 'test:all', 'test:requirejs', 'mochaTest']);
+	grunt.registerTask('build', ['dev', 'concat', 'uglify', 'test:dist']);
 	grunt.registerTask('default', ['dev']);
 
 
