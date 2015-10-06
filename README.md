@@ -313,7 +313,7 @@ $.mockjax({
 ```
 
 Also note that a JSON response is really just a text response that jQuery will
-parse as JSON for you (and return a JSOn object to the `success` and `complete`
+parse as JSON for you (and return a JSON object to the `success` and `complete`
 callbacks).
 
 A simple XML response would be:
