@@ -43,8 +43,42 @@
 		assert.ok(xhr, 'XHR object is not null or undefined');
 		assert.ok(xhr.done && xhr.fail, 'Got Promise methods');
 	});
-	
-	
+
+	t('Intercept synchronized proxy calls and return synchronously', function(assert) {
+		$.mockjax({
+			url: '/proxy',
+			proxy: 'test_proxy.json'
+		});
+
+		$.ajax({
+			url: '/proxy',
+			dataType: 'json',
+			async: false,
+			success: function(json) {
+				assert.ok(json && json.proxy, 'Proxy callback request succeeded');
+			},
+			error: qunit.noErrorCallbackExpected
+		});
+	});
+
+	t('Intercept asynchronized proxy calls', function(assert) {
+		var done = assert.async();
+		$.mockjax({
+			url: '/proxy',
+			proxy: 'test_proxy.json'
+		});
+
+		$.ajax({
+			url: '/proxy',
+			dataType: 'json',
+			success: function(json) {
+				assert.ok(json && json.proxy, 'Proxy callback request succeeded');
+				done();
+			},
+			error: qunit.noErrorCallbackExpected
+		});
+	});
+
 	t('Intercept and proxy (sub-ajax request)', function(assert) {
 		var done = assert.async();
 		
@@ -1806,6 +1840,12 @@
 				url: '/variable-delay',
 				responseTime: [this.variableDelayMin, this.variableDelayMax]
 			});
+
+			$.mockjax({
+				url: '/proxy',
+				proxy: 'test_proxy.json',
+				responseTime: 50
+			});
 			
 			$.mockjax({
 				url: '*',
@@ -1913,7 +1953,27 @@
 		}, 30);
 	});
 
+	t('Proxy asynchronous response time', function (assert) {
+		var done = assert.async();
+		var executed = false, ts = new Date();
 
+		$.ajax({
+			url: '/proxy',
+			type: 'json',
+			success: function () {
+				var delay = ((new Date()) - ts);
+				assert.ok( delay >= 50, 'Correct delay simulation (' + delay + ')' );
+				assert.strictEqual(executed, false, 'No premature callback execution');
+				executed = true;
+				done();
+			},
+			error: qunit.noErrorCallbackExpected
+		});
+		setTimeout(function () {
+			assert.strictEqual(executed, false, 'No premature callback execution');
+		}, 30);
+
+	});
 	/* -------------------- */
 	qunit.module( 'Headers' );
 	/* -------------------- */

@@ -269,6 +269,7 @@
 				url: mockHandler.proxy,
 				type: mockHandler.proxyType,
 				data: mockHandler.data,
+				async: requestSettings.async,
 				dataType: requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
 				complete: function(xhr) {
 					mockHandler.responseXML = xhr.responseXML;
@@ -280,7 +281,13 @@
 					if (isDefaultSetting(mockHandler, 'statusText')) {
 						mockHandler.statusText = xhr.statusText;
 					}
-					this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime));
+
+					if ( requestSettings.async === false ) {
+						// TODO: Blocking delay
+						process();
+					} else {
+						this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime));
+					}
 				}
 			});
 		} else {
@@ -292,6 +299,7 @@
 				this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime));
 			}
 		}
+
 	}
 
 	// Construct a mocked XHR Object
