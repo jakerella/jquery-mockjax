@@ -66,7 +66,8 @@ module.exports = function(grunt) {
 					'1.10.2',
 					'1.11.3',
 					'2.0.3',
-					'2.1.4'
+					'2.1.4',
+					'2.2.0'
 				]
 			},
 			requirejs: {
@@ -77,7 +78,8 @@ module.exports = function(grunt) {
 					'1.10.2',
 					'1.11.3',
 					'2.0.3',
-					'2.1.4'
+					'2.1.4',
+					'2.2.0'
 				]
 			},
 			latestInBranch: {
@@ -90,7 +92,8 @@ module.exports = function(grunt) {
 				jQueryVersions: [
 					'1.5.2',
 					'1.11.3',
-					'2.1.4'
+					'2.1.4',
+					'2.2.0'
 				]
 			},
 			edge: {
@@ -107,7 +110,8 @@ module.exports = function(grunt) {
                     '1.10.2',
                     '1.11.3',
                     '2.0.3',
-                    '2.1.4'
+                    '2.1.4',
+					'2.2.0'
                 ]
             }
 		},
@@ -132,7 +136,6 @@ module.exports = function(grunt) {
 	grunt.registerTask('dev', ['jshint', 'test:all', 'test:requirejs', 'mochaTest']);
 	grunt.registerTask('build', ['dev', 'concat', 'uglify', 'test:dist']);
 	grunt.registerTask('default', ['dev']);
-
 
 	grunt.registerTask('test', 'Executes QUnit tests with all supported jQuery versions', function() {
 		var i, l,

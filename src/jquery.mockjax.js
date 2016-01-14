@@ -229,7 +229,7 @@
 							this.statusText = mockHandler.statusText;
 						}
 						// jQuery 2.0 renamed onreadystatechange to onload
-						onReady = this.onreadystatechange || this.onload;
+						onReady = this.onload || this.onreadystatechange;
 
 						// jQuery < 1.4 doesn't have onreadystate change for xhr
 						if ( $.isFunction( onReady ) ) {
