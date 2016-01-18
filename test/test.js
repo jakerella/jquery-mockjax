@@ -1728,9 +1728,8 @@
 		assert.ok(promiseObject.done && promiseObject.fail, 'Got Promise methods');
 		promiseObject.then(function() {
 			assert.ok(true, 'promise object then is executed');
+			done();
 		});
-
-		done();
 	});
 
 	t('Response executes script', function(assert) {
@@ -2156,7 +2155,8 @@
 			assert.ok(true, 'error callback was called');
 		});
 
-		request.complete(done);
+		// always for jquery 1.8+
+		(request.always || request.complete)(done);
 	});
 
 
