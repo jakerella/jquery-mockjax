@@ -85,7 +85,7 @@ module.exports = function(grunt) {
 			latestInBranch: {
 				jQueryVersions: [
 					'1.11.3',
-					'2.1.4'
+					'2.2.0'
 				]
 			},
 			oldestAndLatest: {
