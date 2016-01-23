@@ -3,7 +3,7 @@
  * 
  * Version: 2.0.1
  * Home: https://github.com/jakerella/jquery-mockjax
- * Copyright (c) 2015 Jordan Kasper, formerly appendTo;
+ * Copyright (c) 2016 Jordan Kasper, formerly appendTo;
  * NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
  * 
  * Dual licensed under the MIT or GPL licenses.
@@ -240,7 +240,7 @@
 							this.statusText = mockHandler.statusText;
 						}
 						// jQuery 2.0 renamed onreadystatechange to onload
-						onReady = this.onreadystatechange || this.onload;
+						onReady = this.onload || this.onreadystatechange;
 
 						// jQuery < 1.4 doesn't have onreadystate change for xhr
 						if ( $.isFunction( onReady ) ) {
@@ -280,6 +280,7 @@
 				url: mockHandler.proxy,
 				type: mockHandler.proxyType,
 				data: mockHandler.data,
+				async: requestSettings.async,
 				dataType: requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
 				complete: function(xhr) {
 					mockHandler.responseXML = xhr.responseXML;
@@ -291,7 +292,13 @@
 					if (isDefaultSetting(mockHandler, 'statusText')) {
 						mockHandler.statusText = xhr.statusText;
 					}
-					this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime));
+
+					if ( requestSettings.async === false ) {
+						// TODO: Blocking delay
+						process();
+					} else {
+						this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime));
+					}
 				}
 			});
 		} else {
@@ -303,6 +310,7 @@
 				this.responseTimer = setTimeout(process, parseResponseTimeOpt(mockHandler.responseTime));
 			}
 		}
+
 	}
 
 	// Construct a mocked XHR Object
@@ -588,7 +596,11 @@
 				}
 			}
 
-
+            // We are mocking, so there will be no cross domain request, however, jQuery
+            // aggressively pursues this if the domains don't match, so we need to 
+            // explicitly disallow it. (See #136) 
+            origSettings.crossDomain = false;            
+            
 			// Removed to fix #54 - keep the mocking data object intact
 			//mockHandler.data = requestSettings.data;
 

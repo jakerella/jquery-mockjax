@@ -679,23 +679,23 @@
 		var done = assert.async();
 		
 		$.mockjax({
-			url: '/test',
+			url: '/foobar',
 			contentType: 'text/plain',
 			responseText: 'test'
 		});
 
 		$.ajax({
-			url: '/test',
+			url: '/foobar',
 			success: function(text) {
 				assert.equal(text, 'test', 'Test handler responded');
 			},
 			error: qunit.noErrorCallbackExpected,
 			complete: function() {
-				$.mockjax.clear('/test');
+				$.mockjax.clear('/foobar');
 
 				// Reissue the request expecting the error
 				$.ajax({
-					url: '/test',
+					url: '/foobar',
 					success: function() {
 						assert.ok(false, 'The mock was not cleared by url');
 					},
@@ -2457,7 +2457,7 @@
             dataType: 'script',
             url: 'http://jquery-mockjax-foobar.com/somefile.js',
             error: qunit.noErrorCallbackExpected,
-            success: function(data) {
+            success: function() {
                 assert.strictEqual(window.mockjaxCrossDomain, true, 'mockjax call for script was mocked');
             },
             complete: done
@@ -2478,7 +2478,7 @@
             dataType: 'script',
             url: 'http://jquery-mockjax-foobar.com/somefile.js',
             error: qunit.noErrorCallbackExpected,
-            success: function(data) {
+            success: function() {
                 assert.strictEqual(window.mockjaxCrossDomain, true, 'mockjax call for script was mocked');
             },
             complete: done
