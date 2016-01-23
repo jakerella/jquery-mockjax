@@ -1,3 +1,15 @@
+## 2016-01-23
+    * Updated to version 2.1.0
+    * Removed unused testswarm files
+    * Added test step in build process for dist file
+    * Refactor tests to be easier to maintain and conform to current QUnit standards
+    * Added global URL namespace feature (thanks @danpaz)
+    * Added clearing of mocks by URL and regex (thanks @stas-vilchik)
+    * Use async setting for proxy data (thanks @udnisap)
+    * Update tests to jQuery 2.2.0 and fix for latest in jQuery git (thanks Simon and @gyoshev)
+    * Fixed #136: cross domain requests
+    * Updated contributing documentation to clearly state process for a release
+
 ## 2015-06-11
     * Updated to version 2.0.1
     * Fixed name in package.json for coordination among package management systems

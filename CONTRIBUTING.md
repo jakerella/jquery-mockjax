@@ -122,3 +122,20 @@ branch as well as `master` (if the bug exists in both).
 You should also write a good PR message with information on why this feature or fix is 
 necesary or a good idea. For features, be sure to include information on _how to use_ 
 the feature; and for bugs, information on how to reproduce the bug is helpful!
+
+## Publishing a Release
+
+Although individual contributors cannot publish a release, it's good to have 
+documentation on what goes into that in case anyone needs to take over the process. 
+Currently, @jakerella is the only one doing so.
+
+1. Create a branch for the release (usually with the proposed version number in the name)
+1. Ensure that all tests are passing in all supported browsers that you can (see below).
+1. Update the `CHANGELOG.md`, `package.json` version, and any other necessary files. 
+(Note that these can be in a commit, but put them in that new branch.)
+1. Make sure to generate fresh dist files if necessary and commit those.
+1. Submit a PR for the branch, this will initiate the Travis CI checks.
+1. Ask others for input on the PR (mostly testing in their own browsers).
+1. *If all is well*, merge the branch into `master`
+1. Create a release on Github with a tag matching the version number and proper info.
+1. Run `npm publish` on `master` to push the new version up to npm.
