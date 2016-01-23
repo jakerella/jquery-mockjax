@@ -585,7 +585,11 @@
 				}
 			}
 
-
+            // We are mocking, so there will be no cross domain request, however, jQuery
+            // aggressively pursues this if the domains don't match, so we need to 
+            // explicitly disallow it. (See #136) 
+            origSettings.crossDomain = false;            
+            
 			// Removed to fix #54 - keep the mocking data object intact
 			//mockHandler.data = requestSettings.data;
 

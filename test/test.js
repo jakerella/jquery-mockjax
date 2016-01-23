@@ -5,8 +5,8 @@
 	
 	qunit.begin(function() {
 		
-		qunit.noErrorCallbackExpected = function noErrorCallbackExpected() {
-			qunit.assert.ok(false, 'Error callback executed');
+		qunit.noErrorCallbackExpected = function noErrorCallbackExpected(xhr) {
+			qunit.assert.ok(false, 'Error callback executed: ' + xhr.status, xhr.responseText);
 		};
 
 		// Speed up our tests
@@ -2442,6 +2442,48 @@
 			}
 		});
 	});
+
+    t('Bug #136: cross domain script requests - GET', function(assert) {
+        var done = assert.async();
+        
+        $.mockjax({
+            type: 'GET',
+            url: 'http://jquery-mockjax-foobar.com/somefile.js',
+            responseText: '(window.mockjaxCrossDomain=true)'
+        });
+        
+        $.ajax({
+            type: 'GET',
+            dataType: 'script',
+            url: 'http://jquery-mockjax-foobar.com/somefile.js',
+            error: qunit.noErrorCallbackExpected,
+            success: function(data) {
+                assert.strictEqual(window.mockjaxCrossDomain, true, 'mockjax call for script was mocked');
+            },
+            complete: done
+        });
+    });
+    
+    t('Bug #136: cross domain script requests - POST', function(assert) {
+        var done = assert.async();
+        
+        $.mockjax({
+            type: 'POST',
+            url: 'http://jquery-mockjax-foobar.com/somefile.js',
+            responseText: '(window.mockjaxCrossDomain=true)'
+        });
+        
+        $.ajax({
+            type: 'POST',
+            dataType: 'script',
+            url: 'http://jquery-mockjax-foobar.com/somefile.js',
+            error: qunit.noErrorCallbackExpected,
+            success: function(data) {
+                assert.strictEqual(window.mockjaxCrossDomain, true, 'mockjax call for script was mocked');
+            },
+            complete: done
+        });
+    });
 
 	
 	/* -------------------- */
