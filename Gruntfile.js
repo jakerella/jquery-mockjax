@@ -65,6 +65,7 @@ module.exports = function(grunt) {
 					'1.9.1',
 					'1.10.2',
 					'1.11.3',
+					'1.12.0',
 					'2.0.3',
 					'2.1.4',
 					'2.2.0'
@@ -77,6 +78,7 @@ module.exports = function(grunt) {
 					'1.9.1',
 					'1.10.2',
 					'1.11.3',
+					'1.12.0',
 					'2.0.3',
 					'2.1.4',
 					'2.2.0'
@@ -84,14 +86,14 @@ module.exports = function(grunt) {
 			},
 			latestInBranch: {
 				jQueryVersions: [
-					'1.11.3',
+					'1.12.0',
 					'2.2.0'
 				]
 			},
 			oldestAndLatest: {
 				jQueryVersions: [
 					'1.5.2',
-					'1.11.3',
+					'1.12.0',
 					'2.1.4',
 					'2.2.0'
 				]
@@ -109,6 +111,7 @@ module.exports = function(grunt) {
                     '1.9.1',
                     '1.10.2',
                     '1.11.3',
+                    '1.12.0',
                     '2.0.3',
                     '2.1.4',
 					'2.2.0'
