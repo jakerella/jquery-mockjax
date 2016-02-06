@@ -328,4 +328,82 @@
         });
     });
     
+	t('Bug #86: JSONP response treated as plain JSON when using jQuery-generated callback', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: 'http://foo.com/api/jsonp',
+			contentType: 'application/javascript',
+			responseText: { 'data' : 'JSONP is cool' }
+		});
+		
+		$.ajax({
+			url: 'http://foo.com/api/jsonp',
+			dataType: 'jsonp',
+			jsonp: 'callback',
+			error: qunit.noErrorCallbackExpected,
+			success: function(data) {
+				assert.deepEqual(data, { 'data' : 'JSONP is cool' }, 'success gets correct data');
+			},
+			complete: function() {
+				var actualCalls = $.mockjax.mockedAjaxCalls();
+				assert.equal(actualCalls.length, 1, 'Mockjax call made');
+				assert.ok(actualCalls[0] && actualCalls[0].url.match(/\/api\/jsonp\?callback\=jsonp[0-9]+/), 'mockjax call has expected jsonp url');
+				done();
+			}
+		});
+	});
+
+	t('Bug #86: JSONP response treated as plain JSON - string data', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: 'http://foo.com/api/jsonp',
+			contentType: 'application/javascript',
+			responseText: 'Testy Test'
+		});
+		
+		$.ajax({
+			url: 'http://foo.com/api/jsonp',
+			dataType: 'jsonp',
+			jsonp: 'callback',
+			error: qunit.noErrorCallbackExpected,
+			success: function(data) {
+				assert.strictEqual(data, 'Testy Test', 'success gets correct data');
+			},
+			complete: function() {
+				var actualCalls = $.mockjax.mockedAjaxCalls();
+				assert.equal(actualCalls.length, 1, 'Mockjax call made');
+				assert.ok(actualCalls[0] && actualCalls[0].url.match(/\/api\/jsonp\?callback\=jsonp[0-9]+/), 'mockjax call has expected jsonp url');
+				done();
+			}
+		});
+	});
+	
+	t('Bug #86: JSONP response treated as plain JSON - numeric data', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: 'http://foo.com/api/jsonp',
+			contentType: 'application/javascript',
+			responseText: 42
+		});
+		
+		$.ajax({
+			url: 'http://foo.com/api/jsonp',
+			dataType: 'jsonp',
+			jsonp: 'callback',
+			error: qunit.noErrorCallbackExpected,
+			success: function(data) {
+				assert.strictEqual(data, 42, 'success gets correct data');
+			},
+			complete: function() {
+				var actualCalls = $.mockjax.mockedAjaxCalls();
+				assert.equal(actualCalls.length, 1, 'Mockjax call made');
+				assert.ok(actualCalls[0] && actualCalls[0].url.match(/\/api\/jsonp\?callback\=jsonp[0-9]+/), 'mockjax call has expected jsonp url');
+				done();
+			}
+		});
+	});
+	
 })(window.QUnit, window.jQuery);

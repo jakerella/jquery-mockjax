@@ -441,7 +441,10 @@
 			return newMock;
 
 		} else {
-			$.globalEval( '(' + mockHandler.responseText + ')');
+			$.globalEval( '(' + 
+				((typeof mockHandler.responseText === 'string') ? 
+					('"' + mockHandler.responseText + '"') : mockHandler.responseText) +
+			')');
 		}
 
 		completeJsonpCall( requestSettings, mockHandler, callbackContext, newMock );
@@ -471,7 +474,7 @@
 	// Create the required JSONP callback function for the request
 	function createJsonpCallback( requestSettings, mockHandler, origSettings ) {
 		var callbackContext = origSettings && origSettings.context || requestSettings;
-		var jsonp = requestSettings.jsonpCallback || ('jsonp' + jsc++);
+		var jsonp = (typeof requestSettings.jsonpCallback === 'string' && requestSettings.jsonpCallback) || ('jsonp' + jsc++);
 
 		// Replace the =? sequence both in the query string and the data
 		if ( requestSettings.data ) {
@@ -491,8 +494,8 @@
 			try {
 				delete window[ jsonp ];
 			} catch(e) {}
-
 		};
+		requestSettings.jsonpCallback = jsonp;
 	}
 
 	// The JSONP request was successful
