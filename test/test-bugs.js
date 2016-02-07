@@ -405,5 +405,25 @@
 			}
 		});
 	});
+    
+    t('Bug #267: handle undefined url in first arg', function(assert) {
+        var done = assert.async();
+        
+        $.mockjax({
+            url: '/api/foo',
+            contentType: 'application/json',
+            responseText: { foo: 'bar' }
+        });
+        
+        $.ajax(undefined, {
+            url: '/api/foo',
+            dataType: 'json',
+            error: qunit.noErrorCallbackExpected,
+            success: function(data) {
+                assert.deepEqual(data, { foo: 'bar' }, 'success gets correct data');
+            },
+            complete: done
+        });
+    });
 	
 })(window.QUnit, window.jQuery);

@@ -546,7 +546,7 @@
 		} else {
 			// work around to support 1.5 signature
 			origSettings = origSettings || {};
-			origSettings.url = url;
+			origSettings.url = url || origSettings.url;
 		}
 
 		// Extend the original settings for the request
