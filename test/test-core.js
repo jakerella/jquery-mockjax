@@ -54,9 +54,9 @@
 			dataType: 'json',
 			success: function(json) {
 				assert.ok(json && json.proxy, 'Proxy callback request succeeded');
-				done();
 			},
-			error: qunit.noErrorCallbackExpected
+			error: qunit.noErrorCallbackExpected,
+			complete: done
 		});
 	});
 

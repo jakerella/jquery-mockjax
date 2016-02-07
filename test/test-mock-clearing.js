@@ -109,9 +109,9 @@
 					url: '/test',
 					success: function(text) {
 						assert.equal(text, 'test', 'Test handler responded');
-						done();
 					},
-					error: qunit.noErrorCallbackExpected
+					error: qunit.noErrorCallbackExpected,
+					complete: done
 				});
 			}
 		});
@@ -145,9 +145,9 @@
 					url: '/test/foo',
 					success: function(text) {
 						assert.equal(text, 'foo', 'Test handler responded');
-						done();
 					},
-					error: qunit.noErrorCallbackExpected
+					error: qunit.noErrorCallbackExpected,
+					complete: done
 				});
 			}
 		});
