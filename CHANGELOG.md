@@ -1,3 +1,11 @@
+## 2016-02-07 v2.1.1
+	* Reorganize test cases into separate files for ease of maintenance and testing
+	* Fix #86: JSONP return data treated as JSON
+	* Added jQuery 1.12.0 to test quite
+	* Fix #105: Using XML files as proxies
+	* Fix #267: Handle undefined URL argument correctly
+	* Fix #123: Handle query string formatted data option
+
 ## 2016-01-23
     * Updated to version 2.1.0
     * Removed unused testswarm files
