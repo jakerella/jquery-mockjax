@@ -278,5 +278,97 @@
 			complete: done
 		});
 	});
+	
+	t('Bug #123: match data in query format', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/api/query',
+			data: {
+				foo: 'bar'
+			},
+			responseText: { foo: 'bar' }
+		});
+		
+		$.ajax({
+			url: '/api/query',
+			data: 'foo=bar',
+			success: function() {
+				assert.ok(true, 'Successfully matched data');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: done
+		});
+	});
+	
+	t('Bug #123: match data in query format (two params)', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/api/query',
+			data: {
+				foo: 'bar',
+				bat: 'baz'
+			},
+			responseText: { foo: 'bar' }
+		});
+		
+		$.ajax({
+			url: '/api/query',
+			data: 'foo=bar&bat=baz',
+			success: function() {
+				assert.ok(true, 'Successfully matched data');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: done
+		});
+	});
+	
+	t('Bug #123: don\'t match data in query format when not matching', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/api/query',
+			data: {
+				foo: 'bar',
+				bat: 'baz'
+			},
+			responseText: { foo: 'bar' }
+		});
+		
+		$.ajax({
+			url: '/api/query',
+			data: 'foo=bar&bat=boo',
+			success: function() {
+				assert.ok(false, 'Should not have mocked request');
+			},
+			error: function() {
+				assert.ok(true, 'Correctly failed to match mock');
+			},
+			complete: done
+		});
+	});
+	
+	t('Bug #123: match data in query format (array of params)', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/api/query',
+			data: {
+				foo: ['bar', 'bat', 'baz']
+			},
+			responseText: { foo: 'bar' }
+		});
+		
+		$.ajax({
+			url: '/api/query',
+			data: 'foo=bar&foo=bat&foo=baz',
+			success: function() {
+				assert.ok(true, 'Successfully matched data');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: done
+		});
+	});
 
 })(window.QUnit, window.jQuery);

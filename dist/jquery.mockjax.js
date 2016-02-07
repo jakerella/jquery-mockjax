@@ -80,8 +80,15 @@
 		// Test for situations where the data is a querystring (not an object)
 		if (typeof live === 'string') {
 			// Querystring may be a regex
-			return $.isFunction( mock.test ) ? mock.test(live) : mock === live;
+			if ($.isFunction( mock.test )) {
+				return mock.test(live);
+			} else if (typeof mock === 'object') {
+				live = getQueryParams(live);
+			} else {
+				return mock === live;
+			}
 		}
+		
 		$.each(mock, function(k) {
 			if ( live[k] === undefined ) {
 				identical = false;
@@ -103,6 +110,38 @@
 		});
 
 		return identical;
+	}
+	
+	function getQueryParams(queryString) {
+		var i, l, param, tmp,
+			paramsObj = {},
+			params = String(queryString).split(/&/);
+		
+		for (i=0, l=params.length; i<l; ++i) {
+			param = params[i];
+			try {
+				param = decodeURIComponent(param.replace(/\+/g, ' '));
+				param = param.split(/=/);
+			} catch(e) {
+				// Can't parse this one, so let it go?
+				continue;
+			}
+			
+			if (paramsObj[param[0]]) {
+				// this is an array query param (more than one entry in query)
+				if (!paramsObj[param[0]].splice) {
+					// if not already an array, make it one
+					tmp = paramsObj[param[0]];
+					paramsObj[param[0]] = [];
+					paramsObj[param[0]].push(tmp);
+				}
+				paramsObj[param[0]].push(param[1]);
+			} else {
+				paramsObj[param[0]] = param[1];
+			}
+		}
+		
+		return paramsObj;
 	}
 
 	// See if a mock handler property matches the default settings
@@ -166,7 +205,7 @@
 
 		// Inspect the data submitted in the request (either POST body or GET query string)
 		if ( handler.data ) {
-			if ( ! requestSettings.data || !isMockDataEqual(handler.data, requestSettings.data) ) {
+			if ( !requestSettings.data || !isMockDataEqual(handler.data, requestSettings.data) ) {
 				// They're not identical, do not mock this request
 				return null;
 			}
