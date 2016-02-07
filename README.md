@@ -345,6 +345,11 @@ $.mockjax({
 The `/mocks/data.json` file can have any valid JSON content you want, and allows
 you to maintain that mock data in its own file for maintainability.
 
+> Note: If you're testing your code with a poxy, it is best to run an actual web 
+server for the tests. Simply loading `test/index.html` from the file system may 
+result in the proxy file not being loaded correctly. We recommend using something 
+like the [`http-server` npm module](https://www.npmjs.com/package/http-server).
+
 #### Callback ####
 
 In the final response pattern, we can define a callback function on the
