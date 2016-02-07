@@ -59,6 +59,25 @@
 			complete: done
 		});
 	});
+	
+	t('Intercept proxy calls for XML', function(assert) {
+		$.mockjax({
+			url: '/proxy',
+			proxy: 'test_proxy.xml'
+		});
+		
+		$.ajax({
+			url: '/proxy',
+			dataType: 'xml',
+			async: false,
+			success: function(doc) {
+				assert.ok(doc, 'Proxy callback request succeeded');
+				assert.strictEqual($(doc).find('foo').length, 1, 'Foo element exists in XML');
+				assert.strictEqual($(doc).find('foo')[0].textContent, 'bar', 'XML content is correct');
+			},
+			error: qunit.noErrorCallbackExpected
+		});
+	});
 
 	t('Intercept and proxy (sub-ajax request)', function(assert) {
 		var done = assert.async();

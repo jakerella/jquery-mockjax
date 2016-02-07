@@ -272,8 +272,11 @@
 				async: requestSettings.async,
 				dataType: requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
 				complete: function(xhr) {
-					mockHandler.responseXML = xhr.responseXML;
-					mockHandler.responseText = xhr.responseText;
+					// Fix for bug #105
+					// jQuery will convert the text to XML for us, and if we use the actual responseXML here
+					// then some other things don't happen, resulting in no data given to the 'success' cb
+					mockHandler.responseXML = mockHandler.responseText = xhr.responseText;
+					
 					// Don't override the handler status/statusText if it's specified by the config
 					if (isDefaultSetting(mockHandler, 'status')) {
 						mockHandler.status = xhr.status;
