@@ -782,27 +782,27 @@
 				}
 			}
 		},
-		logging:       true,
-		namespace:     null,
-		status:        200,
-		statusText:    'OK',
-		responseTime:  DEFAULT_RESPONSE_TIME,
-		isTimeout:     false,
-		throwUnmocked: false,
-		contentType:   'text/plain',
-		response:      '',
-		responseText:  '',
-		responseXML:   '',
-		proxy:         '',
-		proxyType:     'GET',
+		logging:         true,
+		namespace:       null,
+		status:          200,
+		statusText:      'OK',
+		responseTime:    DEFAULT_RESPONSE_TIME,
+		isTimeout:       false,
+		throwUnmocked:   false,
+		retainAjaxCalls: true,
+		contentType:     'text/plain',
+		response:        '',
+		responseText:    '',
+		responseXML:     '',
+		proxy:           '',
+		proxyType:       'GET',
 
-		lastModified:  null,
-		etag:          '',
+		lastModified:    null,
+		etag:            '',
 		headers: {
 			etag: 'IJF@H#@923uf8023hFO@I#H#',
 			'content-type' : 'text/plain'
-		},
-		retainAjaxCalls: true
+		}
 	};
 
 	$.mockjax = function(settings) {

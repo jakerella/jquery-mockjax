@@ -610,26 +610,26 @@ settings are as follows:
 
 ```javascript
 {
-  logging:       true,
-  namespace:     null,
-  status:        200,
-  statusText:    "OK",
-  responseTime:  500,
-  isTimeout:     false,
-  throwUnmocked: false,
-  contentType:   "text/plain",
-  response:      "",
-  responseText:  "",
-  responseXML:   "",
-  proxy:         "",
-  proxyType:     "GET",
-  lastModified:  null,
-  etag:          "",
+  logging:         true,
+  namespace:       null,
+  status:          200,
+  statusText:      "OK",
+  responseTime:    500,
+  isTimeout:       false,
+  throwUnmocked:   false,
+  retainAjaxCalls: true,
+  contentType:     "text/plain",
+  response:        "",
+  responseText:    "",
+  responseXML:     "",
+  proxy:           "",
+  proxyType:       "GET",
+  lastModified:    null,
+  etag:            "",
   headers: {
     etag: "IJF@H#@923uf8023hFO@I#H#",
     "content-type" : "text/plain"
-  },
-  retainAjaxCalls: true
+  }
 }
 ```
 
