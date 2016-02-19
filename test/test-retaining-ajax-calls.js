@@ -98,4 +98,66 @@
       }
     });
   });
+
+  t('Clearing retained mocked calls', function(assert) {
+    var done = assert.async();
+
+    $.mockjax.clear();
+    $.mockjaxSettings.retainAjaxCalls = true;
+
+    var numberOfMockedCalls = $.mockjax.mockedAjaxCalls().length;
+    assert.equal(numberOfMockedCalls, 0, 'No mocked calls at the start');
+
+    $.mockjax({
+      url: '/test',
+      contentType: 'text/plain',
+      responseText: 'test'
+    });
+
+    $.ajax({
+      url: '/test',
+      complete: function() {
+        var numberOfMockedCalls = $.mockjax.mockedAjaxCalls().length;
+        assert.equal(numberOfMockedCalls, 1, 'Mocked calls count increased by one');
+
+        $.mockjax.clearRetainedAjaxCalls();
+
+        var numberOfMockedCalls = $.mockjax.mockedAjaxCalls().length;
+        assert.equal(numberOfMockedCalls, 0, 'Mocked calls count was reset to zero');
+
+        done()
+      }
+    });
+  });
+
+  t('Clearing retained unmocked calls', function(assert) {
+    var done = assert.async();
+
+    $.mockjax.clear();
+    $.mockjaxSettings.retainAjaxCalls = true;
+
+    var numberOfUnmockedCalls = $.mockjax.unmockedAjaxCalls().length;
+    assert.equal(numberOfUnmockedCalls, 0, 'No unmocked calls at the start');
+
+    $.mockjax({
+      url: '/test',
+      contentType: 'text/plain',
+      responseText: 'test'
+    });
+
+    $.ajax({
+      url: '/test.json',
+      complete: function() {
+        var numberOfUnmockedCalls = $.mockjax.unmockedAjaxCalls().length;
+        assert.equal(numberOfUnmockedCalls, 1, 'Unmocked calls count increased by one');
+
+        $.mockjax.clearRetainedAjaxCalls();
+
+        var numberOfUnmockedCalls = $.mockjax.unmockedAjaxCalls().length;
+        assert.equal(numberOfUnmockedCalls, 0, 'Unmocked calls count was reset to zero');
+
+        done()
+      }
+    });
+  });
 })(window.QUnit, window.jQuery);

@@ -821,6 +821,10 @@
 		mockedAjaxCalls = [];
 		unmockedAjaxCalls = [];
 	};
+	$.mockjax.clearRetainedAjaxCalls = function() {
+		mockedAjaxCalls = [];
+		unmockedAjaxCalls = [];
+	};
 	$.mockjax.handler = function(i) {
 		if ( arguments.length === 1 ) {
 			return mockHandlers[i];

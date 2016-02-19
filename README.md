@@ -113,6 +113,8 @@ checkout this list:
 * `Array<Object> $.mockjax.unmockedAjaxCalls()`
   * Returns an array of all unmocked Ajax calls that were made. The array contains the settings object passed into `$.ajax({...})`
   * If `$.mockjaxSettings.retainAjaxCalls is set to false, this will always be empty
+* `void $.mockjax.clearRetainedAjaxCalls()`
+  * Empties the arrays returned by `$.mockjax.mockedAjaxCalls` and `$.mockjax.unmockedAjaxCalls`
 
 ### Overview: Your First Mock ###
 
