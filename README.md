@@ -107,10 +107,12 @@ checkout this list:
   * If no `id` is provided, all handlers are cleared, resetting Mockjax to its initial state
 * `Array<Object> $.mockjax.mockedAjaxCalls()`
   * Returns an array of all mocked ajax calls with each entry being the request settings object as passed into the `$.mockjax()` function
+  * If `$.mockjaxSettings.retainAjaxCalls is set to false, this will always be empty
 * `Array<Object> $.mockjax.unfiredHandlers()`
   * Returns an array of all mock handler settings that have not been used. In other words, if a handler has been used for a `$.ajax()` call then it will _not_ appear in this array
 * `Array<Object> $.mockjax.unmockedAjaxCalls()`
   * Returns an array of all unmocked Ajax calls that were made. The array contains the settings object passed into `$.ajax({...})`
+  * If `$.mockjaxSettings.retainAjaxCalls is set to false, this will always be empty
 
 ### Overview: Your First Mock ###
 
@@ -624,7 +626,8 @@ settings are as follows:
   headers: {
     etag: "IJF@H#@923uf8023hFO@I#H#",
     "content-type" : "text/plain"
-  }
+  },
+  retainAjaxCalls: true
 }
 ```
 
