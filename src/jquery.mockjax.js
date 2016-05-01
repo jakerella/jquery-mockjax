@@ -501,15 +501,15 @@
 		setTimeout(function() {
 			jsonpSuccess( requestSettings, callbackContext, mockHandler );
 			jsonpComplete( requestSettings, callbackContext );
+
+            if ( newMock ) {
+                try {
+                    json = $.parseJSON( mockHandler.responseText );
+                } catch (err) { /* just checking... */ }
+
+                newMock.resolveWith( callbackContext, [json || mockHandler.responseText] );
+            }
 		}, parseResponseTimeOpt( mockHandler.responseTime ));
-
-		if ( newMock ) {
-			try {
-				json = $.parseJSON( mockHandler.responseText );
-			} catch (err) { /* just checking... */ }
-
-			newMock.resolveWith( callbackContext, [json || mockHandler.responseText] );
-		}
 	}
 
 

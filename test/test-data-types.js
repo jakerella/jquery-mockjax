@@ -176,9 +176,8 @@
 
 		$.when(req1, req2, req3).done(function() {
 			assert.ok(true, 'Successfully grouped deferred responses');
+			done();
 		});
-
-		done();
 	});
 	
 	t('Response returns parsed XML', function(assert) {
