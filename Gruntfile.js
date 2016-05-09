@@ -19,7 +19,7 @@ module.exports = function(grunt) {
 			' * http://opensource.org/licenses/MIT OR http://www.gnu.org/licenses/gpl-2.0.html',
 			' */\n'
 		].join('\n'),
-		
+
 		// Task configuration
 		concat: {
 			options: {
@@ -65,10 +65,10 @@ module.exports = function(grunt) {
 					'1.9.1',
 					'1.10.2',
 					'1.11.3',
-					'1.12.0',
+					'1.12.3',
 					'2.0.3',
 					'2.1.4',
-					'2.2.0'
+					'2.2.3'
 				]
 			},
 			requirejs: {
@@ -78,24 +78,24 @@ module.exports = function(grunt) {
 					'1.9.1',
 					'1.10.2',
 					'1.11.3',
-					'1.12.0',
+					'1.12.3',
 					'2.0.3',
 					'2.1.4',
-					'2.2.0'
+					'2.2.3'
 				]
 			},
 			latestInBranch: {
 				jQueryVersions: [
-					'1.12.0',
-					'2.2.0'
+					'1.12.3',
+					'2.2.3'
 				]
 			},
 			oldestAndLatest: {
 				jQueryVersions: [
 					'1.5.2',
-					'1.12.0',
+					'1.12.3',
 					'2.1.4',
-					'2.2.0'
+					'2.2.3'
 				]
 			},
 			edge: {
@@ -111,10 +111,10 @@ module.exports = function(grunt) {
                     '1.9.1',
                     '1.10.2',
                     '1.11.3',
-                    '1.12.0',
+                    '1.12.3',
                     '2.0.3',
                     '2.1.4',
-					'2.2.0'
+					'2.2.3'
                 ]
             }
 		},
@@ -149,7 +149,7 @@ module.exports = function(grunt) {
 
 		for (i=0, l=versions.length; i<l; ++i) {
 			grunt.log.writeln('Adding jQuery version to test: ' + versions[i]);
-			
+
 			if (arguments[0] === 'requirejs') {
 				versionUrls.push('./test/requirejs/' + file + '?jquery=' + versions[i]);
 			} else {
