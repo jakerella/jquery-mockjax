@@ -10,7 +10,7 @@
     "forin": false,   //requires all `for in` loops to filter object's items with `hasOwnProperty()`
     "immed": true,   //prohibits the use of immediate function invocations without wrapping them in parentheses
     "indent": 4,      //enforces specific tab width
-    "latedef": true,   //prohibits the use of a variable before it was defined
+    "latedef": false,   //prohibits the use of a variable before it was defined
     "newcap": true,   //requires you to capitalize names of constructor functions
     "noarg": true,   //prohibits the use of `arguments.caller` and `arguments.callee`
     "noempty": true,   //warns when you have an empty block in your code
@@ -52,7 +52,7 @@
     "validthis": true,  //suppresses warnings about possible strict violations when the code is running in strict mode and you use `this` in a non-constructor function
 
     // ENVIRONMENTS / GLOBALS
-    
+
     "browser": true,
     "jquery": true,
     "node": true,
