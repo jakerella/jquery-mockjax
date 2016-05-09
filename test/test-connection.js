@@ -119,6 +119,26 @@
 		}, 30);
 	});
 
+	t('Response time with jsonp deferred response', function(assert) {
+		var done = assert.async();
+		var executed = false, ts = new Date();
+
+		$.ajax({
+			url: 'http://foobar.com/jsonp-delay?callback=?',
+			dataType: 'jsonp'
+		}).done(function() {
+            var delay = ((new Date()) - ts);
+            assert.ok( delay >= 150, 'Correct delay simulation (' + delay + ')' );
+            assert.ok( executed, 'Callback execution order correct');
+            done();
+		});
+
+		setTimeout(function() {
+			assert.ok( executed === false, 'No premature callback execution');
+			executed = true;
+		}, 30);
+	});
+
 	t('Response time with min and max values', function (assert) {
 		var done = assert.async();
 		
