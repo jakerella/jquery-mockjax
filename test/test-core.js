@@ -1,12 +1,12 @@
 (function(qunit, $) {
 	'use strict';
-	
+
 	var t = qunit.test;
-	
+
 	/* ----------------- */
 	qunit.module( 'Core' );
 	/* ----------------- */
-	
+
 	t('Return XMLHttpRequest object from $.ajax', function(assert) {
 		$.mockjax({
 			url: '/xmlhttprequest',
@@ -59,13 +59,13 @@
 			complete: done
 		});
 	});
-	
+
 	t('Intercept proxy calls for XML', function(assert) {
 		$.mockjax({
 			url: '/proxy',
 			proxy: 'test_proxy.xml'
 		});
-		
+
 		$.ajax({
 			url: '/proxy',
 			dataType: 'xml',
@@ -81,7 +81,7 @@
 
 	t('Intercept and proxy (sub-ajax request)', function(assert) {
 		var done = assert.async();
-		
+
 		$.mockjax({
 			url: '/proxy',
 			proxy: 'test_proxy.json'
@@ -100,7 +100,7 @@
 
 	t('Proxy type specification', function(assert) {
 		var done = assert.async();
-		
+
 		$.mockjax({
 			url: '/proxy',
 			proxy: 'test_proxy.json',
@@ -120,7 +120,7 @@
 
 	t('Support 1.5 $.ajax(url, settings) signature.', function(assert) {
 		var done = assert.async();
-		
+
 		$.mockjax({
 			url: '/resource',
 			responseText: 'Hello World'
@@ -137,7 +137,7 @@
 
 	t('Dynamic response callback', function(assert) {
 		var done = assert.async();
-		
+
 		$.mockjax({
 			url: '/response-callback',
 			response: function(settings) {
@@ -161,7 +161,7 @@
 
 	t('Dynamic asynchronous response callback', function(assert) {
 		var done = assert.async();
-		
+
 		$.mockjax({
 			url: '/response-callback',
 			responseText: 'original response',
@@ -192,7 +192,7 @@
 		// The $.ajax() API changed in version 1.4 to include the third argument: xhr
 		t('Success callback should have access to xhr object', function(assert) {
 			var done = assert.async();
-			
+
 			$.mockjax({
 				url: '/response'
 			});
@@ -215,7 +215,7 @@
 
 	t('Dynamic response status callback', function(assert) {
 		var done = assert.async();
-		
+
 		$.mockjax({
 			url: '/response-callback',
 			response: function() {
@@ -249,7 +249,7 @@
 
 	t('Default Response Settings', function(assert) {
 		var done = assert.async();
-		
+
 		$.mockjax({
 			url: '/response-callback'
 		});
@@ -278,7 +278,7 @@
 
 	t('Throw new error when throwUnmocked is set to true and unmocked ajax calls are fired', function(assert) {
 		var done = assert.async();
-		
+
 		$.mockjaxSettings.throwUnmocked = true;
 
 		try {
@@ -300,7 +300,7 @@
 
 	t('Get unfired handlers', function(assert) {
 		var done = assert.async();
-		
+
 		$.mockjax({
 			url: '/api/example/1'
 		});
@@ -323,7 +323,7 @@
 
 	t('Get unfired handlers after calling mockjax.clear', function(assert) {
 		var done = assert.async();
-		
+
 		$.mockjax({
 			url: '/api/example/1'
 		});
@@ -350,7 +350,7 @@
 
 	t('Response settings correct using PUT method', function(assert) {
 		var done = assert.async();
-		
+
 		$.mockjax({
 			url: '/put-request',
 			type: 'PUT',
@@ -372,7 +372,7 @@
 
 	t('Preserve context when set in jsonp ajax requet', function(assert) {
 		var done = assert.async();
-		
+
 		$.mockjax({
 				url: '/jsonp*',
 				contentType: 'text/json',
@@ -396,7 +396,7 @@
 
 	t('Validate this is the $.ajax object if context is not set', function(assert) {
 		var done = assert.async();
-		
+
 		$.mockjax({
 				url: '/jsonp*',
 				contentType: 'text/json',
@@ -416,10 +416,10 @@
 			done();
 		});
 	});
-	
+
 	t('Dynamic mock definition', function(assert) {
 		var done = assert.async();
-		
+
 		$.mockjax( function( settings ) {
 			var service = settings.url.match(/\/users\/(.*)$/);
 			if (service) {
@@ -442,7 +442,7 @@
 
 	t('Dynamic mock response generation', function(assert) {
 		var done = assert.async();
-		
+
 		$.mockjax({
 			url: '/response-callback',
 			response: function() {
@@ -459,6 +459,40 @@
 			},
 			complete: done
 		});
-	});	
+	});
+
+	t('Case-insensitive matching for request types', function(assert) {
+		var done = assert.async();
+
+		$.mockjax({
+			url: '/case_insensitive_match',
+			type: 'GET',
+			responseText: 'uppercase type response'
+		});
+
+		$.ajax({
+			url: '/case_insensitive_match',
+			type: 'get',
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.responseText, 'uppercase type response', 'Request matched regardless of case');
+				done();
+			}
+		});
+	});
+
+	t('Inspecting $.mockjax.handler(id) after request has fired', function(assert) {
+		var ID = $.mockjax({
+			url: '/mockjax_properties',
+			responseText: 'Hello Word'
+		});
+
+		$.ajax({
+			url: '/mockjax_properties',
+			complete: function() {}
+		});
+
+		assert.ok($.mockjax.handler(ID).fired, 'Sets the mock\'s fired property to true');
+	});
 
 })(window.QUnit, window.jQuery);
