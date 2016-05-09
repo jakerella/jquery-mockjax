@@ -77,7 +77,7 @@
 				return mock === live;
 			}
 		}
-		
+
 		$.each(mock, function(k) {
 			if ( live[k] === undefined ) {
 				identical = false;
@@ -100,12 +100,12 @@
 
 		return identical;
 	}
-	
+
 	function getQueryParams(queryString) {
 		var i, l, param, tmp,
 			paramsObj = {},
 			params = String(queryString).split(/&/);
-		
+
 		for (i=0, l=params.length; i<l; ++i) {
 			param = params[i];
 			try {
@@ -115,7 +115,7 @@
 				// Can't parse this one, so let it go?
 				continue;
 			}
-			
+
 			if (paramsObj[param[0]]) {
 				// this is an array query param (more than one entry in query)
 				if (!paramsObj[param[0]].splice) {
@@ -129,7 +129,7 @@
 				paramsObj[param[0]] = param[1];
 			}
 		}
-		
+
 		return paramsObj;
 	}
 
@@ -315,7 +315,7 @@
 					// jQuery will convert the text to XML for us, and if we use the actual responseXML here
 					// then some other things don't happen, resulting in no data given to the 'success' cb
 					mockHandler.responseXML = mockHandler.responseText = xhr.responseText;
-					
+
 					// Don't override the handler status/statusText if it's specified by the config
 					if (isDefaultSetting(mockHandler, 'status')) {
 						mockHandler.status = xhr.status;
@@ -483,8 +483,8 @@
 			return newMock;
 
 		} else {
-			$.globalEval( '(' + 
-				((typeof mockHandler.responseText === 'string') ? 
+			$.globalEval( '(' +
+				((typeof mockHandler.responseText === 'string') ?
 					('"' + mockHandler.responseText + '"') : mockHandler.responseText) +
 			')');
 		}
@@ -633,10 +633,10 @@
 			}
 
             // We are mocking, so there will be no cross domain request, however, jQuery
-            // aggressively pursues this if the domains don't match, so we need to 
-            // explicitly disallow it. (See #136) 
-            origSettings.crossDomain = false;            
-            
+            // aggressively pursues this if the domains don't match, so we need to
+            // explicitly disallow it. (See #136)
+            origSettings.crossDomain = false;
+
 			// Removed to fix #54 - keep the mocking data object intact
 			//mockHandler.data = requestSettings.data;
 
@@ -759,6 +759,14 @@
 	var DEFAULT_RESPONSE_TIME = 500;
 
 
+    /**
+     * Default settings for mockjax. Some of these are used for defaults of
+     * individual mock handlers, and some are for the library as a whole.
+     * For individual mock handler settings, please see the README on the repo:
+     * https://github.com/jakerella/jquery-mockjax#api-methods
+     *
+     * @type {Object}
+     */
 	$.mockjaxSettings = {
 		//url:  null,
 		//type: 'GET',
@@ -805,11 +813,30 @@
 		}
 	};
 
+    /**
+     * Create a new mock Ajax handler. When a mock handler is matched during a
+     * $.ajax() call this library will intercept that request and fake a response
+     * using the data and methods in the mock. You can see all settings in the
+     * README of the main repository:
+     * https://github.com/jakerella/jquery-mockjax#api-methods
+     *
+     * @param  {Object} settings The mock handelr settings: https://github.com/jakerella/jquery-mockjax#api-methods
+     * @return {Number}          The id (index) of the mock handler suitable for clearing (see $.mockjax.clear())
+     */
 	$.mockjax = function(settings) {
 		var i = mockHandlers.length;
 		mockHandlers[i] = settings;
 		return i;
 	};
+
+    /**
+     * Remove an Ajax mock from those held in memory. This will prevent any
+     * future Ajax request mocking for matched requests.
+     * NOTE: Clearing a mock will not prevent the resolution of in progress requests
+     *
+     * @param  {Number|String|RegExp} i  OPTIONAL The mock to clear. If not provided, all mocks are cleared, if a number it is the index in the in-memory cache. If a string or RegExp, find a mock that matches that URL and clear it.
+     * @return {void}
+     */
 	$.mockjax.clear = function(i) {
 		if ( typeof i === 'string' || i instanceof RegExp) {
 			mockHandlers = clearByUrl(i);
@@ -821,18 +848,46 @@
 		mockedAjaxCalls = [];
 		unmockedAjaxCalls = [];
 	};
+
+    /**
+     * By default all Ajax requests performed after loading Mockjax are recorded
+     * so that we can see which requests were mocked and which were not. This
+     * method allows the developer to clear those retained requests.
+     *
+     * @return {void}
+     */
 	$.mockjax.clearRetainedAjaxCalls = function() {
 		mockedAjaxCalls = [];
 		unmockedAjaxCalls = [];
 	};
+
+    /**
+     * Retrive the mock handler with the given id (index).
+     *
+     * @param  {Number} i  The id (index) to retrieve
+     * @return {Object}    The mock handler settings
+     */
 	$.mockjax.handler = function(i) {
 		if ( arguments.length === 1 ) {
 			return mockHandlers[i];
 		}
 	};
+
+    /**
+     * Retrieve all Ajax calls that have been mocked by this library during the
+     * current session (in other words, only since you last loaded this file).
+     *
+     * @return {Array}  The mocked Ajax calls (request settings)
+     */
 	$.mockjax.mockedAjaxCalls = function() {
 		return mockedAjaxCalls;
 	};
+
+    /**
+     * Return all mock handlers that have NOT been matched against Ajax requests
+     *
+     * @return {Array}  The mock handlers
+     */
 	$.mockjax.unfiredHandlers = function() {
 		var results = [];
 		for (var i=0, len=mockHandlers.length; i<len; i++) {
@@ -843,6 +898,13 @@
 		}
 		return results;
 	};
+
+    /**
+     * Retrieve all Ajax calls that have NOT been mocked by this library during
+     * the current session (in other words, only since you last loaded this file).
+     *
+     * @return {Array}  The mocked Ajax calls (request settings)
+     */
 	$.mockjax.unmockedAjaxCalls = function() {
 		return unmockedAjaxCalls;
 	};
