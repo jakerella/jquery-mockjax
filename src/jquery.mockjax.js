@@ -770,7 +770,7 @@
 
 			// Is logging turned off for this mock or mockjax as a whole?
 			// Or is this log message above the desired log level?
-			if ( loggerLevel === false || loggerLevel > level ) {
+			if ( loggerLevel === false || loggerLevel < level ) {
 				return;
 			}
 

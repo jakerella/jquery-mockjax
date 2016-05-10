@@ -44,6 +44,27 @@
 		});
 	});
 
+	t('Logging with high level', function(assert) {
+		$.mockjaxSettings.logging = 4;
+		$.mockjax._logger.debug({}, 'foobar');
+		$.mockjax._logger.info({}, 'foobar');
+		$.mockjax._logger.error({}, 'foobar');
+		assert.ok(winLogger.debug.calledWith('foobar'), 'Log handler 4 was not called for debug');
+		assert.ok(winLogger.info.calledWith('foobar'), 'Log handler 4 was not called for info');
+		assert.ok(winLogger.error.calledWith('foobar'), 'Log handler 4 was not called for error');
+	});
+
+	t('Logging with low level', function(assert) {
+		$.mockjaxSettings.logging = 0;
+		$.mockjax._logger.debug({}, 'foobar');
+		$.mockjax._logger.debug({ logging: 4 }, 'foobar');
+		$.mockjax._logger.info({}, 'foobar');
+		$.mockjax._logger.error({}, 'foobar');
+		assert.strictEqual(winLogger.debug.callCount, 1, 'Log handler 0 was called too much for debug');
+		assert.strictEqual(winLogger.info.callCount, 0, 'Log handler 0 was called for info');
+		assert.ok(winLogger.error.calledWith('foobar'), 'Log handler 4 was not called for error');
+	});
+
 	t('Custom (deprecated) log handler', function(assert) {
 		var done = assert.async();
 
@@ -98,8 +119,8 @@
 			complete: function() {
 				assert.strictEqual(winLogger.info.callCount, 0, 'Log called when disabled');
 
-				$.mockjax._logger.debug({}, 'foo');
-				assert.strictEqual(winLogger.debug.callCount, 1, 'General log not called when disabled per mock');
+				$.mockjax._logger.warn({}, 'foo');
+				assert.strictEqual(winLogger.warn.callCount, 1, 'General log not called when disabled per mock');
 
 				done();
 			}
