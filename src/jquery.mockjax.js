@@ -762,26 +762,46 @@
 	var logger = {
 		_log: function logger( mockHandler, args, level ) {
 			var loggerLevel = $.mockjaxSettings.logging;
-			if (typeof mockHandler.logging !== 'undefined') {
+			if (mockHandler && typeof mockHandler.logging !== 'undefined') {
 				loggerLevel = mockHandler.logging;
 			}
-			level = (level === 0) ? level : (level || logLevels.LOG);
+			level = ( level === 0 ) ? level : ( level || logLevels.LOG );
+			args = (args.splice) ? args : [ args ];
 
 			// Is logging turned off for this mock or mockjax as a whole?
 			// Or is this log message above the desired log level?
-			if ( loggerLevel === false || loggerLevel < level ) {
+			if ( loggerLevel === false || loggerLevel > level ) {
 				return;
 			}
 
-			if ( $.mockjaxSettings.logger && $.mockjaxSettings.logger[$.mockjaxSettings.logLevelMethods[level]] ) {
-				return $.mockjaxSettings.logger[$.mockjaxSettings.logLevelMethods[level]].apply($.mockjaxSettings.logger, args);
+			if ( $.mockjaxSettings.log ) {
+				return $.mockjaxSettings.log( mockHandler, args[1] || args[0] );
+			} else if ( $.mockjaxSettings.logger && $.mockjaxSettings.logger[$.mockjaxSettings.logLevelMethods[level]] ) {
+				return $.mockjaxSettings.logger[$.mockjaxSettings.logLevelMethods[level]].apply( $.mockjaxSettings.logger, args );
 			}
 		},
-		// Convenience methods
+		/**
+		 * Convenience method for logging a DEBUG level message
+		 * @param  {Object} m  The mock handler in question
+		 * @param  {Array|String|Object} a  The items to log
+		 * @return {?}  Will return whatever the $.mockjaxSettings.logger method for this level would return (generally 'undefined')
+		 */
 		debug: function(m,a) { return logger._log(m,a,logLevels.DEBUG); },
+		/**
+		 * @see logger.debug
+		 */
 		log: function(m,a) { return logger._log(m,a,logLevels.LOG); },
+		/**
+		 * @see logger.debug
+		 */
 		info: function(m,a) { return logger._log(m,a,logLevels.INFO); },
+		/**
+		 * @see logger.debug
+		 */
 		warn: function(m,a) { return logger._log(m,a,logLevels.WARN); },
+		/**
+		 * @see logger.debug
+		 */
 		error: function(m,a) { return logger._log(m,a,logLevels.ERROR); }
 	};
 
@@ -844,6 +864,8 @@
 		return i;
 	};
 
+	$.mockjax._logger = logger;
+
 	/**
 	 * Remove an Ajax mock from those held in memory. This will prevent any
 	 * future Ajax request mocking for matched requests.
@@ -858,8 +880,13 @@
 		if ( typeof i === 'string' || i instanceof RegExp) {
 			mockHandlers = clearByUrl(i);
 		} else if ( i || i === 0 ) {
+			// logger.log( mockHandlers[i], [
+			// 	'Clearing mock: ' + (mockHandlers[i] && mockHandlers[i].url),
+			// 	mockHandlers[i]
+			// ] );
 			mockHandlers[i] = null;
 		} else {
+			// logger.log( null, 'Clearing all mocks' );
 			mockHandlers = [];
 		}
 		mockedAjaxCalls = [];
