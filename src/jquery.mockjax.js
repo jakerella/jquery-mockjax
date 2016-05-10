@@ -65,6 +65,7 @@
 	// can be used to restrict a mock handler to being used only when a certain
 	// set of data is passed to it.
 	function isMockDataEqual( mock, live ) {
+		logger.debug( mock, ['Checking mock data against request data', mock, live] );
 		var identical = true;
 		// Test for situations where the data is a querystring (not an object)
 		if (typeof live === 'string') {
@@ -129,6 +130,8 @@
 				paramsObj[param[0]] = param[1];
 			}
 		}
+
+		logger.debug( null, ['Getting query params from string', queryString, paramsObj] );
 
 		return paramsObj;
 	}
@@ -228,6 +231,7 @@
 
 	// Process the xhr objects send operation
 	function _xhrSend(mockHandler, requestSettings, origSettings) {
+		logger.debug( mockHandler, ['Sending fake XHR request', mockHandler, requestSettings, origSettings] );
 
 		// This is a substitute for < 1.4 which lacks $.proxy
 		var process = (function(that) {
@@ -302,6 +306,7 @@
 		})(this);
 
 		if ( mockHandler.proxy ) {
+			logger.info( mockHandler, ['Retrieving proxy file: ' + mockHandler.proxy, mockHandler] );
 			// We're proxying this request and loading in an external file instead
 			_ajax({
 				global: false,
@@ -346,6 +351,8 @@
 
 	// Construct a mocked XHR Object
 	function xhr(mockHandler, requestSettings, origSettings, origHandler) {
+		logger.debug( mockHandler, ['Creating new mock XHR object', mockHandler, requestSettings, origSettings, origHandler] );
+
 		// Extend with our default mockjax settings
 		mockHandler = $.extend(true, {}, $.mockjaxSettings, mockHandler);
 
@@ -449,6 +456,8 @@
 
 	// Process a JSONP request by evaluating the mocked response text
 	function processJsonpRequest( requestSettings, mockHandler, origSettings ) {
+		logger.debug( mockHandler, ['Performing JSONP request', mockHandler, requestSettings, origSettings] );
+
 		// Synthesize the mock request for adding a script tag
 		var callbackContext = origSettings && origSettings.context || requestSettings,
 			// If we are running under jQuery 1.5+, return a deferred object
@@ -465,6 +474,7 @@
 			$.globalEval( '(' + JSON.stringify( mockHandler.responseText ) + ')');
 
 		} else if (mockHandler.proxy) {
+			logger.info( mockHandler, ['Performing JSONP proxy request: ' + mockHandler.proxy, mockHandler] );
 
 			// This handles the unique case where we have a remote URL, but want to proxy the JSONP
 			// response to another file (not the same URL as the mock matching)
@@ -508,6 +518,7 @@
 				} catch (err) { /* just checking... */ }
 
 				newMock.resolveWith( callbackContext, [json || mockHandler.responseText] );
+				logger.log( mockHandler, ['JSONP mock call complete', mockHandler, newMock] );
 			}
 		}, parseResponseTimeOpt( mockHandler.responseTime ));
 	}
@@ -578,6 +589,8 @@
 	function handleAjax( url, origSettings ) {
 		var mockRequest, requestSettings, mockHandler, overrideCallback;
 
+		logger.debug( null, ['Ajax call intercepted', url, origSettings] );
+
 		// If url is an object, simulate pre-1.5 signature
 		if ( typeof url === 'object' ) {
 			origSettings = url;
@@ -613,6 +626,7 @@
 
 			mockHandler = getMockForRequest( mockHandlers[k], requestSettings );
 			if(!mockHandler) {
+				logger.debug( mockHandlers[k], ['Mock does not match request', url, requestSettings] );
 				// No valid mock found for this request
 				continue;
 			}
@@ -686,6 +700,7 @@
 		}
 
 		// We don't have a mock request
+		logger.log( null, ['No mock matched to request', url, origSettings] );
 		if ($.mockjaxSettings.retainAjaxCalls) {
 			unmockedAjaxCalls.push(origSettings);
 		}
@@ -747,6 +762,11 @@
 			handler = mockHandlers[i];
 			if (!match(handler.url)) {
 				results.push(handler);
+			} else {
+				logger.log( handler, [
+					'Clearing mock: ' + (handler && handler.url),
+					handler
+				] );
 			}
 		}
 		return results;
@@ -861,6 +881,7 @@
 	$.mockjax = function(settings) {
 		var i = mockHandlers.length;
 		mockHandlers[i] = settings;
+		logger.log( settings, ['Created new mock handler', settings] );
 		return i;
 	};
 
@@ -880,13 +901,13 @@
 		if ( typeof i === 'string' || i instanceof RegExp) {
 			mockHandlers = clearByUrl(i);
 		} else if ( i || i === 0 ) {
-			// logger.log( mockHandlers[i], [
-			// 	'Clearing mock: ' + (mockHandlers[i] && mockHandlers[i].url),
-			// 	mockHandlers[i]
-			// ] );
+			logger.log( mockHandlers[i], [
+				'Clearing mock: ' + (mockHandlers[i] && mockHandlers[i].url),
+				mockHandlers[i]
+			] );
 			mockHandlers[i] = null;
 		} else {
-			// logger.log( null, 'Clearing all mocks' );
+			logger.log( null, 'Clearing all mocks' );
 			mockHandlers = [];
 		}
 		mockedAjaxCalls = [];
@@ -903,6 +924,7 @@
 	$.mockjax.clearRetainedAjaxCalls = function() {
 		mockedAjaxCalls = [];
 		unmockedAjaxCalls = [];
+		logger.debug( null, 'Cleared retained ajax calls' );
 	};
 
 	/**
