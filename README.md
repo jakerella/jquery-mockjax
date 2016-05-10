@@ -41,6 +41,7 @@ You may report any issues you may find [in the github issue tracking](https://gi
 * [Miscellaneous Information](#miscellaneous-information)
   * [jQuery Version Support](#jquery-version-support)
   * [Browsers Tested](#browsers-tested)
+  * [Logging](#logging)
   * [Release History](#release-history)
   * [License](#license)
 
@@ -349,9 +350,9 @@ $.mockjax({
 The `/mocks/data.json` file can have any valid JSON content you want, and allows
 you to maintain that mock data in its own file for maintainability.
 
-> Note: If you're testing your code with a poxy, it is best to run an actual web 
-server for the tests. Simply loading `test/index.html` from the file system may 
-result in the proxy file not being loaded correctly. We recommend using something 
+> Note: If you're testing your code with a poxy, it is best to run an actual web
+server for the tests. Simply loading `test/index.html` from the file system may
+result in the proxy file not being loaded correctly. We recommend using something
 like the [`http-server` npm module](https://www.npmjs.com/package/http-server).
 
 #### Callback ####
@@ -610,7 +611,10 @@ settings are as follows:
 
 ```javascript
 {
-  logging:         true,
+  log:             null,  // DEPRECATED, use $.mockjaxSettings.logger instead
+  logger:          window.console,
+  logging:         2,
+  logLevelMethods: ['error', 'warn', 'info', 'log', 'debug'],
   namespace:       null,
   status:          200,
   statusText:      "OK",
@@ -712,6 +716,64 @@ we test the specific versions of IE specified.
 _Please note that while we strive to keep `master` as bug free as possible, we do
 not necessarily run tests in all of the above browsers for every single commit. We
 do, however, ensure all tests are passing before tagging a release._
+
+### Logging ###
+
+Mockjax logs various pieces of information to the `console` (on `window`) in
+browsers, or to stdout in Node). You can customize various aspects of the
+logging to suit your needs. By default, only 'error', 'warn' or 'info' messages
+will be shown, but detailed information may be available in debug logs. Below
+are some common things you might need to do to get better logging information.
+
+#### Show different levels of log messages
+
+```js
+$.mockjaxSettings.logging = 4;  // very verbose debug messages
+$.mockjaxSettings.logging = 3;  // verbose log messages
+$.mockjaxSettings.logging = 2;  // informational messages
+$.mockjaxSettings.logging = 1;  // warning messages
+$.mockjaxSettings.logging = 0;  // only critical error messages
+```
+
+(Note that each level enables that level plus any lower number... thus setting
+logging to `2` also enables warnings and errors.)
+
+#### Implement a custom logger
+
+If you don't want to use the `console` object, you can pass in your own logging
+implementation with the `logger` setting. Note that your logger must either
+implement the `debug`, `log`, `info`, `warn`, and `error` methods, or you must
+also provide what methods map to the 5 levels (0 through 4).
+
+```js
+$.mockjaxSettings.logger = {
+  debug: function() { ... },
+  log: function() { ... },
+  // ...
+};
+```
+
+Your logger methods may receive any number of arguments to log out, either as
+strings or objects, similar to how the `window.console` object methods work.
+
+If you have a logger that uses different methods names, specify them in this array:
+
+```js
+$.mockjaxSettings.logLevelMethods = ['critical', 'bad', 'stuff', 'log', 'verbose'];
+```
+
+Note that the first entry in this array (index `0`) will be errors while the last
+entry will be verbose output. Anything beyond index `4` will be ignored.
+
+#### What about the old `log` setting?
+
+This was an undocumented feature whereby you could provide a `log` method using
+`$.mockjaxSettings`, however, it is no longer used internally. This undocumented
+option is now **deprecated**, and while it will work, log messages of ALL levels
+will be sent to it.
+
+If you have no idea what we're talking about... good! Don't worry about it. The
+proper way to implement your own logger is via `$.mockjaxSettings.logger`.
 
 ### Release History ###
 
