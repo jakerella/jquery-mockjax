@@ -81,7 +81,7 @@ checkout this list:
   * Returns that handler's index, can be used to clear individual handlers
   * `options`: [Object] Defines the settings to use for the mocked request
       * `url`: [String | RegExp] Specifies the url of the request that the data should be mocked for. If it is a string and contains any asterisks ( `*` ), they will be treated as a wildcard by translating to a regular expression. Any `*` will be replaced with `.+`. If you run into trouble with this shortcut, switch to using a full regular expression instead of a string and asterisk combination
-      * `data`: [Object] In addition to the URL, match parameters
+      * `data`: [Object | Function] In addition to the URL, match parameters
       * `type`: [String] Specify what HTTP method to match, usually GET or POST. Case-insensitive, so `get` and `post` also work
       * `headers`: [Object] Keys will be simulated as additional headers returned from the server for the request (**NOTE: This is NOT used to match request headers!**)
       * `status`: [Number] An integer that specifies a valid server response code. This simulates a server response code

@@ -252,6 +252,61 @@
 		});
 	});
 
+	t('Multiple data matching requests with data function', function(assert) {
+		var done = assert.async();
+
+		$.mockjax({
+			url: '/response-callback',
+			data: function(data) {
+				return (data.answer === 'yes');
+			},
+			responseText: {'yes?': 'yes'}
+		});
+		$.mockjax({
+			url: '/response-callback',
+			data: function(data) {
+				return (data.answer === 'yes');
+			},
+			responseText: {'yes?': 'yes'}
+		});
+
+		var callCount = 2;
+		$.ajax({
+			url: '/response-callback',
+			data: {
+                answer: 'yes'
+            },
+			success: function(resp) {
+				assert.deepEqual( resp, {'yes?': 'yes'}, 'correct mock hander' );
+			},
+			complete: function() {
+				callCount--;
+
+				if (callCount <= 0) {
+					done();
+				}
+			}
+		});
+		var notMatched = false;
+		$.ajax({
+			url: '/response-callback',
+			data: {
+				answer: 'no'
+			},
+			error: function() {
+				notMatched = true;
+			},
+			complete: function() {
+				callCount--;
+				assert.ok( notMatched , 'correct data function' );
+
+				if (callCount <= 0) {
+					done();
+				}
+			}
+		});
+    });
+
 	t('Bug #106: Null matching on request', function(assert) {
 		var done = assert.async();
 		
