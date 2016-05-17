@@ -1,28 +1,36 @@
-(function(qunit, $) {
+(function(qunit, $, sinon) {
 	'use strict';
-	
-	var t = qunit.test;
-	
-	/* -------------------- */
-	qunit.module( 'Logging' );
-	/* -------------------- */
-	
-	t('Default log handler', function(assert) {
-		var done = assert.async();
-		
-		if ( !window ) {
-			// We aren't running in a context with window available
-			done();
-			return;
-		}
 
-		var _oldConsole = window.console;
-		var msg = null;
-		window.console = { log: function ( message ) {
-			msg = message;
-		}};
-		var _oldLogging = $.mockjaxSettings.logging;
-		$.mockjaxSettings.logging = true;
+	var t = qunit.test;
+	var winLogger;
+
+	/* -------------------- */
+	qunit.module( 'Logging', {
+	/* -------------------- */
+
+		beforeEach: function() {
+			winLogger = {
+				debug: sinon.stub(console, 'debug'),
+				log: sinon.stub(console, 'log'),
+				info: sinon.stub(console, 'info'),
+				warn: sinon.stub(console, 'warn'),
+				error: sinon.stub(console, 'error')
+			};
+			$.mockjaxSettings.logger = winLogger;
+			$.mockjaxSettings.logging = 2;
+		},
+		afterEach: function() {
+			winLogger.debug.restore();
+			winLogger.log.restore();
+			winLogger.info.restore();
+			winLogger.warn.restore();
+			winLogger.error.restore();
+		}
+	});
+
+	t('Default log handler (window.console)', function(assert) {
+		var done = assert.async();
+
 		$.mockjax({
 			 url: '*'
 		});
@@ -30,21 +38,39 @@
 			url: '/console',
 			type: 'GET',
 			complete: function() {
-				window.console = _oldConsole;
-				assert.equal(msg, 'MOCK GET: /console', 'Default log handler was not called');
-				$.mockjaxSettings.logging = _oldLogging;
+				assert.ok(winLogger.info.calledWith('MOCK GET: /console'), 'Default log handler was not called');
 				done();
 			}
 		});
 	});
 
-	t('Custom log handler', function(assert) {
+	t('Logging with high level', function(assert) {
+		$.mockjaxSettings.logging = 4;
+		$.mockjax._logger.debug({}, 'foobar');
+		$.mockjax._logger.info({}, 'foobar');
+		$.mockjax._logger.error({}, 'foobar');
+		assert.ok(winLogger.debug.calledWith('foobar'), 'Log handler 4 was not called for debug');
+		assert.ok(winLogger.info.calledWith('foobar'), 'Log handler 4 was not called for info');
+		assert.ok(winLogger.error.calledWith('foobar'), 'Log handler 4 was not called for error');
+	});
+
+	t('Logging with low level', function(assert) {
+		$.mockjaxSettings.logging = 0;
+		$.mockjax._logger.debug({}, 'foobar');
+		$.mockjax._logger.debug({ logging: 4 }, 'foobar');
+		$.mockjax._logger.info({}, 'foobar');
+		$.mockjax._logger.error({}, 'foobar');
+		assert.strictEqual(winLogger.debug.callCount, 1, 'Log handler 0 was called too much for debug');
+		assert.strictEqual(winLogger.info.callCount, 0, 'Log handler 0 was called for info');
+		assert.ok(winLogger.error.calledWith('foobar'), 'Log handler 4 was not called for error');
+	});
+
+	t('Custom (deprecated) log handler', function(assert) {
 		var done = assert.async();
-		
+
 		var msg = null;
-		var _oldLog = $.mockjaxSettings.log;
-		$.mockjaxSettings.log = function( mockHandler, requestSettings) {
-			msg = requestSettings.type.toUpperCase() + ': ' + requestSettings.url;
+		$.mockjaxSettings.log = function customLogger( mockHandler, requestSettings) {
+			msg = mockHandler.url + ' - ' + requestSettings.type.toUpperCase() + ': ' + requestSettings.url;
 		};
 		$.mockjax({
 			 url: '*'
@@ -53,8 +79,7 @@
 			url: '/console',
 			type: 'GET',
 			complete: function() {
-				assert.equal(msg, 'GET: /console', 'Custom log handler was not called');
-				$.mockjaxSettings.log = _oldLog;
+				assert.equal(msg, '* - GET: /console', 'Custom log handler was not called');
 				done();
 			}
 		});
@@ -62,22 +87,7 @@
 
 	t('Disable logging via `logging: false`', function(assert) {
 		var done = assert.async();
-		
-		if ( !window ) {
-			// We aren't running in a context with window available
-			done();
-			return;
-		}
 
-		var _oldConsole = window.console;
-		var msg = null;
-		window.console = { log: function ( message ) {
-			msg = message;
-		}};
-
-		var _oldLogging = $.mockjaxSettings.logging;
-
-		// Even though this is the suite default, we force it to be off
 		$.mockjaxSettings.logging = false;
 
 		$.mockjax({
@@ -86,9 +96,11 @@
 		$.ajax({
 			url: '/console',
 			complete: function() {
-				window.console = _oldConsole;
-				assert.equal(msg, null, 'Logging method incorrectly called');
-				$.mockjaxSettings.logging = _oldLogging;
+				assert.strictEqual(winLogger.info.callCount, 0, 'Log called when disabled');
+
+				$.mockjax._logger.debug({}, 'foo');
+				assert.strictEqual(winLogger.debug.callCount, 0, 'Log called when disabled');
+
 				done();
 			}
 		});
@@ -96,23 +108,6 @@
 
 	t('Disable logging per mock via `logging: false`', function(assert) {
 		var done = assert.async();
-		
-		if ( !window ) {
-			// We aren't running in a context with window available
-			done();
-			return;
-		}
-
-		var _oldConsole = window.console;
-		var msg = null;
-		window.console = { log: function ( message ) {
-			msg = message;
-		}};
-
-		var _oldLogging = $.mockjaxSettings.logging;
-
-		// Even though this is the suite default, we force it to be on
-		$.mockjaxSettings.logging = true;
 
 		$.mockjax({
 			url: '*',
@@ -122,46 +117,15 @@
 		$.ajax({
 			url: '/console',
 			complete: function() {
-				window.console = _oldConsole;
-				assert.equal(msg, null, 'Logging method incorrectly called');
-				$.mockjaxSettings.logging = _oldLogging;
+				assert.strictEqual(winLogger.info.callCount, 0, 'Log called when disabled');
+
+				$.mockjax._logger.warn({}, 'foo');
+				assert.strictEqual(winLogger.warn.callCount, 1, 'General log not called when disabled per mock');
+
 				done();
 			}
 		});
 	});
 
-	t('Inspecting $.mockjax.handler(id) after request has fired', function(assert) {
-		var ID = $.mockjax({
-			url: '/mockjax_properties',
-			responseText: 'Hello Word'
-		});
 
-		$.ajax({
-			url: '/mockjax_properties',
-			complete: function() {}
-		});
-
-		assert.ok($.mockjax.handler(ID).fired, 'Sets the mock\'s fired property to true');
-	});
-
-	t('Case-insensitive matching for request types', function(assert) {
-		var done = assert.async();
-		
-		$.mockjax({
-			url: '/case_insensitive_match',
-			type: 'GET',
-			responseText: 'uppercase type response'
-		});
-
-		$.ajax({
-			url: '/case_insensitive_match',
-			type: 'get',
-			error: qunit.noErrorCallbackExpected,
-			complete: function(xhr) {
-				assert.equal(xhr.responseText, 'uppercase type response', 'Request matched regardless of case');
-				done();
-			}
-		});
-	});
-
-})(window.QUnit, window.jQuery);
+})(window.QUnit, window.jQuery, window.sinon);
