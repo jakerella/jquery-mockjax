@@ -262,9 +262,34 @@ You can also match against the data option in addition to url:
 
 ```javascript
 $.mockjax({
-    url:  "/rest",
-    data: { action: "foo" }
+  url:  "/rest",
+  data: { action: "foo" }
 });
+```
+
+The data option may be a custom matching function returning `true` of `false`
+whether the data is expected or not:
+
+```javascript
+$.mockjax([
+  url: "/rest",
+  data: function( data ) {
+    return deepEqual( data, expected );
+  }
+]);
+```
+
+The data function is a recommended place for assertions. Return `true` and let
+a testing framework of choice do the rest:
+
+```javascript
+$.mockjax([
+  url: "/rest",
+  data: function ( json ) {
+    assert.deepEqual( JSON.parse(json), expected ); // QUnit example.
+    return true;
+  }
+]);
 ```
 
 To capture URL parameters, use a capturing regular expression for the
