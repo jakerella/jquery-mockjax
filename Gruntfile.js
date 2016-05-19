@@ -1,10 +1,11 @@
-module.exports = function(grunt) {
+module.exports = function( grunt ) {
 	"use strict";
 
 	// Project configuration
-	grunt.initConfig({
+	grunt.initConfig( {
+
 		// Metadata
-		pkg: grunt.file.readJSON("package.json"),
+		pkg: grunt.file.readJSON( "package.json" ),
 
 		banner: [
 			"/*! <%= pkg.title || pkg.name %>",
@@ -18,7 +19,7 @@ module.exports = function(grunt) {
 			" * Dual licensed under the MIT or GPL licenses.",
 			" * http://opensource.org/licenses/MIT OR http://www.gnu.org/licenses/gpl-2.0.html",
 			" */\n"
-		].join("\n"),
+		].join( "\n" ),
 
 		// Task configuration
 		concat: {
@@ -27,13 +28,13 @@ module.exports = function(grunt) {
 				stripBanners: true
 			},
 			dist: {
-				src: ["./src/jquery.mockjax.js"],
+				src: [ "./src/jquery.mockjax.js" ],
 				dest: "./dist/jquery.mockjax.js"
 			}
 		},
 		uglify: {
 			options: {
-				preserveComments: "some",
+				preserveComments: "some"
 			},
 			dist: {
 				src: "./dist/jquery.mockjax.js",
@@ -58,12 +59,12 @@ module.exports = function(grunt) {
 			},
 			all: {
 				src: [
-                    "./src/**/*.js",
-                    "./Gruntfile.js",
-                    "test/test.js",
-                    "test/requirejs/*.js",
-                    "test/nodejs/*.js"
-                ]
+					"./src/**/*.js",
+					"./Gruntfile.js",
+					"test/test.js",
+					"test/requirejs/*.js",
+					"test/nodejs/*.js"
+				]
 			}
 		},
 		qunit: { all: [] },  // NOTE: these tests are all run by the `test` task below to run against each jQuery version supported
@@ -111,28 +112,28 @@ module.exports = function(grunt) {
 				]
 			},
 			edge: {
-				jQueryVersions: ["git"]
+				jQueryVersions: [ "git" ]
 			},
-            dist: {
-                file: "dist-min.html",
-                jQueryVersions: [
-                    "1.5.2",
-                    "1.6.4",
-                    "1.7.2",
-                    "1.8.3",
-                    "1.9.1",
-                    "1.10.2",
-                    "1.11.3",
-                    "1.12.3",
-                    "2.0.3",
-                    "2.1.4",
+			dist: {
+				file: "dist-min.html",
+				jQueryVersions: [
+					"1.5.2",
+					"1.6.4",
+					"1.7.2",
+					"1.8.3",
+					"1.9.1",
+					"1.10.2",
+					"1.11.3",
+					"1.12.3",
+					"2.0.3",
+					"2.1.4",
 					"2.2.3"
-                ]
-            }
+				]
+			}
 		},
 		mochaTest: {
 			nodejs: {
-				src: ["./test/nodejs/*.js"]
+				src: [ "./test/nodejs/*.js" ]
 			}
 		},
 		watch: {
@@ -141,36 +142,36 @@ module.exports = function(grunt) {
 			},
 			source: {
 				files: "./src/*.js",
-				tasks: ["jshint", "test:latestInBranch"]
+				tasks: [ "jshint", "test:latestInBranch" ]
 			}
 		}
-	});
+	} );
 
-	require("load-grunt-tasks")(grunt);
+	require( "load-grunt-tasks" )( grunt );
 
-	grunt.registerTask("dev", ["jscs", "jshint", "test:all", "test:requirejs", "mochaTest"]);
-	grunt.registerTask("build", ["dev", "concat", "uglify", "test:dist"]);
-	grunt.registerTask("default", ["dev"]);
+	grunt.registerTask( "dev", [ "jscs", "jshint", "test:all", "test:requirejs", "mochaTest" ] );
+	grunt.registerTask( "build", [ "dev", "concat", "uglify", "test:dist" ] );
+	grunt.registerTask( "default", [ "dev" ] );
 
-	grunt.registerTask("test", "Executes QUnit tests with all supported jQuery versions", function() {
+	grunt.registerTask( "test", "Executes QUnit tests with all supported jQuery versions", function() {
 		var i, l,
 			versionUrls = [],
-			source = arguments[0] || "all",
-			versions = grunt.config.get("test" + ("." + source) + ".jQueryVersions") || [],
-            file = grunt.config.get("test" + ("." + source) + ".file") || "index.html";
+			source = arguments[ 0 ] || "all",
+			versions = grunt.config.get( "test" + ( "." + source ) + ".jQueryVersions" ) || [],
+			file = grunt.config.get( "test" + ( "." + source ) + ".file" ) || "index.html";
 
-		for (i=0, l=versions.length; i<l; ++i) {
-			grunt.log.writeln("Adding jQuery version to test: " + versions[i]);
+		for ( i = 0, l = versions.length; i < l; ++i ) {
+			grunt.log.writeln( "Adding jQuery version to test: " + versions[ i ] );
 
-			if (arguments[0] === "requirejs") {
-				versionUrls.push("./test/requirejs/" + file + "?jquery=" + versions[i]);
+			if ( arguments[ 0 ] === "requirejs" ) {
+				versionUrls.push( "./test/requirejs/" + file + "?jquery=" + versions[ i ] );
 			} else {
-				versionUrls.push("./test/" + file + "?jquery=" + versions[i]);
+				versionUrls.push( "./test/" + file + "?jquery=" + versions[ i ] );
 			}
 		}
 
-		grunt.config.set("qunit.options.urls", versionUrls);
-		grunt.task.run("qunit");
-	});
+		grunt.config.set( "qunit.options.urls", versionUrls );
+		grunt.task.run( "qunit" );
+	} );
 
 };
