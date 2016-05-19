@@ -1,0 +1,6 @@
+{
+	"preset": "jquery",
+	"maximumLineLength": false,
+	"requireCurlyBraces": false,
+	"validateIndentation": "\t"
+}
