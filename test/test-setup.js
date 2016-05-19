@@ -1,10 +1,10 @@
-(function(qunit, $) {
-	'use strict';
+( function( qunit, $ ) {
+	"use strict";
 
-	qunit.begin(function() {
+	qunit.begin( function() {
 
-		qunit.noErrorCallbackExpected = function noErrorCallbackExpected(xhr) {
-			qunit.assert.ok(false, 'Error callback executed: ' + xhr.status, xhr.responseText);
+		qunit.noErrorCallbackExpected = function noErrorCallbackExpected( xhr ) {
+			qunit.assert.ok( false, "Error callback executed: " + xhr.status, xhr.responseText );
 		};
 
 		// Speed up our tests
@@ -21,12 +21,12 @@
 			error: noop
 		};
 
-		qunit.defaultMockjaxSettings = $.extend({}, $.mockjaxSettings);
-	});
+		qunit.defaultMockjaxSettings = $.extend( {}, $.mockjaxSettings );
+	} );
 
-	qunit.testDone(function() {
+	qunit.testDone( function() {
 		$.mockjax.clear();
-		$.mockjaxSettings = $.extend({}, qunit.defaultMockjaxSettings);
-	});
+		$.mockjaxSettings = $.extend( {}, qunit.defaultMockjaxSettings );
+	} );
 
-})(window.QUnit, window.jQuery);
+} )( window.QUnit, window.jQuery );
