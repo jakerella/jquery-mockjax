@@ -495,4 +495,35 @@
 		assert.ok($.mockjax.handler(ID).fired, 'Sets the mock\'s fired property to true');
 	});
 
+	t('Inspecting $.mockjax() with multiple mocks argument', function(assert) {
+		var done = assert.async();
+
+		var mocks = $.mockjax([
+			{url: '/response-callback', responseText: 'First'},
+			{url: '/response-callback', responseText: 'Second'},
+		]);
+
+		assert.equal(mocks.length, 2, 'Not enough mocks')
+
+		var callCount = 2;
+		$.ajax({
+			url: '/response-callback',
+			complete: function() {
+				callCount--;
+				if (callCount === 0) {
+					done();
+				}
+			}
+		});
+		$.ajax({
+			url: '/response-callback',
+			complete: function() {
+				callCount--;
+				if (callCount === 0) {
+					done();
+				}
+			}
+		});
+	});
+
 })(window.QUnit, window.jQuery);
