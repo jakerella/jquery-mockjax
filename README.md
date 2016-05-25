@@ -316,12 +316,16 @@ $.mockjax({
 ### Defining Multiple Requests ###
 
 Since version 2.2 it is allowed to define several requests at once.
+`$.mockjax([...])` returns a array of handlers' indexes. It is possible to
+reset handler by index. Read more in [Removing Mockjax Handlers](#removing-mockjax-handlers).
 
 ```javascript
-$.mockjax([
+var handlers = $.mockjax([
   {url: '/rest', responseText: 'one'},
   {url: '/rest', responseText: 'two'}
 ]);
+
+$.mockjax.clear(handlers[0]);
 ```
 
 ### Defining a Response ###
