@@ -23,7 +23,8 @@ You may report any issues you may find [in the github issue tracking](https://gi
   * [Mockjax in Depth](#mockjax-in-depth)
 * [Detailed Request and Response Definition](#detailed-request-and-response-definition)
   * [Defining a Request to Match](#defining-a-request-to-match)
-  * [Define a Response](#define-a-response)
+  * [Defining Multiple Requests](#defining-multiple-requests)
+  * [Defining a Response](#defining-a-response)
 * [Advanced Mocking Techniques](#advanced-mocking-techniques)
   * [Simulating Response Time and Latency](#simulating-response-time-and-latency)
   * [Simulating HTTP Response Statuses](#simulating-http-response-statuses)
@@ -312,7 +313,18 @@ $.mockjax({
 });
 ```
 
-### Define a Response ###
+### Defining Multiple Requests ###
+
+Since version 2.2 it is allowed to define several requests at once.
+
+```javascript
+$.mockjax([
+  {url: '/rest', responseText: 'one'},
+  {url: '/rest', responseText: 'two'}
+]);
+```
+
+### Defining a Response ###
 
 The second step is to define the type and content of the response. The two main
 properties you will be dealing with are either `responseText` or
