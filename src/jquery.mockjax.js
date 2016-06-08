@@ -884,6 +884,13 @@
 	 * @return {Number}		  The id (index) of the mock handler suitable for clearing (see $.mockjax.clear())
 	 */
 	$.mockjax = function(settings) {
+		// Multiple mocks.
+		if ( $.isArray(settings) ) {
+			return $.map(settings, function(s) {
+				return $.mockjax(s);
+			});
+		}
+
 		var i = mockHandlers.length;
 		mockHandlers[i] = settings;
 		logger.log( settings, ['Created new mock handler', settings] );

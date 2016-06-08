@@ -495,4 +495,79 @@
 		assert.ok($.mockjax.handler(ID).fired, 'Sets the mock\'s fired property to true');
 	});
 
+	t('Inspecting $.mockjax() with multiple mocks argument', function(assert) {
+		var done = assert.async();
+		var handlers = $.mockjax([
+			{ url: '/response-callback', responseText: 'First' },
+			{ url: '/response-callback', responseText: 'Second' },
+		]);
+
+		assert.equal(handlers.length, 2, 'Not enough mocks')
+
+		var callCount = 2;
+		$.ajax({
+			url: '/response-callback',
+			complete: function() {
+				callCount--;
+				if (callCount === 0) {
+					done();
+				}
+			}
+		});
+		$.ajax({
+			url: '/response-callback',
+			complete: function() {
+				callCount--;
+				if (callCount === 0) {
+					done();
+				}
+			}
+		});
+	});
+
+	t('Inspecting $.mockjax() with empty multiple mocks argument', function(assert) {
+		var done = assert.async();
+		var handlers = $.mockjax([]);
+
+		assert.equal(handlers.length, 0)
+
+		$.ajax({
+			url: '/response-callback',
+			error: function() {
+				done();
+			}
+		});
+	});
+
+	t('Inspecting $.mockjax() with null in multiple mocks argument', function(assert) {
+		var done = assert.async();
+		var handlers = $.mockjax([ null ]);
+
+		assert.equal(handlers.length, 1)
+
+		$.ajax({
+			url: '/response-callback',
+			error: function() {
+				done();
+			}
+		});
+	});
+
+	t('Inspecting $.mockjax() with multiple mocks argument and reset handler', function(assert) {
+		var done = assert.async();
+		var handlers = $.mockjax([
+			{ url: '/rest', responseText: 'will be reset' }
+		]);
+
+		assert.equal(handlers.length, 1);
+		$.mockjax.clear(handlers[0]);
+
+		$.ajax({
+			url: '/response-callback',
+			error: function() {
+				done();
+			}
+		});
+	});
+
 })(window.QUnit, window.jQuery);
