@@ -499,7 +499,7 @@
 		var done = assert.async();
 		var handlers = $.mockjax([
 			{ url: '/response-callback', responseText: 'First' },
-			{ url: '/response-callback', responseText: 'Second' },
+			{ url: '/response-callback', responseText: 'Second' }
 		]);
 
 		assert.equal(handlers.length, 2, 'Not enough mocks')
