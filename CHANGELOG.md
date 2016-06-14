@@ -1,3 +1,13 @@
+## 2016-06-08 v2.2.0
+    * Fix bower dependency on jQuery to allow any supported version
+    * Allow developer to indicate that ajax calls should _not_ be retained (thanks @suchipi)
+    * Fix to allow responseTime to work with deferred jsonp
+    * Updated to test on latest jQuery versions
+    * Added JSDoc3 blocks to public API methods
+    * Refactored logging: now has levels, easier to overwrite, more messages
+    * Added ability for `data` matching to be a function (thanks @koorgoo)
+    * Added ability to pass in array of mocks in addition to singles (thanks again @koorgoo)
+
 ## 2016-02-07 v2.1.1
 	* Reorganize test cases into separate files for ease of maintenance and testing
 	* Fix #86: JSONP return data treated as JSON

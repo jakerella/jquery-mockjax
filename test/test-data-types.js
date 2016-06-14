@@ -91,6 +91,7 @@
 			error: qunit.noErrorCallbackExpected,
 			complete: function(xhr) {
 				assert.equal(xhr.getResponseHeader('Content-Type'), 'text/json', 'Content type of text/json');
+				window.abcdef123456 = null;
 				done();
 			}
 		});

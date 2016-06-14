@@ -1,7 +1,7 @@
 /*! jQuery Mockjax
  * A Plugin providing simple and flexible mocking of ajax requests and responses
  * 
- * Version: 2.1.1
+ * Version: 2.2.0
  * Home: https://github.com/jakerella/jquery-mockjax
  * Copyright (c) 2016 Jordan Kasper, formerly appendTo;
  * NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
@@ -78,6 +78,11 @@
 	function isMockDataEqual( mock, live ) {
 		logger.debug( mock, ['Checking mock data against request data', mock, live] );
 		var identical = true;
+
+		if ( $.isFunction(mock) ) {
+			return !!mock(live);
+		}
+
 		// Test for situations where the data is a querystring (not an object)
 		if (typeof live === 'string') {
 			// Querystring may be a regex
@@ -890,6 +895,13 @@
 	 * @return {Number}		  The id (index) of the mock handler suitable for clearing (see $.mockjax.clear())
 	 */
 	$.mockjax = function(settings) {
+		// Multiple mocks.
+		if ( $.isArray(settings) ) {
+			return $.map(settings, function(s) {
+				return $.mockjax(s);
+			});
+		}
+
 		var i = mockHandlers.length;
 		mockHandlers[i] = settings;
 		logger.log( settings, ['Created new mock handler', settings] );

@@ -86,7 +86,8 @@
 			url: '/delay',
 			complete: function() {
 				var delay = ((new Date()) - ts);
-				assert.ok( delay >= 150, 'Correct delay simulation (' + delay + ')' );
+				// check against 140ms to allow for browser variance
+				assert.ok( delay >= 140, 'Correct delay simulation (' + delay + ')' );
 				assert.strictEqual( executed, 1, 'Callback execution order correct');
 				done();
 			}
@@ -102,13 +103,17 @@
 		
 		var executed = false, ts = new Date();
 
+		window.abcdef123456 = function() {};
+
 		$.ajax({
 			url: 'http://foobar.com/jsonp-delay?callback=?',
 			dataType: 'jsonp',
 			complete: function() {
 				var delay = ((new Date()) - ts);
-				assert.ok( delay >= 150, 'Correct delay simulation (' + delay + ')' );
+				// check against 140ms to allow for browser variance
+				assert.ok( delay >= 140, 'Correct delay simulation (' + delay + ')' );
 				assert.ok( executed, 'Callback execution order correct');
+				window.abcdef123456 = null;
 				done();
 			}
 		});
@@ -123,13 +128,17 @@
 		var done = assert.async();
 		var executed = false, ts = new Date();
 
+		window.abcdef123456 = function() {};
+
 		$.ajax({
 			url: 'http://foobar.com/jsonp-delay?callback=?',
 			dataType: 'jsonp'
 		}).done(function() {
             var delay = ((new Date()) - ts);
-            assert.ok( delay >= 150, 'Correct delay simulation (' + delay + ')' );
+            // check against 140ms to allow for browser variance
+            assert.ok( delay >= 140, 'Correct delay simulation (' + delay + ')' );
             assert.ok( executed, 'Callback execution order correct');
+            window.abcdef123456 = null;
             done();
 		});
 

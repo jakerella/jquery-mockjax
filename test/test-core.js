@@ -73,7 +73,7 @@
 			success: function(doc) {
 				assert.ok(doc, 'Proxy callback request succeeded');
 				assert.strictEqual($(doc).find('foo').length, 1, 'Foo element exists in XML');
-				assert.strictEqual($(doc).find('foo')[0].textContent, 'bar', 'XML content is correct');
+				assert.strictEqual($(doc).find('foo').text(), 'bar', 'XML content is correct');
 			},
 			error: qunit.noErrorCallbackExpected
 		});
@@ -390,6 +390,7 @@
 				context: cxt})
 			.done(function() {
 				assert.deepEqual(this, cxt, 'this is equal to context object');
+				window.abcdef123456 = null;
 				done();
 			});
 	});
@@ -413,6 +414,7 @@
 		})
 		.done(function() {
 			assert.ok(this.jsonp, '\'this\' is the $.ajax object for this request.');
+			window.abcdef123456 = null;
 			done();
 		});
 	});
@@ -499,7 +501,7 @@
 		var done = assert.async();
 		var handlers = $.mockjax([
 			{ url: '/response-callback', responseText: 'First' },
-			{ url: '/response-callback', responseText: 'Second' },
+			{ url: '/response-callback', responseText: 'Second' }
 		]);
 
 		assert.equal(handlers.length, 2, 'Not enough mocks')
