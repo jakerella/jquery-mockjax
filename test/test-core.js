@@ -73,7 +73,7 @@
 			success: function(doc) {
 				assert.ok(doc, 'Proxy callback request succeeded');
 				assert.strictEqual($(doc).find('foo').length, 1, 'Foo element exists in XML');
-				assert.strictEqual($(doc).find('foo')[0].textContent, 'bar', 'XML content is correct');
+				assert.strictEqual($(doc).find('foo').text(), 'bar', 'XML content is correct');
 			},
 			error: qunit.noErrorCallbackExpected
 		});
