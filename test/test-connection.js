@@ -110,7 +110,8 @@
 			dataType: 'jsonp',
 			complete: function() {
 				var delay = ((new Date()) - ts);
-				assert.ok( delay >= 150, 'Correct delay simulation (' + delay + ')' );
+				// check against 140ms to allow for browser variance
+				assert.ok( delay >= 140, 'Correct delay simulation (' + delay + ')' );
 				assert.ok( executed, 'Callback execution order correct');
 				window.abcdef123456 = null;
 				done();
@@ -134,7 +135,8 @@
 			dataType: 'jsonp'
 		}).done(function() {
             var delay = ((new Date()) - ts);
-            assert.ok( delay >= 150, 'Correct delay simulation (' + delay + ')' );
+            // check against 140ms to allow for browser variance
+            assert.ok( delay >= 140, 'Correct delay simulation (' + delay + ')' );
             assert.ok( executed, 'Callback execution order correct');
             window.abcdef123456 = null;
             done();
