@@ -91,6 +91,7 @@
         assert.equal(actualCalls.length, 1, 'Mockjax call made');
         assert.equal(actualCalls[0].url, '/api/example/jsonp?callback=abcdef123456', 'mockjax call has expected jsonp url');
         assert.ok(callbackExecuted, 'The jsonp callback was executed');
+        window.abcdef123456 = null;
         done();
       }
     });

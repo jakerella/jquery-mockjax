@@ -4,24 +4,24 @@
 	var t = qunit.test;
 	var winLogger;
 
-    // Note: currently sinon cannot stub object methods in this manner in IE
-    // See GH issue: https://github.com/sinonjs/sinon/issues/1009
-    // As such, we'll be skipping the logger tests for IE currently
-    if (/MSIE/.test(navigator.userAgent)) {
-        qunit.module('Logging');
-        
-        t('UNABLE TO TEST LOGGER IN IE', function(assert) {
-            assert.ok(true, 'Cannot stub console functions with Sinon, see https://github.com/sinonjs/sinon/issues/1009');
-        });
-        return;
-    }
+	// Note: currently sinon cannot stub object methods in this manner in IE
+	// See GH issue: https://github.com/sinonjs/sinon/issues/1009
+	// As such, we'll be skipping the logger tests for IE currently
+	if (/MSIE/.test(navigator.userAgent)) {
+		qunit.module('Logging');
+		
+		t('UNABLE TO TEST LOGGER IN IE', function(assert) {
+			assert.ok(true, 'Cannot stub console functions with Sinon, see https://github.com/sinonjs/sinon/issues/1009');
+		});
+		return;
+	}
 
 	/* -------------------- */
 	qunit.module( 'Logging', {
 	/* -------------------- */
 
 		beforeEach: function() {
-            winLogger = {
+			winLogger = {
 				debug: sinon.stub(console, 'debug'),
 				log: sinon.stub(console, 'log'),
 				info: sinon.stub(console, 'info'),

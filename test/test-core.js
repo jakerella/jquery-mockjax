@@ -390,6 +390,7 @@
 				context: cxt})
 			.done(function() {
 				assert.deepEqual(this, cxt, 'this is equal to context object');
+				window.abcdef123456 = null;
 				done();
 			});
 	});
@@ -413,6 +414,7 @@
 		})
 		.done(function() {
 			assert.ok(this.jsonp, '\'this\' is the $.ajax object for this request.');
+			window.abcdef123456 = null;
 			done();
 		});
 	});

@@ -245,6 +245,7 @@
 			complete: function(xhr) {
 				assert.ok(callbackExecuted, 'The jsonp callback was executed');
 				assert.equal(xhr.statusText, 'success', 'Response was successful');
+				window.abcdef123456 = null;
 				done();
 			}
 		});
