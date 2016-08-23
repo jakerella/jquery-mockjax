@@ -13,7 +13,8 @@
     "mock",
     "unit",
     "testing",
-    "jquery-plugin"
+    "jquery-plugin",
+    "ecosystem:jquery"
   ],
   "author": {
     "name": "Jonathan Sharp",
