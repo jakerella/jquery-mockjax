@@ -42,6 +42,7 @@ You may report any issues you may find [in the github issue tracking](https://gi
 * [Miscellaneous Information](#miscellaneous-information)
   * [jQuery Version Support](#jquery-version-support)
   * [Browsers Tested](#browsers-tested)
+  * [Using Mockjax in Other Ways (Node, require, browserify, etc)](#using-mockjax-in-other-ways)
   * [Logging](#logging)
   * [Release History](#release-history)
   * [License](#license)
@@ -757,6 +758,37 @@ we test the specific versions of IE specified.
 _Please note that while we strive to keep `master` as bug free as possible, we do
 not necessarily run tests in all of the above browsers for every single commit. We
 do, however, ensure all tests are passing before tagging a release._
+
+
+### Using Mockjax in Other Ways ###
+
+You can use Mockjax as a Node module, with require.js, or with Browserify... and
+presumably in other ways as well. We have tests for each of the methods above.
+
+When using Mockjax as a Node module (including with Browserify), **you must
+provide the module with the jQuery library and a `window`**. Here is an example
+using a module intended for use as a "browserified" module:
+
+```js
+var jquery = require('jquery');
+var mockjax = require('jquery.mockjax')(jquery, window);
+// Note that we expect `window` to be defined once this file is browserified and
+// used in a browser. If it isn't Mockjax will have a problem!
+
+mockjax({
+    url: '/resource',
+    responseText: 'content'
+});
+
+function getResource(cb) {
+    jquery.ajax({
+        url: '/resource',
+        success: cb,
+        error: cb
+    });
+}
+```
+
 
 ### Logging ###
 
