@@ -44,15 +44,15 @@ module.exports = function(grunt) {
 			options: {
 				jshintrc: true
 			},
-			all: {
-				src: [
-                    './src/**/*.js',
-                    './Gruntfile.js',
-                    'test/test.js',
-                    'test/requirejs/*.js',
-                    'test/nodejs/*.js'
-                ]
-			}
+			all: [
+                'src/**/*.js',
+                'Gruntfile.js',
+                'test/test.js',
+                'test/requirejs/*.js',
+                'test/nodejs/*.js',
+				'test/browserify/main.js',
+				'test/browserify/test.js'
+			]
 		},
 		qunit: { all: [] },  // NOTE: these tests are all run by the `test` task below to run against each jQuery version supported
 		test: {
@@ -123,11 +123,21 @@ module.exports = function(grunt) {
 					'3.0.0',
 					'3.1.0'
                 ]
-            }
+            },
+			browserify: {
+                file: 'browserify/index.html',
+				jQueryVersions: ['not-applicable']
+			}
 		},
 		mochaTest: {
 			nodejs: {
 				src: ['./test/nodejs/*.js']
+			}
+		},
+		browserify: {
+			test: {
+				src: 'test/browserify/main.js',
+				dest: 'test/browserify/bundle.js'
 			}
 		},
 		watch: {
@@ -143,7 +153,7 @@ module.exports = function(grunt) {
 
 	require('load-grunt-tasks')(grunt);
 
-	grunt.registerTask('dev', ['jshint', 'test:all', 'test:requirejs', 'mochaTest']);
+	grunt.registerTask('dev', ['jshint', 'test:all', 'test:requirejs', 'browserify', 'test:browserify', 'mochaTest']);
 	grunt.registerTask('build', ['dev', 'concat', 'uglify', 'test:dist']);
 	grunt.registerTask('default', ['dev']);
 

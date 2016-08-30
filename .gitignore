@@ -5,3 +5,5 @@
 *.iml
 node_modules/
 npm-debug.log
+
+test/browserify/bundle.js
