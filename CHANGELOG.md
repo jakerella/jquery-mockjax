@@ -1,3 +1,9 @@
+## 2016-09-15 v2.2.1
+    * Add tests for jQuery 3.x
+    * Add tests for Browserify usage and documentation on that subject
+    * Updated dependencies for webpack, etc usage (thanks @hotoo)
+    * Updated keywords to be picked up by jQuery plugin registry
+
 ## 2016-06-08 v2.2.0
     * Fix bower dependency on jQuery to allow any supported version
     * Allow developer to indicate that ajax calls should _not_ be retained (thanks @suchipi)
