@@ -629,7 +629,7 @@
 				if ( $.isFunction(origHandler) ) {
 					origHandler.apply(this, [].slice.call(arguments));
 				}
-				mockHandler['onAfter' + action]();
+				mockHandler['onAfter' + action].apply(this, arguments);
 			};
 		};
 
