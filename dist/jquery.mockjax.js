@@ -618,7 +618,7 @@
 		}
 
 		// Extend the original settings for the request
-		requestSettings = $.ajaxSetup({}, origSettings);
+		requestSettings = $.ajaxSetup({ _origSettings: origSettings }, origSettings);
 		requestSettings.type = requestSettings.method = requestSettings.method || requestSettings.type;
 
 		// Generic function to override callback methods for use with
