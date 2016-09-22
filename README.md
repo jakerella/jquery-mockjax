@@ -1,3 +1,15 @@
+# Patch motivation
+[https://github.com/vvscode/jquery-mockjax/compare/5c971d1f0db3b5e385bafbd3bd205ae6bccf81f0...HEAD](Diff for All changes with last official version)
+
+It pass at least one year till last activity at original repo. There are two PR's which add needed functionality, but thus they are outdated and were not updated long time - I make fork and patch myself. 
+
+Changes:
+- mockjaxHandler can get access to original settings via `requestSettings._origSettings` - that's allow to override callbacks if we need
+- `onAfter`-hooks now receive all params from handling callbacks ( see source code and PR's at original repo )
+
+I'll add all feature changes to the list above. I don't update version, so install package from branch/commit
+
+
 # jQuery Mockjax: Ajax request mocking #
 [http://github.com/jakerella/jquery-mockjax/](http://github.com/jakerella/jquery-mockjax/)
 
