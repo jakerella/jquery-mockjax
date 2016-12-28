@@ -1,6 +1,8 @@
 module.exports = function(grunt) {
 	'use strict';
 
+	var PORT = 8686;
+
 	// Project configuration
 	grunt.initConfig({
 		// Metadata
@@ -54,7 +56,18 @@ module.exports = function(grunt) {
 				'test/browserify/test.js'
 			]
 		},
-		qunit: { all: [] },  // NOTE: these tests are all run by the `test` task below to run against each jQuery version supported
+		connect: {
+			server: {
+				options: {
+					port: PORT,
+					base: '.'
+				}
+			}
+		},
+		qunit: {
+			// NOTE: these tests are all run by the `test` task below to run against each jQuery version supported
+			all: []
+		},
 		test: {
 			all: {
 				jQueryVersions: [
@@ -159,6 +172,7 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('test', 'Executes QUnit tests with all supported jQuery versions', function() {
 		var i, l,
+			baseURL = 'http://localhost:' + PORT,
 			versionUrls = [],
 			source = arguments[0] || 'all',
 			versions = grunt.config.get('test' + ('.' + source) + '.jQueryVersions') || [],
@@ -168,13 +182,14 @@ module.exports = function(grunt) {
 			grunt.log.writeln('Adding jQuery version to test: ' + versions[i]);
 
 			if (arguments[0] === 'requirejs') {
-				versionUrls.push('./test/requirejs/' + file + '?jquery=' + versions[i]);
+				versionUrls.push(baseURL + '/test/requirejs/' + file + '?jquery=' + versions[i]);
 			} else {
-				versionUrls.push('./test/' + file + '?jquery=' + versions[i]);
+				versionUrls.push(baseURL + '/test/' + file + '?jquery=' + versions[i]);
 			}
 		}
 
 		grunt.config.set('qunit.options.urls', versionUrls);
+		grunt.task.run('connect');
 		grunt.task.run('qunit');
 	});
 
