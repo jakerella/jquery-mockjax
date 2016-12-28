@@ -83,7 +83,7 @@ module.exports = function(grunt) {
 					'2.1.4',
 					'2.2.4',
 					'3.0.0',
-					'3.1.0'
+					'3.1.1'
 				]
 			},
 			requirejs: {
@@ -98,14 +98,14 @@ module.exports = function(grunt) {
 					'2.1.4',
 					'2.2.4',
 					'3.0.0',
-					'3.1.0'
+					'3.1.1'
 				]
 			},
 			latestInBranch: {
 				jQueryVersions: [
 					'1.12.4',
 					'2.2.4',
-					'3.1.0'
+					'3.1.1'
 				]
 			},
 			oldestAndLatest: {
@@ -113,7 +113,7 @@ module.exports = function(grunt) {
 					'1.5.2',
 					'1.12.4',
 					'2.1.4',
-					'3.1.0'
+					'3.1.1'
 				]
 			},
 			edge: {
@@ -134,7 +134,7 @@ module.exports = function(grunt) {
                     '2.1.4',
 					'2.2.4',
 					'3.0.0',
-					'3.1.0'
+					'3.1.1'
                 ]
             },
 			browserify: {
