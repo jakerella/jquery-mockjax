@@ -166,8 +166,10 @@
 			// Apply namespace prefix to the mock handler's url.
 			var namespace = handler.namespace || $.mockjaxSettings.namespace;
 			if (!!namespace) {
-				var namespacedUrl = [namespace, handler.url].join('/');
-				namespacedUrl = namespacedUrl.replace(/(\/+)/g, '/');
+				var namespacedUrl = [
+					namespace.replace(/(\/+)$/, ''),
+					handler.url.replace(/^(\/+)/, '')
+				].join('/');
 				handler.url = namespacedUrl;
 			}
 

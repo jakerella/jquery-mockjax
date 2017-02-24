@@ -3,7 +3,7 @@
  * 
  * Version: 2.2.1
  * Home: https://github.com/jakerella/jquery-mockjax
- * Copyright (c) 2016 Jordan Kasper, formerly appendTo;
+ * Copyright (c) 2017 Jordan Kasper, formerly appendTo;
  * NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
  * 
  * Dual licensed under the MIT or GPL licenses.
@@ -177,8 +177,10 @@
 			// Apply namespace prefix to the mock handler's url.
 			var namespace = handler.namespace || $.mockjaxSettings.namespace;
 			if (!!namespace) {
-				var namespacedUrl = [namespace, handler.url].join('/');
-				namespacedUrl = namespacedUrl.replace(/(\/+)/g, '/');
+				var namespacedUrl = [
+					namespace.replace(/(\/+)$/, ''),
+					handler.url.replace(/^(\/+)/, '')
+				].join('/');
 				handler.url = namespacedUrl;
 			}
 
