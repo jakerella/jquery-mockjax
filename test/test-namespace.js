@@ -222,11 +222,44 @@
 				assert.equal(xhr.status, 200, 'Response was successful');
 				$.ajax({
 					url: '/api/v1/one',
+					error: qunit.noErrorCallbackExpected,
 					complete: function(xhr) {
 						assert.equal(xhr.status, 200, 'Response was successful');
 						done();
 					}
 				});
+			}
+		});
+	});
+
+	t('should be able to declare no namespace on individual mock', function(assert) {
+
+		var done = assert.async();
+		$.mockjaxSettings.namespace = '/api/v1';
+
+		$.mockjax({
+			url: 'one'
+		});
+
+		$.mockjax({
+			url: '/two',
+			namespace: null
+		});
+
+		$.ajax({
+			url: '/api/v1/one',
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 200, 'Response was successful');
+			}
+		});
+
+		$.ajax({
+			url: '/two',
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 200, 'Response was successful');
+				done();
 			}
 		});
 	});
