@@ -166,7 +166,7 @@
 			var effecitveUrl = handler.url;
 
 			// Apply namespace prefix to the mock handler's url.
-			var namespace = handler.namespace || $.mockjaxSettings.namespace;
+			var namespace = handler.namespace || (typeof(handler.namespace) === 'undefined' && $.mockjaxSettings.namespace);
 
 			if (!!namespace) {
 				var namespacedUrl = [
