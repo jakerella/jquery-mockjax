@@ -170,17 +170,28 @@ module.exports = function(grunt) {
 		var i, l,
 			baseURL = 'http://localhost:' + PORT,
 			versionUrls = [],
+			testFiles = arguments[1] || null,
 			source = arguments[0] || 'all',
 			versions = grunt.config.get('test' + ('.' + source) + '.jQueryVersions') || [],
             file = grunt.config.get('test' + ('.' + source) + '.file') || 'index.html';
 
+		if (arguments[0] === 'version' && arguments[1]) {
+			versions = [arguments[1]];
+			testFiles = (arguments[2]) ? arguments[2] : null;
+		}
+
+		if (testFiles) {
+			testFiles = JSON.stringify(testFiles.split(/\,/));
+		}
+
 		for (i=0, l=versions.length; i<l; ++i) {
 			grunt.log.writeln('Adding jQuery version to test: ' + versions[i]);
+			grunt.log.writeln('Adding test modules: ' + testFiles);
 
 			if (arguments[0] === 'requirejs') {
-				versionUrls.push(baseURL + '/test/requirejs/' + file + '?jquery=' + versions[i]);
+				versionUrls.push(baseURL + '/test/requirejs/' + file + '?jquery=' + versions[i] + '&testFiles=' + testFiles);
 			} else {
-				versionUrls.push(baseURL + '/test/' + file + '?jquery=' + versions[i]);
+				versionUrls.push(baseURL + '/test/' + file + '?jquery=' + versions[i] + '&testFiles=' + testFiles);
 			}
 		}
 
