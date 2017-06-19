@@ -174,6 +174,10 @@ module.exports = function(grunt) {
 			versions = grunt.config.get('test' + ('.' + source) + '.jQueryVersions') || [],
             file = grunt.config.get('test' + ('.' + source) + '.file') || 'index.html';
 
+		if (arguments[0] === 'version' && arguments[1]) {
+			versions = [arguments[1]];
+		}
+
 		for (i=0, l=versions.length; i<l; ++i) {
 			grunt.log.writeln('Adding jQuery version to test: ' + versions[i]);
 
