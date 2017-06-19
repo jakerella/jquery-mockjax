@@ -52,6 +52,36 @@
 			});
 	});
 
+	t('should overwrite namespace on mock w/ a null value', function(assert) {
+		var done = assert.async();
+
+		$.mockjaxSettings.namespace = '/api/v1';
+
+		$.mockjax({
+			url: 'one'
+		});
+
+		$.mockjax({
+			url: '/two',
+			namespace: null
+		});
+
+		$.ajax({
+			url: '/api/v1/one',
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 200, 'Response was successful');
+				$.ajax({
+					url: '/two',
+					complete: function(xhr) {
+						assert.equal(xhr.status, 200, 'Response was successful');
+						done();
+					}
+				});
+			}
+		});
+	});
+
 	t('should not mock a non-matching url within a namespace', function(assert) {
 		var done = assert.async();
 
