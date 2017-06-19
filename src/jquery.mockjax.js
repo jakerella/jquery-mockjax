@@ -163,20 +163,23 @@
 			}
 		} else {
 
+			var effecitveUrl = handler.url;
+
 			// Apply namespace prefix to the mock handler's url.
 			var namespace = handler.namespace || $.mockjaxSettings.namespace;
+
 			if (!!namespace) {
 				var namespacedUrl = [
 					namespace.replace(/(\/+)$/, ''),
 					handler.url.replace(/^(\/+)/, '')
 				].join('/');
-				handler.url = namespacedUrl;
+				effecitveUrl = namespacedUrl;
 			}
 
 			// Look for a simple wildcard '*' or a direct URL match
-			var star = handler.url.indexOf('*');
-			if (handler.url !== requestSettings.url && star === -1 ||
-					!new RegExp(handler.url.replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&').replace(/\*/g, '.+')).test(requestSettings.url)) {
+			var star = effecitveUrl.indexOf('*');
+			if (effecitveUrl !== requestSettings.url && star === -1 ||
+					!new RegExp(effecitveUrl.replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&').replace(/\*/g, '.+')).test(requestSettings.url)) {
 				return null;
 			}
 		}

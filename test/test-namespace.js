@@ -1,12 +1,12 @@
 (function(qunit, $) {
 	'use strict';
-	
+
 	var t = qunit.test;
-	
+
 	/* -------------------- */
 	qunit.module('namespace');
 	/* -------------------- */
-	
+
 	t('url should be namespaced via global mockjax settings', function(assert) {
 		var done = assert.async();
 
@@ -202,6 +202,31 @@
 			complete: function(xhr) {
 				assert.equal(xhr.status, 200, 'Response was successful');
 				done();
+			}
+		});
+	});
+
+	t('should handle the same mock multiple times in a namespace', function(assert) {
+		var done = assert.async();
+
+		$.mockjaxSettings.namespace = '/api/v1';
+
+		$.mockjax({
+			url: 'one'
+		});
+
+		$.ajax({
+			url: '/api/v1/one',
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 200, 'Response was successful');
+				$.ajax({
+					url: '/api/v1/one',
+					complete: function(xhr) {
+						assert.equal(xhr.status, 200, 'Response was successful');
+						done();
+					}
+				});
 			}
 		});
 	});
