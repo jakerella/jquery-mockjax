@@ -1,3 +1,7 @@
+## 2016-09-15 v2.2.2
+    * Minor bug fixes having to do with namespacing (thanks @tomeara)
+    * Improvement to testing CLI commands
+
 ## 2016-09-15 v2.2.1
     * Add tests for jQuery 3.x
     * Add tests for Browserify usage and documentation on that subject
