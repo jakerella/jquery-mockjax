@@ -283,11 +283,11 @@
 							this.responseText = mockHandler.responseText;
 						}
 						
-						if( typeof mockHandler.status === 'number' || typeof mockHandler.status === 'string' ) {
-							// allow a double pipe-delimited list of strings or numbers, with the plugin randomly returning one of them
-							var arrStatus = (typeof mockHandler.status === 'string' ? mockHandler.status.replace(/\s+/g, '').split('||') : mockHandler.status.toString().split('||'));
-							var idxStatus = getRandomInteger(0,arrStatus.length-1);
-							this.status = arrStatus[idxStatus];
+						if ($.isArray(mockHandler.status)) {
+							var idxStatus = getRandomInteger(0,mockHandler.status.length-1);
+							this.status = mockHandler.status[idxStatus];							
+						} else if (typeof mockHandler.status === 'number' || typeof mockHandler.status === 'string') {
+							this.statusText = mockHandler.status;
 						}
 						
 						if( typeof mockHandler.statusText === 'string') {
