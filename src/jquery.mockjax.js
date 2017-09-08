@@ -287,7 +287,7 @@
 							var idxStatus = getRandomInteger(0,mockHandler.status.length-1);
 							this.status = mockHandler.status[idxStatus];							
 						} else if (typeof mockHandler.status === 'number' || typeof mockHandler.status === 'string') {
-							this.statusText = mockHandler.status;
+							this.status = mockHandler.status;
 						}
 						
 						if( typeof mockHandler.statusText === 'string') {
