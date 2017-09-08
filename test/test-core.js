@@ -247,6 +247,76 @@
 		});
 	});
 
+	t('Dynamic response status callback - list of statuses as a string', function(assert) {
+		var done = assert.async();
+		var possibleStatuses = "500||400||200";
+
+		$.mockjax({
+			url: '/response-callback',
+			response: function() {
+				this.status = possibleStatuses;
+				this.statusText = 'Internal Server Error';
+			}
+		});
+
+		$.ajax({
+			url: '/response-callback',
+			dataType: 'text',
+			data: {
+				response: 'Hello world'
+			},
+			error: function() {
+				assert.ok(true, 'error callback was called');
+			},
+			complete: function(xhr) {
+				assert.notEqual($.inArray(xhr.status, possibleStatuses.split('||'), -1, 'Dynamically set random response status found');
+
+				if( $.fn.jquery !== '1.5.2') {
+					// This assertion fails in 1.5.2 due to this bug: http://bugs.jquery.com/ticket/9854
+					// The statusText is being modified internally by jQuery in 1.5.2
+					assert.equal(xhr.statusText, 'Internal Server Error', 'Dynamically set response statusText matches');
+				}
+
+				done();
+			}
+		});
+	});
+
+	t('Dynamic response status callback - list of statuses as a number', function(assert) {
+		var done = assert.async();
+		var possibleStatuses = 500||400||200;
+
+		$.mockjax({
+			url: '/response-callback',
+			response: function() {
+				this.status = possibleStatuses;
+				this.statusText = 'Internal Server Error';
+			}
+		});
+
+		$.ajax({
+			url: '/response-callback',
+			dataType: 'text',
+			data: {
+				response: 'Hello world'
+			},
+			error: function() {
+				assert.ok(true, 'error callback was called');
+			},
+			complete: function(xhr) {
+				assert.notEqual($.inArray(xhr.status, possibleStatuses.toString().split('||'), -1, 'Dynamically set random response status found');
+
+				if( $.fn.jquery !== '1.5.2') {
+					// This assertion fails in 1.5.2 due to this bug: http://bugs.jquery.com/ticket/9854
+					// The statusText is being modified internally by jQuery in 1.5.2
+					assert.equal(xhr.statusText, 'Internal Server Error', 'Dynamically set response statusText matches');
+				}
+
+				done();
+			}
+		});
+	});
+
 	t('Default Response Settings', function(assert) {
 		var done = assert.async();
 
