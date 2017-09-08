@@ -269,7 +269,7 @@
 				assert.ok(true, 'error callback was called');
 			},
 			complete: function(xhr) {
-				assert.notEqual($.inArray(xhr.status, possibleStatuses.split('||'), -1, 'Dynamically set random response status found');
+				assert.notEqual($.inArray(xhr.status, possibleStatuses.split('||')), -1, 'Dynamically set random response status found');
 
 				if( $.fn.jquery !== '1.5.2') {
 					// This assertion fails in 1.5.2 due to this bug: http://bugs.jquery.com/ticket/9854
@@ -304,7 +304,7 @@
 				assert.ok(true, 'error callback was called');
 			},
 			complete: function(xhr) {
-				assert.notEqual($.inArray(xhr.status, possibleStatuses.toString().split('||'), -1, 'Dynamically set random response status found');
+				assert.notEqual($.inArray(xhr.status, possibleStatuses.toString().split('||')), -1, 'Dynamically set random response status found');
 
 				if( $.fn.jquery !== '1.5.2') {
 					// This assertion fails in 1.5.2 due to this bug: http://bugs.jquery.com/ticket/9854
