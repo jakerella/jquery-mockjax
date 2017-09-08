@@ -221,6 +221,13 @@
 
 		return handler;
 	}
+	
+	function getRandomInteger(min, max) {
+		min = Math.ceil(min);
+		max = Math.floor(max);
+		// get a random integer between two values, inclusive
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	}
 
 	function isPosNum(value) {
 		return typeof value === 'number' && value >= 0;
@@ -275,9 +282,14 @@
 						} else {
 							this.responseText = mockHandler.responseText;
 						}
+						
 						if( typeof mockHandler.status === 'number' || typeof mockHandler.status === 'string' ) {
-							this.status = mockHandler.status;
+							// allow a double pipe-delimited list of strings or numbers, with the plugin randomly returning one of them
+							var arrStatus = (typeof mockHandler.status === 'string' ? mockHandler.status.replace(/\s+/g, '').split('||') : mockHandler.status.toString().split('||'));
+							var idxStatus = getRandomInteger(0,arrStatus.length-1);
+							this.status = arrStatus[idxStatus];
 						}
+						
 						if( typeof mockHandler.statusText === 'string') {
 							this.statusText = mockHandler.statusText;
 						}
