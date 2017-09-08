@@ -200,9 +200,9 @@
 			$.ajax({
 				type: 'GET',
 				url: '/response',
-				success: function(data, textStatus, jqXHR) {
+				success: function() {
 					assert.ok(arguments[2], 'there is a third argument to the success callback');
-					assert.equal(xhr.status, 200, 'third argument has proper status code');
+					assert.equal(arguments[2].status, 200, 'third argument has proper status code');
 					done();
 				},
 				error: function() {
