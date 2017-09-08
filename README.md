@@ -489,13 +489,13 @@ reponses.
 // Randomly fail
 $.mockjax({
   url: "/restful/api",
-  status: '200||400||500'
+  status: [200,400,500]
 });
 
 // Randomly fail (with a preference towards success)
 $.mockjax({
   url: "/restful/api",
-  status: '200||400||200||500||200'
+  status: [200,400,200,500,200]
 });
 ```
 
