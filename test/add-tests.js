@@ -5,19 +5,19 @@
     var i, l,
         parts = document.location.search.match( /testFiles=([^&]+)/ ),
         testFiles = [
-            // 'core',  // This will become: <script src='test-core.js'></script>
-            // 'data-match',
-            // 'data-types',
-            // 'header-match',
-            // 'url-match',
-            'headers' //,
-            // 'mock-clearing',
-            // 'retaining-ajax-calls',
-            // 'namespace',
-            // 'logging',
-            // 'connection',
-            // 'timeout',
-            // 'bugs'
+            'core',  // This will become: <script src='test-core.js'></script>
+            'data-match',
+            'data-types',
+            'header-match',
+            'url-match',
+            'headers',
+            'mock-clearing',
+            'retaining-ajax-calls',
+            'namespace',
+            'logging',
+            'connection',
+            'timeout',
+            'bugs'
         ];
 
     if ( parts && parts[1] ) {
