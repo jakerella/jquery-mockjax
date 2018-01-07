@@ -957,6 +957,24 @@
 	};
 
 	/**
+	 * Retrieve the current array of mock handlers.
+	 * NOTE: Altering these handlers, or the array itself is probably not a good
+	 * idea! This could easily lead to malfunction of the library. If you need
+	 * to alter a handler, clear(index) it (using the array index) and then
+	 * create a new handler with $.mockjax({ ... })
+	 *
+	 * **WARNING**: Additionally, note that the handlers array WILL NOT CHANGE
+	 * when a mock is cleared. This is because we have to maintain the handler
+	 * indeces for clearing of other mock handlers. (This is not ideal, and
+	 * will probably change in the future.) Cleared mocks are set to null!
+	 *
+ 	 * @return {Array} The current collection of handlers
+	 */
+	$.mockjax.handlers = function() {
+		return mockHandlers;
+	}
+
+	/**
 	 * Retrieve all Ajax calls that have been mocked by this library during the
 	 * current session (in other words, only since you last loaded this file).
 	 *
