@@ -991,7 +991,7 @@
 	 */
 	$.mockjax.handlers = function() {
 		return mockHandlers;
-	}
+	};
 
 	/**
 	 * Retrieve all Ajax calls that have been mocked by this library during the
