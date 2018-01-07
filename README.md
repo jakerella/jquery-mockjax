@@ -100,7 +100,9 @@ checkout this list:
       * `onAfterError`: [Function] A callback that will be called after the error method has been called, this is useful to check a condition after the call has been completed
       * `onAfterComplete`: [Function] Similar to onAfterSuccess, but will be executed after the complete method has been called
 * `Object $.mockjax.handler(/* Number */ id)`
-  * Returns the mock request settings for the handler with the provided `id`
+  * Returns the mock request settings for the handler with the provided `id`. Be careful here, you're accessing the inner workings of the plugin, any changes to this object could be bad.
+* `Array $.mockjax.handlers()`
+  * Returns the array of mock handlers. **NOTE:** This array is NOT modified when a handler is cleared, the cleared handler position is simply set to `null`. As such, the array length will only change when new mocks are added. Be careful here, you're accessing the inner workings of the plugin, any changes to the array could be very bad.
 * `void $.mockjax.clear([/* Number */ id])`
   * If the `id` is provided, the handler with that ID is cleared (that is, requests matching it will no longer do so, the handler is completely removed)
   * If no `id` is provided, all handlers are cleared, resetting Mockjax to its initial state
