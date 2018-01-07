@@ -497,6 +497,42 @@
 		assert.ok($.mockjax.handler(ID).fired, 'Sets the mock\'s fired property to true');
 	});
 
+	t('Inspecting $.mockjax.handlers() for type and length', function(assert) {
+		assert.ok(Array.isArray($.mockjax.handlers()), 'The list of handlers is an array before any mocks');
+		assert.strictEqual($.mockjax.handlers().length, 0, 'The list of handlers is empty before any mocks');
+
+		$.mockjax({ url: '/foo', responseText: 'Hello Word' });
+
+		assert.ok(Array.isArray($.mockjax.handlers()), 'The list of handlers is an array after adding a mock');
+		assert.strictEqual($.mockjax.handlers().length, 1, 'The length of the list of handlers is correct after adding a mock');
+
+		$.mockjax({ url: '/bar', responseText: 'Hello Word' });
+		$.mockjax({ url: '/bat', responseText: 'Hello Word' });
+		$.mockjax({ url: '/baz', responseText: 'Hello Word' });
+
+		assert.ok(Array.isArray($.mockjax.handlers()), 'The list of handlers is an array after adding many mocks');
+		assert.strictEqual($.mockjax.handlers().length, 4, 'The length of the list of handlers is correct after adding many mocks');
+	});
+
+	t('Testing $.mockjax.handlers() after clearing', function(assert) {
+		$.mockjax({ url: '/foo', responseText: 'Hello Word' });
+		$.mockjax({ url: '/bar', responseText: 'Hello Word' });
+		$.mockjax({ url: '/bat', responseText: 'Hello Word' });
+		$.mockjax({ url: '/baz', responseText: 'Hello Word' });
+
+		assert.ok(Array.isArray($.mockjax.handlers()), 'The list of handlers is an array after adding mocks');
+		assert.strictEqual($.mockjax.handlers().length, 4, 'The length of the list of handlers is correct after adding mocks');
+
+		$.mockjax.clear(1);
+
+		assert.ok(Array.isArray($.mockjax.handlers()), 'The list of handlers is an array after clearing mock');
+		assert.strictEqual($.mockjax.handlers().length, 4, 'The length of the list of handlers is correct after clearing mock');
+		assert.strictEqual($.mockjax.handlers()[0].url, '/foo', 'The first handler is correct after clearing');
+		assert.strictEqual($.mockjax.handlers()[1], null, 'The cleared handler is correct after clearing');
+		assert.strictEqual($.mockjax.handlers()[3].url, '/baz', 'The last handler is correct after clearing');
+	});
+
+
 	t('Inspecting $.mockjax() with multiple mocks argument', function(assert) {
 		var done = assert.async();
 		var handlers = $.mockjax([
