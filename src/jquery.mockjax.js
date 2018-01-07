@@ -651,6 +651,24 @@
 				$.ajaxSetup({}, requestSettings)
 			] );
 
+			if ((mockHandler.status === 301 || mockHandler.status === 302) &&
+				(requestSettings.type.toUpperCase() === 'GET' || requestSettings.type.toUpperCase() === 'HEAD') &&
+				mockHandler.headers.Location) {
+				logger.debug('Doing mock redirect to', mockHandler.headers.Location, requestSettings.type);
+
+				var redirectSettings = {};
+				var origKeys = Object.keys(origSettings);
+				// We can't alter origSettings, so we need a shallow copy of it...
+				for (var oi=0; oi<origKeys.length; oi++) {
+					redirectSettings[origKeys[oi]] = origSettings[origKeys[oi]];
+				}
+				redirectSettings.url = mockHandler.headers.Location;
+				redirectSettings.headers = {
+					Referer: origSettings.url
+				};
+
+				return handleAjax(redirectSettings);
+			}
 
 			if ( requestSettings.dataType && requestSettings.dataType.toUpperCase() === 'JSONP' ) {
 				if ((mockRequest = processJsonpMock( requestSettings, mockHandler, origSettings ))) {
@@ -718,6 +736,7 @@
 			throw new Error('AJAX not mocked: ' + origSettings.url);
 		}
 		else { // trigger a normal request
+			logger.log('Real ajax call to', origSettings.url);
 			return _ajax.apply($, [origSettings]);
 		}
 	}
