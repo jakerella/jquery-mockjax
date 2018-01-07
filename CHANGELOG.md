@@ -1,3 +1,8 @@
+## 2018-01-07 v2.3.0
+    * Added new `handlers()` method
+    * Add basic support for 301 and 302 status codes with auto-redirection
+    * Fix up some README issues
+
 ## 2016-09-15 v2.2.2
     * Minor bug fixes having to do with namespacing (thanks @tomeara)
     * Improvement to testing CLI commands
