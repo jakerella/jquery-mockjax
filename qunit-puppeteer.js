@@ -27,15 +27,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-const baseURL = 'http://localhost:3000/test/';
-const timeout = 30000;
-
 const puppeteer = require('puppeteer');
 const spawn = require('child_process').spawn;
 
-const targetURL = baseURL + 'index.html?jquery=3.3.1';
+module.exports = async function testRunner(targetURL) {
+  const timeout = 30000;
+  let complete = false;
 
-(async () => {
   let proc;
 
   try {
@@ -120,11 +118,7 @@ const targetURL = baseURL + 'index.html?jquery=3.3.1';
 
       browser.close();
       proc.kill('SIGINT');
-      if (context.failed > 0){
-        process.exit(1);
-      }else{
-        process.exit();
-      }
+      complete = true;
     });
 
     await page.goto(targetURL);
@@ -150,20 +144,26 @@ const targetURL = baseURL + 'index.html?jquery=3.3.1';
     });
 
     function wait(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
+      let total = 0;
+      return new Promise(resolve => {
+        setInterval(() => {
+          total += 500;
+          if (complete || total >= ms) { return resolve(); }
+        }, 500)
+      });
     }
 
     await wait(timeout);
 
-    process.stderr.write(`\x1b[33mTests timed out after ${timeout}ms\x1b[0m\n`);
-    browser.close();
-    proc.kill('SIGINT');
-    process.exit(124);
+    if (!complete) {
+      process.stderr.write(`\x1b[33mTests timed out after ${timeout}ms\x1b[0m\n`);
+      browser.close();
+      proc.kill('SIGINT');
+    }
 
   } catch(err) {
     process.stderr.write(`ERROR: ${err}\n`);
     proc.kill('SIGINT');
-    process.exit(1);
   }
 
-})();
+};

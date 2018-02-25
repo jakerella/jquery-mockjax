@@ -1,7 +1,10 @@
+
+const testRunner = require('./qunit-puppeteer.js');
+
 module.exports = function(grunt) {
 	'use strict';
 
-	var PORT = 8686;
+	var PORT = 3000;
 
 	// Project configuration
 	grunt.initConfig({
@@ -169,7 +172,9 @@ module.exports = function(grunt) {
 	grunt.registerTask('build', ['dev', 'concat', 'uglify', 'test:dist']);
 	grunt.registerTask('default', ['dev']);
 
-	grunt.registerTask('test', 'Executes QUnit tests with all supported jQuery versions', function() {
+	grunt.registerTask('test', 'Executes QUnit tests with all supported jQuery versions', async function() {
+		var done = this.async();
+
 		var i, l,
 			baseURL = 'http://localhost:' + PORT,
 			versionUrls = [],
@@ -188,9 +193,6 @@ module.exports = function(grunt) {
 		}
 
 		for (i=0, l=versions.length; i<l; ++i) {
-			grunt.log.writeln('Adding jQuery version to test: ' + versions[i]);
-			grunt.log.writeln('Adding test modules: ' + testFiles);
-
 			if (arguments[0] === 'requirejs') {
 				versionUrls.push(baseURL + '/test/requirejs/' + file + '?jquery=' + versions[i] + '&testFiles=' + testFiles);
 			} else {
@@ -198,9 +200,12 @@ module.exports = function(grunt) {
 			}
 		}
 
-		grunt.config.set('qunit.options.urls', versionUrls);
-		grunt.task.run('connect');
-		grunt.task.run('qunit');
+		console.log(versionUrls);
+		for (let i=0; i<versionUrls.length; ++i) {
+			console.log('LOADING', versionUrls[i]);
+			const result = await testRunner(versionUrls[i]);
+		}
+		done();
 	});
 
 };
