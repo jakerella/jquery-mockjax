@@ -56,8 +56,8 @@ There are `module`s in there, so try to add the tests in a logical location.
 ### RUN THE TESTS ###
 
 Due to the need to load some of the proxy files asynchronously, you'll need to view
-the test files over HTTP. You can do some initial testing with PhantomJS using the
-Grunt task, but you should also test in (multiple) browsers!
+the test files over HTTP. You can do some initial testing with Chrome headless using
+the Grunt task, but you should also test in (multiple) browsers!
 
 #### To run from Grunt...
 
