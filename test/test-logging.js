@@ -9,7 +9,7 @@
 	// As such, we'll be skipping the logger tests for IE currently
 	if (/MSIE/.test(navigator.userAgent)) {
 		qunit.module('Logging');
-		
+
 		t('UNABLE TO TEST LOGGER IN IE', function(assert) {
 			assert.ok(true, 'Cannot stub console functions with Sinon, see https://github.com/sinonjs/sinon/issues/1009');
 		});
@@ -110,8 +110,8 @@
 			complete: function() {
 				assert.strictEqual(winLogger.info.callCount, 0, 'Log called when disabled');
 
-				$.mockjax._logger.debug({}, 'foo');
-				assert.strictEqual(winLogger.debug.callCount, 0, 'Log called when disabled');
+				$.mockjax._logger.warn({}, 'foo');
+				assert.strictEqual(winLogger.warn.callCount, 0, 'Log called when disabled');
 
 				done();
 			}

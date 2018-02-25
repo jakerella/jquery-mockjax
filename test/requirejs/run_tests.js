@@ -36,8 +36,7 @@
     });
 
     // Require all modules with tests; it will execute them right away
-    require(['test/test_module'], function () {
-        // Initialize the QUnit UI first after the test were run
+    require(['test/test_module'], function() {
         QUnit.start();
     });
 }(window.QUnit));
