@@ -203,7 +203,11 @@ module.exports = function(grunt) {
 		console.log(versionUrls);
 		for (let i=0; i<versionUrls.length; ++i) {
 			console.log('LOADING', versionUrls[i]);
-			const result = await testRunner(versionUrls[i]);
+			try {
+				await testRunner(versionUrls[i]);
+			} catch(err) {
+				return done(err);
+			}
 		}
 		done();
 	});

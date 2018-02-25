@@ -159,11 +159,13 @@ module.exports = async function testRunner(targetURL) {
       process.stderr.write(`\x1b[33mTests timed out after ${timeout}ms\x1b[0m\n`);
       browser.close();
       proc.kill('SIGINT');
+      throw new Error(`Tests timed out after ${timeout}ms`);
     }
 
   } catch(err) {
     process.stderr.write(`ERROR: ${err}\n`);
     proc.kill('SIGINT');
+    throw err;
   }
 
 };
