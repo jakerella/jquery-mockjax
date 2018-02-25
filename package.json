@@ -63,9 +63,11 @@
     "grunt-contrib-uglify": "^2.0.0",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-mocha-test": "^0.12.7",
+    "http-server": "^0.11.1",
     "jsdom": "~4.2.0",
     "load-grunt-tasks": "^0.6.0",
     "mocha": "^2.2.4",
+    "puppeteer": "^1.1.1",
     "sinon": "^1.17.4",
     "xmlhttprequest": "^1.7.0"
   }
