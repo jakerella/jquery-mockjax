@@ -30,14 +30,14 @@ SOFTWARE.
 const puppeteer = require('puppeteer');
 const spawn = require('child_process').spawn;
 
-module.exports = async function testRunner(targetURL) {
+module.exports = async function testRunner(targetURL, port) {
   const timeout = 30000;
   let complete = false;
 
   let proc;
 
   try {
-    proc = spawn('http-server', ['-c-1']);  // disable caching
+    proc = spawn('http-server', ['-c-1', '-p ' + port]);  // disable caching
 
     const browser = await puppeteer.launch();
     const page = await browser.newPage();

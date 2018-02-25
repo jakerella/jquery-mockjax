@@ -4,7 +4,7 @@ const testRunner = require('./qunit-puppeteer.js');
 module.exports = function(grunt) {
 	'use strict';
 
-	var PORT = 3000;
+	var PORT = 4000;
 
 	// Project configuration
 	grunt.initConfig({
@@ -204,7 +204,7 @@ module.exports = function(grunt) {
 		for (let i=0; i<versionUrls.length; ++i) {
 			console.log('LOADING', versionUrls[i]);
 			try {
-				await testRunner(versionUrls[i]);
+				await testRunner(versionUrls[i], PORT);
 			} catch(err) {
 				return done(err);
 			}
