@@ -251,7 +251,7 @@
 		var done = assert.async();
 		var possibleStatuses = [500,400,404];
 	  	var returnedStatuses = [];
-		var maxNumLoops = possibleStatuses.length * 10;
+		var maxNumLoops = possibleStatuses.length * 0.5;
 		var numLoops = 0;
 		var numLoopsComplete = 0;
 
