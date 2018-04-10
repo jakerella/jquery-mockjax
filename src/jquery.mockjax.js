@@ -221,13 +221,6 @@
 
 		return handler;
 	}
-	
-	function getRandomInteger(min, max) {
-		min = Math.ceil(min);
-		max = Math.floor(max);
-		// get a random integer between two values, inclusive
-		return Math.floor(Math.random() * (max - min + 1)) + min;
-	}
 
 	function isPosNum(value) {
 		return typeof value === 'number' && value >= 0;
@@ -284,7 +277,10 @@
 						}
 						
 						if ($.isArray(mockHandler.status)) {
-							var idxStatus = getRandomInteger(0,mockHandler.status.length-1);
+							var min = Math.ceil(0);
+							var max = Math.floor(mockHandler.status.length-1);
+							// get a random integer between two values, inclusive
+							var idxStatus = Math.floor(Math.random() * (max - min + 1)) + min;
 							this.status = mockHandler.status[idxStatus];							
 						} else if (typeof mockHandler.status === 'number' || typeof mockHandler.status === 'string') {
 							this.status = mockHandler.status;
