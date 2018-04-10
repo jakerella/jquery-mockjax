@@ -202,7 +202,7 @@
 				url: '/response',
 				success: function() {
 					assert.ok(arguments[2], 'there is a third argument to the success callback');
-					assert.equal(arguments[2].status, 200, 'third argument has proper status code');
+					assert.ok(arguments[2] && arguments[2].status === 200, 'third argument has proper status code');
 					done();
 				},
 				error: function() {
@@ -247,9 +247,13 @@
 		});
 	});
 
-	t('Dynamic response status callback - list of statuses as a string', function(assert) {
+	t('Dynamic response status callback - list of statuses as an array (errors only)', function(assert) {
 		var done = assert.async();
-		var possibleStatuses = [500,400,200];
+		var possibleStatuses = [500,400,404];
+	  	var returnedStatuses = [];
+		var maxNumLoops = possibleStatuses.length * 10;
+		var numLoops = 0;
+		var numLoopsComplete = 0;
 
 		$.mockjax({
 			url: '/response-callback',
@@ -270,14 +274,128 @@
 			},
 			complete: function(xhr) {
 				assert.notEqual($.inArray(xhr.status, possibleStatuses), -1, 'Dynamically set random response status found');
+				
+				// add this to our array of returned statuses (if it isn't there already)
+			  	if($.inArray(xhr.status, returnedStatuses) === -1) {
+					returnedStatuses.push(xhr.status);
+			  	}
+				
+			  	// increment counter
+			  	numLoopsComplete++;
 
 				if( $.fn.jquery !== '1.5.2') {
 					// This assertion fails in 1.5.2 due to this bug: http://bugs.jquery.com/ticket/9854
 					// The statusText is being modified internally by jQuery in 1.5.2
 					assert.equal(xhr.statusText, 'Internal Server Error', 'Dynamically set response statusText matches');
 				}
+				
+				// if we made it this far without matching all possible statuses, fail!
+  	  			if (numLoopsComplete >= maxNumLoops) {
+  	    			assert.ok(returnedStatuses.length !== possibleStatuses.length, "Did not randomly return all possible statuses (only returned: " + returnedStatuses.toString() + ")");
+  	    
+  		  			done();
+				}
+			}
+		});
+	});
 
-				done();
+	t('Dynamic response status callback - list of statuses as an array (successes only)', function(assert) {
+		var done = assert.async();
+		var possibleStatuses = [200,201,204];
+	  	var returnedStatuses = [];
+		var maxNumLoops = possibleStatuses.length * 10;
+		var numLoops = 0;
+		var numLoopsComplete = 0;
+
+		$.mockjax({
+			url: '/response-callback',
+			response: function() {
+				this.status = possibleStatuses;
+				this.statusText = 'Internal Server Error';
+			}
+		});
+
+		$.ajax({
+			url: '/response-callback',
+			dataType: 'text',
+			data: {
+				response: 'Hello world'
+			},
+			success: function() {
+				assert.ok(true, 'success callback was called');
+			},
+			complete: function(xhr) {
+				assert.notEqual($.inArray(xhr.status, possibleStatuses), -1, 'Dynamically set random response status found');
+				
+				// add this to our array of returned statuses (if it isn't there already)
+			  	if($.inArray(xhr.status, returnedStatuses) === -1) {
+					returnedStatuses.push(xhr.status);
+			  	}
+				
+			  	// increment counter
+			  	numLoopsComplete++;
+
+				if( $.fn.jquery !== '1.5.2') {
+					// This assertion fails in 1.5.2 due to this bug: http://bugs.jquery.com/ticket/9854
+					// The statusText is being modified internally by jQuery in 1.5.2
+					assert.equal(xhr.statusText, 'Internal Server Error', 'Dynamically set response statusText matches');
+				}
+				
+				// if we made it this far without matching all possible statuses, fail!
+  	  			if (numLoopsComplete >= maxNumLoops) {
+  	    			assert.ok(returnedStatuses.length !== possibleStatuses.length, "Did not randomly return all possible statuses (only returned: " + returnedStatuses.toString() + ")");
+  	    
+  		  			done();
+				}
+			}
+		});
+	});
+
+	t('Dynamic response status callback - list of statuses as an array', function(assert) {
+		var done = assert.async();
+		var possibleStatuses = [500,400,404,200,201];
+	  	var returnedStatuses = [];
+		var maxNumLoops = possibleStatuses.length * 10;
+		var numLoops = 0;
+		var numLoopsComplete = 0;
+
+		$.mockjax({
+			url: '/response-callback',
+			response: function() {
+				this.status = possibleStatuses;
+				this.statusText = 'Internal Server Error';
+			}
+		});
+
+		$.ajax({
+			url: '/response-callback',
+			dataType: 'text',
+			data: {
+				response: 'Hello world'
+			},
+			complete: function(xhr) {
+				assert.notEqual($.inArray(xhr.status, possibleStatuses), -1, 'Dynamically set random response status found');
+				
+				// add this to our array of returned statuses (if it isn't there already)
+			  	if($.inArray(xhr.status, returnedStatuses) === -1) {
+					returnedStatuses.push(xhr.status);
+			  	}
+				
+			  	// increment counter
+			  	numLoopsComplete++;
+
+				if( $.fn.jquery !== '1.5.2') {
+					// This assertion fails in 1.5.2 due to this bug: http://bugs.jquery.com/ticket/9854
+					// The statusText is being modified internally by jQuery in 1.5.2
+					assert.equal(xhr.statusText, 'Internal Server Error', 'Dynamically set response statusText matches');
+				}
+				
+				// if we made it this far without matching all possible statuses, fail!
+  	  			if (numLoopsComplete >= maxNumLoops) {
+  	    			assert.ok(returnedStatuses.length !== possibleStatuses.length, "Did not randomly return all possible statuses (only returned: " + returnedStatuses.toString() + ")");
+  	    
+  		  			done();
+				}
 			}
 		});
 	});
