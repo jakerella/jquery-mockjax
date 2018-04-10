@@ -291,7 +291,7 @@
 				
 				// if we made it this far without matching all possible statuses, fail!
   	  			if (numLoopsComplete >= maxNumLoops) {
-  	    			assert.ok(returnedStatuses.length !== possibleStatuses.length, "Did not randomly return all possible statuses (only returned: " + returnedStatuses.toString() + ")");
+  	    			assert.ok(returnedStatuses.length === possibleStatuses.length, "Did not randomly return all possible statuses (only returned: " + returnedStatuses.toString() + ")");
   	    
   		  			done();
 				}
@@ -299,7 +299,7 @@
 		});
 	});
 
-	t('Dynamic response status callback - list of statuses as an array (successes only)', function(assert) {
+	/*t('Dynamic response status callback - list of statuses as an array (successes only)', function(assert) {
 		var done = assert.async();
 		var possibleStatuses = [200,201,204];
 	  	var returnedStatuses = [];
@@ -398,7 +398,7 @@
 				}
 			}
 		});
-	});
+	});*/
 
 	t('Default Response Settings', function(assert) {
 		var done = assert.async();
