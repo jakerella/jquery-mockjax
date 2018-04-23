@@ -283,9 +283,9 @@
 			// if we made it this far without matching all possible statuses, fail!
 			if (numLoopsComplete >= maxNumLoops) {
 				assert.equal(returnedStatuses.length, possibleStatuses.length, "Did not randomly return all possible statuses (only returned: " + returnedStatuses.toString() + ")");					
+				
+				done();
 			}
-
-			done();
 		}
 
 		do {
@@ -342,9 +342,9 @@
 			// if we made it this far without matching all possible statuses, fail!
 			if (numLoopsComplete >= maxNumLoops) {
 				assert.equal(returnedStatuses.length, possibleStatuses.length, "Did not randomly return all possible statuses (only returned: " + returnedStatuses.toString() + ")");					
+				
+				done();
 			}
-
-			done();
 		}
 
 		do {
@@ -401,9 +401,9 @@
 			// if we made it this far without matching all possible statuses, fail!
 			if (numLoopsComplete >= maxNumLoops) {
 				assert.equal(returnedStatuses.length, possibleStatuses.length, "Did not randomly return all possible statuses (only returned: " + returnedStatuses.toString() + ")");					
+				
+				done();
 			}
-
-			done();
 		}
 
 		do {
