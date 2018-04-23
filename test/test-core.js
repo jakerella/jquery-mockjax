@@ -262,41 +262,48 @@
 				this.statusText = 'Internal Server Error';
 			}
 		});
+		
+		var completeCallback = function(xhr) {
+			assert.notEqual($.inArray(xhr.status, possibleStatuses), -1, 'Dynamically set random response status found');
 
-		$.ajax({
-			url: '/response-callback',
-			dataType: 'text',
-			data: {
-				response: 'Hello world'
-			},
-			error: function() {
-				assert.ok(true, 'error callback was called');
-			},
-			complete: function(xhr) {
-				assert.notEqual($.inArray(xhr.status, possibleStatuses), -1, 'Dynamically set random response status found');
-
-				if( $.fn.jquery !== '1.5.2') {
-					// This assertion fails in 1.5.2 due to this bug: http://bugs.jquery.com/ticket/9854
-					// The statusText is being modified internally by jQuery in 1.5.2
-					assert.equal(xhr.statusText, 'Internal Server Error', 'Dynamically set response statusText matches');
-				}
-				
-				// add this to our array of returned statuses (if it isn't there already)
-			  	if($.inArray(xhr.status, returnedStatuses) === -1) {
-					returnedStatuses.push(xhr.status);
-			  	}
-				
-			  	// increment counter
-			  	numLoopsComplete++;
-				
-				// if we made it this far without matching all possible statuses, fail!
-  	  			if (numLoopsComplete >= maxNumLoops) {
-  	    			assert.equal(returnedStatuses.length, possibleStatuses.length, "Did not randomly return all possible statuses (only returned: " + returnedStatuses.toString() + ")");					
-				}
-				
-				done();
+			if( $.fn.jquery !== '1.5.2') {
+				// This assertion fails in 1.5.2 due to this bug: http://bugs.jquery.com/ticket/9854
+				// The statusText is being modified internally by jQuery in 1.5.2
+				assert.equal(xhr.statusText, 'Internal Server Error', 'Dynamically set response statusText matches');
 			}
-		});
+
+			// add this to our array of returned statuses (if it isn't there already)
+			if($.inArray(xhr.status, returnedStatuses) === -1) {
+				returnedStatuses.push(xhr.status);
+			}
+
+			// increment counter
+			numLoopsComplete++;
+
+			// if we made it this far without matching all possible statuses, fail!
+			if (numLoopsComplete >= maxNumLoops) {
+				assert.equal(returnedStatuses.length, possibleStatuses.length, "Did not randomly return all possible statuses (only returned: " + returnedStatuses.toString() + ")");					
+			}
+
+			done();
+		}
+
+		do {
+			$.ajax({
+				url: '/response-callback',
+				dataType: 'text',
+				data: {
+					response: 'Hello world'
+				},
+				error: function() {
+					assert.ok(true, 'error callback was called');
+				},
+				complete: completeCallback
+			});
+			
+			// increment counter
+		  	numLoops++;
+		  } while (numLoops < maxNumLoops);
 	});
 
 	t('Dynamic response status callback - list of statuses as an array (successes only)', function(assert) {
