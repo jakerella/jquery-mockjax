@@ -277,10 +277,7 @@
 						}
 						
 						if ($.isArray(mockHandler.status)) {
-							var min = Math.ceil(0);
-							var max = Math.floor(mockHandler.status.length-1);
-							// get a random integer between two values, inclusive
-							var idxStatus = Math.floor(Math.random() * (max - min + 1)) + min;
+							var idxStatus = Math.floor(Math.random() * mockHandler.status.length)
 							this.status = mockHandler.status[idxStatus];							
 						} else if (typeof mockHandler.status === 'number' || typeof mockHandler.status === 'string') {
 							this.status = mockHandler.status;
