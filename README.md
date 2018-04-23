@@ -481,9 +481,8 @@ $.mockjax({
 });
 ```
 
-The ability to provide a list of possible response statuses to randomly pick 
-from is also available by providing a double pipe-delimited list of possible 
-reponses.
+The ability to provide an array of possible response statuses (from which the response
+for a given request will be randomly picked from):
 
 ```javascript
 // Randomly fail
