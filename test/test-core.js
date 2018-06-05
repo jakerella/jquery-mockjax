@@ -286,6 +286,7 @@
 			$.ajax({
 				url: '/response-callback',
 				dataType: 'text',
+				async: false,
 				data: {
 					response: 'Hello world'
 				},
@@ -294,7 +295,7 @@
 			
 			// increment counter
 		  	numLoops++;
-		  } while (numLoops < maxNumLoops);
+		  } while ((numLoops < maxNumLoops) && (possibleStatuses.length !== returnedStatuses.length));
 	});
 
 	t('Default Response Settings', function(assert) {
