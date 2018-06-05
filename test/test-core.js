@@ -252,7 +252,6 @@
 		var possibleStatuses = [200,201,204,400,404,500];
 	  	var returnedStatuses = [];
 		var maxNumLoops = possibleStatuses.length * 50;
-		var numLoops = 0;
 		var numLoopsComplete = 0;
 
 		$.mockjax({
@@ -297,10 +296,7 @@
 				},
 				complete: completeCallback
 			});
-			
-			// increment counter
-		  	numLoops++;
-		  } while ((numLoops < maxNumLoops) && (possibleStatuses.length !== returnedStatuses.length));
+		  } while ((numLoopsComplete < maxNumLoops) && (possibleStatuses.length !== returnedStatuses.length));
 	});
 
 	t('Default Response Settings', function(assert) {
