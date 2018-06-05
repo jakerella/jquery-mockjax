@@ -280,6 +280,11 @@
 				
 				done();
 			}
+			
+			// we short-circuited early, so we can be done
+			if (returnedStatuses.length === possibleStatuses.length) {
+				done();	
+			}
 		}
 
 		do {
