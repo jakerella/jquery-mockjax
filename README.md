@@ -479,6 +479,23 @@ $.mockjax({
 });
 ```
 
+The ability to provide an array of possible response statuses (from which the response
+for a given request will be randomly picked from):
+
+```javascript
+// Randomly fail
+$.mockjax({
+  url: "/restful/api",
+  status: [200,400,500]
+});
+
+// Randomly fail (with a preference towards success)
+$.mockjax({
+  url: "/restful/api",
+  status: [200,400,200,500,200]
+});
+```
+
 These forced error status codes will be handled just as if the server had
 returned the error: the `error` callback will get executed with the proper
 arguments.

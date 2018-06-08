@@ -275,9 +275,14 @@
 						} else {
 							this.responseText = mockHandler.responseText;
 						}
-						if( typeof mockHandler.status === 'number' || typeof mockHandler.status === 'string' ) {
+						
+						if ($.isArray(mockHandler.status)) {
+							var idxStatus = Math.floor(Math.random() * mockHandler.status.length)
+							this.status = mockHandler.status[idxStatus];							
+						} else if (typeof mockHandler.status === 'number' || typeof mockHandler.status === 'string') {
 							this.status = mockHandler.status;
 						}
+						
 						if( typeof mockHandler.statusText === 'string') {
 							this.statusText = mockHandler.statusText;
 						}

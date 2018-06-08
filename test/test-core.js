@@ -247,6 +247,58 @@
 		});
 	});
 
+	t('Dynamic response status callback - list of statuses as an array (mix of successes and failures)', function(assert) {
+		var done = assert.async();
+		var possibleStatuses = [200,201,204,400,404,500];
+	  	var returnedStatuses = [];
+		var maxNumLoops = possibleStatuses.length * 50;
+		var numLoopsComplete = 0;
+
+		$.mockjax({
+			url: '/response-callback',
+			response: function() {
+				this.status = possibleStatuses;
+				this.statusText = 'Internal Server Error';
+			}
+		});
+
+		var completeCallback = function(xhr) {
+			assert.notEqual($.inArray(xhr.status, possibleStatuses), -1, 'Dynamically set random response status found');
+
+			// add this to our array of returned statuses (if it isn't there already)
+			if($.inArray(xhr.status, returnedStatuses) === -1) {
+				returnedStatuses.push(xhr.status);
+			}
+
+			// increment counter
+			numLoopsComplete++;
+
+			// if we made it this far without matching all possible statuses, fail!
+			if (numLoopsComplete >= maxNumLoops) {
+				assert.equal(returnedStatuses.length, possibleStatuses.length, "Did not randomly return all possible statuses (only returned: " + returnedStatuses.toString() + ")");					
+				
+				done();
+			}
+			
+			// we short-circuited early, so we can be done
+			if (returnedStatuses.length === possibleStatuses.length) {
+				done();	
+			}
+		}
+
+		do {
+			$.ajax({
+				url: '/response-callback',
+				dataType: 'text',
+				async: false,
+				data: {
+					response: 'Hello world'
+				},
+				complete: completeCallback
+			});
+		  } while ((numLoopsComplete < maxNumLoops) && (possibleStatuses.length !== returnedStatuses.length));
+	});
+
 	t('Default Response Settings', function(assert) {
 		var done = assert.async();
 
