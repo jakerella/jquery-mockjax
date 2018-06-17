@@ -1,3 +1,10 @@
+## 2018-06-17 v2.4.0
+    * Added support for an array of status codes in mocked response (thanks @reinrl)
+    * Updated broken Codacy badge
+    * Added jQuery 3.3.1 to test suite
+    * Switched to using Chrome headless (with puppeteer) for all tests
+    * No longer testing in Opera, and added Edge to the browser test list
+
 ## 2018-01-07 v2.3.0
     * Added new `handlers()` method
     * Add basic support for 301 and 302 status codes with auto-redirection
