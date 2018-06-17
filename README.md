@@ -765,10 +765,10 @@ We use virtual machines to test current versions of the browsers below. In addit
 we test the specific versions of IE specified.
 
 * Internet Explorer 8-11
+* Edge
 * Firefox
 * Safari
 * Chrome
-* Opera
 
 _Please note that while we strive to keep `master` as bug free as possible, we do
 not necessarily run tests in all of the above browsers for every single commit. We
