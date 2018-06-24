@@ -54,6 +54,7 @@
   },
   "devDependencies": {
     "browserify": "^13.1.0",
+    "browserstack-runner": "^0.7.0",
     "grunt": "^1.0.1",
     "grunt-browserify": "^5.0.0",
     "grunt-contrib-concat": "^1.0.1",
