@@ -3,6 +3,7 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/72d5f8c1c29ee60f6282d7d3fa9cb52c)](https://www.codacy.com/app/mikehostetler_1249/jquery-mockjax?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=appendto/jquery-mockjax)
 [![Travis CI Badge](https://travis-ci.org/jakerella/jquery-mockjax.svg?branch=master)](https://travis-ci.org/jakerella/jquery-mockjax)
+[![BrowserStack Status](https://www.browserstack.com/automate/badge.svg?badge_key=REpZNzZpeWkzMTY2dERuTkkyYVpnTmM1SmZKMGE5cjdVNEVZNjNYelk3ND0tLXpsRGJjaTNhM0RYNnZoVjU2QXVCRnc9PQ==--7bb0e1bf6af34ba1b15703463673c619b1daf292)](https://www.browserstack.com/automate/public-build/REpZNzZpeWkzMTY2dERuTkkyYVpnTmM1SmZKMGE5cjdVNEVZNjNYelk3ND0tLXpsRGJjaTNhM0RYNnZoVjU2QXVCRnc9PQ==--7bb0e1bf6af34ba1b15703463673c619b1daf292)
 
 There are some minor breaking changes in v2, so if you need an older version, please check the [v1.x](https://github.com/jakerella/jquery-mockjax/tree/v1.x) branch or the list of [releases](https://github.com/jakerella/jquery-mockjax/tags) in Github.
 
@@ -755,24 +756,25 @@ $.mockjax.clear(id);
 
 We strive to ensure that Mockjax is tested on the furthest patch version of all
 minor (and major) versions of jQuery beginning with 1.5.2 going all the way
-through 2.x. In other words, we don't test 1.6.1, but rather 1.6.4 (the furthest
+through 3.x. In other words, we don't test 1.6.1, but rather 1.6.4 (the furthest
 patch version on the 1.6.x line). The QUnit tests in the `/test` directory include
 links to each version of jQuery tested in the header.
 
 ### Browsers Tested ###
 
-We use virtual machines to test current versions of the browsers below. In addition,
-we test the specific versions of IE specified.
+We use [BrowserStack](https://www.browserstack.com)'s awesome open source
+collaboration to test Mockjax in real browsers using VMs on their platform. We
+run all of our tests on the current versions of the major browsers below, plus
+the specific versions of Internet Explorer specified.
 
-* Internet Explorer 8-11
 * Edge
 * Firefox
-* Safari
 * Chrome
+* Safari
+* Internet Explorer 9-11
 
-_Please note that while we strive to keep `master` as bug free as possible, we do
-not necessarily run tests in all of the above browsers for every single commit. We
-do, however, ensure all tests are passing before tagging a release._
+Each PR will run these tests using TravisCI for continuous integration before
+code is merged into master to ensure we do not introduce regressions.
 
 
 ### Using Mockjax in Other Ways ###

@@ -114,10 +114,18 @@ you are viewing `/test/index.html` not just `/test/` .)
 ### Run your tests everywhere ###
 
 Lastly, we'd like you to run your tests on as many browsers as possible. Check the
-main [README](README.md#browsers-tested) file for the browsers we support. If you
-don't have access to one of those browsers, try running the tests using a virtual
-machine or via a service like [BrowserStack](http://www.browserstack.com),
-[Sauce Labs](https://saucelabs.com), or [Modern.IE](https://www.modern.ie).
+main [README](README.md#browsers-tested) file for the browsers we support.
+
+We highly recommend running your tests in a virtual environment to capture any issues
+in specific browsers. You can do so easily with out BrowserStack integration. In
+fact, all of our tests will run on BrowserStack's platform for all supported
+browsers when you submit a PR to `master`. That said, you can run these on your
+own using the command below. All you need to do is set the `BROWSERSTACK_KEY`
+environment variable first! Now run this in your terminal:
+
+```shell
+~$ node browserstack.js
+```
 
 ## Be sure to generate a build!
 
@@ -134,7 +142,7 @@ this message), but if you're submitting a bug fix, it should be submitted to the
 branch as well as `master` (if the bug exists in both).
 
 You should also write a good PR message with information on why this feature or fix is
-necesary or a good idea. For features, be sure to include information on _how to use_
+necessary or a good idea. For features, be sure to include information on _how to use_
 the feature; and for bugs, information on how to reproduce the bug is helpful!
 
 ## Publishing a Release
