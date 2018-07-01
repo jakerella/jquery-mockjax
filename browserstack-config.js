@@ -1,7 +1,7 @@
 
 var config = require('./grunt-config-options');
 config.onlyPaths = true;
-var urls = require('./test/build-version-urls')(config, 'latestInBranch', 'core');
+var urls = require('./test/build-version-urls')(config, 'latestInBranch', 'all');
 
 module.exports = {
     "username": "jordankasper2",
