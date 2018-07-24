@@ -632,16 +632,18 @@
 			};
 		};
 
-		// Iterate over our mock handlers (in reverse registration order) until we find
-		// one that is willing to intercept the request
-		for(var k = mockHandlers.length - 1; k >= 0; k--) {
-			if ( !mockHandlers[k] ) {
+		// Iterate over our mock handlers (in order depending on the matchInRegistrationOrder setting)
+		// until we find one that is willing to intercept the request
+		for(var k = 0; k < mockHandlers.length; k--) {
+			var handlerIndex = $.mockjaxSettings.matchInRegistrationOrder ? k : mockHandlers.length - 1 - k;
+			var origHandler = mockHandlers[handlerIndex];
+			if ( !origHandler ) {
 				continue;
 			}
 
-			mockHandler = getMockForRequest( mockHandlers[k], requestSettings );
+			mockHandler = getMockForRequest( origHandler, requestSettings );
 			if(!mockHandler) {
-				logger.debug( mockHandlers[k], ['Mock does not match request', url, requestSettings] );
+				logger.debug( origHandler, ['Mock does not match request', url, requestSettings] );
 				// No valid mock found for this request
 				continue;
 			}
@@ -726,7 +728,7 @@
 					// Mock the XHR object
 					xhr: function() { return xhr( mockHandler, requestSettings, origSettings, origHandler ); }
 				}));
-			})(mockHandler, requestSettings, origSettings, mockHandlers[k]);
+			})(mockHandler, requestSettings, origSettings, origHandler);
 			/* jshint loopfunc:false */
 
 			return mockRequest;
@@ -871,7 +873,9 @@
 	 * Default settings for mockjax. Some of these are used for defaults of
 	 * individual mock handlers, and some are for the library as a whole.
 	 * For individual mock handler settings, please see the README on the repo:
-	 * https://github.com/jakerella/jquery-mockjax#api-methods
+	 * https://github.com/jakerella/jquery-mockjax#api-methods.
+	 * For Global settings see:
+	 * https://github.com/jakerella/jquery-mockjax#globally-defining-mockjax-settings
 	 *
 	 * @type {Object}
 	 */
@@ -880,6 +884,7 @@
 		logger:				window.console,
 		logging:			2,
 		logLevelMethods:	['error', 'warn', 'info', 'log', 'debug'],
+		matchInRegistrationOrder: true,
 		namespace:			null,
 		status:				200,
 		statusText:			'OK',
