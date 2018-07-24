@@ -634,7 +634,7 @@
 
 		// Iterate over our mock handlers (in order depending on the matchInRegistrationOrder setting)
 		// until we find one that is willing to intercept the request
-		for(var k = 0; k < mockHandlers.length; k--) {
+		for(var k = 0; k < mockHandlers.length; k++) {
 			var handlerIndex = $.mockjaxSettings.matchInRegistrationOrder ? k : mockHandlers.length - 1 - k;
 			var origHandler = mockHandlers[handlerIndex];
 			if ( !origHandler ) {
