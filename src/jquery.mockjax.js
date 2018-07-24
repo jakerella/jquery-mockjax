@@ -632,9 +632,9 @@
 			};
 		};
 
-		// Iterate over our mock handlers (in registration order) until we find
+		// Iterate over our mock handlers (in reverse registration order) until we find
 		// one that is willing to intercept the request
-		for(var k = 0; k < mockHandlers.length; k++) {
+		for(var k = mockHandlers.length - 1; k >= 0; k--) {
 			if ( !mockHandlers[k] ) {
 				continue;
 			}

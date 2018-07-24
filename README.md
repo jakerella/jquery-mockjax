@@ -1,5 +1,9 @@
 # jQuery Mockjax: Ajax request mocking #
-[http://github.com/jakerella/jquery-mockjax/](http://github.com/jakerella/jquery-mockjax/)
+This is a fork of [http://github.com/jakerella/jquery-mockjax/](http://github.com/jakerella/jquery-mockjax/)
+where we match requests in reverse registration order instead of registration order.
+For us, thisi solves [this issue](https://github.com/jakerella/jquery-mockjax/issues/203).
+
+It would be nice if we could make this behavior and merge it back into the main line.
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/72d5f8c1c29ee60f6282d7d3fa9cb52c)](https://www.codacy.com/app/mikehostetler_1249/jquery-mockjax?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=appendto/jquery-mockjax)
 [![Travis CI Badge](https://travis-ci.org/jakerella/jquery-mockjax.svg?branch=master)](https://travis-ci.org/jakerella/jquery-mockjax)
