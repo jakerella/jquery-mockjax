@@ -10,6 +10,7 @@
             'data-types',
             'header-match',
             'url-match',
+            'match-ordering',
             'headers',
             'mock-clearing',
             'retaining-ajax-calls',
