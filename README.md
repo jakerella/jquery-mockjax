@@ -757,6 +757,8 @@ $.mockjax({
 The default behavior is that Mockjax returns `"hello"`, but with `matchInRegistrationOrder`
 set to `false`, Mockjax would return `"byebye"`.
 
+This behavior allows you to override older handlers after they are initially set.
+
 ### Removing Mockjax Handlers ###
 
 If you need to reset the Mockjax handlers you've added, just call
