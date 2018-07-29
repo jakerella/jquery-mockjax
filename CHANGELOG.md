@@ -1,3 +1,10 @@
+## 2018-07-29 v2.5.0
+    * Added support for ignoring test files in the automated runs; this was necessary
+      because Browserstack does something weird with the console and it causes
+      the logging tests to timeout
+    * Fixed Browserstack automated runs by ignoring logging tests
+    * Added an option to reverse the mock handler priority order (thanks @addepar-andy)
+
 ## 2018-06-17 v2.4.0
     * Added support for an array of status codes in mocked response (thanks @reinrl)
     * Updated broken Codacy badge
