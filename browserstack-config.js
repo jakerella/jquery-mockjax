@@ -10,12 +10,12 @@ module.exports = {
     "test_path": urls,
     "test_server_port": 3000,
     "browsers": [
-        // "chrome_latest",
-        // "firefox_latest",
-        // "safari_latest",
-        "edge_latest" //,
-        // "ie_9",
-        // "ie_10",
-        // "ie_11"
+        "chrome_latest",
+        "firefox_latest",
+        "safari_latest",
+        "edge_latest",
+        "ie_9",
+        "ie_10",
+        "ie_11"
     ]
 };
