@@ -730,6 +730,35 @@ $.mockjax({
 
 Note that the namespace prefix does not apply to proxies.
 
+### Globally defining match order
+
+By default, Mockjax matches requests in registration order (mockjax considers
+the handlers registered first before handlers registered last). To reverse this
+behavior:
+
+```javascript
+$.mockjaxSettings.matchInRegistrationOrder = false;
+```
+
+Setting `matchInRegistrationOrder` to `false` lets you override previously defined
+handlers. Suppose you had:
+
+```javascript
+$.mockjax({
+    url: "/rest",
+    responseText: "hello"
+});
+$.mockjax({
+    url: "/rest",
+    responseText: "byebye"
+});
+```
+
+The default behavior is that Mockjax returns `"hello"`, but with `matchInRegistrationOrder`
+set to `false`, Mockjax would return `"byebye"`.
+
+This behavior allows you to override older handlers after they are initially set.
+
 ### Removing Mockjax Handlers ###
 
 If you need to reset the Mockjax handlers you've added, just call
