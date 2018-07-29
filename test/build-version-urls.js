@@ -30,8 +30,8 @@ module.exports = function buildVersionURLs(config, arg1, arg2, arg3, arg4) {
     for (i=0, l=versions.length; i<l; ++i) {
         if (arg1 === 'requirejs') {
             url = 'test/requirejs/' + file + '?jquery=' + versions[i] + '&testFiles=' + testFiles + '&ignoreFiles=' + ignoreFiles;
-            versionUrls.push( url );
             if (!config.onlyPaths) { url = baseURL + '/' + url; }
+            versionUrls.push( url );
         } else {
             url = 'test/' + file + '?jquery=' + versions[i] + '&testFiles=' + testFiles + '&ignoreFiles=' + ignoreFiles;
             if (!config.onlyPaths) { url = baseURL + '/' + url; }
