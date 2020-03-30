@@ -1,6 +1,6 @@
 'use strict';
 
-var jquery = require('../../lib/jquery-3.3.1.js');
+var jquery = require('../../lib/jquery-3.4.1.js');
 var mockjax = require('../../src/jquery.mockjax')(jquery, window);
 
 mockjax({

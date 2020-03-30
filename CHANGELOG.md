@@ -1,3 +1,8 @@
+## 2020-03-30 v2.5.1
+    * Fixed issue with capitalization of the "content-type" header
+    * Added newer version of jQuery for testing
+    * Fixed issue where we were not running one subset of tests
+
 ## 2018-07-29 v2.5.0
     * Added support for ignoring test files in the automated runs; this was necessary
       because Browserstack does something weird with the console and it causes

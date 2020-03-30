@@ -11,7 +11,7 @@
             'data-types',
             'header-match',
             'url-match',
-            'match-ordering',
+            'match-order',
             'headers',
             'mock-clearing',
             'retaining-ajax-calls',

@@ -1,9 +1,9 @@
 /*! jQuery Mockjax
  * A Plugin providing simple and flexible mocking of ajax requests and responses
  * 
- * Version: 2.5.0
+ * Version: 2.5.1
  * Home: https://github.com/jakerella/jquery-mockjax
- * Copyright (c) 2018 Jordan Kasper, formerly appendTo;
+ * Copyright (c) 2020 Jordan Kasper, formerly appendTo;
  * NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
  * 
  * Dual licensed under the MIT or GPL licenses.
@@ -424,7 +424,7 @@
 				var headers = '';
 				// since jQuery 1.9 responseText type has to match contentType
 				if (mockHandler.contentType) {
-					mockHandler.headers['Content-Type'] = mockHandler.contentType;
+					mockHandler.headers['content-type'] = mockHandler.contentType;
 				}
 				$.each(mockHandler.headers, function(k, v) {
 					headers += k + ': ' + v + '\n';
