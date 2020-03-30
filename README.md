@@ -3,7 +3,7 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/72d5f8c1c29ee60f6282d7d3fa9cb52c)](https://www.codacy.com/app/mikehostetler_1249/jquery-mockjax)
 [![Travis CI Badge](https://travis-ci.com/jakerella/jquery-mockjax.svg?branch=master)](https://travis-ci.com/jakerella/jquery-mockjax)
-[![BrowserStack Status](https://automate.browserstack.com/badge.svg?badge_key=alZyelpKSWI1WlpxellOQXdPUHBMd2UvQnFmTTFnOEJ2V1FSVXo3a3JPbz0tLWk4alJ6aXJWZVV6bmN6QUZBUTQ5UVE9PQ==--fd0f170c41cb4b3eac0a35aaef09b1ead3b55a0cjquery-mockjax)](https://automate.browserstack.com/public-build/alZyelpKSWI1WlpxellOQXdPUHBMd2UvQnFmTTFnOEJ2V1FSVXo3a3JPbz0tLWk4alJ6aXJWZVV6bmN6QUZBUTQ5UVE9PQ==--fd0f170c41cb4b3eac0a35aaef09b1ead3b55a0cjquery-mockjax)
+[![BrowserStack Status](https://automate.browserstack.com/badge.svg?badge_key=alZyelpKSWI1WlpxellOQXdPUHBMd2UvQnFmTTFnOEJ2V1FSVXo3a3JPbz0tLWk4alJ6aXJWZVV6bmN6QUZBUTQ5UVE9PQ==--fd0f170c41cb4b3eac0a35aaef09b1ead3b55a0c)](https://automate.browserstack.com/public-build/alZyelpKSWI1WlpxellOQXdPUHBMd2UvQnFmTTFnOEJ2V1FSVXo3a3JPbz0tLWk4alJ6aXJWZVV6bmN6QUZBUTQ5UVE9PQ==--fd0f170c41cb4b3eac0a35aaef09b1ead3b55a0c)
 
 There are some minor breaking changes in v2, so if you need an older version, please check the [v1.x](https://github.com/jakerella/jquery-mockjax/tree/v1.x) branch or the list of [releases](https://github.com/jakerella/jquery-mockjax/tags) in Github.
 
@@ -104,9 +104,10 @@ checkout this list:
   * Returns the mock request settings for the handler with the provided `id`. Be careful here, you're accessing the inner workings of the plugin, any changes to this object could be bad.
 * `Array $.mockjax.handlers()`
   * Returns the array of mock handlers. **NOTE:** This array is NOT modified when a handler is cleared, the cleared handler position is simply set to `null`. As such, the array length will only change when new mocks are added. Be careful here, you're accessing the inner workings of the plugin, any changes to the array could be very bad.
-* `void $.mockjax.clear([/* Number */ id])`
-  * If the `id` is provided, the handler with that ID is cleared (that is, requests matching it will no longer do so, the handler is completely removed)
-  * If no `id` is provided, all handlers are cleared, resetting Mockjax to its initial state
+* `void $.mockjax.clear([/* Number || String */ identifier])`
+  * If the `identifier` provided is a Number, the handler with that ID is cleared (that is, requests matching it will no longer do so, the handler is completely removed)
+  * If the `identifier` provided is a String, the handler with that matching URL is cleared.
+  * If no `identifier` is provided, *ALL handlers are cleared*, resetting Mockjax to its initial state
 * `Array<Object> $.mockjax.mockedAjaxCalls()`
   * Returns an array of all mocked ajax calls with each entry being the request settings object as passed into the `$.mockjax()` function
   * If `$.mockjaxSettings.retainAjaxCalls is set to false, this will always be empty
@@ -778,6 +779,19 @@ var id = $.mockjax({
 $.mockjax.clear(id);
 ```
 
+Or you can clear a handler by the URL that it matches with either a String or RegExp:
+
+```javascript
+$.mockjax({
+   url: "/api/foo",
+   ...
+});
+
+$.mockjax.clear("/api/foo");
+// or
+$.mockjax.clear(/foo/);
+```
+
 
 ## Miscellaneous Information ##
 
@@ -925,10 +939,3 @@ Request, issue submission and comments, or just sharing on social media!
 If you want to contribute code to the project, please read our
 [Contribution guidelines](CONTRIBUTING.md) to see what you need to do to get your
 Pull Request ready for merging.
-
-#### Admins ####
-
-All pull requests are reviewed by the wonderful collaborators on this project:
-* [Doug Neiner](https://github.com/dcneiner)
-* [Jonathan Creamer](https://github.com/jcreamer898)
-* [Jordan Kasper](https://github.com/jakerella)
