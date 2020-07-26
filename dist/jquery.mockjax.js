@@ -171,9 +171,12 @@
 		// Inspect the URL of the request and check if the mock handler's url
 		// matches the url for this ajax request
 		if ( $.isFunction(handler.url.test) ) {
-			var newNamespace = namespace ? namespace.replace(/(\/+)$/, '') : namespace;
-			var newPattern = newNamespace ? handler.url.source.replace('^', '^('+ newNamespace +')?\/?') : handler.url;
-			handler.url = new RegExp(newPattern);
+			// namespace exists prepend handler.url with namespace
+			if (!!namespace) {
+				namespace = namespace.replace(/(\/+)$/, '');
+				var pattern = handler.url.source.replace(/^(\^+)/, '').replace(/^/, '^(' + namespace + ')?\/?');
+				handler.url = new RegExp(pattern);
+			}
 			// The user provided a regex for the url, test it
 			if ( !handler.url.test( requestSettings.url ) ) {
 				return null;
