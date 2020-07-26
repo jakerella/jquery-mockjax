@@ -194,6 +194,31 @@
 		});
 	});
 
+	t('should handle pattern without "^" start character (RegExp)', function(assert) {
+		var done = assert.async();
+
+		$.mockjaxSettings.namespace = '/api/v1';
+
+		$.mockjax({
+			url: /one|two/,
+		});
+
+		$.ajax({
+			url: '/api/v1/one',
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 200, 'Response was successful');
+				$.ajax({
+					url: '/api/v1/two',
+					complete: function(xhr) {
+						assert.equal(xhr.status, 200, 'Response was successful');
+						done();
+					}
+				});
+			}
+		});
+	});
+
 	t('should pass the correct url to the response settings', function(assert) {
 		var done = assert.async();
 
