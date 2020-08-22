@@ -14,8 +14,6 @@ module.exports = {
         "firefox_latest",
         "safari_latest",
         "edge_latest",
-        "ie_9",
-        "ie_10",
         "ie_11"
     ]
 };

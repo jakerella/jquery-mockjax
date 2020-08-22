@@ -1,3 +1,9 @@
+## 2020-08-22 v2.6.0
+    * Removed support for IE 9 & 10
+    * Removed unused config for code climate
+    * Updated dev dependencies to fix browserstack and local test run issues
+    * Added support for regex url matching when using a namespace (thanks @gregid)
+
 ## 2020-03-30 v2.5.1
     * Fixed issue with capitalization of the "content-type" header
     * Added newer version of jQuery for testing
