@@ -37,7 +37,7 @@ module.exports = async function testRunner(targetURL, port) {
   let proc;
 
   try {
-    proc = spawn('http-server', ['-c-1', '-p ' + port]);  // disable caching
+    proc = spawn('http-server', ['-c-1', '-p ' + port], { shell: true });  // disable caching
 
     const browser = await puppeteer.launch();
     const page = await browser.newPage();

@@ -720,6 +720,13 @@ $.mockjax({
 })
 ```
 
+As will the following RegExp pattern:
+```javascript
+$.mockjax({
+    url: /^\/rest$/
+})
+```
+
 The global namespace option can also be overwritten on a particular mock.
 
 ```javascript
