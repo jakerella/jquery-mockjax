@@ -1,5 +1,5 @@
 ## 2020-08-22 v2.6.0
-    * Removed support for IE 9
+    * Removed support for IE 9 & 10
     * Removed unused config for code climate
     * Updated dev dependencies to fix browserstack and local test run issues
     * Added support for regex url matching when using a namespace (thanks @gregid)

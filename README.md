@@ -821,7 +821,7 @@ the specific versions of Internet Explorer specified.
 * Firefox
 * Chrome
 * Safari
-* Internet Explorer 10 & 11 (although it may work on ie9)
+* Internet Explorer 11 (although it may work on IE 9 & 10)
 
 Each PR will run these tests using TravisCI for continuous integration before
 code is merged into master to ensure we do not introduce regressions.
