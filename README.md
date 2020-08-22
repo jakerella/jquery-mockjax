@@ -3,7 +3,7 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/72d5f8c1c29ee60f6282d7d3fa9cb52c)](https://www.codacy.com/app/mikehostetler_1249/jquery-mockjax)
 [![Travis CI Badge](https://travis-ci.com/jakerella/jquery-mockjax.svg?branch=master)](https://travis-ci.com/jakerella/jquery-mockjax)
-[![BrowserStack Status](https://automate.browserstack.com/badge.svg?badge_key=alZyelpKSWI1WlpxellOQXdPUHBMd2UvQnFmTTFnOEJ2V1FSVXo3a3JPbz0tLWk4alJ6aXJWZVV6bmN6QUZBUTQ5UVE9PQ==--fd0f170c41cb4b3eac0a35aaef09b1ead3b55a0c)](https://automate.browserstack.com/public-build/alZyelpKSWI1WlpxellOQXdPUHBMd2UvQnFmTTFnOEJ2V1FSVXo3a3JPbz0tLWk4alJ6aXJWZVV6bmN6QUZBUTQ5UVE9PQ==--fd0f170c41cb4b3eac0a35aaef09b1ead3b55a0c)
+[![BrowserStack Status](https://automate.browserstack.com/badge.svg?badge_key=VTdsNjQzSDZvSXA2ZDhsamFkaG5pWWVFTmUwWDdmRmltTkFoY2VVR01COD0tLWVrSXY0YTJwWXNiZ2tlbmxBNTBpUmc9PQ==--e3dabee1a4e801501ff510bef8292859e10cb008)](https://automate.browserstack.com/public-build/VTdsNjQzSDZvSXA2ZDhsamFkaG5pWWVFTmUwWDdmRmltTkFoY2VVR01COD0tLWVrSXY0YTJwWXNiZ2tlbmxBNTBpUmc9PQ==--e3dabee1a4e801501ff510bef8292859e10cb008)
 
 There are some minor breaking changes in v2, so if you need an older version, please check the [v1.x](https://github.com/jakerella/jquery-mockjax/tree/v1.x) branch or the list of [releases](https://github.com/jakerella/jquery-mockjax/tags) in Github.
 
@@ -821,7 +821,7 @@ the specific versions of Internet Explorer specified.
 * Firefox
 * Chrome
 * Safari
-* Internet Explorer 9-11
+* Internet Explorer 10 & 11 (although it may work on ie9)
 
 Each PR will run these tests using TravisCI for continuous integration before
 code is merged into master to ensure we do not introduce regressions.
