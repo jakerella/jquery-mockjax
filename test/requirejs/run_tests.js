@@ -7,7 +7,7 @@
     function getJQueryPath() {
         var parts = document.location.search.slice(1).split('&'),
             length = parts.length,
-            version = '1.5.2',
+            version = '3.7.1',
             i, current;
 
         for (i = 0; i < length; i++) {

@@ -17,8 +17,8 @@
     "ecosystem:jquery"
   ],
   "author": {
-    "name": "Jonathan Sharp",
-    "url": "http://jdsharp.com"
+    "name": "Jordan Kasper",
+    "url": "http://jordankasper.com"
   },
   "contributors": [
     {
@@ -28,7 +28,8 @@
       "name": "Jonathan Creamer"
     },
     {
-      "name": "Jordan Kasper"
+      "name": "Jonathan Sharp",
+      "url": "http://jdsharp.com"
     }
   ],
   "homepage": "https://github.com/jakerella/jquery-mockjax",
@@ -43,14 +44,10 @@
     {
       "type": "MIT",
       "url": "http://opensource.org/licenses/MIT"
-    },
-    {
-      "type": "GPLv2",
-      "url": "http://www.gnu.org/licenses/gpl-2.0.html"
     }
   ],
   "dependencies": {
-    "jquery": ">=1.5.2"
+    "jquery": ">=1.12.4"
   },
   "devDependencies": {
     "browserify": "^16.5.2",
