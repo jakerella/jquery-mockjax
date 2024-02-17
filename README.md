@@ -1,9 +1,7 @@
 # jQuery Mockjax: Ajax request mocking #
 [http://github.com/jakerella/jquery-mockjax/](http://github.com/jakerella/jquery-mockjax/)
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/72d5f8c1c29ee60f6282d7d3fa9cb52c)](https://www.codacy.com/app/mikehostetler_1249/jquery-mockjax)
 [![Travis CI Badge](https://travis-ci.com/jakerella/jquery-mockjax.svg?branch=master)](https://travis-ci.com/jakerella/jquery-mockjax)
-[![BrowserStack Status](https://automate.browserstack.com/badge.svg?badge_key=VTdsNjQzSDZvSXA2ZDhsamFkaG5pWWVFTmUwWDdmRmltTkFoY2VVR01COD0tLWVrSXY0YTJwWXNiZ2tlbmxBNTBpUmc9PQ==--e3dabee1a4e801501ff510bef8292859e10cb008)](https://automate.browserstack.com/public-build/VTdsNjQzSDZvSXA2ZDhsamFkaG5pWWVFTmUwWDdmRmltTkFoY2VVR01COD0tLWVrSXY0YTJwWXNiZ2tlbmxBNTBpUmc9PQ==--e3dabee1a4e801501ff510bef8292859e10cb008)
 
 There are some minor breaking changes in v2, so if you need an older version, please check the [v1.x](https://github.com/jakerella/jquery-mockjax/tree/v1.x) branch or the list of [releases](https://github.com/jakerella/jquery-mockjax/tags) in Github.
 
@@ -39,7 +37,7 @@ You may report any issues you may find [in the github issue tracking](https://gi
 * [Miscellaneous Information](#miscellaneous-information)
   * [jQuery Version Support](#jquery-version-support)
   * [Browsers Tested](#browsers-tested)
-  * [Using Mockjax in Other Ways (Node, require, browserify, etc)](#using-mockjax-in-other-ways)
+  * [Using Mockjax in Other Ways (Node, browserify, etc)](#using-mockjax-in-other-ways)
   * [Logging](#logging)
   * [Release History](#release-history)
   * [License](#license)
@@ -805,10 +803,10 @@ $.mockjax.clear(/foo/);
 ### jQuery Version Support ###
 
 We strive to ensure that Mockjax is tested on the furthest patch version of all
-minor (and major) versions of jQuery beginning with 1.5.2 going all the way
-through 3.x. In other words, we don't test 1.6.1, but rather 1.6.4 (the furthest
-patch version on the 1.6.x line). The QUnit tests in the `/test` directory include
-links to each version of jQuery tested in the header.
+minor versions of jQuery (1.x.y through 3.x.y). In other words, we don't test 
+1.12.1, but rather 1.12.4 (the furthest patch version on the 1.x line). The QUnit 
+tests in the `/test` directory include links to each version of jQuery tested in 
+the header.
 
 ### Browsers Tested ###
 
@@ -821,7 +819,6 @@ the specific versions of Internet Explorer specified.
 * Firefox
 * Chrome
 * Safari
-* Internet Explorer 11 (although it may work on IE 9 & 10)
 
 Each PR will run these tests using TravisCI for continuous integration before
 code is merged into master to ensure we do not introduce regressions.
@@ -829,7 +826,7 @@ code is merged into master to ensure we do not introduce regressions.
 
 ### Using Mockjax in Other Ways ###
 
-You can use Mockjax as a Node module, with require.js, or with Browserify... and
+You can use Mockjax as a Node module or with Browserify... and
 presumably in other ways as well. We have tests for each of the methods above.
 
 When using Mockjax as a Node module (including with Browserify), **you must
@@ -925,13 +922,11 @@ should *not* be considered a stable release!
 
 ### License ###
 
-Copyright (c) 2014 Jordan Kasper, formerly appendTo
+Copyright (c) 2014-2024 Jordan Kasper, formerly appendTo
 
 NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
 
-Dual licensed under the MIT or GPL licenses:
-[http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT)
-[http://www.gnu.org/licenses/gpl-2.0.html](http://www.gnu.org/licenses/gpl-2.0.html)
+Licensed under the MIT license: [http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT)
 
 ### Troubleshooting ###
 

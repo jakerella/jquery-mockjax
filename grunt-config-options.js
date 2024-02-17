@@ -1,4 +1,4 @@
-var PORT = 4000;
+const PORT = 4000;
 
 module.exports = {
     banner: [
@@ -10,8 +10,7 @@ module.exports = {
         ' * Copyright (c) <%= grunt.template.today("yyyy") %> Jordan Kasper, formerly appendTo;',
         ' * NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014',
         ' * ',
-        ' * Dual licensed under the MIT or GPL licenses.',
-        ' * http://opensource.org/licenses/MIT OR http://www.gnu.org/licenses/gpl-2.0.html',
+        ' * Licensed under the MIT license: http://opensource.org/licenses/MIT',
         ' */\n'
     ].join('\n'),
 
@@ -42,8 +41,7 @@ module.exports = {
         all: [
             'src/**/*.js',
             'Gruntfile.js',
-            'test/test.js',
-            'test/requirejs/*.js',
+            'test/**/test-*.js',
             'test/nodejs/*.js',
             'test/browserify/main.js',
             'test/browserify/test.js'
@@ -64,48 +62,9 @@ module.exports = {
     test: {
         all: {
             jQueryVersions: [
-                '1.5.2',
-                '1.6.4',
-                '1.7.2',
-                '1.8.3',
-                '1.9.1',
-                '1.10.2',
-                '1.11.3',
-                '1.12.4',
-                '2.0.3',
-                '2.1.4',
-                '2.2.4',
-                '3.0.0',
-                '3.1.1',
-                '3.2.1',
-                '3.3.1',
-                '3.4.1',
-                '3.5.1'
-            ]
-        },
-        requirejs: {
-            jQueryVersions: [
-                '1.7.2',
-                '1.8.3',
-                '1.9.1',
                 '1.12.4',
                 '2.2.4',
-                '3.5.1'
-            ]
-        },
-        latestInBranch: {
-            jQueryVersions: [
-                '1.12.4',
-                '2.2.4',
-                '3.5.1'
-            ]
-        },
-        oldestAndLatest: {
-            jQueryVersions: [
-                '1.5.2',
-                '1.12.4',
-                '2.2.4',
-                '3.5.1'
+                '3.7.1'
             ]
         },
         edge: {
@@ -114,23 +73,9 @@ module.exports = {
         dist: {
             file: 'dist-min.html',
             jQueryVersions: [
-                '1.5.2',
-                '1.6.4',
-                '1.7.2',
-                '1.8.3',
-                '1.9.1',
-                '1.10.2',
-                '1.11.3',
                 '1.12.4',
-                '2.0.3',
-                '2.1.4',
                 '2.2.4',
-                '3.0.0',
-                '3.1.1',
-                '3.2.1',
-                '3.3.1',
-                '3.4.1',
-                '3.5.1'
+                '3.7.1'
             ]
         },
         browserify: {
@@ -155,7 +100,7 @@ module.exports = {
         },
         source: {
             files: './src/*.js',
-            tasks: ['jshint', 'test:latestInBranch']
+            tasks: ['jshint', 'test:all']
         }
     }
 };

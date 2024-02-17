@@ -275,7 +275,11 @@
 
 			// if we made it this far without matching all possible statuses, fail!
 			if (numLoopsComplete >= maxNumLoops) {
-				assert.equal(returnedStatuses.length, possibleStatuses.length, "Did not randomly return all possible statuses (only returned: " + returnedStatuses.toString() + ")");					
+				assert.equal(
+					returnedStatuses.length,
+					possibleStatuses.length,
+					'Did not randomly return all possible statuses (only returned: ' + returnedStatuses.toString() + ')'
+				);
 				
 				done();
 			}
@@ -284,7 +288,7 @@
 			if (returnedStatuses.length === possibleStatuses.length) {
 				done();	
 			}
-		}
+		};
 
 		do {
 			$.ajax({
@@ -592,7 +596,7 @@
 			{ url: '/response-callback', responseText: 'Second' }
 		]);
 
-		assert.equal(handlers.length, 2, 'Not enough mocks')
+		assert.equal(handlers.length, 2, 'Not enough mocks');
 
 		var callCount = 2;
 		$.ajax({
@@ -619,7 +623,7 @@
 		var done = assert.async();
 		var handlers = $.mockjax([]);
 
-		assert.equal(handlers.length, 0)
+		assert.equal(handlers.length, 0);
 
 		$.ajax({
 			url: '/response-callback',
@@ -633,7 +637,7 @@
 		var done = assert.async();
 		var handlers = $.mockjax([ null ]);
 
-		assert.equal(handlers.length, 1)
+		assert.equal(handlers.length, 1);
 
 		$.ajax({
 			url: '/response-callback',

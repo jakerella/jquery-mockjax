@@ -1,1 +1,1 @@
-TEST_SCRIPT_VAR = 1;
+var TEST_SCRIPT_VAR = 1;

@@ -1,3 +1,11 @@
+## 2024-02-17 v2.6.1
+    * Changed license from dual (MIT & GPL) to only be MIT
+    * Updated authorship to myself (creator of all v2 changes) and moved JD Sharp to contributor
+    * Massive (long needed) update to dev dependencies, and thus most of the test and build infrastructure
+    * NO source code changes, but the minified version will change due to dependency updates
+    * Remove support for IE 11 and requirejs
+    * Remove support for older versions of jQuery (supporting latest on each major branch)
+
 ## 2020-08-22 v2.6.0
     * Removed support for IE 9 & 10
     * Removed unused config for code climate

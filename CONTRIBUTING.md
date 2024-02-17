@@ -137,9 +137,8 @@ just run `grunt build`
 ## Submit Your PR
 
 This is the last step! First, be sure you're merging with the correct branch! Version
-2.0 of Mockjax will be the `master` branch very soon (hopefully we remember to update
-this message), but if you're submitting a bug fix, it should be submitted to the `v1.x`
-branch as well as `master` (if the bug exists in both).
+2.x of Mockjax is on the `master` branch, but if you're submitting a bug fix for v1.x, 
+make sure it is submitted to the `v1.x` branch as well as `master` (if the bug exists in both).
 
 You should also write a good PR message with information on why this feature or fix is
 necessary or a good idea. For features, be sure to include information on _how to use_
