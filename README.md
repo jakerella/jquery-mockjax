@@ -37,7 +37,7 @@ You may report any issues you may find [in the github issue tracking](https://gi
 * [Miscellaneous Information](#miscellaneous-information)
   * [jQuery Version Support](#jquery-version-support)
   * [Browsers Tested](#browsers-tested)
-  * [Using Mockjax in Other Ways (Node, require, browserify, etc)](#using-mockjax-in-other-ways)
+  * [Using Mockjax in Other Ways (Node, browserify, etc)](#using-mockjax-in-other-ways)
   * [Logging](#logging)
   * [Release History](#release-history)
   * [License](#license)
@@ -826,7 +826,7 @@ code is merged into master to ensure we do not introduce regressions.
 
 ### Using Mockjax in Other Ways ###
 
-You can use Mockjax as a Node module, with require.js, or with Browserify... and
+You can use Mockjax as a Node module or with Browserify... and
 presumably in other ways as well. We have tests for each of the methods above.
 
 When using Mockjax as a Node module (including with Browserify), **you must

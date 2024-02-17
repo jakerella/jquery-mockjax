@@ -13,7 +13,6 @@ module.exports = {
         "chrome_latest",
         "firefox_latest",
         "safari_latest",
-        "edge_latest",
-        "ie_11"
+        "edge_latest"
     ]
 };

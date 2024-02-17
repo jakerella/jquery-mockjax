@@ -1,4 +1,4 @@
-var PORT = 4000;
+const PORT = 4000;
 
 module.exports = {
     banner: [
@@ -41,8 +41,7 @@ module.exports = {
         all: [
             'src/**/*.js',
             'Gruntfile.js',
-            'test/test.js',
-            'test/requirejs/*.js',
+            'test/**/test-*.js',
             'test/nodejs/*.js',
             'test/browserify/main.js',
             'test/browserify/test.js'

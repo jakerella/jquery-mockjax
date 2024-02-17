@@ -1,30 +1,25 @@
 /* globals describe,beforeEach,afterEach,it */
 
-var jsDomEnv = require('jsdom').env,
-	assert = require('assert');
+const jsdom = require('jsdom');
+const { JSDOM } = jsdom;
+const assert = require('assert');
 
 describe('Node module setup', function() {
     'use strict';
     
-	var $, xhr, win;
+	let $, xhr, win;
 	
 	beforeEach(function(done) {
-		jsDomEnv('<html></html>', function (error, window) {
-			if (error) {
-				assert(false);
-			} else {
-				win = window;
-				$ = require('jquery')(window);
-				xhr = require('xmlhttprequest').XMLHttpRequest;
-				$.support.cors = true;
-				$.ajaxSettings.xhr = function () {
-					/*jshint newcap:false*/
-                    return new xhr();
-                    /*jshint newcap:true*/
-				};
-			}
-			done();
-		});
+		win = (new JSDOM('<html></html>')).window;
+		$ = require('jquery')(win);
+		xhr = require('xmlhttprequest').XMLHttpRequest;
+		$.support.cors = true;
+		$.ajaxSettings.xhr = function () {
+			/*jshint newcap:false*/
+			return new xhr();
+			/*jshint newcap:true*/
+		};
+		done();
 	});
 	
 	describe('Mockjax Node Module Tests', function() {
@@ -37,13 +32,13 @@ describe('Node module setup', function() {
 		
 		
 		it('should be loaded when required', function() {
-			var mockjax = require('../../src/jquery.mockjax')($, win);
+			const mockjax = require('../../src/jquery.mockjax')($, win);
 			assert.equal(typeof mockjax, 'function');
 			assert.equal(typeof $.mockjax, 'function');
 		});
 		
 		it('should mock a simple request using returned module', function(done) {
-			var mockjax = require('../../src/jquery.mockjax')($, win);
+			const mockjax = require('../../src/jquery.mockjax')($, win);
 			
 			mockjax({
 				url: '/resource',

@@ -155,7 +155,7 @@
       complete: function() {
         var numberOfMockedCalls = $.mockjax.mockedAjaxCalls().length;
         assert.equal(numberOfMockedCalls, 0, 'Mocked calls count did not increase');
-        done()
+        done();
       }
     });
   });
@@ -196,7 +196,7 @@
       complete: function() {
         var numberOfUnmockedCalls = $.mockjax.unmockedAjaxCalls().length;
         assert.equal(numberOfUnmockedCalls, 0, 'Unmocked calls count did not increase');
-        done()
+        done();
       }
     });
   });
@@ -223,10 +223,10 @@
 
         $.mockjax.clearRetainedAjaxCalls();
 
-        var numberOfMockedCalls = $.mockjax.mockedAjaxCalls().length;
+        numberOfMockedCalls = $.mockjax.mockedAjaxCalls().length;
         assert.equal(numberOfMockedCalls, 0, 'Mocked calls count was reset to zero');
 
-        done()
+        done();
       }
     });
   });
@@ -254,10 +254,10 @@
 
         $.mockjax.clearRetainedAjaxCalls();
 
-        var numberOfUnmockedCalls = $.mockjax.unmockedAjaxCalls().length;
+        numberOfUnmockedCalls = $.mockjax.unmockedAjaxCalls().length;
         assert.equal(numberOfUnmockedCalls, 0, 'Unmocked calls count was reset to zero');
 
-        done()
+        done();
       }
     });
   });
@@ -284,10 +284,10 @@
 
         $.mockjax.clear();
 
-        var numberOfMockedCalls = $.mockjax.mockedAjaxCalls().length;
+        numberOfMockedCalls = $.mockjax.mockedAjaxCalls().length;
         assert.equal(numberOfMockedCalls, 0, 'Mocked calls count was reset to zero');
 
-        done()
+        done();
       }
     });
   });
@@ -315,10 +315,10 @@
 
         $.mockjax.clear();
 
-        var numberOfUnmockedCalls = $.mockjax.unmockedAjaxCalls().length;
+        numberOfUnmockedCalls = $.mockjax.unmockedAjaxCalls().length;
         assert.equal(numberOfUnmockedCalls, 0, 'Unmocked calls count was reset to zero');
 
-        done()
+        done();
       }
     });
   });

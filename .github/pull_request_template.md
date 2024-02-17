@@ -12,8 +12,9 @@ _**TODO: describe it...**_
 
 ## How can someone test that the problem was solved?
 
+_**TODO: describe specific testing that a reviewer should perform...**_
+
  - [ ] I have run the unit tests locally
  - [ ] I have tested this change with all supported versions of jQuery
  - [ ] I have tested this change on at least 2 browsers
 
-_**TODO: describe additional testing scenarios...**_

@@ -111,7 +111,7 @@
     '/rest',
     '1',
     '2'
-  )
+  );
 
   testMatchOrder(
     'second and third matching handlers',
@@ -123,7 +123,7 @@
     '/rest',
     '2',
     '3'
-  )
+  );
 
   testMatchOrder(
     'first and third matching handlers',
@@ -135,6 +135,6 @@
     '/rest',
     '1',
     '3'
-  )
+  );
 
 })(window.QUnit, window.jQuery);

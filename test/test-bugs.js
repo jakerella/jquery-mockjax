@@ -349,7 +349,10 @@
 			complete: function() {
 				var actualCalls = $.mockjax.mockedAjaxCalls();
 				assert.equal(actualCalls.length, 1, 'Mockjax call made');
-				assert.ok(actualCalls[0] && actualCalls[0].url.match(/\/api\/jsonp\?callback\=jsonp[0-9]+/), 'mockjax call has expected jsonp url');
+				assert.ok(
+					actualCalls[0] && actualCalls[0].url.match(/\/api\/jsonp\?callback\=jsonp[0-9]+/),
+					'mockjax call has expected jsonp url'
+				);
 				done();
 			}
 		});
@@ -375,7 +378,10 @@
 			complete: function() {
 				var actualCalls = $.mockjax.mockedAjaxCalls();
 				assert.equal(actualCalls.length, 1, 'Mockjax call made');
-				assert.ok(actualCalls[0] && actualCalls[0].url.match(/\/api\/jsonp\?callback\=jsonp[0-9]+/), 'mockjax call has expected jsonp url');
+				assert.ok(
+					actualCalls[0] && actualCalls[0].url.match(/\/api\/jsonp\?callback\=jsonp[0-9]+/),
+					'mockjax call has expected jsonp url'
+				);
 				done();
 			}
 		});
@@ -401,7 +407,10 @@
 			complete: function() {
 				var actualCalls = $.mockjax.mockedAjaxCalls();
 				assert.equal(actualCalls.length, 1, 'Mockjax call made');
-				assert.ok(actualCalls[0] && actualCalls[0].url.match(/\/api\/jsonp\?callback\=jsonp[0-9]+/), 'mockjax call has expected jsonp url');
+				assert.ok(
+					actualCalls[0] && actualCalls[0].url.match(/\/api\/jsonp\?callback\=jsonp[0-9]+/),
+					'mockjax call has expected jsonp url'
+				);
 				done();
 			}
 		});
