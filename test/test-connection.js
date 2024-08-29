@@ -17,7 +17,7 @@
 			});
 			
 			$.mockjax({
-				url: 'http://foobar.com/jsonp-delay?callback=?',
+				url: 'http://connection.test/jsonp-delay?callback=?',
 				contentType: 'text/json',
 				proxy: 'test_jsonp.js',
 				responseTime: 150,
@@ -106,7 +106,7 @@
 		window.abcdef123456 = function() {};
 
 		$.ajax({
-			url: 'http://foobar.com/jsonp-delay?callback=?',
+			url: 'http://connection.test/jsonp-delay?callback=?',
 			dataType: 'jsonp',
 			complete: function() {
 				var delay = ((new Date()) - ts);
@@ -131,7 +131,7 @@
 		window.abcdef123456 = function() {};
 
 		$.ajax({
-			url: 'http://foobar.com/jsonp-delay?callback=?',
+			url: 'http://connection.test/jsonp-delay?callback=?',
 			dataType: 'jsonp'
 		}).done(function() {
             var delay = ((new Date()) - ts);
