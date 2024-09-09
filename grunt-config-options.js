@@ -64,7 +64,8 @@ module.exports = {
             jQueryVersions: [
                 '1.12.4',
                 '2.2.4',
-                '3.7.1'
+                '3.7.1',
+                '4.0.0-beta.2'
             ]
         },
         edge: {
@@ -75,7 +76,8 @@ module.exports = {
             jQueryVersions: [
                 '1.12.4',
                 '2.2.4',
-                '3.7.1'
+                '3.7.1',
+                '4.0.0-beta.2'
             ]
         },
         browserify: {

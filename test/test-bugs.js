@@ -292,14 +292,15 @@
         
         $.mockjax({
             type: 'GET',
-            url: 'http://jquery-mockjax-foobar.com/somefile.js',
+            url: 'http://crossdomain.test/somefile.js',
             responseText: '(window.mockjaxCrossDomain=true)'
         });
         
         $.ajax({
             type: 'GET',
             dataType: 'script',
-            url: 'http://jquery-mockjax-foobar.com/somefile.js',
+            url: 'http://crossdomain.test/somefile.js',
+            crossOrigin: 'anonymous',
             error: qunit.noErrorCallbackExpected,
             success: function() {
                 assert.strictEqual(window.mockjaxCrossDomain, true, 'mockjax call for script was mocked');
@@ -313,14 +314,15 @@
         
         $.mockjax({
             type: 'POST',
-            url: 'http://jquery-mockjax-foobar.com/somefile.js',
+            url: 'http://crossdomain.test/somefile.js',
             responseText: '(window.mockjaxCrossDomain=true)'
         });
         
         $.ajax({
             type: 'POST',
             dataType: 'script',
-            url: 'http://jquery-mockjax-foobar.com/somefile.js',
+            url: 'http://crossdomain.test/somefile.js',
+            crossOrigin: 'anonymous',
             error: qunit.noErrorCallbackExpected,
             success: function() {
                 assert.strictEqual(window.mockjaxCrossDomain, true, 'mockjax call for script was mocked');
