@@ -155,7 +155,7 @@ Currently, @jakerella is the only one doing so.
 1. Update the `CHANGELOG.md`, `package.json` version, and any other necessary files.
 (Note that these can be in a commit, but put them in that new branch.)
 1. Make sure to generate fresh dist files if necessary and commit those.
-1. Submit a PR for the branch, this will initiate the Travis CI checks.
+1. Submit a PR for the branch, fill out all of the necessary details.
 1. Ask others for input on the PR (mostly testing in their own browsers).
 1. *If all is well*, merge the branch into `master`
 1. Create a release on Github with a tag matching the version number and proper info.
