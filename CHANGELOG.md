@@ -1,3 +1,9 @@
+## 2024-09-09 v2.7.0-beta.0
+    * Support for jQuery 4.0.0-beta
+    * Removed deprecated calls to $.isArray() and $.isFunction()
+    * Updated cross-origin tests to use a safe domain
+    * Thanks to @jayaddison for the nudge and PR!
+
 ## 2024-02-17 v2.6.1
     * Changed license from dual (MIT & GPL) to only be MIT
     * Updated authorship to myself (creator of all v2 changes) and moved JD Sharp to contributor
