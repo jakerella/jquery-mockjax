@@ -1,7 +1,4 @@
 # jQuery Mockjax: Ajax request mocking #
-[http://github.com/jakerella/jquery-mockjax/](http://github.com/jakerella/jquery-mockjax/)
-
-[![Travis CI Badge](https://travis-ci.com/jakerella/jquery-mockjax.svg?branch=master)](https://travis-ci.com/jakerella/jquery-mockjax)
 
 There are some minor breaking changes in v2, so if you need an older version, please check the [v1.x](https://github.com/jakerella/jquery-mockjax/tree/v1.x) branch or the list of [releases](https://github.com/jakerella/jquery-mockjax/tags) in Github.
 
@@ -55,15 +52,9 @@ mocked out, as well as how those requests should be responded to. These mocks
 can be extremely simple or quite complex, representing the entire request-response
 workflow.
 
-At appendTo we developed a lot of applications which use
-[RESTFUL](http://en.wikipedia.org/wiki/Representational_State_Transfer)
-web services, but much of the time those services are not yet created.
-We spec out the service contract and data format at the beginning of a project
-and develop the front-end interface against mock data while the back end team
-builds the production services.
-
-This plugin was originally developed by appendTo in March 2010 and the
-[team](http://twitter.com/appendto/team) has been using it in many projects since.
+This plugin was originally developed by appendTo in March 2010. That company
+closed in 2014 and the project was taken over by a former employee, 
+[@jakerella](https://jordankasper.com).
 
 
 ## Basic Documentation ##
@@ -812,30 +803,24 @@ the header.
 
 We use [BrowserStack](https://www.browserstack.com)'s awesome open source
 collaboration to test Mockjax in real browsers using VMs on their platform. We
-run all of our tests on the current versions of the major browsers below, plus
-the specific versions of Internet Explorer specified.
+run all of our tests on the current versions of the major browsers below:
 
 * Edge
 * Firefox
 * Chrome
 * Safari
 
-Each PR will run these tests using TravisCI for continuous integration before
-code is merged into master to ensure we do not introduce regressions.
-
-
 ### Using Mockjax in Other Ways ###
 
-You can use Mockjax as a Node module or with Browserify... and
-presumably in other ways as well. We have tests for each of the methods above.
-
-When using Mockjax as a Node module (including with Browserify), **you must
-provide the module with the jQuery library and a `window`**. Here is an example
-using a module intended for use as a "browserified" module:
+You can use Mockjax as a Node module or with Browserify... and presumably in 
+other ways as well. We have tests for Node and Browserify. When using Mockjax 
+as a Node module (including with Browserify), 
+**you must provide the module with the jQuery library and a `window`**. 
+Here is an example using a module intended for use as a "browserified" module:
 
 ```js
-var jquery = require('jquery');
-var mockjax = require('jquery-mockjax')(jquery, window);
+const jquery = require('jquery');
+const mockjax = require('jquery-mockjax')(jquery, window);
 // Note that we expect `window` to be defined once this file is browserified and
 // used in a browser. If it isn't Mockjax will have a problem!
 
@@ -905,12 +890,7 @@ entry will be verbose output. Anything beyond index `4` will be ignored.
 #### What about the old `log` setting?
 
 This was an undocumented feature whereby you could provide a `log` method using
-`$.mockjaxSettings`, however, it is no longer used internally. This undocumented
-option is now **deprecated**, and while it will work, log messages of ALL levels
-will be sent to it.
-
-If you have no idea what we're talking about... good! Don't worry about it. The
-proper way to implement your own logger is via `$.mockjaxSettings.logger`.
+`$.mockjaxSettings`, however, it is no longer used internally.
 
 ### Release History ###
 
@@ -918,20 +898,15 @@ Please read the [CHANGELOG](https://github.com/jakerella/jquery-mockjax/blob/mas
 for a list of changes per release.
 
 Note that all releases are tagged in Github for easy reference, the `master` branch
-should *not* be considered a stable release!
+should _not_ be considered a stable release!
 
 ### License ###
 
-Copyright (c) 2014-2024 Jordan Kasper, formerly appendTo
+Copyright (c) 2014-2026 Jordan Kasper, formerly appendTo
 
 NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
 
 Licensed under the MIT license: [http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT)
-
-### Troubleshooting ###
-
-If mockjax appears to be behaving unexpectedly, be sure to check the console
-logs for warnings.
 
 ### Contributing ###
 
