@@ -299,6 +299,10 @@
         $.ajax({
             type: 'GET',
             dataType: 'script',
+			// in Jquery 4.0.0 they introduced a change that uses <script> tags in more situations
+			// with the `dataType: "script"` setting. Adding a header bypasses that (but we need a 
+			// test for when jQuery actually uses a <script> tag).
+			headers: { 'X-mockjax': 'true' },
             url: 'http://crossdomain.test/somefile.js',
             crossOrigin: 'anonymous',
             error: qunit.noErrorCallbackExpected,
@@ -321,6 +325,10 @@
         $.ajax({
             type: 'POST',
             dataType: 'script',
+			// in Jquery 4.0.0 they introduced a change that uses <script> tags in more situations
+			// with the `dataType: "script"` setting. Adding a header bypasses that (but we need a 
+			// test for when jQuery actually uses a <script> tag).
+			headers: { 'X-mockjax': 'true' },
             url: 'http://crossdomain.test/somefile.js',
             crossOrigin: 'anonymous',
             error: qunit.noErrorCallbackExpected,

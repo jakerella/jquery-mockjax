@@ -1,3 +1,7 @@
+## 2026-02-23 v2.7.0
+    * Updated tests to support for jQuery 4.0.0
+    * Note changes in v2.7.0-beta.0!
+
 ## 2024-09-09 v2.7.0-beta.0
     * Support for jQuery 4.0.0-beta
     * Removed deprecated calls to $.isArray() and $.isFunction()

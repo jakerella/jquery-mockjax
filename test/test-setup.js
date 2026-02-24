@@ -9,17 +9,21 @@
 
 		// Speed up our tests
 		$.mockjaxSettings.responseTime = 0;
-		$.mockjaxSettings.logging = false;
+		
+		// TODO: change this if you want more logging on test runs!
+		$.mockjaxSettings.logging = 1;
 
-		// Don't show log messages, but allow logging to work
-		var noop = function() {};
-		$.mockjaxSettings.logger = {
-			debug: noop,
-			log: noop,
-			info: noop,
-			warn: noop,
-			error: noop
-		};
+		if (!$.mockjaxSettings.logging) {
+			// Don't show log messages, but allow logging to work
+			var noop = function() {};
+			$.mockjaxSettings.logger = {
+				debug: noop,
+				log: noop,
+				info: noop,
+				warn: noop,
+				error: noop
+			};
+		}
 
 		qunit.defaultMockjaxSettings = $.extend({}, $.mockjaxSettings);
 	});

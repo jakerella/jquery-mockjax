@@ -1,9 +1,9 @@
 /*! jQuery Mockjax
  * A Plugin providing simple and flexible mocking of ajax requests and responses
  * 
- * Version: 2.7.0-beta.0
+ * Version: 2.7.0
  * Home: https://github.com/jakerella/jquery-mockjax
- * Copyright (c) 2024 Jordan Kasper, formerly appendTo;
+ * Copyright (c) 2026 Jordan Kasper, formerly appendTo;
  * NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
  * 
  * Licensed under the MIT license: http://opensource.org/licenses/MIT
