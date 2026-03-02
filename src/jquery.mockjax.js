@@ -154,12 +154,17 @@
 			return handler( requestSettings );
 		}
 
+		if (!handler ||
+			(!handler.url && !handler.requestHeaders && !handler.data && !handler.type)) {
+			return null
+		}
+
 		// Apply namespace prefix to the mock handler's url.
 		var namespace = handler.namespace || (typeof(handler.namespace) === 'undefined' && $.mockjaxSettings.namespace);
 
 		// Inspect the URL of the request and check if the mock handler's url
 		// matches the url for this ajax request
-		if (typeof handler.url.test === 'function') {
+		if (typeof handler.url?.test === 'function') {
 			// namespace exists prepend handler.url with namespace
 			if (!!namespace) {
 				namespace = namespace.replace(/(\/+)$/, '');
@@ -170,9 +175,9 @@
 			if ( !handler.url.test( requestSettings.url ) ) {
 				return null;
 			}
-		} else {
+		} else if (handler?.url) {
 
-			var effectiveUrl = handler.url;
+			var effectiveUrl = handler.url || '';
 
 			if (!!namespace) {
 				var namespacedUrl = [
@@ -219,8 +224,7 @@
 			}
 		}
 		// Inspect the request type
-		if ( handler && handler.type &&
-				handler.type.toLowerCase() !== requestSettings.type.toLowerCase() ) {
+		if ( handler.type && handler.type.toLowerCase() !== requestSettings.type.toLowerCase() ) {
 			// The request type doesn't match (GET vs. POST)
 			return null;
 		}

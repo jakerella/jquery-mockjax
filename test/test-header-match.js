@@ -108,6 +108,31 @@
 			}
 		});
 	});
+
+	t('Exact headers with no URL', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			requestHeaders: {
+				Authorization: '12345'
+			},
+			responseText: 'Exact headers'
+		});
+
+		$.ajax({
+			url: '/some/resource',
+			error: qunit.noErrorCallbackExpected,
+			headers: {
+				Authorization: '12345'
+			},
+			complete: function(xhr) {
+				var mockedAjaxCalls = $.mockjax.mockedAjaxCalls();
+				assert.equal(mockedAjaxCalls.length, 1, 'A mocked Ajax calls should have been returned');
+				assert.equal(xhr.responseText, 'Exact headers', 'Exact headers match with no URL');
+				done();
+			}
+		});
+	});
 	
 	t('Exact multiple headers keys and values', function(assert) {
 		var done = assert.async();

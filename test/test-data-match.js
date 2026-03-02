@@ -55,6 +55,30 @@
 		});
 	});
 
+	t('Correct data matching with no URL', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			contentType: 'text/json',
+			data: {
+				foo: 'bar'
+			},
+			responseText: {}
+		});
+
+		$.ajax({
+			url: '/no-url/response-callback',
+			error: qunit.noErrorCallbackExpected,
+			data: {
+				foo: 'bar'
+			},
+			success: function() {
+				assert.ok( true, 'Successfully matched data' );
+			},
+			complete: done
+		});
+	});
+
 	t('Correct data matching on request - request can have additional properties', function(assert) {
 		var done = assert.async();
 		

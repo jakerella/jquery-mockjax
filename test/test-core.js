@@ -7,6 +7,58 @@
 	qunit.module( 'Core' );
 	/* ----------------- */
 
+	t('Basic match', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/api/resource',
+			responseText: 'resource content'
+		});
+
+		$.ajax({
+			url: '/api/resource',
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.responseText, 'resource content', 'Basic url string match');
+				done();
+			}
+		});
+	});
+
+	t('Blank response with no Response params', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/api/resource'
+		});
+
+		$.ajax({
+			url: '/api/resource',
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.responseText, '', 'Blank response expected with no params');
+				done();
+			}
+		});
+	});
+
+	t('No match with no settings', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({});
+
+		$.ajax({
+			url: '/api/resource',
+			error: function() { assert.ok(true, 'Error called with no mockjax settings provided'); },
+			success: function() { assert.ok(false, 'Success should not be called'); },
+			complete: function() {
+				var mockedAjaxCalls = $.mockjax.mockedAjaxCalls();
+				assert.equal(mockedAjaxCalls.length, 0, 'No mocked Ajax calls should have been returned');
+				done();
+			}
+		});
+	});
+
 	t('Return XMLHttpRequest object from $.ajax', function(assert) {
 		$.mockjax({
 			url: '/xmlhttprequest',
@@ -28,7 +80,7 @@
 	t('Intercept synchronized proxy calls and return synchronously', function(assert) {
 		$.mockjax({
 			url: '/proxy',
-			proxy: 'test_proxy.json'
+			proxy: 'proxy-data.json'
 		});
 
 		$.ajax({
@@ -46,7 +98,7 @@
 		var done = assert.async();
 		$.mockjax({
 			url: '/proxy',
-			proxy: 'test_proxy.json'
+			proxy: 'proxy-data.json'
 		});
 
 		$.ajax({
@@ -63,7 +115,7 @@
 	t('Intercept proxy calls for XML', function(assert) {
 		$.mockjax({
 			url: '/proxy',
-			proxy: 'test_proxy.xml'
+			proxy: 'proxy-data.xml'
 		});
 
 		$.ajax({
@@ -84,7 +136,7 @@
 
 		$.mockjax({
 			url: '/proxy',
-			proxy: 'test_proxy.json'
+			proxy: 'proxy-data.json'
 		});
 
 		$.ajax({
@@ -103,7 +155,7 @@
 
 		$.mockjax({
 			url: '/proxy',
-			proxy: 'test_proxy.json',
+			proxy: 'proxy-data.json',
 			proxyType: 'GET'
 		});
 
@@ -432,7 +484,7 @@
 		$.mockjax({
 				url: '/jsonp*',
 				contentType: 'text/json',
-				proxy: 'test_jsonp.js'
+				proxy: 'jsonp-script.js'
 		});
 
 		window.abcdef123456 = function() {};
@@ -457,7 +509,7 @@
 		$.mockjax({
 				url: '/jsonp*',
 				contentType: 'text/json',
-				proxy: 'test_jsonp.js'
+				proxy: 'jsonp-script.js'
 		});
 
 		window.abcdef123456 = function() {};
@@ -482,7 +534,7 @@
 			var service = settings.url.match(/\/users\/(.*)$/);
 			if (service) {
 				return {
-					proxy: 'test_proxy.json'
+					proxy: 'proxy-data.json'
 				};
 			}
 		});

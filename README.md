@@ -8,36 +8,46 @@ You may report any issues you may find [in the github issue tracking](https://gi
 
 **Table of Contents**
 
-* [About Mockjax and Its History](#about-mockjax-and-its-history)
-* [Basic Documentation](#basic-documentation)
-  * [API Methods](#api-methods)
-  * [Overview: Your First Mock](#overview-your-first-mock)
-  * [Mockjax in Depth](#mockjax-in-depth)
-* [Detailed Request and Response Definition](#detailed-request-and-response-definition)
-  * [Defining a Request to Match](#defining-a-request-to-match)
-  * [Defining Multiple Requests](#defining-multiple-requests)
-  * [Defining a Response](#defining-a-response)
-* [Advanced Mocking Techniques](#advanced-mocking-techniques)
-  * [Simulating Response Time and Latency](#simulating-response-time-and-latency)
-  * [Simulating HTTP Response Statuses](#simulating-http-response-statuses)
-  * [Setting the Content-Type](#setting-the-content-type)
-  * [Setting Additional HTTP Response Headers](#setting-additional-http-response-headers)
-  * [Dynamically Generating Mock Definitions](#dynamically-generating-mock-definitions)
-  * [Accessing Request Headers](#accessing-request-headers)
-  * [Forced Simulation of Server Timeouts](#forced-simulation-of-server-timeouts)
-  * [Dynamically Generating Mock Responses](#dynamically-generating-mock-responses)
-  * [Data Types](#data-types)
-  * [Performing Actions After Request Completion](#performing-actions-after-request-completion)
-  * [Globally Defining Mockjax Settings](#globally-defining-mockjax-settings)
-  * [Setting a Global URL Namespace](#setting-global-url-namespace)
-  * [Removing Mockjax Handlers](#removing-mockjax-handlers)
-* [Miscellaneous Information](#miscellaneous-information)
-  * [jQuery Version Support](#jquery-version-support)
-  * [Browsers Tested](#browsers-tested)
-  * [Using Mockjax in Other Ways (Node, browserify, etc)](#using-mockjax-in-other-ways)
-  * [Logging](#logging)
-  * [Release History](#release-history)
-  * [License](#license)
+* [jQuery Mockjax: Ajax request mocking](#jquery-mockjax-ajax-request-mocking)
+  * [About Mockjax and Its History](#about-mockjax-and-its-history)
+  * [Basic Documentation](#basic-documentation)
+    * [API Methods](#api-methods)
+    * [Overview: Your First Mock](#overview-your-first-mock)
+    * [Mockjax in Depth](#mockjax-in-depth)
+      * [Data Types Available for Mocking](#data-types-available-for-mocking)
+  * [Detailed Request and Response Definition](#detailed-request-and-response-definition)
+    * [Defining a Request to Match](#defining-a-request-to-match)
+    * [Defining Multiple Requests](#defining-multiple-requests)
+    * [Defining a Response](#defining-a-response)
+      * [Inline Responses](#inline-responses)
+      * [Proxy](#proxy)
+      * [Callback](#callback)
+  * [Advanced Mocking Techniques](#advanced-mocking-techniques)
+    * [Simulating Response Time and Latency](#simulating-response-time-and-latency)
+    * [Simulating HTTP Response Statuses](#simulating-http-response-statuses)
+    * [Setting the Content-Type](#setting-the-content-type)
+    * [Setting Additional HTTP Response Headers](#setting-additional-http-response-headers)
+    * [Dynamically Generating Mock Definitions](#dynamically-generating-mock-definitions)
+    * [Accessing Request Headers](#accessing-request-headers)
+    * [Forced Simulation of Server Timeouts](#forced-simulation-of-server-timeouts)
+    * [Dynamically Generating Mock Responses](#dynamically-generating-mock-responses)
+    * [Data Types](#data-types)
+    * [Performing Actions After Request Completion](#performing-actions-after-request-completion)
+    * [Globally Defining Mockjax Settings](#globally-defining-mockjax-settings)
+    * [Setting a Global URL Namespace](#setting-a-global-url-namespace)
+    * [Globally defining match order](#globally-defining-match-order)
+    * [Removing Mockjax Handlers](#removing-mockjax-handlers)
+  * [Miscellaneous Information](#miscellaneous-information)
+    * [jQuery Version Support](#jquery-version-support)
+    * [Browsers Tested](#browsers-tested)
+    * [Using Mockjax in Other Ways](#using-mockjax-in-other-ways)
+    * [Logging](#logging)
+      * [Show different levels of log messages](#show-different-levels-of-log-messages)
+      * [Implement a custom logger](#implement-a-custom-logger)
+      * [What about the old `log` setting?](#what-about-the-old-log-setting)
+    * [Release History](#release-history)
+    * [License](#license)
+    * [Contributing](#contributing)
 
 
 ## About Mockjax and Its History ##
@@ -70,9 +80,10 @@ checkout this list:
   * Returns that handler's index, can be used to clear individual handlers
   * `options`: [Object] Defines the settings to use for the mocked request
       * `url`: [String | RegExp] Specifies the url of the request that the data should be mocked for. If it is a string and contains any asterisks ( `*` ), they will be treated as a wildcard by translating to a regular expression. Any `*` will be replaced with `.+`. If you run into trouble with this shortcut, switch to using a full regular expression instead of a string and asterisk combination
-      * `data`: [Object | Function] In addition to the URL, match parameters
-      * `type`: [String] Specify what HTTP method to match, usually GET or POST. Case-insensitive, so `get` and `post` also work
-      * `headers`: [Object] Keys will be simulated as additional headers returned from the server for the request (**NOTE: This is NOT used to match request headers!**)
+      * `data`: [Object | Function] Specifies data parameters to match on
+      * `type`: [String] Specify what HTTP method to match, usually GET or POST, case-insensitive
+      * `requestHeaders`: [Object] Specifies request headers to match on
+      * `headers`: [Object] Headers to be added to the simulated response for matched requests (**NOTE: This is NOT used to match request headers!**)
       * `status`: [Number] An integer that specifies a valid server response code. This simulates a server response code
       * `statusText`: [String] Specifies a valid server response code description. This simulates a server response code description
       * `responseTime`: [Number] An integer that specifies a simulated network
@@ -171,13 +182,6 @@ $.mockjax({
   }
 });
 ```
-
-**Defining a JSON string inline requires a `JSON.stringify()` method to be
-available. For some browsers you may need to include
-[json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js),
-which is included in the `lib` folder.** However, you could also simply
-provide an already stringified version of your JSON in the `responseText`
-property.
 
 _If you plan on mocking xml responses, you may also have to include
 `jquery.xmldom.js`, which can also be found in the `lib` folder._
@@ -302,6 +306,21 @@ $.mockjax({
   }
 });
 ```
+
+You can also match on the headers in the request:
+
+```javascript
+$.mockjax({
+  // matches /author/{any number here}/isbn/{any number with dashes here}
+  // for example: "/author/1234/isbn/1234-5678-9012-0"
+  url: '/api/resource',
+  requestHeaders: {
+    Authorization: 'user-api-key'
+  },
+  responseText: 'Authorized'
+});
+```
+
 
 ### Defining Multiple Requests ###
 

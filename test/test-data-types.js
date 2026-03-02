@@ -77,7 +77,7 @@
 		$.mockjax({
 			url: '/jsonp*',
 			contentType: 'text/json',
-			proxy: 'test_jsonp.js'
+			proxy: 'jsonp-script.js'
 		});
 		window.abcdef123456 = function(json) {
 			assert.ok( true, 'JSONP Callback executed');
@@ -130,7 +130,7 @@
 		$.mockjax({
 			url: '/script',
 			contentType: 'text/plain',
-			proxy: 'test_script.js'
+			proxy: 'external-script.js'
 		});
 
 		window.TEST_SCRIPT_VAR = 0;

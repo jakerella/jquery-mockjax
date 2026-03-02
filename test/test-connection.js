@@ -19,7 +19,7 @@
 			$.mockjax({
 				url: 'http://connection.test/jsonp-delay?callback=?',
 				contentType: 'text/json',
-				proxy: 'test_jsonp.js',
+				proxy: 'jsonp-script.js',
 				responseTime: 150,
 				responseText: '{}'
 			});
@@ -31,7 +31,7 @@
 
 			$.mockjax({
 				url: '/proxy',
-				proxy: 'test_proxy.json',
+				proxy: 'proxy-data.json',
 				responseTime: 50
 			});
 			

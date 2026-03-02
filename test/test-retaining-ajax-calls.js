@@ -73,7 +73,7 @@
     $.mockjax({
       url: '/api/example/*',
       contentType: 'text/json',
-      proxy: 'test_jsonp.js'
+      proxy: 'jsonp-script.js'
     });
     var callbackExecuted = false;
     window.abcdef123456 = function() {
@@ -192,7 +192,7 @@
     assert.equal(numberOfUnmockedCalls, 0, 'No unmocked calls at the start');
 
     $.ajax({
-      url: '/test.json',
+      url: '/data-test.json',
       complete: function() {
         var numberOfUnmockedCalls = $.mockjax.unmockedAjaxCalls().length;
         assert.equal(numberOfUnmockedCalls, 0, 'Unmocked calls count did not increase');
@@ -247,7 +247,7 @@
     });
 
     $.ajax({
-      url: '/test.json',
+      url: '/data-test.json',
       complete: function() {
         var numberOfUnmockedCalls = $.mockjax.unmockedAjaxCalls().length;
         assert.equal(numberOfUnmockedCalls, 1, 'Unmocked calls count increased by one');
@@ -308,7 +308,7 @@
     });
 
     $.ajax({
-      url: '/test.json',
+      url: '/data-test.json',
       complete: function() {
         var numberOfUnmockedCalls = $.mockjax.unmockedAjaxCalls().length;
         assert.equal(numberOfUnmockedCalls, 1, 'Unmocked calls count increased by one');
