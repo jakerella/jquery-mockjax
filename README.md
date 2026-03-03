@@ -79,27 +79,31 @@ checkout this list:
   * Sets up a mockjax handler for a matching request
   * Returns that handler's index, can be used to clear individual handlers
   * `options`: [Object] Defines the settings to use for the mocked request
-      * `url`: [String | RegExp] Specifies the url of the request that the data should be mocked for. If it is a string and contains any asterisks ( `*` ), they will be treated as a wildcard by translating to a regular expression. Any `*` will be replaced with `.+`. If you run into trouble with this shortcut, switch to using a full regular expression instead of a string and asterisk combination
-      * `data`: [Object | Function] Specifies data parameters to match on
-      * `type`: [String] Specify what HTTP method to match, usually GET or POST, case-insensitive
-      * `requestHeaders`: [Object] Specifies request headers to match on
-      * `headers`: [Object] Headers to be added to the simulated response for matched requests (**NOTE: This is NOT used to match request headers!**)
-      * `status`: [Number] An integer that specifies a valid server response code. This simulates a server response code
-      * `statusText`: [String] Specifies a valid server response code description. This simulates a server response code description
-      * `responseTime`: [Number] An integer that specifies a simulated network
-         and server latency (in milliseconds). Default is `500`. Setting this
-	 to `0` will minimize the simulated latency
-      * `isTimeout`: [Boolean] Determines whether or not the mock will force a timeout on the request
-      * `contentType`: [String] Specifies the content type for the response
-      * `response`: [Function] A function that accepts the request settings and allows for the dynamic setting of response settings (including the body of the response) upon each request (see examples below)
-      * `responseText`: [String] Specifies the mocked text, or a mocked object literal, for the request
-      * `responseXML`: [String] Specifies the mocked XML for the request
-      * `proxy`: [String] Specifies a path to a file, from which the contents will be returned for the request
-      * `lastModified`: [String] A date string specifying the mocked last-modified time for the request. This is used by `$.ajax` to determine if the requested data is new since the last request
-      * `etag`: [String] Specifies a unique identifier referencing a specific version of the requested data. This is used by `$.ajax` to determine if the requested data is new since the last request. (see [HTTP_ETag](http://en.wikipedia.org/wiki/HTTP_ETag))
-      * `onAfterSuccess`: [Function] A callback that will be called after the success method has been called, this is useful to check a condition after the call has been completed
-      * `onAfterError`: [Function] A callback that will be called after the error method has been called, this is useful to check a condition after the call has been completed
-      * `onAfterComplete`: [Function] Similar to onAfterSuccess, but will be executed after the complete method has been called
+      * **Options Used for Matching:**
+          * `url`: [String | RegExp] Specifies the url of the request that the data should be mocked for. If it is a string and contains any asterisks ( `*` ), they will be treated as a wildcard by translating to a regular expression. Any `*` will be replaced with `.+`. If you run into trouble with this shortcut, switch to using a full regular expression instead of a string and asterisk combination
+          * `data`: [Object | Function] Specifies data parameters to match on
+          * `type`: [String] Specify what HTTP method to match, usually GET or POST, case-insensitive
+          * `requestHeaders`: [Object] Specifies request headers to match on
+      * **Options Used for Response Simulation:**
+          * `urlParams`: [Array] If provided and the mathcing `url` is a RegExp, then matched group values will be assigned to an object of this name in the `response` function `settings` object
+          * `headers`: [Object] Headers to be added to the simulated response for matched requests (**NOTE: This is NOT used to match request headers!**)
+          * `status`: [Number] An integer that specifies a valid server response code. This simulates a server response code
+          * `statusText`: [String] Specifies a valid server response code description. This simulates a server response code description
+          * `responseTime`: [Number] An integer that specifies a simulated network
+             and server latency (in milliseconds). Default is `500`. Setting this
+    	 to `0` will minimize the simulated latency
+          * `isTimeout`: [Boolean] Determines whether or not the mock will force a timeout on the request
+          * `contentType`: [String] Specifies the content type for the response
+          * `response`: [Function] A function that accepts the request settings and allows for the dynamic setting of response settings (including the body of the response) upon each request (see examples below)
+          * `responseText`: [String] Specifies the mocked text, or a mocked object literal, for the request
+          * `responseXML`: [String] Specifies the mocked XML for the request
+          * `proxy`: [String] Specifies a path to a file, from which the contents will be returned for the request
+          * `lastModified`: [String] A date string specifying the mocked last-modified time for the request. This is used by `$.ajax` to determine if the requested data is new since the last request
+          * `etag`: [String] Specifies a unique identifier referencing a specific version of the requested data. This is used by `$.ajax` to determine if the requested data is new since the last request. (see [HTTP_ETag](http://en.wikipedia.org/wiki/HTTP_ETag))
+      * **Calllbacks**:
+          * `onAfterSuccess`: [Function] A callback that will be called after the success method has been called, this is useful to check a condition after the call has been completed
+          * `onAfterError`: [Function] A callback that will be called after the error method has been called, this is useful to check a condition after the call has been completed
+          * `onAfterComplete`: [Function] Similar to onAfterSuccess, but will be executed after the complete method has been called
 * `Object $.mockjax.handler(/* Number */ id)`
   * Returns the mock request settings for the handler with the provided `id`. Be careful here, you're accessing the inner workings of the plugin, any changes to this object could be bad.
 * `Array $.mockjax.handlers()`
