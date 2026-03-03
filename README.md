@@ -84,6 +84,7 @@ checkout this list:
           * `data`: [Object | Function] Specifies data parameters to match on
           * `type`: [String] Specify what HTTP method to match, usually GET or POST, case-insensitive
           * `requestHeaders`: [Object] Specifies request headers to match on
+          * `namespace`: [String] Override the global `mockjaxSettings.namespace` value for this handler; providing a falsy value (e.g. `false` or `null`) will remove the namespace for this handler
       * **Options Used for Response Simulation:**
           * `urlParams`: [Array] If provided and the mathcing `url` is a RegExp, then matched group values will be assigned to an object of this name in the `response` function `settings` object
           * `headers`: [Object] Headers to be added to the simulated response for matched requests (**NOTE: This is NOT used to match request headers!**)
