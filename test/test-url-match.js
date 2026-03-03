@@ -73,4 +73,25 @@
 		});
 	});
 
+	t('RegEx match with urlParams', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: /^\/api\/group\/(\d+)\/user\/(\w+)$/i,
+			urlParams: ['group', 'user'],
+			response: function (settings) {
+				this.responseText = `group=${settings.urlParams.group} and user=${settings.urlParams.user}`
+			}
+		});
+
+		$.ajax({
+			url: '/api/group/1234/user/foobar',
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.responseText, 'group=1234 and user=foobar', 'urlParams added to request settings');
+				done();
+			}
+		});
+	});
+
 })(window.QUnit, window.jQuery);

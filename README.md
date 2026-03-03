@@ -98,7 +98,8 @@ checkout this list:
           * `response`: [Function] A function that accepts the request settings and allows for the dynamic setting of response settings (including the body of the response) upon each request (see examples below)
           * `responseText`: [String] Specifies the mocked text, or a mocked object literal, for the request
           * `responseXML`: [String] Specifies the mocked XML for the request
-          * `proxy`: [String] Specifies a path to a file, from which the contents will be returned for the request
+          * `proxy`: [String] Specifies a URL to a resource, from which the contents will be returned for the request
+          * `proxyType`: [String] Specifies the HTTP method to use to retrieve the proxy data
           * `lastModified`: [String] A date string specifying the mocked last-modified time for the request. This is used by `$.ajax` to determine if the requested data is new since the last request
           * `etag`: [String] Specifies a unique identifier referencing a specific version of the requested data. This is used by `$.ajax` to determine if the requested data is new since the last request. (see [HTTP_ETag](http://en.wikipedia.org/wiki/HTTP_ETag))
       * **Calllbacks**:
@@ -405,10 +406,24 @@ $.mockjax({
 The `/mocks/data.json` file can have any valid JSON content you want, and allows
 you to maintain that mock data in its own file for maintainability.
 
-> Note: If you're testing your code with a poxy, it is best to run an actual web
-server for the tests. Simply loading `test/index.html` from the file system may
-result in the proxy file not being loaded correctly. We recommend using something
-like the [`http-server` npm module](https://www.npmjs.com/package/http-server).
+Another version here allows the developer to make a POST request to an API to 
+get the data they need for the mock. Note that the `data` option in the mock 
+handler will get passed through to the proxy endpoint for you to use in 
+determining which mock data to send back.
+
+```javascript
+$.mockjax({
+  url: "/restful/api",
+  proxy: "/mocks/data",
+  proxyType: "POST",
+  data: { foo: 'bar' }
+});
+```
+
+> Note: If you're testing your code with a poxy, you likely need to run an actual 
+> web server for the tests. Simply loading `mocks/data.json` from the file system may
+> result in the proxy file not being loaded correctly. We recommend using something
+> like the [`http-server` npm module](https://www.npmjs.com/package/http-server).
 
 #### Callback ####
 
