@@ -491,13 +491,47 @@
 			},
 			complete: function(xhr) {
 				assert.equal($.mockjax.unmockedAjaxCalls().length, 1, 'unmocked call retained');
-				done();
 			}
 		});
 
 		$.mockjax.clear(handler1);
 		assert.equal($.mockjax.mockedAjaxCalls().length, 1, 'second mocked call retained after clear');
 		assert.equal($.mockjax.unmockedAjaxCalls().length, 1, 'unmocked call retained after clear');
+		done();
+	});
+
+	t('Bug #375: Namespaced regex url properties lose flags', function(assert) {
+		var done = assert.async();
+
+		$.mockjaxSettings.namespace = '/api'
+		
+		$.mockjax({
+			url: /\/user\/foo/i,
+			responseText: 'user api: foo'
+		});
+
+		$.ajax({
+			url: '/api/user/foo',
+			async: false,
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 200, 'lowercase path response status matches');
+				assert.equal(xhr.responseText, 'user api: foo', 'lowercase path response text matches');
+			}
+		});
+
+		$.ajax({
+			url: '/api/user/FOO',
+			async: false,
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 200, 'uppercase path response status matches');
+				assert.equal(xhr.responseText, 'user api: foo', 'uppercase path response text matches');
+			}
+		});
+
+		$.mockjaxSettings.namespace = null
+		done();
 	});
 	
 })(window.QUnit, window.jQuery);
