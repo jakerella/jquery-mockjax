@@ -445,5 +445,59 @@
             complete: done
         });
     });
+
+	t('Bug #374: Retained ajax calls removed on single mock clear', function(assert) {
+		var done = assert.async();
+
+		assert.equal($.mockjax.mockedAjaxCalls().length, 0, 'mocked calls starts at 0');
+		assert.equal($.mockjax.unmockedAjaxCalls().length, 0, 'unmocked calls starts at 0');
+		
+		const handler1 = $.mockjax({
+			url: '/retain-test-1',
+			responseText: 'handler-1'
+		});
+		$.mockjax({
+			url: '/retain-test-2',
+			responseText: 'handler-2'
+		});
+
+		$.ajax({
+			url: '/retain-test-1',
+			async: false,
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 200, 'first response status matches');
+				assert.equal(xhr.responseText, 'handler-1', 'first response text matches');
+				assert.equal($.mockjax.mockedAjaxCalls().length, 1, 'first mocked call retained');
+			}
+		});
+
+		$.ajax({
+			url: '/retain-test-2',
+			async: false,
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 200, 'second response status matches');
+				assert.equal(xhr.responseText, 'handler-2', 'second response text matches');
+				assert.equal($.mockjax.mockedAjaxCalls().length, 2, 'second mocked call retained');
+			}
+		});
+
+		$.ajax({
+			url: '/foo/bar',
+			async: false,
+			error: function(xhr) {
+				assert.equal(xhr.status, 404, 'unmocked response status matches (404)');
+			},
+			complete: function(xhr) {
+				assert.equal($.mockjax.unmockedAjaxCalls().length, 1, 'unmocked call retained');
+				done();
+			}
+		});
+
+		$.mockjax.clear(handler1);
+		assert.equal($.mockjax.mockedAjaxCalls().length, 1, 'second mocked call retained after clear');
+		assert.equal($.mockjax.unmockedAjaxCalls().length, 1, 'unmocked call retained after clear');
+	});
 	
 })(window.QUnit, window.jQuery);
