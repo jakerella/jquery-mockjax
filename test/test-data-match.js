@@ -124,7 +124,7 @@
 		});
 	});
 
-	t('Correct matching on request without data and mocks with and without data but same url', function(assert) {
+	t('Correct matching with handlers that have different data, but same url', function(assert) {
 		var done = assert.async();
 		
 		$.mockjax({
@@ -209,44 +209,35 @@
 	});
 
 
-	t('Multiple data matching requests', function(assert) {
+	t('Multiple data matching requests with mixed methods', function(assert) {
 		var done = assert.async();
 		
 		$.mockjax({
 			url: '/response-callback',
-			contentType: 'text/json',
 			data: {
-				remote: {
-					test: function(data) {
-						return data !== 'hello';
-					}
-				}
+				remote: 'goodbye'
 			},
-			responseText: { 'yes?': 'no' }
+			responseText: 'goodbye response'
 		});
 		$.mockjax({
 			url: '/response-callback',
-			contentType: 'text/json',
 			data: {
-				remote: {
-					test: function(data) {
-						return data === 'hello';
-					}
+				remote: function checkHello(data) {
+					return data === 'hello';
 				}
 			},
-			responseText: { 'yes?': 'yes' }
+			responseText: 'hello response'
 		});
 
 		var callCount = 2;
 		$.ajax({
 			url: '/response-callback',
 			error: qunit.noErrorCallbackExpected,
-			dataType: 'json',
 			data: {
-				remote: 'h'
+				remote: 'goodbye'
 			},
 			success: function(resp) {
-				assert.deepEqual( resp, {'yes?': 'no'}, 'correct mock hander' );
+				assert.equal( resp, 'goodbye response', 'correct goodbye mock hander' );
 			},
 			complete: function() {
 				callCount--;
@@ -262,9 +253,8 @@
 			data: {
 				remote: 'hello'
 			},
-			dataType: 'json',
 			success: function(resp) {
-				assert.deepEqual( resp, {'yes?': 'yes'}, 'correct mock hander' );
+				assert.equal( resp, 'hello response', 'correct hello mock hander' );
 			},
 			complete: function() {
 				callCount--;

@@ -1,13 +1,24 @@
 {
   "name": "jquery-mockjax",
   "title": "jQuery Mockjax",
-  "version": "2.7.0",
-  "main": "./src/jquery.mockjax.js",
+  "version": "3.0.0",
+  "main": "./dist/jquery.mockjax.js",
+  "module": "./src/index.js",
+  "type": "module",
   "description": "The jQuery Mockjax Plugin provides a simple and extremely flexible interface for mocking or simulating ajax requests and responses.",
   "url": "https://github.com/jakerella/jquery-mockjax",
   "scripts": {
-    "test": "grunt test:all",
-    "build": "grunt build"
+    "build": "npx webpack --mode production --config webpack.config.js",
+    "test": "npm run test:all",
+    "test:unit": "npx qunit test/unit/*-test.js",
+    "test:integration": "node test/run-integration-tests.js",
+    "test:all": "npm run test:unit && npm run test:integration",
+    "test:browsers": "npx http-server -p 8080 -o /test/index.html",
+    "test:watch": "npx qunit test/**/*-test.js --watch",
+    "lint": "npx eslint",
+    "lint:fix": "npx eslint --fix",
+    "format": "npx prettier --write \"src/**/*.js\" \"test/**/*.js\"",
+    "format:check": "npx prettier --check \"src/**/*.js\" \"test/**/*.js\""
   },
   "keywords": [
     "ajax",
@@ -48,8 +59,13 @@
     }
   ],
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "browserify": "^17.0.0",
     "browserstack-runner": "^0.9.4",
+    "eslint": "^10.0.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsdoc": "^62.7.1",
+    "globals": "^17.4.0",
     "grunt": "^1.6.1",
     "grunt-browserify": "^6.0.0",
     "grunt-contrib-concat": "^2.1.0",
@@ -61,12 +77,20 @@
     "grunt-mocha-test": "^0.13.3",
     "http-server": "^14.1.1",
     "jquery": "^4.0.0",
-    "jsdom": "^24.0.0",
+    "jsdom": "^28.1.0",
     "load-grunt-tasks": "^5.1.0",
-    "mocha": "^10.3.0",
+    "mocha": "^11.7.5",
+    "nyc": "^18.0.0",
+    "prettier": "^3.8.1",
     "puppeteer": "^22.1.0",
-    "qunit": "^2.20.1",
+    "qunit": "^2.25.0",
     "sinon": "^17.0.1",
+    "terser-webpack-plugin": "^5.3.17",
+    "webpack": "^5.105.4",
+    "webpack-cli": "^6.0.1",
     "xmlhttprequest": "^1.8.0"
+  },
+  "peerDependencies": {
+    "jquery": ">= 1.12.4"
   }
 }

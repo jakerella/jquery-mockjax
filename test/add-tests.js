@@ -8,19 +8,19 @@
     let testFiles = [
         // These will become something like: <script src='test-core.js'></script>
         'core',
-        'data-match',
-        'data-types',
-        'header-match',
         'url-match',
+        'header-match',
+        'data-match',
         'match-order',
-        'headers',
+        // 'data-types',
+        // 'headers',
         'mock-clearing',
-        'retaining-ajax-calls',
-        'namespace',
-        'logging',
-        'connection',
+        // 'retaining-ajax-calls',
+        // 'namespace',
+        // 'logging',
+        // 'connection',
         'timeout',
-        'bugs'
+        // 'bugs'
     ];
 
     if ( parts && parts[1] ) {

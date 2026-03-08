@@ -285,6 +285,50 @@
 		});
 	});
 
+	t('Remove mockjax definition leaves retained calls in place', function(assert) {
+		var done = assert.async();
+		
+		var id1 = $.mockjax({
+			url: '/test1',
+			responseText: 'test-1'
+		});
+		$.mockjax({
+			url: '/test2',
+			responseText: 'test-2'
+		});
+
+		$.ajax({
+			url: '/test1',
+			async: false,
+			success: function(text) {
+				assert.equal(text, 'test-1', 'Test 1 handler responded');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: function() {
+				assert.equal($.mockjax.mockedAjaxCalls().length, 1, 'mock ajax call 1 retained')
+			}
+		});
+		$.ajax({
+			url: '/test2',
+			async: false,
+			success: function(text) {
+				assert.equal(text, 'test-2', 'Test 2 handler responded');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: function() {
+				assert.equal($.mockjax.mockedAjaxCalls().length, 2, 'mock ajax call 2 retained')
+			}
+		});
+		
+		$.mockjax.clear(id1);
+
+		var retainedCalls = $.mockjax.mockedAjaxCalls()
+		assert.equal(retainedCalls.length, 1, 'Previously retained call was removed')
+		assert.equal(retainedCalls[0].url, '/test2', 'Correct retained call was removed')
+
+		done();
+	});
+
 	t('Clearing mockjax removes all handlers', function(assert) {
 		var done = assert.async();
 		

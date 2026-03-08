@@ -1,3 +1,41 @@
+
+## 2026-03-?? v3.0.0
+
+QUESTIONS:
+* dataType "script" now uses < script > tags... not sure we can mock that any longer
+
+* Changes:
+  * Migration to modern JavaScript syntax
+  * Migration to modern ES Modules and build system
+  * All mock handlers now have a unique id (UUID)
+  * `statusText` can now be an array when `status` is an array to randomly select response properties
+  * Added proper validation for all mock handler properties with better error messages
+  * Improved documentation of previously undocumented features or nuances
+  * Various performance improvements
+* Deprecated:
+  * `headers` property on mock handlers (use responseHeaders)
+  * `$.mockjax.handler(id)` (use handlers([id, ...]))
+  * `$.mockjax.clear(idOrUrl)` (use the appropriate `clearByXx()` method)
+  * The `type` matching property on mock handlers (use `method`)
+* Breaking:
+  * Drop support for jQuery < 1.5
+  * Passing no matching properties when registering a new handler will result in TypeError
+  * $.mockjaxSettings.log removed (was deprecated, use logger instead)
+  * UUIDs for handler IDs, if you were using the incrementing integer in some way that could be broken
+  * The default response headers no longer include etag or content-type
+  * Mock data matching got more robust, might break some mock handler matches
+  * RegExp for url glob matching ("/api/*") got a bit more specific in what constitutes a valid URL character
+  * handlers() now deepClones each handler, which could have a performance impact if used to retrieve many handlers
+  * The mock handler no longer tracks the cache, timeout, or global properties from the original ajax settings object
+  * when nusing a proxy, mockjax no longer uses the proxy request's status code for the mock response status if it was not set on the mock handler (will use the default: 200)
+  * A mock responseXML that is invalid will now throw a TypeError in addition to triggering the jQuery "xmlParseError" error on $(document)
+  * The timing of the toggle for the "fired" switch on a mock handler changed to reflect mocking of redirects, which may affect what `unfiredHandlers()` returns in some cases
+  * The `dataType` "script" in jQuery.ajax() now uses a < script > tag versus an ajax call with eval. Mockjax cannot mock an actual < script > tag, so there may be differences between mock handling and what jQuery actually does
+  * The `clearByXx()` methods now only clear out mocked ajax calls that match the cleared handlers. This could cause problems if you previously expected all retained mocked ajax calls to be removed.
+  * Checks for Regular Expressions in matching criteria now use `instanceof RegExp` instead of checking for a `test` method. This may cause some mocks not to match.
+
+
+
 ## 2026-02-23 v2.7.0
     * Updated tests to support for jQuery 4.0.0
     * Note changes in v2.7.0-beta.0!

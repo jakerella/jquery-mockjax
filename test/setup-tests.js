@@ -29,7 +29,8 @@
 	});
 
 	qunit.testDone(function() {
-		$.mockjax.clear();
+		$.mockjax.clearAll();
+		$.mockjax.clearRetainedAjaxCalls()
 		$.mockjaxSettings = $.extend({}, qunit.defaultMockjaxSettings);
 	});
 

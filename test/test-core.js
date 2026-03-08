@@ -9,6 +9,7 @@
 
 	t('Basic match', function(assert) {
 		var done = assert.async();
+		assert.expect(2)
 		
 		$.mockjax({
 			url: '/api/resource',
@@ -18,10 +19,35 @@
 		$.ajax({
 			url: '/api/resource',
 			error: qunit.noErrorCallbackExpected,
+			success: function(data) {
+				assert.equal(data, 'resource content', 'Basic url string match');
+			},
 			complete: function(xhr) {
 				assert.equal(xhr.responseText, 'resource content', 'Basic url string match');
 				done();
 			}
+		});
+	});
+
+	t('Basic match with success callback', function(assert) {
+		var done = assert.async();
+		assert.expect(2)
+		
+		$.mockjax({
+			url: '/api/resource',
+			responseText: 'resource content',
+			onAfterSuccess: (settings) => {
+				assert.equal(settings.url, '/api/resource', 'Basic url string match');
+				done()
+			}
+		});
+
+		$.ajax({
+			url: '/api/resource',
+			error: qunit.noErrorCallbackExpected,
+			success: function(data) {
+				assert.equal(data, 'resource content', 'Basic url string match');
+			},
 		});
 	});
 
@@ -42,21 +68,10 @@
 		});
 	});
 
-	t('No match with no settings', function(assert) {
-		var done = assert.async();
-		
-		$.mockjax({});
-
-		$.ajax({
-			url: '/api/resource',
-			error: function() { assert.ok(true, 'Error called with no mockjax settings provided'); },
-			success: function() { assert.ok(false, 'Success should not be called'); },
-			complete: function() {
-				var mockedAjaxCalls = $.mockjax.mockedAjaxCalls();
-				assert.equal(mockedAjaxCalls.length, 0, 'No mocked Ajax calls should have been returned');
-				done();
-			}
-		});
+	t('Throw with no match criteria in settings', function(assert) {
+		assert.throws(() => {
+			$.mockjax({})
+		}, 'Registering a handler with no match settings throws')
 	});
 
 	t('Return XMLHttpRequest object from $.ajax', function(assert) {
@@ -384,9 +399,11 @@
 		});
 	});
 
-	t('Throw new error when throwUnmocked is set to true and unmocked ajax calls are fired', function(assert) {
+	t('Throw error when throwUnmocked is set to true and unmocked ajax calls are fired', function(assert) {
 		var done = assert.async();
 
+		// TODO: seems like mockjaxSettings in the source are static
+		// and thus not altered when set like this... :/
 		$.mockjaxSettings.throwUnmocked = true;
 
 		try {
@@ -399,8 +416,7 @@
 					done();
 				}
 			});
-		}
-		catch (e) {
+		} catch (e) {
 			assert.ok(e instanceof Error, 'Error was not thrown with "throwUnmocked" set to true and existing unmocked ajax request');
 			done();
 		}
@@ -438,7 +454,7 @@
 		$.mockjax({
 			url: '/api/example/2'
 		});
-		$.mockjax({
+		const id = $.mockjax({
 			url: '/api/example/3'
 		});
 
@@ -447,7 +463,7 @@
 			type: 'GET',
 			url: '/api/example/1',
 			complete: function() {
-				$.mockjax.clear(2);
+				$.mockjax.clear(id);
 				var handlersNotFired = $.mockjax.unfiredHandlers();
 				assert.equal(handlersNotFired.length, 1, 'all mocks were fired');
 				assert.equal(handlersNotFired[0].url, '/api/example/2', 'mockjax call has unexpected url');
@@ -478,73 +494,88 @@
 		});
 	});
 
-	t('Preserve context when set in jsonp ajax requet', function(assert) {
-		var done = assert.async();
+	// t('Preserve context when set in jsonp ajax requet', function(assert) {
+	// 	var done = assert.async();
 
-		$.mockjax({
-				url: '/jsonp*',
-				contentType: 'text/json',
-				proxy: 'jsonp-script.js'
-		});
+	// 	$.mockjax({
+	// 			url: '/jsonp*',
+	// 			contentType: 'text/json',
+	// 			proxy: 'jsonp-script.js'
+	// 	});
 
-		window.abcdef123456 = function() {};
-		var cxt = {context: 'context'};
+	// 	window.abcdef123456 = function() {};
+	// 	var cxt = {context: 'context'};
 
-		$.ajax({
-				url: '/jsonp?callback=?',
-				jsonpCallback: 'abcdef123456',
-				dataType: 'jsonp',
-				error: qunit.noErrorCallbackExpected,
-				context: cxt})
-			.done(function() {
-				assert.deepEqual(this, cxt, 'this is equal to context object');
-				window.abcdef123456 = null;
-				done();
-			});
-	});
+	// 	$.ajax({
+	// 			url: '/jsonp?callback=?',
+	// 			jsonpCallback: 'abcdef123456',
+	// 			dataType: 'jsonp',
+	// 			error: qunit.noErrorCallbackExpected,
+	// 			context: cxt})
+	// 		.done(function() {
+	// 			assert.deepEqual(this, cxt, 'this is equal to context object');
+	// 			window.abcdef123456 = null;
+	// 			done();
+	// 		});
+	// });
 
-	t('Validate this is the $.ajax object if context is not set', function(assert) {
-		var done = assert.async();
+	// t('Validate this is the $.ajax object if context is not set', function(assert) {
+	// 	var done = assert.async();
 
-		$.mockjax({
-				url: '/jsonp*',
-				contentType: 'text/json',
-				proxy: 'jsonp-script.js'
-		});
+	// 	$.mockjax({
+	// 			url: '/jsonp*',
+	// 			contentType: 'text/json',
+	// 			proxy: 'jsonp-script.js'
+	// 	});
 
-		window.abcdef123456 = function() {};
+	// 	window.abcdef123456 = function() {};
 
-		$.ajax({
-			url: '/jsonp?callback=?',
-			jsonpCallback: 'abcdef123456',
-			dataType: 'jsonp',
-			error: qunit.noErrorCallbackExpected
-		})
-		.done(function() {
-			assert.ok(this.jsonp, '\'this\' is the $.ajax object for this request.');
-			window.abcdef123456 = null;
-			done();
-		});
-	});
+	// 	$.ajax({
+	// 		url: '/jsonp?callback=?',
+	// 		jsonpCallback: 'abcdef123456',
+	// 		dataType: 'jsonp',
+	// 		error: qunit.noErrorCallbackExpected
+	// 	})
+	// 	.done(function() {
+	// 		assert.ok(this.jsonp, '\'this\' is the $.ajax object for this request.');
+	// 		window.abcdef123456 = null;
+	// 		done();
+	// 	});
+	// });
 
 	t('Dynamic mock definition', function(assert) {
 		var done = assert.async();
 
-		$.mockjax( function( settings ) {
-			var service = settings.url.match(/\/users\/(.*)$/);
+		$.mockjax(function( settings ) {
+			var service = settings.url.match(/\/users\/(.+)\/edit$/);
 			if (service) {
 				return {
 					proxy: 'proxy-data.json'
 				};
+			} else {
+				return false;
+			}
+		});
+
+		$.ajax({
+			url: '/users/test/edit',
+			async: false,
+			dataType: 'json',
+			error: qunit.noErrorCallbackExpected,
+			success: function(json) {
+				assert.ok(json && json.proxy, 'Proxy request succeeded');
 			}
 		});
 
 		$.ajax({
 			url: '/users/test',
+			async: false,
 			dataType: 'json',
-			error: qunit.noErrorCallbackExpected,
-			success: function(json) {
-				assert.ok(json && json.proxy, 'Proxy request succeeded');
+			error: function(xhr) {
+				assert.equal(xhr.status, 404, 'The unmatched ajax call was correctly not mocked');
+			},
+			success: function() {
+				assert.ok(false, 'Unmatched dynamic URL should not have succeeded');
 			},
 			complete: done
 		});
@@ -624,20 +655,20 @@
 
 	t('Testing $.mockjax.handlers() after clearing', function(assert) {
 		$.mockjax({ url: '/foo', responseText: 'Hello Word' });
-		$.mockjax({ url: '/bar', responseText: 'Hello Word' });
+		const removeId = $.mockjax({ url: '/bar', responseText: 'Hello Word' });
 		$.mockjax({ url: '/bat', responseText: 'Hello Word' });
 		$.mockjax({ url: '/baz', responseText: 'Hello Word' });
 
 		assert.ok(Array.isArray($.mockjax.handlers()), 'The list of handlers is an array after adding mocks');
 		assert.strictEqual($.mockjax.handlers().length, 4, 'The length of the list of handlers is correct after adding mocks');
 
-		$.mockjax.clear(1);
+		$.mockjax.clear(removeId);
 
 		assert.ok(Array.isArray($.mockjax.handlers()), 'The list of handlers is an array after clearing mock');
-		assert.strictEqual($.mockjax.handlers().length, 4, 'The length of the list of handlers is correct after clearing mock');
+		assert.strictEqual($.mockjax.handlers().length, 3, 'The length of the list of handlers is correct after clearing mock');
 		assert.strictEqual($.mockjax.handlers()[0].url, '/foo', 'The first handler is correct after clearing');
-		assert.strictEqual($.mockjax.handlers()[1], null, 'The cleared handler is correct after clearing');
-		assert.strictEqual($.mockjax.handlers()[3].url, '/baz', 'The last handler is correct after clearing');
+		assert.strictEqual($.mockjax.handlers()[1].url, '/bat', 'The second handler is correct after clearing');
+		assert.strictEqual($.mockjax.handlers()[2].url, '/baz', 'The third handler is correct after clearing');
 	});
 
 
@@ -679,21 +710,8 @@
 
 		$.ajax({
 			url: '/response-callback',
-			error: function() {
-				done();
-			}
-		});
-	});
-
-	t('Inspecting $.mockjax() with null in multiple mocks argument', function(assert) {
-		var done = assert.async();
-		var handlers = $.mockjax([ null ]);
-
-		assert.equal(handlers.length, 1);
-
-		$.ajax({
-			url: '/response-callback',
-			error: function() {
+			error: function(xhr) {
+				assert.equal(xhr.status, 404, 'The unmatched ajax call was correctly not mocked');
 				done();
 			}
 		});

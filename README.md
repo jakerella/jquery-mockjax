@@ -75,12 +75,14 @@ Mockjax consists of just a few methods, each listed below. You'll find plenty of
 examples in the sections below, but if you're looking for a specific option,
 checkout this list:
 
-* `Number $.mockjax(/* Object */ options)`
+* `Number $.mockjax(/* Object|Array|Function */ options)`
   * Sets up a mockjax handler for a matching request
   * Returns that handler's index, can be used to clear individual handlers
+  * If an array, an array of ID's is returned
+  * If a function, is provided (either a single, or as an array), then that function will be called when attempting to match an ajax call to handlers
   * `options`: [Object] Defines the settings to use for the mocked request
       * **Options Used for Matching:**
-          * `url`: [String | RegExp] Specifies the url of the request that the data should be mocked for. If it is a string and contains any asterisks ( `*` ), they will be treated as a wildcard by translating to a regular expression. Any `*` will be replaced with `.+`. If you run into trouble with this shortcut, switch to using a full regular expression instead of a string and asterisk combination
+          * `url`: [String | RegExp] Specifies the url of the request that the data should be mocked for. If it is a string and contains any asterisks ( `*` ), they will be treated as a wildcard by translating to a regular expression. Any `*` will be replaced with a regex of 1 or more valid URL characters. If you run into trouble with this shortcut, switch to using a full regular expression instead of a string and asterisk combination
           * `data`: [Object | Function] Specifies data parameters to match on
           * `type`: [String] Specify what HTTP method to match, usually GET or POST, case-insensitive
           * `requestHeaders`: [Object] Specifies request headers to match on
@@ -88,8 +90,8 @@ checkout this list:
       * **Options Used for Response Simulation:**
           * `urlParams`: [Array] If provided and the mathcing `url` is a RegExp, then matched group values will be assigned to an object of this name in the `response` function `settings` object
           * `headers`: [Object] Headers to be added to the simulated response for matched requests (**NOTE: This is NOT used to match request headers!**)
-          * `status`: [Number] An integer that specifies a valid server response code. This simulates a server response code
-          * `statusText`: [String] Specifies a valid server response code description. This simulates a server response code description
+          * `status`: [Number|Array] An integer (or array of integers) between 100 and 599 that specifies a valid server response status code. If an array, a random selection is made for each matching request
+          * `statusText`: [String|Array] Specifies the server response status description. If an array, the `status` property must also be an array of the same size and a corresponding `statusText` will be chosen when a random `status` is chosen.
           * `responseTime`: [Number] An integer that specifies a simulated network
              and server latency (in milliseconds). Default is `500`. Setting this
     	 to `0` will minimize the simulated latency
@@ -580,11 +582,12 @@ $.mockjax(function(settings) {
   var service = settings.url.match(/\/restful\/(.*)$/);
   if ( service ) {
     return {
-      proxy: "/mocks/" + service[1] + ".json"
+      proxy: "/mocks/" + service[1] + ".json",
+      // other mock handler configuration options
     };
   }
   // If you get here, there was no url match
-  return;
+  return false;
 });
 ```
 

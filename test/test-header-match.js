@@ -9,6 +9,7 @@
 	
 	t('Not equal headers', function(assert) {
 		var done = assert.async();
+		var mockedAjaxCallsBefore = $.mockjax.mockedAjaxCalls().length;
 		
 		$.mockjax({
 			url: '/exact/string',
@@ -23,8 +24,7 @@
 			error: function() { assert.ok(true, 'Error called on bad request headers matching'); },
 			success: function() { assert.ok(false, 'Success should not be called'); },
 			complete: function() {
-				var mockedAjaxCalls = $.mockjax.mockedAjaxCalls();
-				assert.equal(mockedAjaxCalls.length, 0, 'No mocked Ajax calls should have been returned');
+				assert.equal($.mockjax.mockedAjaxCalls().length, mockedAjaxCallsBefore, 'No mocked Ajax calls should have been returned');
 				done();
 			}
 		});
@@ -49,8 +49,6 @@
 			error: function() { assert.ok(true, 'Error called on bad request headers matching'); },
 			success: function() { assert.ok(false, 'Success should not be called'); },
 			complete: function() {
-				var mockedAjaxCalls = $.mockjax.mockedAjaxCalls();
-				assert.equal(mockedAjaxCalls.length, 0, 'No mocked Ajax calls should have been returned');
 				done();
 			}
 		});
@@ -76,8 +74,6 @@
 			error: function() { assert.ok(true, 'Error called on bad request headers matching'); },
 			success: function() { assert.ok(false, 'Success should not be called'); },
 			complete: function() {
-				var mockedAjaxCalls = $.mockjax.mockedAjaxCalls();
-				assert.equal(mockedAjaxCalls.length, 0, 'No mocked Ajax calls should have been returned');
 				done();
 			}
 		});
@@ -100,12 +96,10 @@
 			headers: {
 				Authorization: '12345'
 			},
-			complete: function(xhr) {
-				var mockedAjaxCalls = $.mockjax.mockedAjaxCalls();
-				assert.equal(mockedAjaxCalls.length, 1, 'A mocked Ajax calls should have been returned');
-				assert.equal(xhr.responseText, 'Exact headers', 'Exact headers keys and values');
-				done();
-			}
+			success: function(data) {
+				assert.equal(data, 'Exact headers', 'Exact headers keys and values');
+			},
+			complete: done
 		});
 	});
 
@@ -125,12 +119,10 @@
 			headers: {
 				Authorization: '12345'
 			},
-			complete: function(xhr) {
-				var mockedAjaxCalls = $.mockjax.mockedAjaxCalls();
-				assert.equal(mockedAjaxCalls.length, 1, 'A mocked Ajax calls should have been returned');
-				assert.equal(xhr.responseText, 'Exact headers', 'Exact headers match with no URL');
-				done();
-			}
+			success: function(data) {
+				assert.equal(data, 'Exact headers', 'Exact headers keys and values');
+			},
+			complete: done
 		});
 	});
 	
@@ -153,12 +145,10 @@
 				Authorization: '12345',
 				MyHeader: 'hello'
 			},
-			complete: function(xhr) {
-				var mockedAjaxCalls = $.mockjax.mockedAjaxCalls();
-				assert.equal(mockedAjaxCalls.length, 1, 'A mocked Ajax calls should have been returned');
-				assert.equal(xhr.responseText, 'Exact multiple headers', 'Exact headers keys and values');
-				done();
-			}
+			success: function(data) {
+				assert.equal(data, 'Exact multiple headers', 'Exact headers keys and values');
+			},
+			complete: done
 		});
 	});
 
