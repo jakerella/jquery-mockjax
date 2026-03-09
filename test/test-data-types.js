@@ -137,10 +137,6 @@
 		$.ajax({
 			url: '/script',
 			dataType: 'script',
-			// in Jquery 4.0.0 they introduced a change that uses <script> tags in more situations
-			// with the `dataType: "script"` setting. Adding a header bypasses that (but we need a 
-			// test for when jQuery actually uses a <script> tag).
-			headers: { 'X-mockjax': 'true' },
 			error: qunit.noErrorCallbackExpected,
 			complete: function(xhr) {
 				assert.equal(window.TEST_SCRIPT_VAR, 1, 'Script executed');

@@ -7,6 +7,65 @@
 	qunit.module( 'Core' );
 	/* ----------------- */
 
+
+	t('Global settings explicit validation', function(assert) {
+		assert.throws(
+			() => {
+				$.mockjaxSettings.logger = 'foobar'
+				$.mockjaxSettings.logging = 'foo',
+				$.mockjaxSettings.logLevelMethods = ['error'],
+				$.mockjaxSettings.namespace = 123,
+				$.mockjaxSettings.status = {},
+				$.mockjaxSettings.statusText = () => {},
+				$.mockjaxSettings.responseTime = false,
+				$.mockjaxSettings.isTimeout = 'foo',
+				$.mockjaxSettings.throwUnmocked = 123,
+				$.mockjaxSettings.retainAjaxCalls = {},
+				$.mockjaxSettings.contentType = 'text---plain',
+				$.mockjaxSettings.response = {},
+				$.mockjaxSettings.responseText = false,
+				$.mockjaxSettings.responseXML = 123,
+				$.mockjaxSettings.proxy = () => {},
+				$.mockjaxSettings.proxyType = 123,
+				$.mockjaxSettings.lastModified = {},
+				$.mockjaxSettings.etag = false,
+				$.mockjaxSettings.responseHeaders = { foo: 'bar', fn: () => {} },
+				$.mockjaxSettings.matchInRegistrationOrder = 123,
+				$.mockjaxSettings.followRedirects = 'foo'
+
+				$.mockjax.validateSettings()
+			},
+			(err) => {
+				const errors = err.message.split('\n')
+				assert.ok(err instanceof TypeError, 'Error object should be a TypeError')
+				assert.equal(errors.length, 21, 'There should be 21 line-delimited errors')
+				assert.ok(/logger/.test(errors[0]), 'The first error should be about the logger')
+				assert.ok(/followRedirects/.test(errors[errors.length-1]), 'The last error should be about the followRedirects')
+				return true
+			},
+			'Invalid settings throw error with all issues'
+		)
+	});
+
+	t('Global settings validation on first registered handler', function(assert) {
+		assert.throws(
+			() => {
+				$.mockjaxSettings.status = 999
+				$.mockjaxSettings.responseText = null
+				$.mockjax({ url: '/api/resource' })  // first handler registration triggers validation
+			},
+			(err) => {
+				const errors = err.message.split('\n')
+				assert.ok(err instanceof TypeError, 'Error object should be a TypeError')
+				assert.equal(errors.length, 2, 'There should be 2 line-delimited errors')
+				assert.ok(/status/.test(errors[0]), 'The first error should be about the status')
+				assert.ok(/responseText/.test(errors[1]), 'The second error should be about the responseText')
+				return true
+			},
+			'Invalid settings throw error with all issues'
+		)
+	});
+
 	t('Basic match', function(assert) {
 		var done = assert.async();
 		assert.expect(2)
@@ -57,6 +116,8 @@
 		$.mockjax({
 			url: '/api/resource'
 		});
+
+		console.log('responseText option:', `"${$.mockjaxSettings.responseText}"`)
 
 		$.ajax({
 			url: '/api/resource',
@@ -255,30 +316,27 @@
 		});
 	});
 
-	if (qunit.compareSemver($().jquery, '1.4', '>=')) {
-		// The $.ajax() API changed in version 1.4 to include the third argument: xhr
-		t('Success callback should have access to xhr object', function(assert) {
-			var done = assert.async();
+	t('Success callback should have access to xhr object', function(assert) {
+		var done = assert.async();
 
-			$.mockjax({
-				url: '/response'
-			});
-
-			$.ajax({
-				type: 'GET',
-				url: '/response',
-				success: function() {
-					assert.ok(arguments[2], 'there is a third argument to the success callback');
-					assert.ok(arguments[2] && arguments[2].status === 200, 'third argument has proper status code');
-					done();
-				},
-				error: function() {
-					assert.ok(false, 'should not result in error');
-					done();
-				}
-			});
+		$.mockjax({
+			url: '/response'
 		});
-	}
+
+		$.ajax({
+			type: 'GET',
+			url: '/response',
+			success: function() {
+				assert.ok(arguments[2], 'there is a third argument to the success callback');
+				assert.ok(arguments[2] && arguments[2].status === 200, 'third argument has proper status code');
+				done();
+			},
+			error: function() {
+				assert.ok(false, 'should not result in error');
+				done();
+			}
+		});
+	});
 
 	t('Dynamic response status callback', function(assert) {
 		var done = assert.async();
@@ -402,8 +460,6 @@
 	t('Throw error when throwUnmocked is set to true and unmocked ajax calls are fired', function(assert) {
 		var done = assert.async();
 
-		// TODO: seems like mockjaxSettings in the source are static
-		// and thus not altered when set like this... :/
 		$.mockjaxSettings.throwUnmocked = true;
 
 		try {
@@ -463,7 +519,7 @@
 			type: 'GET',
 			url: '/api/example/1',
 			complete: function() {
-				$.mockjax.clear(id);
+				$.mockjax.clearById(id);
 				var handlersNotFired = $.mockjax.unfiredHandlers();
 				assert.equal(handlersNotFired.length, 1, 'all mocks were fired');
 				assert.equal(handlersNotFired[0].url, '/api/example/2', 'mockjax call has unexpected url');
@@ -494,54 +550,55 @@
 		});
 	});
 
-	// t('Preserve context when set in jsonp ajax requet', function(assert) {
-	// 	var done = assert.async();
+	t('Preserve context when set in jsonp ajax requet', function(assert) {
+		var done = assert.async();
 
-	// 	$.mockjax({
-	// 			url: '/jsonp*',
-	// 			contentType: 'text/json',
-	// 			proxy: 'jsonp-script.js'
-	// 	});
+		$.mockjax({
+				url: '/jsonp*',
+				contentType: 'text/json',
+				proxy: 'jsonp-script.js'
+		});
 
-	// 	window.abcdef123456 = function() {};
-	// 	var cxt = {context: 'context'};
+		window.abcdef123456 = function() {};
+		var cxt = {context: 'context'};
 
-	// 	$.ajax({
-	// 			url: '/jsonp?callback=?',
-	// 			jsonpCallback: 'abcdef123456',
-	// 			dataType: 'jsonp',
-	// 			error: qunit.noErrorCallbackExpected,
-	// 			context: cxt})
-	// 		.done(function() {
-	// 			assert.deepEqual(this, cxt, 'this is equal to context object');
-	// 			window.abcdef123456 = null;
-	// 			done();
-	// 		});
-	// });
+		$.ajax({
+				url: '/jsonp?callback=?',
+				jsonpCallback: 'abcdef123456',
+				dataType: 'jsonp',
+				error: qunit.noErrorCallbackExpected,
+				context: cxt
+		})
+		.done(function() {
+			assert.deepEqual(this, cxt, 'this is equal to context object');
+			window.abcdef123456 = undefined;
+			done();
+		});
+	});
 
-	// t('Validate this is the $.ajax object if context is not set', function(assert) {
-	// 	var done = assert.async();
+	t('Validate this is the $.ajax object if context is not set', function(assert) {
+		var done = assert.async();
 
-	// 	$.mockjax({
-	// 			url: '/jsonp*',
-	// 			contentType: 'text/json',
-	// 			proxy: 'jsonp-script.js'
-	// 	});
+		$.mockjax({
+				url: '/jsonp*',
+				contentType: 'text/json',
+				proxy: 'jsonp-script.js'
+		});
 
-	// 	window.abcdef123456 = function() {};
+		window.abcdef123456 = function() {};
 
-	// 	$.ajax({
-	// 		url: '/jsonp?callback=?',
-	// 		jsonpCallback: 'abcdef123456',
-	// 		dataType: 'jsonp',
-	// 		error: qunit.noErrorCallbackExpected
-	// 	})
-	// 	.done(function() {
-	// 		assert.ok(this.jsonp, '\'this\' is the $.ajax object for this request.');
-	// 		window.abcdef123456 = null;
-	// 		done();
-	// 	});
-	// });
+		$.ajax({
+			url: '/jsonp?callback=?',
+			jsonpCallback: 'abcdef123456',
+			dataType: 'jsonp',
+			error: qunit.noErrorCallbackExpected
+		})
+		.done(function() {
+			assert.ok(this.jsonp, '\'this\' is the $.ajax object for this request.');
+			window.abcdef123456 = null;
+			done();
+		});
+	});
 
 	t('Dynamic mock definition', function(assert) {
 		var done = assert.async();
@@ -662,7 +719,7 @@
 		assert.ok(Array.isArray($.mockjax.handlers()), 'The list of handlers is an array after adding mocks');
 		assert.strictEqual($.mockjax.handlers().length, 4, 'The length of the list of handlers is correct after adding mocks');
 
-		$.mockjax.clear(removeId);
+		$.mockjax.clearById(removeId);
 
 		assert.ok(Array.isArray($.mockjax.handlers()), 'The list of handlers is an array after clearing mock');
 		assert.strictEqual($.mockjax.handlers().length, 3, 'The length of the list of handlers is correct after clearing mock');
@@ -724,7 +781,7 @@
 		]);
 
 		assert.equal(handlers.length, 1);
-		$.mockjax.clear(handlers[0]);
+		$.mockjax.clearById(handlers[0]);
 
 		$.ajax({
 			url: '/response-callback',

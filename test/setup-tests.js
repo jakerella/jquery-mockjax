@@ -24,14 +24,17 @@
 				error: noop
 			};
 		}
-
-		qunit.defaultMockjaxSettings = $.extend({}, $.mockjaxSettings);
+		
+		qunit.defaultMockjaxSettings = $.extend({}, $.mockjaxSettings)
 	});
 
 	qunit.testDone(function() {
-		$.mockjax.clearAll();
+		$.mockjax.clearAll()
 		$.mockjax.clearRetainedAjaxCalls()
-		$.mockjaxSettings = $.extend({}, qunit.defaultMockjaxSettings);
+		// For some reason, calling resetSettings() causes every test
+		// to take about 10x as long to run...
+		// $.mockjax.resetSettings()
+		$.mockjaxSettings = $.extend({}, qunit.defaultMockjaxSettings)
 	});
 
 })(window.QUnit, window.jQuery);

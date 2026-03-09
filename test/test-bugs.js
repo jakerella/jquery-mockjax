@@ -7,10 +7,10 @@
 	qunit.module( 'Miscellaneous Bug Tests' );
 	/* ------------------------------------ */
 	
-	t('Test bug fix for $.mockjaxSettings', function(assert) {
+	t('Test bug fix for $.mockjaxSettings headers', function(assert) {
 		var done = assert.async();
 		
-		$.mockjaxSettings.headers = {
+		$.mockjaxSettings.responseHeaders = {
 			'content-type': 'text/plain',
 			etag: 'IJF@H#@923uf8023hFO@I#H#'
 		};
@@ -26,7 +26,7 @@
 		$.ajax({
 			url: '/get/property',
 			success: function() {
-				assert.deepEqual( $.mockjaxSettings.headers, {
+				assert.deepEqual( $.mockjaxSettings.responseHeaders, {
 					'content-type': 'text/plain',
 					etag: 'IJF@H#@923uf8023hFO@I#H#'
 				}, 'Should not change the default headers.');
@@ -174,13 +174,7 @@
 			url: 'test/something',
 			async: false,
 			success: function(data) {
-				// Before jQuery 1.5 the response is a stringified version of the 
-				// json data unless the 'dataType' option is set to "json"
-				var expectedResult = expected;
-				if (qunit.compareSemver($().jquery, '1.5', '<')) {
-					expectedResult = JSON.stringify(expected);
-				}
-				assert.deepEqual(data, expectedResult, 'responseText is correct JSON object');
+				assert.deepEqual(data, expected, 'responseText is correct JSON object');
 			}
 		});
 
@@ -299,10 +293,6 @@
         $.ajax({
             type: 'GET',
             dataType: 'script',
-			// in Jquery 4.0.0 they introduced a change that uses <script> tags in more situations
-			// with the `dataType: "script"` setting. Adding a header bypasses that (but we need a 
-			// test for when jQuery actually uses a <script> tag).
-			headers: { 'X-mockjax': 'true' },
             url: 'http://crossdomain.test/somefile.js',
             crossOrigin: 'anonymous',
             error: qunit.noErrorCallbackExpected,
@@ -325,10 +315,6 @@
         $.ajax({
             type: 'POST',
             dataType: 'script',
-			// in Jquery 4.0.0 they introduced a change that uses <script> tags in more situations
-			// with the `dataType: "script"` setting. Adding a header bypasses that (but we need a 
-			// test for when jQuery actually uses a <script> tag).
-			headers: { 'X-mockjax': 'true' },
             url: 'http://crossdomain.test/somefile.js',
             crossOrigin: 'anonymous',
             error: qunit.noErrorCallbackExpected,
@@ -359,10 +345,7 @@
 			complete: function() {
 				var actualCalls = $.mockjax.mockedAjaxCalls();
 				assert.equal(actualCalls.length, 1, 'Mockjax call made');
-				assert.ok(
-					actualCalls[0] && actualCalls[0].url.match(/\/api\/jsonp\?callback\=jsonp[0-9]+/),
-					'mockjax call has expected jsonp url'
-				);
+				assert.equal(actualCalls[0].url, 'http://foo.com/api/jsonp', 'mockjax call has expected jsonp url');
 				done();
 			}
 		});
@@ -388,10 +371,7 @@
 			complete: function() {
 				var actualCalls = $.mockjax.mockedAjaxCalls();
 				assert.equal(actualCalls.length, 1, 'Mockjax call made');
-				assert.ok(
-					actualCalls[0] && actualCalls[0].url.match(/\/api\/jsonp\?callback\=jsonp[0-9]+/),
-					'mockjax call has expected jsonp url'
-				);
+				assert.equal(actualCalls[0].url, 'http://foo.com/api/jsonp', 'mockjax call has expected jsonp url');
 				done();
 			}
 		});
@@ -417,10 +397,7 @@
 			complete: function() {
 				var actualCalls = $.mockjax.mockedAjaxCalls();
 				assert.equal(actualCalls.length, 1, 'Mockjax call made');
-				assert.ok(
-					actualCalls[0] && actualCalls[0].url.match(/\/api\/jsonp\?callback\=jsonp[0-9]+/),
-					'mockjax call has expected jsonp url'
-				);
+				assert.equal(actualCalls[0].url, 'http://foo.com/api/jsonp', 'mockjax call has expected jsonp url');
 				done();
 			}
 		});

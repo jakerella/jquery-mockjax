@@ -12,6 +12,49 @@
 import { getSettings } from './settings.js'
 
 /**
+ * Find a matching handler for an AJAX request
+ * @param {MockHandler[]} handlers - Array of registered handlers
+ * @param {JQueryAjaxSettings} requestSettings - jQuery AJAX request settings
+ * @returns {MockHandler|null} Matching handler or null
+ */
+export function findMatchingHandler(handlers, requestSettings) {
+    const matchOrder = getSettings().matchInRegistrationOrder
+    const startIndex = matchOrder ? 0 : handlers.length - 1
+    const endIndex = matchOrder ? handlers.length : -1
+    const step = matchOrder ? 1 : -1
+
+    for (let i = startIndex; i !== endIndex; i += step) {
+        const handler = handlers[i]
+
+        if (typeof handler === 'function') {
+            const mockHandler = handler(requestSettings)
+            if (mockHandler) {
+                return mockHandler
+            } else {
+                continue
+            }
+        }
+
+        // Determine namespace
+        const namespace = handler.namespace !== undefined
+            ? handler.namespace
+            : getSettings().namespace
+
+        // Match all criteria (AND logic)
+        if (
+            matchUrl(handler.url, requestSettings.url, namespace) &&
+            matchMethod(handler.method, requestSettings.method) &&
+            matchData(handler.data, requestSettings.data) &&
+            matchHeaders(handler.requestHeaders, requestSettings.headers)
+        ) {
+            return handler
+        }
+    }
+
+    return null
+}
+
+/**
  * Match a request URL against a handler URL pattern
  * @param {(String|RegExp|undefined)} handlerUrl - Handler URL pattern
  * @param {String} requestUrl - Request URL to match
@@ -23,32 +66,35 @@ export function matchUrl(handlerUrl, requestUrl, namespace) {
         return true
     }
 
-    let pattern = handlerUrl
-
-    if (namespace && typeof pattern === 'string') {
-        pattern = namespace + pattern
-    }
-
-    // Convert glob pattern to RegExp
-    if (typeof pattern === 'string' && pattern.includes('*')) {
-        const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-        const regexPattern = escaped.replace(/\*/g, '[A-Za-z0-9\\-\\._~:\\/?#\\[\\]@!\\$&\'()*+,;%=]+')
-        pattern = new RegExp(`^${regexPattern}$`)
-    }
-
-    if (pattern instanceof RegExp) {
-        if (namespace && typeof namespace === 'string') {
-            const regexString = pattern.source
-                // remove leading slash
-                .replace(/^(\^+)/, '')
-                // prepend the namespace, removing trailing slashes
-                .replace(/^/, '^(' + namespace.replace(/(\/+)$/, '') + ')?\/?')
-            pattern = new RegExp(regexString, pattern.flags)
+    if (handlerUrl instanceof RegExp) {
+        let pattern = handlerUrl
+        if (namespace) {
+            namespace = namespace.replace(/(\/+)$/, '')
+            const patternSource = handlerUrl.source.replace(/^\^?/, '^(?:' + namespace + ')\/?');
+            pattern = new RegExp(patternSource, handlerUrl.flags)
         }
         return pattern.test(requestUrl)
-    }
 
-    return pattern === requestUrl
+    } else {
+
+        let effectiveUrlPattern = String(handlerUrl)
+
+        if (namespace) {
+            effectiveUrlPattern = [
+                namespace.replace(/(\/+)$/, ''),
+                handlerUrl.replace(/^(\/+)/, '')
+            ].join('/')
+        }
+
+        if (effectiveUrlPattern.indexOf('*') < 0) {
+            return effectiveUrlPattern === requestUrl
+        } else {
+            effectiveUrlPattern = effectiveUrlPattern
+                .replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&')
+                .replace(/\*/g, '[A-Za-z0-9\\-\\._~:\\/?#\\[\\]@!\\$&\'()*+,;%=]+')
+            return (new RegExp(effectiveUrlPattern)).test(requestUrl)
+        }
+    }
 }
 
 /**
@@ -154,6 +200,7 @@ export function matchMethod(handlerMethod, requestMethod) {
     return !handlerMethod || handlerMethod.toUpperCase() === requestMethod.toUpperCase()
 }
 
+
 function getQueryParams(queryString) {
     const params = {}
     String(queryString)
@@ -174,47 +221,4 @@ function getQueryParams(queryString) {
         })
 
     return params
-}
-
-/**
- * Find a matching handler for an AJAX request
- * @param {MockHandler[]} handlers - Array of registered handlers
- * @param {JQueryAjaxSettings} requestSettings - jQuery AJAX request settings
- * @returns {MockHandler|null} Matching handler or null
- */
-export function findMatchingHandler(handlers, requestSettings) {
-    const matchOrder = getSettings().matchInRegistrationOrder
-    const startIndex = matchOrder ? 0 : handlers.length - 1
-    const endIndex = matchOrder ? handlers.length : -1
-    const step = matchOrder ? 1 : -1
-
-    for (let i = startIndex; i !== endIndex; i += step) {
-        const handler = handlers[i]
-
-        if (typeof handler === 'function') {
-            const mockHandler = handler(requestSettings)
-            if (mockHandler) {
-                return mockHandler
-            } else {
-                continue
-            }
-        }
-
-        // Determine namespace
-        const namespace = handler.namespace !== undefined
-            ? handler.namespace
-            : getSettings().namespace
-
-        // Match all criteria (AND logic)
-        if (
-            matchUrl(handler.url, requestSettings.url, namespace) &&
-            matchMethod(handler.method, requestSettings.method) &&
-            matchData(handler.data, requestSettings.data) &&
-            matchHeaders(handler.requestHeaders, requestSettings.headers)
-        ) {
-            return handler
-        }
-    }
-
-    return null
 }

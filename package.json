@@ -18,7 +18,21 @@
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "format": "npx prettier --write \"src/**/*.js\" \"test/**/*.js\"",
-    "format:check": "npx prettier --check \"src/**/*.js\" \"test/**/*.js\""
+    "format:check": "npx prettier --check \"src/**/*.js\" \"test/**/*.js\"",
+    "watch:build": "npx npm-watch build",
+    "watch:test": "npx npm-watch test:unit"
+  },
+  "watch": {
+    "build": {
+      "patterns": ["src"],
+      "extensions": "js",
+      "delay": 1500
+    },
+    "test:unit": {
+      "patterns": ["src", "test"],
+      "extensions": "js,json,html",
+      "delay": 1500
+    }
   },
   "keywords": [
     "ajax",
@@ -80,6 +94,7 @@
     "jsdom": "^28.1.0",
     "load-grunt-tasks": "^5.1.0",
     "mocha": "^11.7.5",
+    "npm-watch": "^0.13.0",
     "nyc": "^18.0.0",
     "prettier": "^3.8.1",
     "puppeteer": "^22.1.0",

@@ -251,7 +251,7 @@
 
 	// Process the xhr objects send operation
 	function _xhrSend(mockHandler, requestSettings, origSettings) {
-		logger.debug( mockHandler, ['Sending fake XHR request', mockHandler, requestSettings, origSettings] );
+		logger.debug( mockHandler, ['Sending fake XHR request', {...this}, mockHandler, requestSettings, origSettings] );
 
 		// This is a substitute for < 1.4 which lacks $.proxy
 		var process = (function(that) {
@@ -441,6 +441,7 @@
 		processJsonpUrl( requestSettings );
 
 		requestSettings.dataType = 'json';
+		
 		if(requestSettings.data && CALLBACK_REGEX.test(requestSettings.data) || CALLBACK_REGEX.test(requestSettings.url)) {
 			createJsonpCallback(requestSettings, mockHandler, origSettings);
 
@@ -836,15 +837,15 @@
 
 			// Is logging turned off for this mock or mockjax as a whole?
 			// Or is this log message above the desired log level?
-			if ( loggerLevel === false || loggerLevel < level ) {
-				return;
-			}
+			// if ( loggerLevel === false || loggerLevel < level ) {
+			// 	return;
+			// }
 
-			if ( $.mockjaxSettings.log ) {
-				return $.mockjaxSettings.log( mockHandler, args[1] || args[0] );
-			} else if ( $.mockjaxSettings.logger && $.mockjaxSettings.logger[$.mockjaxSettings.logLevelMethods[level]] ) {
+			// if ( $.mockjaxSettings.log ) {
+			// 	return $.mockjaxSettings.log( mockHandler, args[1] || args[0] );
+			// } else if ( $.mockjaxSettings.logger && $.mockjaxSettings.logger[$.mockjaxSettings.logLevelMethods[level]] ) {
 				return $.mockjaxSettings.logger[$.mockjaxSettings.logLevelMethods[level]].apply( $.mockjaxSettings.logger, args );
-			}
+			// }
 		},
 		/**
 		 * Convenience method for logging a DEBUG level message
@@ -892,7 +893,7 @@
 	$.mockjaxSettings = {
 		log:				null, // this is only here for historical purposes... use $.mockjaxSettings.logger
 		logger:				window.console,
-		logging:			2,
+		logging:			4,
 		logLevelMethods:	['error', 'warn', 'info', 'log', 'debug'],
 		matchInRegistrationOrder: true,
 		namespace:			null,

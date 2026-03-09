@@ -37,8 +37,8 @@ export function createMockXHR(mockHandler, requestSettings) {
     }
 
     return {
-        status: -1,      // TODO: This was: allMockSettings.status, but we haven't sent yet?
-        statusText: '',  // TODO: This was: allMockSettings.statusText, but we haven't sent yet?
+        status: -1,
+        statusText: '',
         readyState: READYSTATE.unsent,
         // responseTimer: null,
         // open: function() { },
@@ -123,7 +123,7 @@ function sendXHR(mockHandler, requestSettings) {
                 // Fix for bug #105
                 // jQuery will convert the text to XML for us, and if we use the actual responseXML here
                 // then some other things don't happen, resulting in no data given to the 'success' cb
-                mockHandler.responseXML = mockHandler.responseText = xhr.responseText;
+                mockHandler.responseXML = mockHandler.responseText = String(xhr.responseText);
                 
                 if ( requestSettings.async === false ) {
                     processRequest()
@@ -148,7 +148,7 @@ function sendXHR(mockHandler, requestSettings) {
  * @param {(Number|Number[2])} responseTime 
  * @returns {Number}
  */
-function determineResponseTime(responseTime) {
+export function determineResponseTime(responseTime) {
     if (Array.isArray(responseTime) && responseTime.length === 2) {
         const one = Math.max(0, Number(responseTime[0]))
         const two = Math.max(0, Number(responseTime[1]))
@@ -195,7 +195,7 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
         mockXHR.responseText = JSON.stringify(mockHandler.responseText)
 
     } else {
-        mockXHR.responseText = mockHandler.responseText
+        mockXHR.responseText = String(mockHandler.responseText)
     }
 
     let statusIndex = -1

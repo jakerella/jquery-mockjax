@@ -10,9 +10,10 @@
  * @typedef {import('./typedefs.js').MockXHR} MockXHR
  */
 
-import { getSettings } from './settings.js'
+import { getSettings, validateSettings } from './settings.js'
 import { generateUUID, deepClone } from './utils.js'
 import { findMatchingHandler } from './matching.js'
+import { processJsonpMock } from './jsonp.js'
 import { createMockXHR } from './xhr.js'
 
 
@@ -54,35 +55,53 @@ const mockHandlerLookup = {}
 const retainedAjaxCalls = []
 
 
+let settingsValidated = false
+
+
 /**
  * Register a mock AJAX handler
- * @param {MockHandler|MockHandler[]|Function} settings - Mock handler settings, array of settings, or a function that will return settings
+ * @param {MockHandler|MockHandler[]|Function} options - Mock handler options, array of options, or a function that will return options
  * @returns {String|String[]>} Handler ID(s) generated
  * @throws {TypeError} If settings are invalid
  */
-export function registerMockjaxHandler(settings) {
-    settings = settings || {}
+export function registerMockjaxHandler(options) {
 
-    if (Array.isArray(settings)) {
-        return settings.map(handlerSettings => registerMockjaxHandler(handlerSettings))
+    // We only do this once per load of Mockjax (the the first handler is registered)
+    if (!settingsValidated) {
+        validateSettings()
+        settingsValidated = true
     }
 
-    if (typeof settings === 'object') {
-        settings.method = settings.method || settings.type
+    options = options || {}
+
+    if (Array.isArray(options)) {
+        return options.map(handlerSettings => registerMockjaxHandler(handlerSettings))
+    }
+
+    if (typeof options === 'object') {
+        options.method = options.method || options.type
+        options.responseHeaders
     }
     
-    // Validate settings
-    validateSettings(settings)
+    // Validate options
+    validateHandlerOptions(options)
 
     // Create handler object
-    const handler = (typeof settings === 'function') ? settings : { ...settings }
+    const handler = (typeof options === 'function') ? options : { ...options }
     handler.id = generateUUID()
     handler.fired = false
     handler.registeredAt = Date.now()
 
+    if (handler.headers && typeof handler.headers === 'object') {
+        handler.responseHeaders = handler.headers
+    }
+
     // Register handler
     mockHandlers.push(handler)
     mockHandlerLookup[handler.id] = handler
+
+    // TODO: update me
+    // console.debug('Registered new handler:', {...handler})
 
     return handler.id
 }
@@ -105,11 +124,13 @@ export function mockAjaxCall(url, origSettings) {
         tempSettings = url
     } else if (origSettings && typeof origSettings === 'object') {
         tempSettings = origSettings
-        tempSettings.url = url
+        tempSettings.url = url || origSettings.url
     }
 
     // Extend the original settings for the request to include defaults
     const requestSettings = $.ajaxSetup({}, tempSettings)
+    
+    // Standardize HTTP method
     requestSettings.type = requestSettings.method || requestSettings.type
     requestSettings.method = requestSettings.type
 
@@ -135,18 +156,31 @@ export function mockAjaxCall(url, origSettings) {
     // TODO: make this work for other 300's and methods
     if ((mockHandler.status === 301 || mockHandler.status === 302) &&
         getSettings().followRedirects === true &&
+        (mockHandler.responseHeaders.Location || mockHandler.responseHeaders.location) &&
         (requestSettings.method.toUpperCase() === 'GET' || requestSettings.method.toUpperCase() === 'HEAD')
     ) {
         return redirectMockedRequest(mockHandler, requestSettings)
     }
 
+    if (Number($.fn.jquery.split('.')[0]) > 3 &&
+        (requestSettings.dataType?.toUpperCase() === 'JSONP' ||
+         requestSettings.dataType?.toUpperCase() === 'SCRIPT') &&
+        !Object.keys(requestSettings.headers || {}).length
+    ) {
+        // In Jquery 4.0.0 they introduced a change that uses <script> tags in more situations,
+        // specifically with the `dataType` "script" and `dataType` "jsonp".
+        // Adding any header seems to bypass that, so we'll tack one on in these situations.
+        // https://jquery.com/upgrade-guide/4.0/#breaking-change-script-tags-now-used-for-all-async-requests
+        // https://github.com/jquery/jquery/commit/68b4ec59c8f290d680e9db4bc980655660817dd1
+        requestSettings.headers = { 'X-mockjax': 'true' }
+    }
 
-    // TODO: JSONP handling
-    // if ( requestSettings.dataType && requestSettings.dataType.toUpperCase() === 'JSONP' ) {
-    //     if ((mockRequest = processJsonpMock( requestSettings, mockHandler, origSettings ))) {
-    //         return mockRequest
-    //     }
-    // }
+    if (requestSettings.dataType?.toUpperCase() === 'JSONP') {
+        const mockRequest = processJsonpMock(requestSettings, mockHandler, origSettings)
+        if (mockRequest) {
+            return mockRequest
+        }
+    }
 
     // We are mocking, so there will be no cross domain request, however, jQuery
     // aggressively pursues this if the domains don't match, so we need to
@@ -368,7 +402,7 @@ export function clearRetainedAjaxCalls(mockHandlerIds) {
  * @throws {TypeError} If settings are invalid
  * @returns {void}
  */
-function validateSettings(settings) {
+function validateHandlerOptions(settings) {
     if (typeof settings === 'function') {
         return
     }
@@ -441,10 +475,17 @@ function validateSettings(settings) {
         }
     }
 
-    if (settings.responseTime !== undefined && 
-        (!Number.isInteger(settings.responseTime) || settings.responseTime < 0)
-    ) {
-        messages.push('The responseTime must be a non-negative integer if it is set.')
+    if (settings.responseTime !== undefined) {
+        if (Array.isArray(settings.responseTime)) {
+            if (settings.responseTime.length !== 2 ||
+                (!Number.isInteger(settings.responseTime[0]) || settings.responseTime[0] < 0) ||
+                (!Number.isInteger(settings.responseTime[1]) || settings.responseTime[1] < 0)
+            ) {
+                messages.push('A responseTime range must be an array of 2 non-negitve integers ([min, max])')
+            }
+        } else if (!Number.isInteger(settings.responseTime) || settings.responseTime < 0) {
+            messages.push('The responseTime must be a non-negative integer if it is set.')
+        }
     }
 
     if (settings.contentType !== undefined && typeof settings.contentType !== 'string') {
@@ -453,11 +494,6 @@ function validateSettings(settings) {
 
     if (settings.response && typeof settings.response !== 'function') {
         messages.push('The response property must be a function, string, or object if it is set.')
-    }
-
-    if (settings.responseText && 
-        typeof settings.responseText !== 'string' && typeof settings.responseText !== 'object') {
-        messages.push('The responseText must be a string or object if it is set.')
     }
 
     if (settings.responseXML && typeof settings.responseXML !== 'string') {
@@ -499,7 +535,13 @@ function validateSettings(settings) {
  * @returns {void}
  */
 function retainAjaxCall(ajaxSettings) {
-    const limit = getSettings().retainAjaxCalls
+    let limit = getSettings().retainAjaxCalls
+
+    if (limit === true) {
+        limit = -1
+    } else if (limit === false) {
+        limit = 0
+    }
 
     if (limit === 0) {
         return
@@ -542,7 +584,7 @@ function overrideCallback(context, action, mockHandler, requestSettings) {
  * @returns {MockXHR}
  */
 function redirectMockedRequest(mockHandler, requestSettings) {
-    const newUrl = mockHandler.headers.Location || mockHandler.headers.location
+    const newUrl = mockHandler.responseHeaders.Location || mockHandler.responseHeaders.location
 
     const redirectSettings = $.ajaxSetup({}, requestSettings)
     redirectSettings.url = newUrl

@@ -17,7 +17,11 @@
 
 		$.ajax({
 			url: '/api/v1/myservice',
-			error: qunit.noErrorCallbackExpected,
+			// error: qunit.noErrorCallbackExpected,
+			error: (xhr) => {
+				console.log(xhr)
+				assert.ok(false, 'Error should not have been called')
+			},
 			complete: function(xhr) {
 				assert.equal(xhr.status, 200, 'Response was successful');
 				done();

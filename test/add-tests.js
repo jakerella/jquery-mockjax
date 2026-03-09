@@ -7,20 +7,20 @@
     
     let testFiles = [
         // These will become something like: <script src='test-core.js'></script>
-        'core',
-        'url-match',
-        'header-match',
-        'data-match',
-        'match-order',
-        // 'data-types',
-        // 'headers',
-        'mock-clearing',
-        // 'retaining-ajax-calls',
-        // 'namespace',
+        'core',                  // 🗸  (except for jsonp)
+        'url-match',             // 🗸
+        'header-match',          // 🗸
+        'data-match',            // 🗸
+        'match-order',           // 🗸
+        'data-types',            // 🗸  (except for jsonp)
+        'headers',               // 🗸
+        'mock-clearing',         // 🗸
+        'retaining-ajax-calls',  // 🗸  (except for jsonp)
+        'namespace',             // 🗸
         // 'logging',
-        // 'connection',
-        'timeout',
-        // 'bugs'
+        'connection',            // 🗸  (except for jsonp)
+        'timeout',               // 🗸
+        'bugs'                   // 🗸
     ];
 
     if ( parts && parts[1] ) {

@@ -3,7 +3,11 @@
  * @module mockjax
  */
 
-import { getSettings } from './settings.js'
+import {
+    getSettings,
+    resetSettings,
+    validateSettings
+} from './settings.js'
 import {
     registerMockjaxHandler,
     clear,
@@ -30,11 +34,13 @@ export {
     unfiredHandlers,
     mockedAjaxCalls,
     unmockedAjaxCalls,
-    clearRetainedAjaxCalls
+    clearRetainedAjaxCalls,
+    getSettings,
+    resetSettings,
+    validateSettings
 }
 
 // Default export
-// TODO: should this only be the "mockjax" method?
 export default {
     mockjax: registerMockjaxHandler,
     clear,
@@ -46,11 +52,16 @@ export default {
     unfiredHandlers,
     mockedAjaxCalls,
     unmockedAjaxCalls,
-    clearRetainedAjaxCalls
+    clearRetainedAjaxCalls,
+    getSettings,
+    resetSettings,
+    validateSettings
 }
 
 $.mockjaxSettings = getSettings()
 $.mockjax = registerMockjaxHandler
+$.mockjax.resetSettings = resetSettings
+$.mockjax.validateSettings = validateSettings
 $.mockjax.clear = clear
 $.mockjax.clearById = clearById
 $.mockjax.clearByUrl = clearByUrl

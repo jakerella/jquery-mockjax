@@ -33,8 +33,8 @@
  * @property {Number} retainAjaxCalls - Number of AJAX calls to retain
  * @property {String} contentType - Default content type
  * @property {(Function|null)} response - Default response function
- * @property {String} responseText - Default response text
- * @property {(String|null)} responseXML - Deprecated, use responseText
+ * @property {*} responseText - Default response text
+ * @property {(String|null)} responseXML - Default for XML responses
  * @property {(String|null)} proxy - Default proxy URL
  * @property {(String|null)} proxyType - Default proxy HTTP method
  * @property {String|null} lastModified - Default last modified header
@@ -42,6 +42,7 @@
  * @property {Object.<String, String>} headers - Deprecated, use responseHeaders
  * @property {Object.<String, String>} responseHeaders - Default response headers
  * @property {Boolean} matchInRegistrationOrder - Match handlers in registration order
+ * @property {Boolean} followRedirects - Whether or not to follow 3XX status code redirects
  */
 
 /**
@@ -60,7 +61,7 @@
  * @property {?Number} responseTime - The response delay in milliseconds (non-negative)
  * @property {?String} contentType - The Content-Type header for the response
  * @property {?Function} response - A function to call for generating the HTTP Response
- * @property {?(String|Object)} responseText - The response text string to return; if an object, will become stringified JSON
+ * @property {*} responseText - The response text string to return; if an object, will become stringified JSON
  * @property {?String} proxy - The URL to proxy the request to
  * @property {?HTTPMethod} proxyType - The HTTP method to use for proxying
  * @property {?Object.<String, String>} responseHeaders - The HTTP response headers to return

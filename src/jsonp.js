@@ -1,5 +1,5 @@
 /**
- * Mock JSONP request handling
+ * JSONP mock handling module
  * @module jsonp
  */
 
@@ -8,19 +8,219 @@
  * @typedef {import('./typedefs.js').JQueryAjaxSettings} JQueryAjaxSettings
  */
 
-import { getSettings } from './settings.js'
+import { realAjaxCall } from './core.js'
+import { determineResponseTime } from './xhr.js'
+
+const CALLBACK_REGEX = /=\?(&|$)/
+const URL_PROTOCOL_REGEX = /^(\w+:)?\/\/([^\/?#]+)/
+
+// Counter for generating unique JSONP callback names
+let jsonpCallbackCounter = Date.now()
+
 
 /**
- * 
- * @param {MockHandler} mockHandler 
- * @param {JQueryAjaxSettings} requestSettings 
- * @returns {(Deferred|null)}  Promise?
+ * Process a JSONP mock request
+ * @param {JQueryAjaxSettings} requestSettings - Request settings to process
+ * @param {MockHandler} mockHandler - Mock handler configuration
+ * @param {JQueryAjaxSettings} origSettings - Original request settings
+ * @returns {Object|Boolean|null} Deferred object, true for handled, or null for not handled
  */
-export function processJsonpMock( mockHandler, requestSettings ) {
-    
-    // TODO: all of this...
-    
-    const newMock = new $.Deferred()
+export function processJsonpMock(requestSettings, mockHandler, origSettings) {
+    appendCallbackParameter(requestSettings)
 
-    return newMock
+    requestSettings.dataType = 'json'
+
+    if (CALLBACK_REGEX.test(requestSettings.url) ||
+        (requestSettings.data && CALLBACK_REGEX.test(requestSettings.data))
+    ) {
+        console.log('creating jsonp callback')
+        createCallback(requestSettings, mockHandler, origSettings, triggerSuccess, triggerComplete)
+
+        requestSettings.dataType = 'script'
+        
+        if (requestSettings.method.toUpperCase() === 'GET' && isRemoteRequest(requestSettings.url)) {
+            const result = executeJsonpRequest(requestSettings, mockHandler, origSettings)
+            return result || true
+        }
+    }
+    console.log('returning null from jsonp mock handler', requestSettings.url)
+    return null
+}
+
+
+/**
+ * Append the required callback parameter to the request URL or data
+ * @param {JQueryAjaxSettings} requestSettings - Request settings to modify
+ */
+function appendCallbackParameter(requestSettings) {
+    const callbackParam = requestSettings.jsonp || 'callback'
+    
+    if (requestSettings.method.toUpperCase() === 'GET') {
+        if (!CALLBACK_REGEX.test(requestSettings.url)) {
+            const separator = (/\?/.test(requestSettings.url)) ? '&' : '?'
+            requestSettings.url += `${separator}${callbackParam}=?`
+        }
+    } else if (!requestSettings.data || !CALLBACK_REGEX.test(requestSettings.data)) {
+        const prefix = (requestSettings.data) ? `${requestSettings.data}&` : ''
+        requestSettings.data = `${prefix}${callbackParam}=?`
+    }
+}
+
+/**
+ * Create and register a JSONP callback function
+ * @param {JQueryAjaxSettings} requestSettings - Request settings to modify
+ * @param {MockHandler} mockHandler - Mock handler configuration
+ * @param {JQueryAjaxSettings} origSettings - Original request settings
+ * @param {Function} onSuccess - Success callback
+ * @param {Function} onComplete - Complete callback
+ * @returns {void}
+ */
+function createCallback(requestSettings, mockHandler, origSettings, onSuccess, onComplete) {
+    const callbackContext = origSettings?.context || requestSettings
+    let callbackName = `jsonp${jsonpCallbackCounter++}`
+    if (typeof requestSettings.jsonpCallback === 'string') {
+        callbackName = requestSettings.jsonpCallback
+    }                        
+
+    if (requestSettings.data) {
+        requestSettings.data = String(requestSettings.data).replace(CALLBACK_REGEX, `=${callbackName}$1`)
+    }
+    requestSettings.url = requestSettings.url.replace(CALLBACK_REGEX, `=${callbackName}$1`)
+
+    
+    window[callbackName] = window[callbackName] || function() {
+        onSuccess(requestSettings, callbackContext, mockHandler)
+        onComplete(requestSettings, callbackContext)
+        
+        window[callbackName] = undefined
+        try {
+            delete window[callbackName]
+        } catch(e) { /* Ignore errors, this may already be gone */ }
+    }
+    
+    requestSettings.jsonpCallback = callbackName
+}
+
+/**
+ * Check if the request is a remote JSONP request
+ * @param {String} url - Request URL
+ * @returns {Boolean} True if remote JSONP request
+ */
+function isRemoteRequest(url) {
+    const parts = URL_PROTOCOL_REGEX.exec(url)
+    return !!(
+        parts && 
+        ((parts[1] && parts[1] !== window.location.protocol) || parts[2] !== window.location.host)
+    )
+}
+
+/**
+ * Execute a JSONP request with the mock handler
+ * @param {JQueryAjaxSettings} requestSettings - Request settings
+ * @param {MockHandler} mockHandler - Mock handler configuration
+ * @param {JQueryAjaxSettings} origSettings - Original request settings
+ * @returns {Object|null} jQuery Deferred object or null
+ */
+function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
+    const callbackContext = origSettings?.context || requestSettings
+    const deferred = $.Deferred ? new $.Deferred() : null
+
+    if (typeof mockHandler.response === 'function') {
+        mockHandler.response(origSettings)
+
+    } else if (typeof mockHandler.responseText === 'object') {
+        $.globalEval(`(${JSON.stringify(mockHandler.responseText)})`)
+
+    } else if (mockHandler.proxy) {
+        realAjaxCall({
+            global: false,
+            url: mockHandler.proxy,
+            type: mockHandler.proxyType,
+            data: mockHandler.data,
+            dataType: requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
+            complete: function(xhr) {
+                $.globalEval(`(${xhr.responseText})`)
+                completeJsonpCall(requestSettings, mockHandler, callbackContext, deferred)
+            }
+        })
+        return deferred
+
+    } else {
+        const responseValue = (typeof mockHandler.responseText === 'string')
+            ? `"${mockHandler.responseText}"`
+            : mockHandler.responseText
+        $.globalEval(`(${responseValue})`)
+    }
+
+    completeJsonpCall(requestSettings, mockHandler, callbackContext, deferred)
+    return deferred
+}
+
+/**
+ * Complete a JSONP call after the response is ready
+ * @param {JQueryAjaxSettings} requestSettings - Request settings
+ * @param {MockHandler} mockHandler - Mock handler configuration
+ * @param {Object} callbackContext - Context for callbacks
+ * @param {Object|null} deferred - jQuery Deferred object (if available)
+ * @returns {void}
+ */
+function completeJsonpCall(requestSettings, mockHandler, callbackContext, deferred) {
+    const delay = determineResponseTime(mockHandler.responseTime)
+    
+    setTimeout(() => {
+        triggerSuccess(requestSettings, callbackContext, mockHandler)
+        triggerComplete(requestSettings, callbackContext)
+
+        if (deferred) {
+            let json = null
+            try {
+                json = JSON.parse(mockHandler.responseText)
+            } catch (err) {  /* we're okay if this fails, just send back the raw responseText */}
+            
+            deferred.resolveWith(callbackContext, [json || mockHandler.responseText])
+        }
+    }, delay)
+}
+
+/**
+ * Trigger success callbacks for JSONP request
+ * @param {JQueryAjaxSettings} requestSettings - Request settings
+ * @param {Object} callbackContext - Context for callbacks
+ * @param {MockHandler} mockHandler - Mock handler configuration
+ * @returns {void}
+ */
+function triggerSuccess(requestSettings, callbackContext, mockHandler) {
+    if (typeof requestSettings.success === 'function') {
+        requestSettings.success.call(callbackContext, mockHandler.responseText || '', 'success', {})
+    }
+
+    if (requestSettings.global) {
+        const eventTarget = (requestSettings.context) ? $(requestSettings.context) : $.event
+        eventTarget.trigger('ajaxSuccess', [{}, requestSettings])
+    }
+}
+
+/**
+ * Trigger complete callbacks for JSONP request
+ * @param {JQueryAjaxSettings} requestSettings - Request settings
+ * @param {Object} callbackContext - Context for callbacks
+ * @returns {void}
+ */
+function triggerComplete(requestSettings, callbackContext) {
+    if (typeof requestSettings.complete === 'function') {
+        requestSettings.complete.call(callbackContext, { statusText: 'success', status: 200 }, 'success')
+    }
+    
+    if (requestSettings.global) {
+        const eventTarget = requestSettings.context ? $(requestSettings.context) : $.event
+        eventTarget.trigger('ajaxComplete', [{}, requestSettings])
+    }
+
+    // Handle the global AJAX counter
+    if (requestSettings.global && $.active) {
+        $.active--
+        if ($.active === 0) {
+            $.event.trigger('ajaxStop')
+        }
+    }
 }

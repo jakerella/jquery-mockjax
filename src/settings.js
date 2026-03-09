@@ -33,9 +33,137 @@ const DEFAULTS = {
 }
 
 /**
- * 
+ * Get all current global Mockjax settings
  * @returns {MockjaxSettings}
  */
 export function getSettings() {
     return $.mockjaxSettings || {...DEFAULTS}
+}
+
+/**
+ * Reset global Mockjax settings to their defaults
+ * @returns {MockjaxSettings}
+ */
+export function resetSettings() {
+    $.mockjaxSettings = {...DEFAULTS}
+    return $.mockjaxSettings
+}
+
+/**
+ * Validates that all global Mockjax settings are valid types
+ * @returns {void}
+ * @throws {TypeError}
+ */
+export function validateSettings() {
+    const settings = getSettings()
+
+    const messages = []
+
+    if (!settings.logger || typeof settings.logger !== 'object') {
+        messages.push('The logger must be an object')
+    }
+    const unavailableLogMethods = settings.logLevelMethods.filter(m => typeof settings.logger[m] !== 'function')
+    if (unavailableLogMethods.length) {
+        messages.push('All logLevelMethods must be functions on the logger object')
+    }
+
+    if (!Number.isInteger(settings.logging) || settings.logging < 0 || settings.logging > settings.logLevelMethods.length - 1) {
+        messages.push(`The logging level setting must be between 0 and the length of logLevelMethods`)
+    }
+
+    if (!Array.isArray(settings.logLevelMethods) ||
+        settings.logLevelMethods.filter(m => typeof settings.logger[m] !== 'function').length
+    ) {
+        messages.push('The logLevelMethods must be an array of method names available on the logger, in log level order')
+    }
+
+    if (settings.namespace !== null && typeof settings.namespace !== 'string') {
+        messages.push('The namespace setting must be a string or null')
+    }
+
+    const statusErrMessage = 'The status setting must be a number between 100 and 599 or an array of such numbers'
+    if (Array.isArray(settings.status)) {
+        const invalidStatuses = settings.status.filter(s => {
+            return !Number.isInteger(s) || s < 100 || s > 599
+        })
+        if (invalidStatuses.length) {
+            messages.push(statusErrMessage)
+        }
+    } else if (!Number.isInteger(settings.status) || settings.status < 100 || settings.status > 599) {
+        messages.push(statusErrMessage)
+    }
+
+    if (typeof settings.statusText !== 'string') {
+        messages.push('The statusText setting must be a string')
+    }
+
+    if (!Number.isInteger(settings.responseTime) || settings.responseTime < 0) {
+        messages.push('The responseTime setting must be a non-negative integer')
+    }
+
+    if (typeof settings.isTimeout !== 'boolean') {
+        messages.push('The isTimeout setting must be a boolean')
+    }
+
+    if (typeof settings.throwUnmocked !== 'boolean') {
+        messages.push('The throwUnmocked setting must be a boolean')
+    }
+
+    if (!Number.isInteger(settings.retainAjaxCalls)) {
+        messages.push('The retainAjaxCalls setting must be an integer (-1 to retain all calls)')
+    }
+
+    if (typeof settings.contentType !== 'string' || !/^[a-z0-9\.\-+]+\/[a-z0-9\.\-+]+/i.test(settings.contentType)) {
+        messages.push('The contentType setting must be a valid minetype string')
+    }
+
+    if (settings.response !== null && typeof settings.response !== 'function') {
+        messages.push('The response setting must be a function or null')
+    }
+
+    if (settings.responseText === null || typeof settings.responseText === 'undefined') {
+        messages.push('The responseText setting must be set')
+    }
+
+    if (settings.responseXML !== null && typeof settings.responseXML !== 'string') {
+        messages.push('The responseXML setting must be a string or null')
+    }
+    
+    if (settings.proxy !== null && typeof settings.proxy !== 'string') {
+        messages.push('The proxy setting must be a string or null')
+    }
+    
+    if (settings.proxyType !== null && typeof settings.proxyType !== 'string') {
+        messages.push('The proxyType setting must be a string or null')
+    }
+    
+    if (settings.lastModified !== null && typeof settings.lastModified !== 'string') {
+        messages.push('The lastModified setting must be a date string or null')
+    }
+
+    if (settings.etag !== null && typeof settings.etag !== 'string') {
+        messages.push('The etag setting must be a string or null')
+    }
+
+    const headersErrMessage = 'If no null, the responseHeaders must be a simple object of string keys and values'
+    if (typeof settings.responseHeaders === 'object' && settings.responseHeaders !== null) {
+        const badHeaders = Object.keys(settings.responseHeaders).filter(k => (typeof k !== 'string' || typeof settings.responseHeaders[k] !== 'string'))
+        if (badHeaders.length) {
+            messages.push(headersErrMessage)
+        }
+    } else if (typeof settings.responseHeaders !== null) {
+        messages.push(headersErrMessage)
+    }
+    
+    if (typeof settings.matchInRegistrationOrder !== 'boolean') {
+        messages.push('The matchInRegistrationOrder setting must be a boolean')
+    }
+
+    if (typeof settings.followRedirects !== 'boolean') {
+        messages.push('The followRedirects setting must be a boolean')
+    }
+
+    if (messages.length) {
+        throw new TypeError(messages.join('\n'))
+    }
 }
