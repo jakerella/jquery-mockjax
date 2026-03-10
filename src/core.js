@@ -10,6 +10,7 @@
  * @typedef {import('./typedefs.js').MockXHR} MockXHR
  */
 
+// import { getLogger } from './logger.js'
 import { getSettings, validateSettings } from './settings.js'
 import { generateUUID, deepClone } from './utils.js'
 import { findMatchingHandler } from './matching.js'
@@ -22,6 +23,7 @@ const _ajax = $.ajax
 $.extend({
 	ajax: mockAjaxCall
 })
+// getLogger().debug('Mockjax startup')
 
 
 /**

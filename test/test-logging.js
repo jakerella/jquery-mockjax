@@ -1,143 +1,190 @@
 (function(qunit, $, sinon) {
 	'use strict';
 
-	var t = qunit.test;
-	var winLogger;
-
-	// Note: currently sinon cannot stub object methods in this manner in IE
-	// See GH issue: https://github.com/sinonjs/sinon/issues/1009
-	// As such, we'll be skipping the logger tests for IE currently
-	if (/MSIE/.test(navigator.userAgent)) {
-		qunit.module('Logging');
-
-		t('UNABLE TO TEST LOGGER IN IE', function(assert) {
-			assert.ok(true, 'Cannot stub console functions with Sinon, see https://github.com/sinonjs/sinon/issues/1009');
-		});
-		return;
-	}
+	var t = qunit.test
+	var windowConsole = {}
 
 	/* -------------------- */
 	qunit.module( 'Logging', {
 	/* -------------------- */
 
 		beforeEach: function() {
-			winLogger = {
-				debug: sinon.stub(console, 'debug'),
-				log: sinon.stub(console, 'log'),
-				info: sinon.stub(console, 'info'),
-				warn: sinon.stub(console, 'warn'),
-				error: sinon.stub(console, 'error')
-			};
-			$.mockjaxSettings.logger = winLogger;
-			$.mockjaxSettings.logging = 2;
+			windowConsole.debug = sinon.stub(window.console, 'debug')
+			windowConsole.log = sinon.stub(window.console, 'log')
+			windowConsole.info = sinon.stub(window.console, 'info')
+			windowConsole.warn = sinon.stub(window.console, 'warn')
+			windowConsole.error = sinon.stub(window.console, 'error')
 		},
 		afterEach: function() {
-			winLogger.debug.restore();
-			winLogger.log.restore();
-			winLogger.info.restore();
-			winLogger.warn.restore();
-			winLogger.error.restore();
+			window.console.debug.restore()
+			window.console.log.restore()
+			window.console.info.restore()
+			window.console.warn.restore()
+			window.console.error.restore()
 		}
 	});
 
-	t('Default log handler (window.console)', function(assert) {
-		var done = assert.async();
+	t('Default log handler is window.console and logs info message with default level', function(assert) {
+		assert.equal($.mockjaxSettings.logLevel, 2, 'Default log level is correct')
 
-		$.mockjax({
-			 url: '*'
-		});
-		$.ajax({
-			url: '/console',
-			type: 'GET',
-			complete: function() {
-				assert.ok(winLogger.info.calledWith('MOCK GET: /console'), 'Default log handler was not called');
-				done();
-			}
-		});
+		const logger = $.mockjax.getLogger()
+
+		logger.debug('foobar debug')
+		logger.log('foobar log')
+		logger.info('foobar info')
+		logger.warn('foobar warn')
+		logger.error('foobar error')
+
+		assert.equal(windowConsole.debug.callCount, 0, 'Log handler should NOT call debug')
+		assert.equal(windowConsole.log.callCount, 0, 'Log handler should NOT call log')
+		assert.ok(windowConsole.info.calledWith('foobar info'), 'Log handler should call info')
+		assert.ok(windowConsole.warn.calledWith('foobar warn'), 'Log handler should call warn')
+		assert.ok(windowConsole.error.calledWith('foobar error'), 'Log handler should call error')
 	});
 
-	t('Logging with high level', function(assert) {
-		$.mockjaxSettings.logging = 4;
-		$.mockjax._logger.debug({}, 'foobar');
-		$.mockjax._logger.info({}, 'foobar');
-		$.mockjax._logger.error({}, 'foobar');
-		assert.ok(winLogger.debug.calledWith('foobar'), 'Log handler 4 was not called for debug');
-		assert.ok(winLogger.info.calledWith('foobar'), 'Log handler 4 was not called for info');
-		assert.ok(winLogger.error.calledWith('foobar'), 'Log handler 4 was not called for error');
+	t('Logging with higher level', function(assert) {
+		$.mockjaxSettings.logLevel = 3
+
+		const logger = $.mockjax.getLogger()
+
+		logger.debug('foobar debug')
+		logger.log('foobar log')
+		logger.info('foobar info')
+		logger.warn('foobar warn')
+		logger.error('foobar error')
+
+		assert.equal(windowConsole.debug.callCount, 0, 'Log handler should NOT call debug')
+		assert.ok(windowConsole.log.calledWith('foobar log'), 'Log handler should call log')
+		assert.ok(windowConsole.info.calledWith('foobar info'), 'Log handler should call info')
+		assert.ok(windowConsole.warn.calledWith('foobar warn'), 'Log handler should call warn')
+		assert.ok(windowConsole.error.calledWith('foobar error'), 'Log handler should call error')
 	});
 
 	t('Logging with low level', function(assert) {
-		$.mockjaxSettings.logging = 0;
-		$.mockjax._logger.debug({}, 'foobar');
-		$.mockjax._logger.debug({ logging: 4 }, 'foobar');
-		$.mockjax._logger.info({}, 'foobar');
-		$.mockjax._logger.error({}, 'foobar');
-		assert.strictEqual(winLogger.debug.callCount, 1, 'Log handler 0 was called too much for debug');
-		assert.strictEqual(winLogger.info.callCount, 0, 'Log handler 0 was called for info');
-		assert.ok(winLogger.error.calledWith('foobar'), 'Log handler 4 was not called for error');
+		$.mockjaxSettings.logLevel = 1
+
+		const logger = $.mockjax.getLogger()
+
+		logger.debug('foobar debug')
+		logger.log('foobar log')
+		logger.info('foobar info')
+		logger.warn('foobar warn')
+		logger.error('foobar error')
+		assert.equal(windowConsole.debug.callCount, 0, 'Log handler should NOT call debug')
+		assert.equal(windowConsole.log.callCount, 0, 'Log handler should NOT call log')
+		assert.equal(windowConsole.info.callCount, 0, 'Log handler should NOT call info')
+		assert.ok(windowConsole.warn.calledWith('foobar warn'), 'Log handler should call warn')
+		assert.ok(windowConsole.error.calledWith('foobar error'), 'Log handler should call error')
 	});
 
-	t('Custom (deprecated) log handler', function(assert) {
-		var done = assert.async();
+	t('Use deprecated logging level setting', function(assert) {
+		$.mockjaxSettings.logLevel = null
+		$.mockjaxSettings.logging = 3
 
-		var msg = null;
-		$.mockjaxSettings.log = function customLogger( mockHandler, requestSettings) {
-			msg = mockHandler.url + ' - ' + requestSettings.type.toUpperCase() + ': ' + requestSettings.url;
-		};
-		$.mockjax({
-			 url: '*'
-		});
-		$.ajax({
-			url: '/console',
-			type: 'GET',
-			complete: function() {
-				assert.equal(msg, '* - GET: /console', 'Custom log handler was not called');
-				done();
-			}
-		});
+		const logger = $.mockjax.getLogger()
+
+		logger.debug('foobar debug')
+		logger.log('foobar log')
+		logger.info('foobar info')
+		logger.warn('foobar warn')
+		logger.error('foobar error')
+
+		assert.equal(windowConsole.debug.callCount, 0, 'Log handler should NOT call debug')
+		assert.ok(windowConsole.log.calledWith('foobar log'), 'Log handler should call log')
+		assert.ok(windowConsole.info.calledWith('foobar info'), 'Log handler should call info')
+		assert.ok(windowConsole.warn.calledWith('foobar warn'), 'Log handler should call warn')
+		assert.ok(windowConsole.error.calledWith('foobar error'), 'Log handler should call error')
 	});
 
-	t('Disable logging via `logging: false`', function(assert) {
-		var done = assert.async();
+	t('Disable logging via logLevel of -1', function(assert) {
+		$.mockjaxSettings.logLevel = -1;
 
+		const logger = $.mockjax.getLogger()
+
+		logger.debug('foobar debug')
+		logger.log('foobar log')
+		logger.info('foobar info')
+		logger.warn('foobar warn')
+		logger.error('foobar error')
+		assert.equal(windowConsole.debug.callCount, 0, 'Log handler should NOT call debug')
+		assert.equal(windowConsole.log.callCount, 0, 'Log handler should NOT call log')
+		assert.equal(windowConsole.info.callCount, 0, 'Log handler should NOT call info')
+		assert.equal(windowConsole.warn.callCount, 0, 'Log handler should NOT call warn')
+		assert.equal(windowConsole.error.callCount, 0, 'Log handler should NOT call error')
+	});
+
+	t('Logging with overly high level works', function(assert) {
+		$.mockjaxSettings.logLevel = 99
+
+		const logger = $.mockjax.getLogger()
+
+		logger.debug('foobar debug')
+		logger.log('foobar log')
+		logger.info('foobar info')
+		logger.warn('foobar warn')
+		logger.error('foobar error')
+
+		assert.ok(windowConsole.debug.calledWith('foobar debug'), 'Log handler should call debug')
+		assert.ok(windowConsole.log.calledWith('foobar log'), 'Log handler should call log')
+		assert.ok(windowConsole.info.calledWith('foobar info'), 'Log handler should call info')
+		assert.ok(windowConsole.warn.calledWith('foobar warn'), 'Log handler should call warn')
+		assert.ok(windowConsole.error.calledWith('foobar error'), 'Log handler should call error')
+	});
+
+	t('Disable logging via deprecated logging = false', function(assert) {
+		$.mockjaxSettings.logLevel = null
 		$.mockjaxSettings.logging = false;
 
-		$.mockjax({
-			url: '*'
-		});
-		$.ajax({
-			url: '/console',
-			complete: function() {
-				assert.strictEqual(winLogger.info.callCount, 0, 'Log called when disabled');
+		const logger = $.mockjax.getLogger()
 
-				$.mockjax._logger.warn({}, 'foo');
-				assert.strictEqual(winLogger.warn.callCount, 0, 'Log called when disabled');
-
-				done();
-			}
-		});
+		logger.debug('foobar debug')
+		logger.log('foobar log')
+		logger.info('foobar info')
+		logger.warn('foobar warn')
+		logger.error('foobar error')
+		assert.equal(windowConsole.debug.callCount, 0, 'Log handler should NOT call debug')
+		assert.equal(windowConsole.log.callCount, 0, 'Log handler should NOT call log')
+		assert.equal(windowConsole.info.callCount, 0, 'Log handler should NOT call info')
+		assert.equal(windowConsole.warn.callCount, 0, 'Log handler should NOT call warn')
+		assert.equal(windowConsole.error.callCount, 0, 'Log handler should NOT call error')
 	});
 
-	t('Disable logging per mock via `logging: false`', function(assert) {
-		var done = assert.async();
+	t('Logging with custom logger implementation', function(assert) {
+		$.mockjaxSettings.logger = {
+			debug: sinon.stub(),
+			log: sinon.stub(),
+			info: sinon.stub(),
+			warn: sinon.stub(),
+			error: sinon.stub()
+		}
 
-		$.mockjax({
-			url: '*',
-			logging: false
-		});
+		$.mockjax.validateSettings()
 
-		$.ajax({
-			url: '/console',
-			complete: function() {
-				assert.strictEqual(winLogger.info.callCount, 0, 'Log called when disabled');
+		const logger = $.mockjax.getLogger()
 
-				$.mockjax._logger.warn({}, 'foo');
-				assert.strictEqual(winLogger.warn.callCount, 1, 'General log not called when disabled per mock');
+		logger.debug('foobar debug')
+		logger.log('foobar log')
+		logger.info('foobar info')
+		logger.warn('foobar warn')
+		logger.error('foobar error')
 
-				done();
-			}
-		});
+		assert.ok($.mockjaxSettings.logger.debug.calledWith('foobar debug'), 'Log handler should call debug')
+		assert.ok($.mockjaxSettings.logger.log.calledWith('foobar log'), 'Log handler should call log')
+		assert.ok($.mockjaxSettings.logger.info.calledWith('foobar info'), 'Log handler should call info')
+		assert.ok($.mockjaxSettings.logger.warn.calledWith('foobar warn'), 'Log handler should call warn')
+		assert.ok($.mockjaxSettings.logger.error.calledWith('foobar error'), 'Log handler should call error')
 	});
 
+	t('Bad custom logger fails validation', function(assert) {
+		$.mockjaxSettings.logger = {
+			info: sinon.stub(),
+			warn: sinon.stub(),
+			error: sinon.stub()
+		}
+
+		assert.throws(() => {
+			$.mockjax.validateSettings()
+		}, TypeError, 'Custom logger without all methods fails validation')
+	});
 
 })(window.QUnit, window.jQuery, window.sinon);

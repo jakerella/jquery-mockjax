@@ -191,9 +191,6 @@ $.mockjax({
 });
 ```
 
-_If you plan on mocking xml responses, you may also have to include
-`jquery.xmldom.js`, which can also be found in the `lib` folder._
-
 ### Mockjax in Depth ###
 
 What Mockjax does at this point is replace the `$.ajax()` method with a
@@ -221,14 +218,7 @@ flexibility in Mockjax and creating responses.
 
 jQuery is able to handle and parse `Text`, `HTML`, `JSON`, `JSONP`,
 `Script` and `XML` data formats and Mockjax is able to mock any of those
-formats. Two things to note: depending upon how you mock out `JSON` and
-`JSONP` you may need to include [json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js)
-for the `JSON.stringify()` method (older browsers only, typically). Additionally
-if you mock XML inline, you'll need to include the [`xmlDOM`](http://github.com/jakerella/jquery-xmldom)
-plugin that transforms a string of XML into a DOM object. However, if you use
-the proxy approach outlined below then there should be no need to include either
-the JSON or XMLDOM plugins in any case.
-
+formats.
 
 ## Detailed Request and Response Definition ##
 
@@ -370,7 +360,6 @@ A simple JSON response would be:
 ```javascript
 $.mockjax({
   url: "/restful/api",
-  // You may need to include the [json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js) library for older browsers
   responseText: { "foo": "bar" }
 });
 ```
@@ -384,7 +373,6 @@ A simple XML response would be:
 ```javascript
 $.mockjax({
   url: "/restful/api",
-  // Need to include the xmlDOM plugin to have this translated into a DOM object
   responseXML: "<document><quote>Hello world!</quote></document>"
 });
 ```
@@ -665,8 +653,6 @@ $.mockjax({
   responseXML: "<document><say>Hello world XML</say></document>"
 });
 ```
-
-(Don't forget that it's likely you'll need the [`xmlDOM`](http://github.com/jakerella/jquery-xmldom) library as well!)
 
 And `html`:
 

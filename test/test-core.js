@@ -12,8 +12,7 @@
 		assert.throws(
 			() => {
 				$.mockjaxSettings.logger = 'foobar'
-				$.mockjaxSettings.logging = 'foo',
-				$.mockjaxSettings.logLevelMethods = ['error'],
+				$.mockjaxSettings.logLevel = 'foo',
 				$.mockjaxSettings.namespace = 123,
 				$.mockjaxSettings.status = {},
 				$.mockjaxSettings.statusText = () => {},
@@ -38,7 +37,7 @@
 			(err) => {
 				const errors = err.message.split('\n')
 				assert.ok(err instanceof TypeError, 'Error object should be a TypeError')
-				assert.equal(errors.length, 21, 'There should be 21 line-delimited errors')
+				assert.equal(errors.length, 18, 'There should be 21 line-delimited errors')
 				assert.ok(/logger/.test(errors[0]), 'The first error should be about the logger')
 				assert.ok(/followRedirects/.test(errors[errors.length-1]), 'The last error should be about the followRedirects')
 				return true

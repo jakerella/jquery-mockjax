@@ -8,9 +8,9 @@
  */
 
 const DEFAULTS = {
-    logger: typeof window !== 'undefined' ? window.console : console,
-    logging: 2,
-    logLevelMethods: ['error', 'warn', 'info', 'log', 'debug'],
+    logger: null,
+    logging: null,  // Deprecated
+    logLevel: 2,
     namespace: null,
     status: 200,
     statusText: 'OK',
@@ -26,7 +26,7 @@ const DEFAULTS = {
     proxyType: 'GET',
     lastModified: null,
     etag: 'IJF@H#@923uf8023hFO@I#H#',
-    headers: null,
+    headers: null,  // Deprecated
     responseHeaders: {},
     matchInRegistrationOrder: true,
     followRedirects: true
@@ -59,22 +59,15 @@ export function validateSettings() {
 
     const messages = []
 
-    if (!settings.logger || typeof settings.logger !== 'object') {
-        messages.push('The logger must be an object')
-    }
-    const unavailableLogMethods = settings.logLevelMethods.filter(m => typeof settings.logger[m] !== 'function')
-    if (unavailableLogMethods.length) {
-        messages.push('All logLevelMethods must be functions on the logger object')
-    }
-
-    if (!Number.isInteger(settings.logging) || settings.logging < 0 || settings.logging > settings.logLevelMethods.length - 1) {
-        messages.push(`The logging level setting must be between 0 and the length of logLevelMethods`)
-    }
-
-    if (!Array.isArray(settings.logLevelMethods) ||
-        settings.logLevelMethods.filter(m => typeof settings.logger[m] !== 'function').length
+    if (settings.logger &&
+        (typeof settings.logger !== 'object' ||
+        ['error', 'warn', 'info', 'log', 'debug'].filter(m => typeof settings.logger[m] !== 'function').length)
     ) {
-        messages.push('The logLevelMethods must be an array of method names available on the logger, in log level order')
+        messages.push('The logger must be an object with standard window.console logging methods')
+    }
+    
+    if (!Number.isInteger(settings.logLevel) && !Number.isInteger(settings.logging)) {
+        messages.push(`The logLevel setting must be an integer`)
     }
 
     if (settings.namespace !== null && typeof settings.namespace !== 'string') {

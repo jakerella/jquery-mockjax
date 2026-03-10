@@ -8,6 +8,7 @@ import {
     resetSettings,
     validateSettings
 } from './settings.js'
+import { getLogger } from './logger.js'
 import {
     registerMockjaxHandler,
     clear,
@@ -37,7 +38,8 @@ export {
     clearRetainedAjaxCalls,
     getSettings,
     resetSettings,
-    validateSettings
+    validateSettings,
+    getLogger
 }
 
 // Default export
@@ -55,11 +57,13 @@ export default {
     clearRetainedAjaxCalls,
     getSettings,
     resetSettings,
-    validateSettings
+    validateSettings,
+    getLogger
 }
 
 $.mockjaxSettings = getSettings()
 $.mockjax = registerMockjaxHandler
+$.mockjax.getLogger =getLogger
 $.mockjax.resetSettings = resetSettings
 $.mockjax.validateSettings = validateSettings
 $.mockjax.clear = clear

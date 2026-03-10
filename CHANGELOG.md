@@ -4,34 +4,44 @@
 OPEN QUESTIONS:
     * dataType "script" now uses < script > tags... not sure we can mock that any longer
 
-    * Migration to modern JavaScript syntax
-    * Migration to modern ES Modules and build system
+    * Migrated all source code to modern JavaScript syntax
+    * Migrated to modern ES Modules and build system
     * All mock handlers now have a unique id (UUID)
+    * `retainAjaxCalls` is now an integer that represents the number of ajax calls to retain (defaults to -1, meaning retain all); using a boolean is deprecated
+    * Added `followRedirects` which defaults to `true`
     * `statusText` can now be an array when `status` is an array to randomly select response properties
     * Added proper validation for all mock handler properties with better error messages
+    * Added `$.mockjax.resetSettings()` method to reset global settings to defaults
+    * Added `$.mockjax.validateSettings()` method to validate global Mockjax settings (throws `TypeError` if not valid)
+    * Added `responseHeaders` mock handler option and global setting; replaces the old `headers` option for clearer meaning
     * Improved documentation of previously undocumented features or nuances
-    * Various performance improvements
+
     * **Deprecated settings and methods:**
-        * `headers` property on mock handlers (use responseHeaders)
-        * `$.mockjax.handler(id)` (use handlers([id, ...]))
-        * `$.mockjax.clear(idOrUrl)` (use the appropriate `clearByXx()` method)
+        * `headers` property on mock handlers and in global settings (use `responseHeaders`)
+        * `$.mockjax.handler(id)` (use `handlers([id, ...])`)
+        * `$.mockjax.clear()` (use the appropriate `clearByXx()` methods)
         * The `type` matching property on mock handlers (use `method`)
+        * Using boolean for `retainAjaxCalls` (use integer value, -1 replicates old `true` and `0` replicates old `false`)
+        * The `logging` setting was renamed `logLevel`, but may still be used for now
+
     * **Breaking Changes:**
         * Dropped support for jQuery < 1.5
-        * Passing no matching properties when registering a new handler will result in TypeError
-        * $.mockjaxSettings.log removed (was deprecated, use logger instead)
-        * UUIDs for handler IDs, if you were using the incrementing integer in some way that could be broken
-        * The default response headers no longer include etag or content-type
-        * Mock data matching got more robust, might break some mock handler matches
-        * RegExp for url glob matching ("/api/*") got a bit more specific in what constitutes a valid URL character
-        * handlers() now deepClones each handler, which could have a performance impact if used to retrieve many handlers
+        * Passing no matching properties when registering a new handler will result in `TypeError`.
+        * $.mockjaxSettings.log was removed (it was deprecated, use `logger` instead).
+        * We now use UUIDs for handler IDs. If you were using the old integer IDs in a way that relied on them being numeric and incrementing, your code may break.
+        * The default response headers no longer include etag or content-type unless necessary.
+        * Mock data matching got more robust, might break some mock handler matches.
+        * RegExp for url glob matching ("/api/*") got a bit more specific in what constitutes a valid URL character.
+        * The `clear` and new `clearByXx()` methods now only clear out mocked ajax calls that match the cleared handlers (versus all mocked and unmocked calls as before). This could cause problems if you previously expected all retained mocked ajax calls to be removed.
+        * The default logger implementation now emulates console logging methods more closely. Additionally, mock handlers no longer have their own `logging` option for the log level (was previously undocumented).
+        * The `logLevelMethods` global setting was removed. All custom logger implementations must have standard window.console logging methods (error, warn, info, log, debug).
+        * The `handlers()` method now deep clones each handler, which could have a performance impact if used to retrieve many handlers
         * The mock handler no longer tracks the cache, timeout, or global properties from the original ajax settings object
-        * when nusing a proxy, mockjax no longer uses the proxy request's status code for the mock response status if it was not set on the mock handler (will use the default: 200)
-        * A mock responseXML that is invalid will now throw a TypeError in addition to triggering the jQuery "xmlParseError" error on $(document)
-        * The timing of the toggle for the "fired" switch on a mock handler changed to reflect mocking of redirects, which may affect what `unfiredHandlers()` returns in some cases
-        * The `clearByXx()` methods now only clear out mocked ajax calls that match the cleared handlers. This could cause problems if you previously expected all retained mocked ajax calls to be removed.
-        * Checks for Regular Expressions in matching criteria now use `instanceof RegExp` instead of checking for a `test` method. This may cause some mocks not to match.
-        * The $.mockjaxSettings are now validated when the first mock handler is registered, throwing a TypeError if any of the settings are invalid
+        * When using a proxy, mockjax no longer uses the proxy request's status code for the mock response status if it was not set on the mock handler (will use the default: 200).
+        * A mock responseXML that is invalid will now throw a `TypeError` in addition to triggering the jQuery "xmlParseError" error on $(document).
+        * The timing of the toggle for the "fired" switch on a mock handler changed to reflect mocking of redirects, which may affect what `unfiredHandlers()` returns in some cases.
+        * Checks for Regular Expressions in matching criteria now use `instanceof RegExp` instead of checking for a `test` method. This may cause some mocks not to match if you were abusing this fact.
+        * The $.mockjaxSettings are now validated when the first mock handler is registered, throwing a `TypeError` if any of the settings are invalid
         * RegExp URL matching with namespaces changed to ensure group matching with urlParams, which may affect code that was working around this issue
         * In Jquery 4.0.0 the team introduced a change that uses script tags in more situations, specifically with the `dataType` "script" and `dataType` "jsonp". Mockjax will add an arbitrary header ("X-Mockjax: true") for these types of requests to bypass the issue. See: https://jquery.com/upgrade-guide/4.0/#breaking-change-script-tags-now-used-for-all-async-requests
 
