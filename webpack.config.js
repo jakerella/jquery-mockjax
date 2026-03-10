@@ -21,8 +21,8 @@ const banner = `/*!
 export default () => {
     return {
         entry: {
-            'mockjax': './src/index.js',
-            'mockjax.min': './src/index.js',
+            'jquery.mockjax': './src/index.js',
+            'jquery.mockjax.min': './src/index.js',
         },
         // entry: './src/index.js',
         output: {
@@ -31,18 +31,12 @@ export default () => {
             library: {
                 name: 'mockjax',
                 type: 'umd',
-                umdNamedDefine: true,
                 export: 'default'
             },
             globalObject: 'this'
         },
         externals: {
-            jquery: {
-                commonjs: 'jquery',
-                commonjs2: 'jquery',
-                amd: 'jquery',
-                root: 'jQuery'
-            }
+            jquery: 'jQuery'
         },
         optimization: {
             minimize: true,

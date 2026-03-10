@@ -31,7 +31,7 @@
 
 			$.mockjax({
 				url: '/proxy',
-				proxy: 'proxy-data.json',
+				proxy: 'data-proxy.json',
 				responseTime: 50
 			});
 			

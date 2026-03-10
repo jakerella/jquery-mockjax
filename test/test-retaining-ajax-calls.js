@@ -329,7 +329,6 @@
     $.mockjax.clearById(mockOne)
 
     const retained = $.mockjax.mockedAjaxCalls()
-    console.log(retained)
     assert.equal(retained.length, 1, 'Afterwords there should be one saved ajax call');
     assert.equal(retained[0].url, '/foo/three', 'Correct handler was retained');
   });

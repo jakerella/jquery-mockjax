@@ -1,30 +1,49 @@
 <!DOCTYPE HTML>
 <html>
     <head>
+        <title>MockJax Integration Tests</title>
         <link rel='stylesheet' href='../node_modules/qunit/qunit/qunit.css' type='text/css' media='screen' />
+        <style>
+            #jquery-switcher {
+                padding: 0.5em 0 0.5em 1em;
+                color: #C2CCD1;
+                background-color: #0D3349;
+                font-size: 1.3em;
+                line-height: 1em;
+            }
+            #jquery-switcher a {
+                text-decoration: none;
+                color: inherit;
+            }
+            #jquery-switcher a:hover {
+                color: #fff;
+            }
+        </style>
+        
         <script src='../node_modules/qunit/qunit/qunit.js'></script>
-        <script>if (/HeadlessChrome/.test(window.navigator.userAgent)) { QUnit.config.autostart = false; }</script>
         <script src='../node_modules/sinon/pkg/sinon.js'></script>
+        <script>
+        if (/HeadlessChrome/.test(window.navigator.userAgent)) {
+            QUnit.config.autostart = false;
+        }
+        </script>
 
-        <script src='get-jquery.js'></script>
-        <script src='../dist/mockjax.js'></script>
-        <!-- <script src='../src/jquery.mockjax.js'></script> -->
-        <script src='setup-tests.js'></script>
-        <script src='add-tests.js'></script>
+        <script src='prepare-test-suite.js'></script>
 
-        <title>MockJax Tests - </title>
       </head>
     <body>
-        <h1 id='qunit-header'>
-            Mockjax
-            <a href='?jquery=1.12.4'>jQuery 1.12.4</a>
-            <a href='?jquery=2.2.4'>jQuery 2.2.4</a>
-            <a href='?jquery=3.7.1'>jQuery 3.7.1</a>
-            <a href='?jquery=4.0.0'>jQuery 4.0.0</a>
-            <button class='runall' disabled='disabled'>Run All Versions</button>
-        </h1>
-        <h2 id='qunit-banner'></h2>
-        <h2 id='qunit-userAgent'></h2>
+        <header>
+            <h1 id='qunit-header'>
+                Mockjax v<span id='mockjax-version'></span><br>
+            </h1>
+            <aside id='jquery-switcher'>
+                jQuery Version: 
+                <span id='jquery-versions'></span>
+                <button id='runall' disabled='disabled'>Run All Versions</button>
+            </aside>
+            <h2 id='qunit-banner'></h2>
+            <h2 id='qunit-userAgent'></h2>
+        </header>
         <ol id='qunit-tests'></ol>
     </body>
 </html>

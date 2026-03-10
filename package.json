@@ -24,12 +24,17 @@
   },
   "watch": {
     "build": {
-      "patterns": ["src"],
+      "patterns": [
+        "src"
+      ],
       "extensions": "js",
       "delay": 1500
     },
     "test:unit": {
-      "patterns": ["src", "test"],
+      "patterns": [
+        "src",
+        "test"
+      ],
       "extensions": "js,json,html",
       "delay": 1500
     }
@@ -90,7 +95,6 @@
     "grunt-contrib-watch": "^1.1.0",
     "grunt-mocha-test": "^0.13.3",
     "http-server": "^14.1.1",
-    "jquery": "^4.0.0",
     "jsdom": "^28.1.0",
     "load-grunt-tasks": "^5.1.0",
     "mocha": "^11.7.5",
@@ -105,7 +109,11 @@
     "webpack-cli": "^6.0.1",
     "xmlhttprequest": "^1.8.0"
   },
+  "jqueryVersions": ["1", "2", "3", "4"],
   "peerDependencies": {
-    "jquery": ">= 1.12.4"
+    "jquery1": "npm:jquery@^1.12.4",
+    "jquery2": "npm:jquery@^2.2.4",
+    "jquery3": "npm:jquery@^3.7.1",
+    "jquery4": "npm:jquery@^4.0.0"
   }
 }

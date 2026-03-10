@@ -33,7 +33,6 @@ export function processJsonpMock(requestSettings, mockHandler, origSettings) {
     if (CALLBACK_REGEX.test(requestSettings.url) ||
         (requestSettings.data && CALLBACK_REGEX.test(requestSettings.data))
     ) {
-        console.log('creating jsonp callback')
         createCallback(requestSettings, mockHandler, origSettings, triggerSuccess, triggerComplete)
 
         requestSettings.dataType = 'script'
@@ -43,7 +42,6 @@ export function processJsonpMock(requestSettings, mockHandler, origSettings) {
             return result || true
         }
     }
-    console.log('returning null from jsonp mock handler', requestSettings.url)
     return null
 }
 

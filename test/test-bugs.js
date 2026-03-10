@@ -64,7 +64,7 @@
 		$.mockjax({
 			url: '/response-callback',
 			status: 409,
-			proxy: 'proxy-data.json'
+			proxy: 'data-proxy.json'
 		});
 
 		$.ajax({

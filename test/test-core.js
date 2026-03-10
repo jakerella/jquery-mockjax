@@ -116,8 +116,6 @@
 			url: '/api/resource'
 		});
 
-		console.log('responseText option:', `"${$.mockjaxSettings.responseText}"`)
-
 		$.ajax({
 			url: '/api/resource',
 			error: qunit.noErrorCallbackExpected,
@@ -155,7 +153,7 @@
 	t('Intercept synchronized proxy calls and return synchronously', function(assert) {
 		$.mockjax({
 			url: '/proxy',
-			proxy: 'proxy-data.json'
+			proxy: 'data-proxy.json'
 		});
 
 		$.ajax({
@@ -173,7 +171,7 @@
 		var done = assert.async();
 		$.mockjax({
 			url: '/proxy',
-			proxy: 'proxy-data.json'
+			proxy: 'data-proxy.json'
 		});
 
 		$.ajax({
@@ -190,7 +188,7 @@
 	t('Intercept proxy calls for XML', function(assert) {
 		$.mockjax({
 			url: '/proxy',
-			proxy: 'proxy-data.xml'
+			proxy: 'data-proxy.xml'
 		});
 
 		$.ajax({
@@ -211,7 +209,7 @@
 
 		$.mockjax({
 			url: '/proxy',
-			proxy: 'proxy-data.json'
+			proxy: 'data-proxy.json'
 		});
 
 		$.ajax({
@@ -230,7 +228,7 @@
 
 		$.mockjax({
 			url: '/proxy',
-			proxy: 'proxy-data.json',
+			proxy: 'data-proxy.json',
 			proxyType: 'GET'
 		});
 
@@ -606,7 +604,7 @@
 			var service = settings.url.match(/\/users\/(.+)\/edit$/);
 			if (service) {
 				return {
-					proxy: 'proxy-data.json'
+					proxy: 'data-proxy.json'
 				};
 			} else {
 				return false;
