@@ -23,7 +23,7 @@
   "watch": {
     "build": {
       "patterns": [
-        "src"
+        "src", "webpack.config.js"
       ],
       "extensions": "js",
       "delay": 1500
@@ -83,18 +83,8 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsdoc": "^62.7.1",
     "globals": "^17.4.0",
-    "grunt": "^1.6.1",
-    "grunt-browserify": "^6.0.0",
-    "grunt-contrib-concat": "^2.1.0",
-    "grunt-contrib-connect": "^4.0.0",
-    "grunt-contrib-jshint": "^3.2.0",
-    "grunt-contrib-qunit": "^8.0.1",
-    "grunt-contrib-uglify": "^5.2.2",
-    "grunt-contrib-watch": "^1.1.0",
-    "grunt-mocha-test": "^0.13.3",
     "http-server": "^14.1.1",
     "jsdom": "^28.1.0",
-    "load-grunt-tasks": "^5.1.0",
     "mocha": "^11.7.5",
     "npm-watch": "^0.13.0",
     "nyc": "^18.0.0",
@@ -108,12 +98,6 @@
     "webpack-cli": "^6.0.1",
     "xmlhttprequest": "^1.8.0"
   },
-  "jqueryVersions": [
-    "1",
-    "2",
-    "3",
-    "4"
-  ],
   "peerDependencies": {
     "jquery1": "npm:jquery@^1.12.4",
     "jquery2": "npm:jquery@^2.2.4",

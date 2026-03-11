@@ -8,17 +8,11 @@
     ".editorconfig",
     ".github",
     ".gitignore",
-    ".jshintrc",
-    ".jshintrc",
-    "browserstack-config.js",
-    "browserstack.js",
-    "grunt-config-options.js",
-    "Gruntfile.js",
-    "lib",
     "package.json",
-    "qunit-puppeteer.js",
     "test",
     "*.json",
-    "*.md"
+    "*.html",
+    "eslint.config.js",
+    "webpack.config.js"
   ]
 }

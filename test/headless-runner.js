@@ -7,8 +7,9 @@ const PORT = 3000
 ;(async () => {
     const metadata = getPackageJSON('./package.json')
     const allVersions = []
-    for (let major of metadata.jqueryVersions) {
-        const jqueryMetadata = getPackageJSON(`./node_modules/jquery${major}/package.json`)
+    const packages = Object.keys(metadata.peerDependencies)
+    for (let name of packages) {
+        const jqueryMetadata = getPackageJSON(`./node_modules/${name}/package.json`)
         allVersions.push(jqueryMetadata.version)
     }
     let versions = []

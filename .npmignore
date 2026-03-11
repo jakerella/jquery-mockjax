@@ -1,0 +1,8 @@
+.github/
+test/
+.editorconfig
+.gitignore
+.npmignore
+bower.json
+eslint.config.js
+webpack.config.js

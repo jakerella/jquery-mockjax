@@ -46,7 +46,7 @@
 	async function insertJQuery(metadata) {
 		console.debug('Inserting desired version of jQuery')
 
-		let version = metadata.jqueryVersions[metadata.jqueryVersions.length-1]
+		let version = Object.keys(metadata.peerDependencies).pop().replace(/[^0-9]+/, '')
 		version = getURLJQVersion() || version
 
 		const filepath = `${basePath}node_modules/jquery${version}/dist/jquery.js`
@@ -114,11 +114,12 @@
 		window.addEventListener('load', async () => {
 			document.getElementById('mockjax-version').innerHTML = metadata.version
 
-			let jqVersion = metadata.jqueryVersions[metadata.jqueryVersions.length-1]
+			const majorVersions = Object.keys(metadata.peerDependencies).map(v => v.replace(/[^0-9]+/, ''))
+			let jqVersion = majorVersions[majorVersions.length-1]
 			jqVersion = getURLJQVersion() || jqVersion
 
 			const links = []
-			for (let major of metadata.jqueryVersions) {
+			for (let major of majorVersions) {
 				const jqueryMetadata = await getPackageJSON(`${basePath}node_modules/jquery${major}/package.json`)
 				let strong = false
 				if (jqVersion === jqueryMetadata.version.split('.')[0]) {

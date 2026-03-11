@@ -1,7 +1,8 @@
 
-var config = require('./grunt-config-options');
-config.onlyPaths = true;
-var urls = require('./test/build-version-urls')(config, 'all', 'all', 'logging');
+// TODO: remove grunt config... what do we need here?
+var config = require('./grunt-config-options')
+config.onlyPaths = true
+var urls = require('./build-version-urls')(config, 'all', 'all', 'logging')
 
 module.exports = {
     "username": "jordankasper2",
@@ -15,4 +16,4 @@ module.exports = {
         "safari_latest",
         "edge_latest"
     ]
-};
+}
