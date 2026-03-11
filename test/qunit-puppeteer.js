@@ -30,154 +30,206 @@
  */
 
 import puppeteer from 'puppeteer'
-import { spawn }  from 'child_process'
+import { spawn } from 'child_process'
 
-export default async function testRunner(targetURL, port) {
-  const timeout = 30000;
-  let complete = false;
+const PROCESS_TIMEOUT = 30000
 
-  let serverProc;
+let serverProc = null
 
-  // TODO: fix test output... not sure what all the "undefined" is about (and newlines)
-  // TODO: quiet mode (only show totals and any failures)
+process.on('SIGTERM', killServerProcess)
+process.on('SIGINT', killServerProcess)
+process.on('SIGHUP', killServerProcess)
 
+export default async function testRunner(targetURLs, port) {
+  startServer(port)
+
+  process.stdout.write('\x1b[36mLaunching browser...\x1b[0m\n')
+  const browser = await puppeteer.launch()
+
+  if (!Array.isArray(targetURLs)) {
+    targetURLs = [targetURLs]
+  }
+
+  const allStats = {}
+  for (let url of targetURLs) {
+    const page = await setupNewPage(browser)
+    await startTests(page, url)
+    allStats[url] = page.testStats
+  }
+  await browser.close()
+  killServerProcess()
+  return Promise.resolve(allStats)
+}
+
+function startServer(port) {
+  // TODO: can we switch this to npx? (getting connection failures)
+  // serverProc = spawn('npx', ['http-server', '-c-1', `-p ${port}`], { encoding: 'utf8' })
+  serverProc = spawn('http-server', ['-c-1', `-p ${port}`], { encoding: 'utf8' })
+  serverProc.on('error', (err) => {
+    process.stderr.write(`\n\x1b[32m${err.message || err}\x1b[0m\n`)
+    killServerProcess()
+  })
+  // serverProc.stdout.on('data', console.log)
+  // serverProc.stderr.on('data', console.error)
+  serverProc.on('spawn', async () => {
+    process.stdout.write('\x1b[36mHTTP server up and running\x1b[0m\n')
+  })
+}
+
+async function setupNewPage(browser) {
   try {
-    // TODO: can we switch this to npx? (getting connection failures)
-    serverProc = spawn('http-server', ['-c-1', `-p ${port}`]);
+    const page = await browser.newPage()
+    page.testsComplete = false
+    page.skippedTests = 0
 
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-
-    // Attach to browser console log events, and log to node console
-    await page.on('console', (...params) => {
+    // Attach to page's console log events, and log to node console
+    page.on('console', (...params) => {
       for (let i = 0; i < params.length; ++i) {
-        process.stdout.write(`${(typeof(params[i]) === 'object') ? params[i]._text : params[i]}\n`);
+        let output = params[i]
+        if (output && typeof(output) === 'object') {
+          output = JSON.stringify(output)
+          if (output === '{}') { output = '' }
+        } else if (typeof(output) === 'string') {
+          output = output.trim()
+        }
+        if (output || output === 0 || output === false) {
+          process.stdout.write(`\n${String(output)}\n`)
+        }
       }
-    });
+    })
 
-    let moduleErrors = [];
-    let testErrors = [];
-    let assertionErrors = [];
+    let moduleErrors = []
+    let testErrors = []
+    let assertionErrors = []
+    let skippedModules = []
 
     await page.exposeFunction('harness_moduleStart', context => {
-      const skippedTests = context.tests.filter(t => t.skip).length;
-      if (skippedTests === context.tests.length) {
-        process.stdout.write(`\x1b[4m\x1b[36mSkipping Module: ${context.name}\x1b[0m `);
-      } else {
-        process.stdout.write(`\x1b[4mRunning Module: ${context.name}\x1b[0m `);
+      if (skippedModules.includes(context.name)) { return }
+      const skipCount = context.tests.filter(t => t.skip).length
+      let method = '\x1b[38;5;247mRunnning'
+      if (skipCount === context.tests.length) {
+        method = '\x1b[33mSkipping'
+        skippedModules.push(context.name)
       }
-    });
+      process.stdout.write(`${method} Module: \x1b[4m${context.name}\x1b[0m `)
+    })
 
     await page.exposeFunction('harness_moduleDone', context => {
       if (context.failed) {
-        const msg = "Module Failed: " + context.name + "\n" + testErrors.join("\n");
-        moduleErrors.push(msg);
-        testErrors = [];
+        const msg = `\x1b[33mModule Failed: "${context.name}"\n${testErrors.join('\n')}\x1b[0m`
+        moduleErrors.push(msg)
+        testErrors = []
       }
-      process.stdout.write('\n');
-    });
+      process.stdout.write('\n')
+    })
 
     await page.exposeFunction('harness_testDone', context => {
       if (context.failed) {
-        const msg = "  Test Failed: " + context.name + assertionErrors.join("    ");
-        testErrors.push(msg);
-        assertionErrors = [];
-        process.stdout.write("\x1b[31mF\x1b[0m");
+        const msg = "  \x1b[31mTest Failed: " + context.name + assertionErrors.join("    ") + '\x1b[0m'
+        testErrors.push(msg)
+        assertionErrors = []
+        process.stdout.write("\x1b[31mF\x1b[0m")
       } else if (context.skipped) {
-        process.stdout.write(`\x1b[36ms\x1b[0m`);
+        page.skippedTests++
+        process.stdout.write("\x1b[33mS\x1b[0m")
       } else {
-        process.stdout.write("\x1b[37m.\x1b[0m");
+        process.stdout.write("\x1b[37m.\x1b[0m")
       }
-    });
+    })
 
     await page.exposeFunction('harness_log', context => {
-      if (context.result) { return; } // If success don't log
+      if (context.result) { return } // If success doesn't log
 
-      let msg = "\n    Assertion Failed:";
+      let msg = "\n    \x1b[37mAssertion:"
       if (context.message) {
-        msg += " " + context.message;
+        msg += " " + context.message
       }
 
       if (context.expected) {
-        msg += "\n      Expected: " + context.expected + ", Actual: " + context.actual;
+        msg += `
+      \x1b[37m✓ \x1b[36m${context.expected}
+      \x1b[37mX \x1b[31m${context.actual}\x1b[0m`
       }
 
-      assertionErrors.push(msg);
-    });
+      assertionErrors.push(msg)
+    })
 
     await page.exposeFunction('harness_done', context => {
-      process.stdout.write("\n");
+      process.stdout.write("\n")
 
       if (moduleErrors.length > 0) {
-        for (let idx=0; idx<moduleErrors.length; idx++) {
-          process.stderr.write(`${moduleErrors[idx]}\n\n`);
+        for (let idx = 0; idx < moduleErrors.length; idx++) {
+          process.stderr.write(`${moduleErrors[idx]}\n\n`)
         }
       }
 
       const stats = [
-        "Time: " + context.runtime + "ms",
-        "Total: " + context.total,
-        "Passed: " + context.passed,
-        "Failed: " + context.failed
-      ];
-      process.stdout.write(stats.join(", ")+'\n');
+        `\x1b[37mRuntime: ${context.runtime}ms`,
+        `\x1b[37mTotal: ${context.total}`,
+        `\x1b[32mPassed: ${context.passed}\x1b[0m`,
+        `${(page.skippedTests > 0) ? '\x1b[33m' : '\x1b[32m'}Skipped: ${page.skippedTests}\x1b[0m`,
+        `${(context.failed > 0) ? '\x1b[31m' : '\x1b[32m'}Failed: ${context.failed}\x1b[0m`
+      ]
+      process.stdout.write(stats.join(", ") + '\n\n')
 
-      // TODO: let's resolve the promise with these stats
+      page.testStats = { ...context, skipped: page.skippedTests }
+      page.testsComplete = true
+    })
 
-      browser.close();
-      spawn('kill', [serverProc.pid]);
-      process.stdout.write('\nClosed http-server\n');
-      complete = true;
-    });
+    return page
 
-    await page.goto(targetURL);
+  } catch (err) {
+    process.stderr.write(`PAGE SETUP ERROR: ${err}\n`)
+  }
+}
+
+async function startTests(page, targetURL) {
+  process.stdout.write(`\x1b[37m==> Navigating to ${targetURL}\n`)
+
+  try {
+    await page.goto(targetURL)
 
     await page.evaluate(() => {
-      QUnit.config.testTimeout = 5000;
+      QUnit.config.testTimeout = 5000
 
-      // Cannot pass the window.harness_blah methods directly, because they are
-      // automatically defined as async methods, which QUnit does not support
-      QUnit.moduleStart((context) => { window.harness_moduleStart(context); });
-      QUnit.moduleDone((context) => { window.harness_moduleDone(context); });
-      QUnit.testDone((context) => { window.harness_testDone(context); });
-      QUnit.log((context) => { window.harness_log(context); });
-      QUnit.done((context) => { window.harness_done(context); });
+      QUnit.moduleStart(window.harness_moduleStart)
+      QUnit.moduleDone(window.harness_moduleDone)
+      QUnit.testDone(window.harness_testDone)
+      QUnit.log(window.harness_log)
+      QUnit.done(window.harness_done)
 
       if (Object.keys(QUnit.urlParams).length) {
-        console.log(`\nRunning with params: ${JSON.stringify(QUnit.urlParams)}`);
+        console.log(`\nRunning with params: ${JSON.stringify(QUnit.urlParams)}\n`)
       }
 
       if (!QUnit.config.autostart) {
-        QUnit.start();
+        QUnit.start()
       }
-    });
+    })
 
-    function wait(ms) {
-      let total = 0;
+    function wait(timeout) {
+      let total = 0
       return new Promise(resolve => {
         setInterval(() => {
-          total += 500;
-          if (complete || total >= ms) {
-            spawn('kill', [serverProc.pid]);
-            return resolve();
+          total += 500
+          if (page.testsComplete || total >= timeout) {
+            resolve()
           }
         }, 500)
-      });
+      })
     }
 
-    await wait(timeout);
+    await wait(PROCESS_TIMEOUT)
 
-    if (!complete) {
-      process.stderr.write(`\x1b[33mTests timed out after ${timeout}ms\x1b[0m\n`);
-      browser.close();
-      spawn('kill', [serverProc.pid]);
-      throw new Error(`Tests timed out after ${timeout}ms`);
+    if (!page.testsComplete) {
+      process.stderr.write(`\x1b[33mTests timed out after ${PROCESS_TIMEOUT}ms\x1b[0m\n`)
     }
 
-  } catch(err) {
-    process.stderr.write(`ERROR: ${err}\n`);
-    spawn('kill', [serverProc.pid]);
-    throw err;
+  } catch (err) {
+    process.stderr.write(`TEST ERROR: ${err}\n`)
   }
+}
 
-};
+function killServerProcess() {
+  spawn('kill', [serverProc.pid])
+}

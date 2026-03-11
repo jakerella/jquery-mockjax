@@ -23,22 +23,32 @@ const PORT = 3000
 
     console.log(`Running tests on ${versions.length} versions of jQuery: ${versions}`)
 
+    const URLs = []
     for (let jqVersion of versions) {
-        const url = `http://localhost:${PORT}/test/index.html?jquery=${jqVersion}`
-        console.log(`\n********************************************************************************
-Running Mockjax v${metadata.version} test suite with jQuery version ${jqVersion}
-Connecting to: ${url}
-********************************************************************************\n`)
-        
-        try {
-            const output = await testRunner(url, PORT)
-            console.log(output)
-        } catch(err) {
-            console.error(`\nERROR: ${err.message || err}\n`)
+        URLs.push(`http://localhost:${PORT}/test/index.html?jquery=${jqVersion}`)
+    }
+    console.log(`
+************************************************************************************
+Running Mockjax v${metadata.version} test suite with jQuery version(s): ${versions}
+************************************************************************************
+    `)
+
+    try {
+        const results = await testRunner(URLs, PORT)
+        if (URLs.length > 1) {
+            console.log('\nConsolidated Results:')
+            for (let url in results) {
+                const stats = Object.keys(results[url]).map(k => `${k}: ${results[url][k]}`)
+                const header = `jQ v${url.split('=')[1]}:`.padStart(13, ' ')
+                console.log(`${header} ${stats.join(', ')}`)
+            }
         }
 
-        // TODO: capture test output overviews and collect them at the end
+    } catch(err) {
+        console.error(`\nTESTING ERROR: ${err.message || err}\n`)
     }
+
+    // TODO: capture test output overviews and collect them at the end
 
     process.exit(0)
 

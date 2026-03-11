@@ -17,11 +17,7 @@
 
 		$.ajax({
 			url: '/api/v1/myservice',
-			// error: qunit.noErrorCallbackExpected,
-			error: (xhr) => {
-				console.log(xhr)
-				assert.ok(false, 'Error should not have been called')
-			},
+			error: qunit.noErrorCallbackExpected,
 			complete: function(xhr) {
 				assert.equal(xhr.status, 200, 'Response was successful');
 				done();
@@ -47,6 +43,7 @@
 			}
 		});
 	});
+
 	t('should be able to override global namespace per-mock', function(assert) {
 		var done = assert.async();
 
@@ -72,6 +69,7 @@
 			}
 			});
 	});
+	
 	t('should be able to override global namespace per-mock (RegExp)', function(assert) {
 		var done = assert.async();
 
