@@ -47,7 +47,7 @@
 		console.debug('Inserting desired version of jQuery')
 
 		let version = Object.keys(metadata.peerDependencies).pop().replace(/[^0-9]+/, '')
-		version = getURLJQVersion() || version
+		version = getMajorJQVersionFromURL() || version
 
 		const filepath = `${basePath}node_modules/jquery${version}/dist/jquery.js`
 		document.write(`<script id='jquery' src='${filepath}'></script>`)
@@ -60,24 +60,40 @@
 		})
 	}
 
-	function getURLJQVersion() {
-		let version = null
-		const queryParams = document.location.search.slice( 1 ).split( '&' )
-		for (let i=0; i<queryParams.length; ++i) {
-			const current = queryParams[i].split('=')
-			if (current[0] === 'jquery') {
-				version = current[1].split('.')[0]
-				break
-			}
+	function getQueryParams() {
+		const params = {}
+		document.location.search.slice(1).split('&')
+			.forEach(p => {
+				const param = p.split('=')
+				if (params[param[0]] && !Array.isArray(params[param[0]])) {
+					params[param[0]] = [params[param[0]]]
+				}
+				if (params[param[0]]) {
+					params[param[0]].push(param[1])
+				} else {
+					params[param[0]] = param[1]
+				}
+			})
+		return params
+	}
+
+	function getMajorJQVersionFromURL() {
+		const params = getQueryParams()
+		if (params['jquery']) {
+			return params['jquery'].split('.')[0]
 		}
-		return version
+		return null
 	}
 
 	function insertMockjax(metadata) {
-		document.write(`<script id='mockjax' src='../dist/jquery.mockjax.js'></script>`)
+		let min = ''
+		if (getQueryParams().min) {
+			min = '.min'
+		}
+		document.write(`<script id='mockjax' src='../dist/jquery.mockjax${min}.js'></script>`)
 		return new Promise((resolve, _) => {
 			document.getElementById('mockjax').addEventListener('load', () => {
-				console.debug(`testing Mockjax version ${metadata.version}`)
+				console.info(`Testing Mockjax version ${metadata.version} ${(min) ? '(min)' : ''}`)
 				resolve()
 			})
 		})
@@ -116,7 +132,7 @@
 
 			const majorVersions = Object.keys(metadata.peerDependencies).map(v => v.replace(/[^0-9]+/, ''))
 			let jqVersion = majorVersions[majorVersions.length-1]
-			jqVersion = getURLJQVersion() || jqVersion
+			jqVersion = getMajorJQVersionFromURL() || jqVersion
 
 			const links = []
 			for (let major of majorVersions) {

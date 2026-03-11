@@ -1,14 +1,11 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-import TerserPlugin from 'terser-webpack-plugin';
-import webpack from 'webpack';
-import { readFileSync } from 'fs';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import path from 'path'
+import TerserPlugin from 'terser-webpack-plugin'
+import WebpackCustomUMD from './webpack.custom-umd.mjs'
+import webpack from 'webpack'
+import { readFileSync } from 'fs'
 
 // Read package.json
-const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'));
+const pkg = JSON.parse(readFileSync(path.resolve(import.meta.dirname, 'package.json'), 'utf-8'))
 
 // Generate banner comment with version and build date
 const banner = `/*!
@@ -16,24 +13,19 @@ const banner = `/*!
  * Build Timestamp: ${new Date().toISOString()}
  * Copyright (c) ${new Date().getFullYear()} Jordan Kasper and contributors, formerly appendTo
  * Licensed under the MIT license
- */`;
+ */
+/*! UMD WRAPPER */
+`
 
 export default () => {
     return {
         entry: {
-            'jquery.mockjax': './src/index.js',
-            'jquery.mockjax.min': './src/index.js',
+            'jquery.mockjax': path.resolve(import.meta.dirname, 'src', 'index.mjs'),
+            'jquery.mockjax.min': path.resolve(import.meta.dirname, 'src', 'index.mjs'),
         },
-        // entry: './src/index.js',
         output: {
-            path: path.resolve(__dirname, 'dist'),
-            filename: '[name].js',
-            library: {
-                name: 'mockjax',
-                type: 'umd',
-                export: 'default'
-            },
-            globalObject: 'this'
+            path: path.resolve(import.meta.dirname, 'dist'),
+            filename: '[name].js'
         },
         externals: {
             jquery: 'jQuery'
@@ -45,8 +37,7 @@ export default () => {
                     include: /\.min\.js$/,
                     terserOptions: {
                         format: {
-                            comments: /^!/,
-                            preamble: banner
+                            comments: /^!/
                         },
                         compress: {
                             drop_console: false,
@@ -58,16 +49,16 @@ export default () => {
                 })
             ]
         },
-        // Banner for the uncompressed version
         plugins: [
             new webpack.BannerPlugin({
                 banner: banner,
                 raw: true,
                 entryOnly: true
-            })
+            }),
+            new WebpackCustomUMD()
         ],
         resolve: {
-            extensions: ['.js']
+            extensions: ['.mjs']
         }
-    };
-};
+    }
+}

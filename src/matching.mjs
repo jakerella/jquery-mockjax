@@ -4,12 +4,12 @@
  */
 
 /**
- * @typedef {import('./typedefs.js').HTTPMethod} HTTPMethod
- * @typedef {import('./typedefs.js').MockHandler} MockHandler
- * @typedef {import('./typedefs.js').JQueryAjaxSettings} JQueryAjaxSettings
+ * @typedef {import('./typedefs.mjs').HTTPMethod} HTTPMethod
+ * @typedef {import('./typedefs.mjs').MockHandler} MockHandler
+ * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
  */
 
-import { getSettings } from './settings.js'
+import { getSettings } from './settings.mjs'
 
 /**
  * Find a matching handler for an AJAX request

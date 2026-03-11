@@ -8,7 +8,6 @@ mockjax({
     responseText: 'content'
 });
 
-/* jshint unused:false */
 function getResource(cb) {
     jquery.ajax({
         url: '/resource',
@@ -16,7 +15,6 @@ function getResource(cb) {
         error: cb
     });
 }
-/* jshint unused:true */
 
 
 // These are just here so that my tests can hit the *same* jQuery instance

@@ -3,7 +3,7 @@
  * @module logger
  */
 
-import { getSettings } from './settings.js'
+import { getSettings } from './settings.mjs'
 
 const DEFAULT_LOG_LEVEL = 2
 const DEFAULT_LOG_LEVEL_METHODS = ['error', 'warn', 'info', 'log', 'debug']

@@ -1,60 +1,34 @@
 /*!
  * jQuery Mockjax v3.0.0 - https://github.com/jakerella/jquery-mockjax
- * Build Timestamp: 2026-03-10T22:33:19.910Z
+ * Build Timestamp: 2026-03-11T20:29:52.510Z
  * Copyright (c) 2026 Jordan Kasper and contributors, formerly appendTo
  * Licensed under the MIT license
  */
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else if(typeof exports === 'object')
-		exports["mockjax"] = factory();
-	else
-		root["mockjax"] = factory();
-})(this, () => {
-return /******/ (() => { // webpackBootstrap
+;(function(root, factory) {
+	'use strict';
+
+	if (typeof define === 'function' && define.amd && define.amd.jQuery) {
+		define(['jquery'], function($) { return factory($, root) })
+	} else if (typeof exports === 'object') {
+		module.exports = factory
+	} else {
+		return factory(root.jQuery || root.$, root)
+	}
+}(this, function($, window) {
+
+/******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
-/******/ 	// The require scope
-/******/ 	var __webpack_require__ = {};
-/******/ 	
-/************************************************************************/
-/******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__webpack_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
-/******/ 			}
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
-/******/ 	
-/************************************************************************/
-var __webpack_exports__ = {};
 
-// EXPORTS
-__webpack_require__.d(__webpack_exports__, {
-  "default": () => (/* binding */ src)
-});
+// UNUSED EXPORTS: clear, clearAll, clearById, clearByUrl, clearRetainedAjaxCalls, default, getLogger, getSettings, handler, handlers, mockedAjaxCalls, mockjax, resetSettings, unfiredHandlers, unmockedAjaxCalls, validateSettings
 
-// UNUSED EXPORTS: clear, clearAll, clearById, clearByUrl, clearRetainedAjaxCalls, getLogger, getSettings, handler, handlers, mockedAjaxCalls, mockjax, resetSettings, unfiredHandlers, unmockedAjaxCalls, validateSettings
-
-;// ./src/settings.js
+;// ./src/settings.mjs
 /**
  * Global mockjax settings with default values
  * @module settings
  */
 
 /**
- * @typedef {import('./typedefs.js').MockjaxSettings} MockjaxSettings
+ * @typedef {import('./typedefs.mjs').MockjaxSettings} MockjaxSettings
  */
 
 const DEFAULTS = {
@@ -211,7 +185,7 @@ function validateSettings() {
     }
 }
 
-;// ./src/logger.js
+;// ./src/logger.mjs
 /**
  * A basic logger for the Mockjax library
  * @module logger
@@ -266,7 +240,7 @@ class Logger {
     }
 }
 
-;// ./src/utils.js
+;// ./src/utils.mjs
 /**
  * Utility functions for mockjax
  * @module utils
@@ -311,16 +285,16 @@ function deepClone(obj) {
     return clone
 }
 
-;// ./src/matching.js
+;// ./src/matching.mjs
 /**
  * Handler matching logic for mockjax
  * @module matching
  */
 
 /**
- * @typedef {import('./typedefs.js').HTTPMethod} HTTPMethod
- * @typedef {import('./typedefs.js').MockHandler} MockHandler
- * @typedef {import('./typedefs.js').JQueryAjaxSettings} JQueryAjaxSettings
+ * @typedef {import('./typedefs.mjs').HTTPMethod} HTTPMethod
+ * @typedef {import('./typedefs.mjs').MockHandler} MockHandler
+ * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
  */
 
 
@@ -537,16 +511,16 @@ function getQueryParams(queryString) {
     return params
 }
 
-;// ./src/xhr.js
+;// ./src/xhr.mjs
 /**
  * Mock XHR object creation and response simulation
  * @module xhr
  */
 
 /**
- * @typedef {import('./typedefs.js').MockHandler} MockHandler
- * @typedef {import('./typedefs.js').JQueryAjaxSettings} JQueryAjaxSettings
- * @typedef {import('./typedefs.js').MockXHR} MockXHR
+ * @typedef {import('./typedefs.mjs').MockHandler} MockHandler
+ * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
+ * @typedef {import('./typedefs.mjs').MockXHR} MockXHR
  */
 
 
@@ -794,15 +768,15 @@ function parseXML(xml) {
     }
 }
 
-;// ./src/jsonp.js
+;// ./src/jsonp.mjs
 /**
  * JSONP mock handling module
  * @module jsonp
  */
 
 /**
- * @typedef {import('./typedefs.js').MockHandler} MockHandler
- * @typedef {import('./typedefs.js').JQueryAjaxSettings} JQueryAjaxSettings
+ * @typedef {import('./typedefs.mjs').MockHandler} MockHandler
+ * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
  */
 
 
@@ -1020,17 +994,17 @@ function triggerComplete(requestSettings, callbackContext) {
     }
 }
 
-;// ./src/core.js
+;// ./src/core.mjs
 /**
  * Core mockjax API functions
  * @module core
  */
 
 /**
- * @typedef {import('./typedefs.js').MockHandler} MockHandler
- * @typedef {import('./typedefs.js').JQueryAjaxSettings} JQueryAjaxSettings
- * @typedef {import('./typedefs.js').AjaxCallbackType} AjaxCallbackType
- * @typedef {import('./typedefs.js').MockXHR} MockXHR
+ * @typedef {import('./typedefs.mjs').MockHandler} MockHandler
+ * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
+ * @typedef {import('./typedefs.mjs').AjaxCallbackType} AjaxCallbackType
+ * @typedef {import('./typedefs.mjs').MockXHR} MockXHR
  */
 
 // import { getLogger } from './logger.js'
@@ -1658,7 +1632,7 @@ function copyUrlParameters(mockHandler, requestSettings) {
     requestSettings.urlParams = urlParams
 }
 
-;// ./src/index.js
+;// ./src/index.mjs
 /**
  * Mockjax - Mock AJAX requests for testing
  * @module mockjax
@@ -1706,8 +1680,6 @@ $.mockjax.mockedAjaxCalls = mockedAjaxCalls
 $.mockjax.unmockedAjaxCalls = unmockedAjaxCalls
 $.mockjax.clearRetainedAjaxCalls = clearRetainedAjaxCalls
 
-__webpack_exports__ = __webpack_exports__["default"];
-/******/ 	return __webpack_exports__;
 /******/ })()
 ;
-});
+return $.mockjax;}))

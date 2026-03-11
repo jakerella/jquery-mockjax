@@ -4,12 +4,12 @@
  */
 
 /**
- * @typedef {import('./typedefs.js').MockHandler} MockHandler
- * @typedef {import('./typedefs.js').JQueryAjaxSettings} JQueryAjaxSettings
+ * @typedef {import('./typedefs.mjs').MockHandler} MockHandler
+ * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
  */
 
-import { realAjaxCall } from './core.js'
-import { determineResponseTime } from './xhr.js'
+import { realAjaxCall } from './core.mjs'
+import { determineResponseTime } from './xhr.mjs'
 
 const CALLBACK_REGEX = /=\?(&|$)/
 const URL_PROTOCOL_REGEX = /^(\w+:)?\/\/([^\/?#]+)/

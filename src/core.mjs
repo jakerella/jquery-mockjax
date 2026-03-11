@@ -4,18 +4,18 @@
  */
 
 /**
- * @typedef {import('./typedefs.js').MockHandler} MockHandler
- * @typedef {import('./typedefs.js').JQueryAjaxSettings} JQueryAjaxSettings
- * @typedef {import('./typedefs.js').AjaxCallbackType} AjaxCallbackType
- * @typedef {import('./typedefs.js').MockXHR} MockXHR
+ * @typedef {import('./typedefs.mjs').MockHandler} MockHandler
+ * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
+ * @typedef {import('./typedefs.mjs').AjaxCallbackType} AjaxCallbackType
+ * @typedef {import('./typedefs.mjs').MockXHR} MockXHR
  */
 
 // import { getLogger } from './logger.js'
-import { getSettings, validateSettings } from './settings.js'
-import { generateUUID, deepClone } from './utils.js'
-import { findMatchingHandler } from './matching.js'
-import { processJsonpMock } from './jsonp.js'
-import { createMockXHR } from './xhr.js'
+import { getSettings, validateSettings } from './settings.mjs'
+import { generateUUID, deepClone } from './utils.mjs'
+import { findMatchingHandler } from './matching.mjs'
+import { processJsonpMock } from './jsonp.mjs'
+import { createMockXHR } from './xhr.mjs'
 
 
 // TODO: should this go in here??

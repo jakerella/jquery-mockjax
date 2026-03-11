@@ -7,8 +7,8 @@ import {
     getSettings,
     resetSettings,
     validateSettings
-} from './settings.js'
-import { getLogger } from './logger.js'
+} from './settings.mjs'
+import { getLogger } from './logger.mjs'
 import {
     registerMockjaxHandler,
     clear,
@@ -21,7 +21,7 @@ import {
     mockedAjaxCalls,
     unmockedAjaxCalls,
     clearRetainedAjaxCalls
-} from './core.js'
+} from './core.mjs'
 
 // Export public API
 export {

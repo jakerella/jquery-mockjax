@@ -4,13 +4,13 @@
  */
 
 /**
- * @typedef {import('./typedefs.js').MockHandler} MockHandler
- * @typedef {import('./typedefs.js').JQueryAjaxSettings} JQueryAjaxSettings
- * @typedef {import('./typedefs.js').MockXHR} MockXHR
+ * @typedef {import('./typedefs.mjs').MockHandler} MockHandler
+ * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
+ * @typedef {import('./typedefs.mjs').MockXHR} MockXHR
  */
 
-import { getSettings } from './settings.js'
-import { realAjaxCall } from './core.js'
+import { getSettings } from './settings.mjs'
+import { realAjaxCall } from './core.mjs'
 
 const READYSTATE = {
     unsent: 0, opened: 1, headers: 2, loading: 3, done: 4

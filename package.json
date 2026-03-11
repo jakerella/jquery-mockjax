@@ -4,28 +4,28 @@
   "version": "3.0.0",
   "main": "./dist/jquery.mockjax.js",
   "module": "./src/index.js",
-  "type": "module",
   "description": "The jQuery Mockjax Plugin provides a simple and extremely flexible interface for mocking or simulating ajax requests and responses.",
   "url": "https://github.com/jakerella/jquery-mockjax",
   "scripts": {
-    "build": "npx webpack --mode production --config webpack.config.js",
+    "build": "npx webpack --mode production --config webpack.config.mjs",
     "test": "npm run test:unit && npm run test:integration:all",
     "test:unit": "npx qunit test/unit/*-test.js",
     "test:integration:all": "node test/headless-runner.js all",
     "test:integration:latest": "node test/headless-runner.js latest",
+    "test:nodejs": "npx mocha test/nodejs/test.cjs",
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
-    "format": "npx prettier --write \"src/**/*.js\" \"test/**/*.js\"",
-    "format:check": "npx prettier --check \"src/**/*.js\" \"test/**/*.js\"",
+    "format": "npx prettier --write \"src/**/*.mjs\" \"test/**/*.js\"",
+    "format:check": "npx prettier --check \"src/**/*.mjs\" \"test/**/*.js\"",
     "watch:build": "npx npm-watch build",
     "watch:test": "npx npm-watch test:integration:latest"
   },
   "watch": {
     "build": {
       "patterns": [
-        "src", "webpack.config.js"
+        "src", "webpack.config.mjs", "webpack.custom-umd.mjs"
       ],
-      "extensions": "js",
+      "extensions": "mjs",
       "delay": 1500
     },
     "test:integration:latest": {
@@ -33,7 +33,7 @@
         "src",
         "test"
       ],
-      "extensions": "js,json,html",
+      "extensions": "mjs,js,json,html",
       "delay": 1500
     }
   },

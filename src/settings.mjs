@@ -4,7 +4,7 @@
  */
 
 /**
- * @typedef {import('./typedefs.js').MockjaxSettings} MockjaxSettings
+ * @typedef {import('./typedefs.mjs').MockjaxSettings} MockjaxSettings
  */
 
 const DEFAULTS = {
