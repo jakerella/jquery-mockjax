@@ -9,18 +9,16 @@
   "url": "https://github.com/jakerella/jquery-mockjax",
   "scripts": {
     "build": "npx webpack --mode production --config webpack.config.js",
-    "test": "npm run test:all",
+    "test": "npm run test:unit && npm run test:integration:all",
     "test:unit": "npx qunit test/unit/*-test.js",
-    "test:integration": "node test/run-integration-tests.js",
-    "test:all": "npm run test:unit && npm run test:integration",
-    "test:browsers": "npx http-server -p 8080 -o /test/index.html",
-    "test:watch": "npx qunit test/**/*-test.js --watch",
+    "test:integration:all": "node test/headless-runner.js all",
+    "test:integration:latest": "node test/headless-runner.js latest",
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "format": "npx prettier --write \"src/**/*.js\" \"test/**/*.js\"",
     "format:check": "npx prettier --check \"src/**/*.js\" \"test/**/*.js\"",
     "watch:build": "npx npm-watch build",
-    "watch:test": "npx npm-watch test:unit"
+    "watch:test": "npx npm-watch test:integration:latest"
   },
   "watch": {
     "build": {
@@ -30,7 +28,7 @@
       "extensions": "js",
       "delay": 1500
     },
-    "test:unit": {
+    "test:integration:latest": {
       "patterns": [
         "src",
         "test"
@@ -103,13 +101,19 @@
     "prettier": "^3.8.1",
     "puppeteer": "^22.1.0",
     "qunit": "^2.25.0",
+    "qunit-puppeteer": "^1.0.1",
     "sinon": "^21.0.2",
     "terser-webpack-plugin": "^5.3.17",
     "webpack": "^5.105.4",
     "webpack-cli": "^6.0.1",
     "xmlhttprequest": "^1.8.0"
   },
-  "jqueryVersions": ["1", "2", "3", "4"],
+  "jqueryVersions": [
+    "1",
+    "2",
+    "3",
+    "4"
+  ],
   "peerDependencies": {
     "jquery1": "npm:jquery@^1.12.4",
     "jquery2": "npm:jquery@^2.2.4",

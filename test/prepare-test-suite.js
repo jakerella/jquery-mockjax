@@ -121,7 +121,6 @@
 			for (let major of metadata.jqueryVersions) {
 				const jqueryMetadata = await getPackageJSON(`${basePath}node_modules/jquery${major}/package.json`)
 				let strong = false
-				console.log(jqVersion, jqueryMetadata.version)
 				if (jqVersion === jqueryMetadata.version.split('.')[0]) {
 					strong = true
 				}

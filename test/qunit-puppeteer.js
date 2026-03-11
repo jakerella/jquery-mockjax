@@ -1,45 +1,49 @@
 
 /**
- * This file was modified from the original located at:
+ * This file was modified from the original to support being used as an ES module.
  * https://github.com/davidtaylorhq/qunit-puppeteer
- * in order to support usage in a grunt task (or any
- * sort of orchestration tool)
+ * 
+ * LICENSE: MIT
  *
- * ORIGINAL LICENSE:
-MIT License
-
-Copyright (c) 2017 David Taylor
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+ * ORIGINAL LICENSE (https://github.com/davidtaylorhq/qunit-puppeteer/blob/master/LICENSE)
+ * MIT License
+ * 
+ * Copyright (c) 2017 David Taylor
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
-const puppeteer = require('puppeteer');
-const spawn = require('child_process').spawn;
+import puppeteer from 'puppeteer'
+import { spawn }  from 'child_process'
 
-module.exports = async function testRunner(targetURL, port) {
+export default async function testRunner(targetURL, port) {
   const timeout = 30000;
   let complete = false;
 
-  let proc;
+  let serverProc;
+
+  // TODO: fix test output... not sure what all the "undefined" is about (and newlines)
+  // TODO: quiet mode (only show totals and any failures)
 
   try {
-    proc = spawn('http-server', ['-c-1', '-p ' + port], { shell: true });  // disable caching
+    // TODO: can we switch this to npx? (getting connection failures)
+    serverProc = spawn('http-server', ['-c-1', `-p ${port}`]);
 
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
@@ -118,8 +122,11 @@ module.exports = async function testRunner(targetURL, port) {
       ];
       process.stdout.write(stats.join(", ")+'\n');
 
+      // TODO: let's resolve the promise with these stats
+
       browser.close();
-      proc.kill('SIGINT');
+      spawn('kill', [serverProc.pid]);
+      process.stdout.write('\nClosed http-server\n');
       complete = true;
     });
 
@@ -150,7 +157,10 @@ module.exports = async function testRunner(targetURL, port) {
       return new Promise(resolve => {
         setInterval(() => {
           total += 500;
-          if (complete || total >= ms) { return resolve(); }
+          if (complete || total >= ms) {
+            spawn('kill', [serverProc.pid]);
+            return resolve();
+          }
         }, 500)
       });
     }
@@ -160,13 +170,13 @@ module.exports = async function testRunner(targetURL, port) {
     if (!complete) {
       process.stderr.write(`\x1b[33mTests timed out after ${timeout}ms\x1b[0m\n`);
       browser.close();
-      proc.kill('SIGINT');
+      spawn('kill', [serverProc.pid]);
       throw new Error(`Tests timed out after ${timeout}ms`);
     }
 
   } catch(err) {
     process.stderr.write(`ERROR: ${err}\n`);
-    proc.kill('SIGINT');
+    spawn('kill', [serverProc.pid]);
     throw err;
   }
 
