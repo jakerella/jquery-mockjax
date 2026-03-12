@@ -43,8 +43,6 @@ export function createMockXHR(mockHandler, requestSettings) {
         status: -1,
         statusText: '',
         readyState: READYSTATE.unsent,
-        // responseTimer: null,
-        // open: function() { },
         open: function open() {
             this.readyState = READYSTATE.opened
         },
@@ -85,9 +83,8 @@ export function createMockXHR(mockHandler, requestSettings) {
 
 /**
  * Do the XHR send() and generate a mock response on the MockXHR object
- *
- * @param {MockHandler} mockHandler
- * @param {JQueryAjaxSettings} requestSettings
+ * @param {MockHandler} mockHandler - The mock handler being used
+ * @param {JQueryAjaxSettings} requestSettings - The jQuery request settings for this ajax call
  * @returns {void}
  */
 function sendXHR(mockHandler, requestSettings) {
@@ -153,9 +150,8 @@ function sendXHR(mockHandler, requestSettings) {
 
 /**
  * Determine an appropriate response time for the mock request
- *
- * @param {(Number|Number[2])} responseTime
- * @returns {Number}
+ * @param {(number | number[2])} responseTime - The responseTime option from the mock handler
+ * @returns {number} The response time to be used
  */
 export function determineResponseTime(responseTime) {
     if (Array.isArray(responseTime) && responseTime.length === 2) {
@@ -173,10 +169,9 @@ export function determineResponseTime(responseTime) {
 /**
  * Mock the response by updating the MockXHR object for the request with various
  * response fields before passing control back to jQuery's onreadystatechange callback.
- *
  * @param {MockXHR} mockXHR - The mock XmlHTTPRequest object to modify
- * @param {MockHandler} mockHandler
- * @param {JQueryAjaxSettings} requestSettings
+ * @param {MockHandler} mockHandler - The mock handler
+ * @param {JQueryAjaxSettings} requestSettings - The ajax settings
  * @returns {void}
  */
 function generateResponse(mockXHR, mockHandler, requestSettings) {
@@ -232,25 +227,24 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
 
 /**
  * Parse an XML string into a document
- *
- * @param {String} xml - The xml string to parse
- * @returns {Document}
+ * @param {string} xml - The xml string to parse
+ * @returns {object} The DOM XML object
  * @throws {TypeError}
  */
 function parseXML(xml) {
     try {
         const xmlDoc = new DOMParser().parseFromString(xml, 'text/xml')
         if ($.isXMLDoc(xmlDoc)) {
-            var err = $('parsererror', xmlDoc)
+            const err = $('parsererror', xmlDoc)
             if (err.length === 1) {
-                throw new TypeError('Error: ' + $(xmlDoc).text())
+                throw new TypeError(`Error: ${$(xmlDoc).text()}`)
             }
         } else {
             throw new TypeError('Unable to parse XML')
         }
         return xmlDoc
     } catch (err) {
-        var msg = err.name === undefined ? err : `${err.name}: ${err.message}`
+        const msg = err.name === undefined ? err : `${err.name}: ${err.message}`
         $(document).trigger('xmlParseError', [msg])
         throw new TypeError(msg)
     }

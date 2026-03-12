@@ -34,7 +34,7 @@ const DEFAULTS = {
 
 /**
  * Get all current global Mockjax settings
- * @returns {MockjaxSettings}
+ * @returns {MockjaxSettings} The global mockjax settings
  */
 export function getSettings() {
     return $.mockjaxSettings || { ...DEFAULTS }
@@ -42,7 +42,7 @@ export function getSettings() {
 
 /**
  * Reset global Mockjax settings to their defaults
- * @returns {MockjaxSettings}
+ * @returns {MockjaxSettings} The (reset) global mockjax settings
  */
 export function resetSettings() {
     $.mockjaxSettings = { ...DEFAULTS }

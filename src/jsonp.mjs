@@ -6,6 +6,7 @@
 /**
  * @typedef {import('./typedefs.mjs').MockHandler} MockHandler
  * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
+ * @typedef {import('./typedefs.mjs').JSONPCallback} JSONPCallback
  */
 
 import { realAjaxCall } from './core.mjs'
@@ -22,7 +23,7 @@ let jsonpCallbackCounter = Date.now()
  * @param {JQueryAjaxSettings} requestSettings - Request settings to process
  * @param {MockHandler} mockHandler - Mock handler configuration
  * @param {JQueryAjaxSettings} origSettings - Original request settings
- * @returns {Object|Boolean|null} Deferred object, true for handled, or null for not handled
+ * @returns {object | boolean | null} Deferred object, true for handled, or null for not handled
  */
 export function processJsonpMock(requestSettings, mockHandler, origSettings) {
     appendCallbackParameter(requestSettings)
@@ -71,12 +72,12 @@ function appendCallbackParameter(requestSettings) {
  * @param {JQueryAjaxSettings} requestSettings - Request settings to modify
  * @param {MockHandler} mockHandler - Mock handler configuration
  * @param {JQueryAjaxSettings} origSettings - Original request settings
- * @param {Function} onSuccess - Success callback
- * @param {Function} onComplete - Complete callback
+ * @param {JSONPCallback} onSuccess - Success callback
+ * @param {JSONPCallback} onComplete - Complete callback
  * @returns {void}
  */
 function createCallback(requestSettings, mockHandler, origSettings, onSuccess, onComplete) {
-    const callbackContext = origSettings?.context || requestSettings
+    const callbackContext = origSettings?.context || requestSettings.context || requestSettings
     let callbackName = `jsonp${jsonpCallbackCounter++}`
     if (typeof requestSettings.jsonpCallback === 'string') {
         callbackName = requestSettings.jsonpCallback
@@ -109,8 +110,8 @@ function createCallback(requestSettings, mockHandler, origSettings, onSuccess, o
 
 /**
  * Check if the request is a remote JSONP request
- * @param {String} url - Request URL
- * @returns {Boolean} True if remote JSONP request
+ * @param {string} url - Request URL
+ * @returns {boolean} True if remote JSONP request
  */
 function isRemoteRequest(url) {
     const parts = URL_PROTOCOL_REGEX.exec(url)
@@ -125,7 +126,7 @@ function isRemoteRequest(url) {
  * @param {JQueryAjaxSettings} requestSettings - Request settings
  * @param {MockHandler} mockHandler - Mock handler configuration
  * @param {JQueryAjaxSettings} origSettings - Original request settings
- * @returns {Object|null} jQuery Deferred object or null
+ * @returns {object | null} jQuery Deferred object or null
  */
 function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
     const callbackContext = origSettings?.context || requestSettings
@@ -165,8 +166,8 @@ function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
  * Complete a JSONP call after the response is ready
  * @param {JQueryAjaxSettings} requestSettings - Request settings
  * @param {MockHandler} mockHandler - Mock handler configuration
- * @param {Object} callbackContext - Context for callbacks
- * @param {Object|null} deferred - jQuery Deferred object (if available)
+ * @param {object} callbackContext - Context for callbacks
+ * @param {object | null} deferred - jQuery Deferred object (if available)
  * @returns {void}
  */
 function completeJsonpCall(requestSettings, mockHandler, callbackContext, deferred) {
@@ -192,7 +193,7 @@ function completeJsonpCall(requestSettings, mockHandler, callbackContext, deferr
 /**
  * Trigger success callbacks for JSONP request
  * @param {JQueryAjaxSettings} requestSettings - Request settings
- * @param {Object} callbackContext - Context for callbacks
+ * @param {object} callbackContext - Context for callbacks
  * @param {MockHandler} mockHandler - Mock handler configuration
  * @returns {void}
  */
@@ -210,7 +211,7 @@ function triggerSuccess(requestSettings, callbackContext, mockHandler) {
 /**
  * Trigger complete callbacks for JSONP request
  * @param {JQueryAjaxSettings} requestSettings - Request settings
- * @param {Object} callbackContext - Context for callbacks
+ * @param {object} callbackContext - Context for callbacks
  * @returns {void}
  */
 function triggerComplete(requestSettings, callbackContext) {

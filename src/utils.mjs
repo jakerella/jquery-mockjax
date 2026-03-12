@@ -5,7 +5,7 @@
 
 /**
  * Generate a UUID using the Web Crypto API
- * @returns {String} RFC 4122 compliant UUID
+ * @returns {string} RFC 4122 compliant UUID
  * @throws {Error} If crypto.randomUUID() is not available
  */
 export function generateUUID() {
@@ -17,8 +17,8 @@ export function generateUUID() {
 
 /**
  * Deep clone an object
- * @param {Object} obj - Object to clone
- * @returns {Object} Cloned object
+ * @param {object} obj - Object to clone
+ * @returns {object} Cloned object
  */
 export function deepClone(obj) {
     try {

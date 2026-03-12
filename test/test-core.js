@@ -677,17 +677,21 @@
 	});
 
 	t('Inspecting $.mockjax.handler(id) after request has fired', function(assert) {
-		var ID = $.mockjax({
+		var done = assert.async();
+
+		var id = $.mockjax({
 			url: '/mockjax_properties',
-			responseText: 'Hello Word'
+			responseText: 'Hello World'
 		});
 
 		$.ajax({
 			url: '/mockjax_properties',
-			complete: function() {}
+			complete: function(xhr) {
+				assert.equal($.mockjax.mockedAjaxCalls().length, 1, 'The mock was called and the ajax call retained');
+				assert.ok($.mockjax.handler(id).fired, 'The mock\'s fired property is true after mock call');
+				done();
+			}
 		});
-
-		assert.ok($.mockjax.handler(ID).fired, 'Sets the mock\'s fired property to true');
 	});
 
 	t('Inspecting $.mockjax.handlers() for type and length', function(assert) {

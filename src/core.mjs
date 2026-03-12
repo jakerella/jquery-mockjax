@@ -5,8 +5,10 @@
 
 /**
  * @typedef {import('./typedefs.mjs').MockHandler} MockHandler
+ * @typedef {import('./typedefs.mjs').DynamicMockHandler} DynamicMockHandler
  * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
  * @typedef {import('./typedefs.mjs').AjaxCallbackType} AjaxCallbackType
+ * @typedef {import('./typedefs.mjs').AjaxCallback} AjaxCallback
  * @typedef {import('./typedefs.mjs').MockXHR} MockXHR
  */
 
@@ -22,14 +24,12 @@ const _ajax = $.ajax
 $.extend({
     ajax: mockAjaxCall,
 })
-// getLogger().debug('Mockjax startup')
 
 /**
  * Make a real $.ajax() call, ignoring any mock handling
- *
- * @param {(String|jQuery.ajaxSettings)} url - The request URL or ajax settings object
- * @param {?jQuery.ajaxSettings} settings - Optionally pass in jQuery Ajax settings (can also be passed as the first argument)
- * @returns {jqXHR} The jQuery Ajax XHR object
+ * @param {(string | JQueryAjaxSettings)} url - The request URL or ajax settings object
+ * @param {?JQueryAjaxSettings} settings - Optionally pass in jQuery Ajax settings (can also be passed as the first argument)
+ * @returns {MockXHR} The jQuery Ajax XHR object
  */
 export function realAjaxCall(url, settings) {
     return _ajax.apply($, [url, settings])
@@ -43,7 +43,7 @@ const mockHandlers = []
 
 /**
  * Hash of all handler objects by UUID
- * @type {Object.<String, MockHandler>}
+ * @type {{[key: string]: MockHandler}}
  */
 const mockHandlerLookup = {}
 
@@ -57,8 +57,8 @@ let settingsValidated = false
 
 /**
  * Register a mock AJAX handler
- * @param {MockHandler|MockHandler[]|Function} options - Mock handler options, array of options, or a function that will return options
- * @returns {String|String[]>} Handler ID(s) generated
+ * @param {(MockHandler | MockHandler[] | DynamicMockHandler)} options - Mock handler options, array of options, or a function that will return options
+ * @returns {(string | string[])} Handler ID(s) generated
  * @throws {TypeError} If settings are invalid
  */
 export function registerMockjaxHandler(options) {
@@ -83,23 +83,22 @@ export function registerMockjaxHandler(options) {
     validateHandlerOptions(options)
 
     // Create handler object
-    const handler = typeof options === 'function' ? options : { ...options }
-    handler.id = generateUUID()
-    handler.fired = false
-    handler.registeredAt = Date.now()
+    const mockHhandler = typeof options === 'function' ? options : { ...options }
+    mockHhandler.id = generateUUID()
+    mockHhandler.fired = false
+    mockHhandler.registeredAt = Date.now()
 
-    if (handler.headers && typeof handler.headers === 'object') {
-        handler.responseHeaders = handler.headers
+    if (mockHhandler.headers && typeof mockHhandler.headers === 'object') {
+        mockHhandler.responseHeaders = mockHhandler.headers
     }
 
-    // Register handler
-    mockHandlers.push(handler)
-    mockHandlerLookup[handler.id] = handler
+    mockHandlers.push(mockHhandler)
+    mockHandlerLookup[mockHhandler.id] = mockHhandler
 
     // TODO: update me
     // console.debug('Registered new handler:', {...handler})
 
-    return handler.id
+    return mockHhandler.id
 }
 
 /**
@@ -107,8 +106,7 @@ export function registerMockjaxHandler(options) {
  * mock request, if applicable. Note that this method matches the
  * signature of jQuery's `ajax` method, so the first argument can be
  * a URL _or_ the full ajax settings object.
- *
- * @param {(String|JQueryAjaxSettings)} url - The request URL or ajax settings object
+ * @param {(string | JQueryAjaxSettings)} url - The request URL or ajax settings object
  * @param {?JQueryAjaxSettings} origSettings - Optionally pass in jQuery Ajax settings (can also be passed as the first argument)
  * @returns {MockXHR} The XHR object used in the request. Note that this will be the real jQuery jqXHR object if the call was not mocked
  */
@@ -139,7 +137,7 @@ export function mockAjaxCall(url, origSettings) {
 
     if (!mockHandler) {
         if (getSettings().throwUnmocked === true) {
-            throw new Error('AJAX not mocked: ' + requestSettings.url)
+            throw new Error(`AJAX not mocked: ${  requestSettings.url}`)
         } else {
             // Not mocked, trigger a normal ajax request
             return realAjaxCall(url, origSettings)
@@ -231,22 +229,22 @@ export function mockAjaxCall(url, origSettings) {
  * @param {string|RegExp} [mechanism] - Handler ID, URL string, or URL RegExp
  * @returns {void}
  */
-export function clear(idOrUrl) {
+export function clear(mechanism) {
     console.warn(
         'The clear() method is deprecated. Use clearAll(), clearById(), or clearByUrl() instead.',
     )
 
     // Clear all handlers
-    if (idOrUrl === undefined) {
+    if (mechanism === undefined) {
         return clearAll()
     }
 
     // Clear by handler ID
-    if (mockHandlerLookup[idOrUrl]) {
-        return clearById(idOrUrl)
+    if (mockHandlerLookup[mechanism]) {
+        return clearById(mechanism)
     }
 
-    return clearByUrl(idOrUrl)
+    return clearByUrl(mechanism)
 }
 
 /**
@@ -256,7 +254,7 @@ export function clear(idOrUrl) {
 export function clearAll() {
     mockHandlers.length = 0
     const removed = Object.keys(mockHandlerLookup)
-    for (let id in mockHandlerLookup) {
+    for (const id in mockHandlerLookup) {
         delete mockHandlerLookup[id]
     }
     clearRetainedAjaxCalls(removed)
@@ -311,7 +309,7 @@ export function clearByUrl(urlOrPattern) {
 
 /**
  * Get registered mock handlers by ID(s)
- * @param {String[]} [ids] - Optional Array of handler IDs, or undefined for all
+ * @param {string[]} [ids] - Optional Array of handler IDs, or undefined for all
  * @returns {MockHandler[]} Array of handlers (null for invalid IDs)
  */
 export function handlers(ids) {
@@ -326,11 +324,11 @@ export function handlers(ids) {
     }
 
     return ids.map((id) => {
-        const handler = mockHandlerLookup[id]
-        if (!handler) {
+        const mockHandler = mockHandlerLookup[id]
+        if (!mockHandler) {
             return null
         }
-        const cloned = deepClone(handler)
+        const cloned = deepClone(mockHandler)
         cloned.clear = function () {
             clearById(this.id)
         }
@@ -341,7 +339,7 @@ export function handlers(ids) {
 /**
  * Get a single mock handler by ID (deprecated)
  * @deprecated Use handlers([id]) instead
- * @param {String} id - Handler ID
+ * @param {string} id - Handler ID
  * @returns {(MockHandler|null)} Handler or null
  */
 export function handler(id) {
@@ -383,7 +381,7 @@ export function unmockedAjaxCalls() {
 
 /**
  * Clear all retained AJAX call records
- * @param {?String[]} mockHandlerIds - An optional array of mock handler IDs to restrict clearing of retained ajax calls
+ * @param {?string[]} mockHandlerIds - An optional array of mock handler IDs to restrict clearing of retained ajax calls
  * @returns {void}
  */
 export function clearRetainedAjaxCalls(mockHandlerIds) {
@@ -456,7 +454,7 @@ function validateHandlerOptions(settings) {
             'The requestHeaders property must be a plain object of string names and values if it is set.',
         )
     } else {
-        for (let key in settings.requestHeaders) {
+        for (const key in settings.requestHeaders) {
             if (typeof key !== 'string' || typeof settings.requestHeaders[key] !== 'string') {
                 messages.push(
                     'The requestHeaders property must be a plain object of string names and values if it is set.',
@@ -550,7 +548,7 @@ function validateHandlerOptions(settings) {
             'The responseHeaders property must be a plain object of string names and values if it is set.',
         )
     } else {
-        for (let key in settings.responseHeaders) {
+        for (const key in settings.responseHeaders) {
             if (typeof key !== 'string' || typeof settings.responseHeaders[key] !== 'string') {
                 messages.push(
                     'The responseHeaders property must be a plain object of string names and values if it is set.',
@@ -567,7 +565,6 @@ function validateHandlerOptions(settings) {
 
 /**
  * Retain an AJAX call settings object and enforce retention limit
- *
  * @param {JQueryAjaxSettings} ajaxSettings - original jQuery Ajax call settings; note that this should already have the `mocked` and `mockHandlerId` properties set!
  * @returns {void}
  */
@@ -596,29 +593,27 @@ function retainAjaxCall(ajaxSettings) {
 /**
  * Generic function to override callback methods for use with ajax
  * callback options (onAfterSuccess, onAfterError, onAfterComplete)
- *
- * @param {Object} context The original context that the callback should execute in (the value of `this`)
- * @param {AjaxCallbackType} action
- * @param {MockHandler} mockHandler
- * @param {JQueryAjaxSettings} requestSettings
- * @returns {Function} The callback to be used after the ajax call
+ * @param {object} context The original context that the callback should execute in (the value of `this`)
+ * @param {AjaxCallbackType} action - The current event/action (success, error, complete)
+ * @param {MockHandler} mockHandler - The mock handler for this request
+ * @param {JQueryAjaxSettings} requestSettings - The request settings for this ajax call
+ * @returns {AjaxCallback} The callback to be used after the ajax call
  */
 function overrideCallback(context, action, mockHandler, requestSettings) {
     const origCallback = requestSettings[action.toLowerCase()]
-    return function () {
+    return (...args) => {
         if (typeof origCallback === 'function') {
-            origCallback.apply(context || {}, Array.from(arguments))
+            origCallback.apply(context || {}, args)
         }
-        mockHandler['onAfter' + action](requestSettings)
+        mockHandler[`onAfter${  action}`](requestSettings)
     }
 }
 
 /**
  * Redirect the mocked request to the location in the mock handler's headers
- *
- * @param {MockHandler} mockHandler
- * @param {JQueryAjaxSettings} requestSettings
- * @returns {MockXHR}
+ * @param {MockHandler} mockHandler - The mock handler for this request
+ * @param {JQueryAjaxSettings} requestSettings - The request settings for this ajax call
+ * @returns {MockXHR} - The new MockXHR object for the redirection
  */
 function redirectMockedRequest(mockHandler, requestSettings) {
     const newUrl = mockHandler.responseHeaders.Location || mockHandler.responseHeaders.location
@@ -641,9 +636,8 @@ function redirectMockedRequest(mockHandler, requestSettings) {
 /**
  * Copies URL parameter values captured by a regular expression
  * during URL matching into the requestSettings `urlParams` property.
- *
- * @param {MockHandler} mockHandler
- * @param {JQueryAjaxSettings} requestSettings
+ * @param {MockHandler} mockHandler - The mock handler for this request
+ * @param {JQueryAjaxSettings} requestSettings - The request settings for this ajax call
  * @returns {void}
  */
 function copyUrlParameters(mockHandler, requestSettings) {

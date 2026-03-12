@@ -3,10 +3,13 @@ import prettierConfig from 'eslint-config-prettier/flat'
 import { defineConfig } from 'eslint/config'
 
 export default defineConfig([
+    {
+        ignores: ['dist/', 'test/'],
+    },
     jsdoc.configs['flat/recommended'],
     {
         name: 'mockjax source',
-        files: ['src/**/*.js', 'test/**/*.js'],
+        files: ['src/**/*.mjs'],
         languageOptions: {
             sourceType: 'module',
             globals: {
@@ -20,9 +23,9 @@ export default defineConfig([
 		rules: {
             'semi': ['error', 'never'],
             'eqeqeq': ['error', 'always', { null: 'ignore' }],
-            'no-unused-vars': ['error', { 
-                argsIgnorePattern: '^_',
-                varsIgnorePattern: '^_'
+            'no-unused-vars': ['error', {
+                varsIgnorePattern: '_',
+                caughtErrors: 'none'
             }],
             'no-constant-condition': ['error', { checkLoops: false }],
             'no-eval': 'error',
@@ -51,7 +54,7 @@ export default defineConfig([
             'object-shorthand': ['warn', 'properties'],
             'no-array-constructor': 'warn',
             'prefer-template': 'warn',
-
+            
             'jsdoc/check-alignment': 'warn',
             'jsdoc/check-param-names': 'error',
             'jsdoc/check-tag-names': 'warn',
@@ -64,19 +67,5 @@ export default defineConfig([
             'jsdoc/require-returns-type': 'error'
 		}
 	},
-    {
-        name: 'mockjax tests',
-        files: ['test/**/*.js'],
-        languageOptions: {
-            globals: {
-                QUnit: 'readonly',
-                sinon: 'readonly'
-            }
-        },
-        rules: {
-            'no-unused-expressions': 'off',
-            'prefer-arrow-callback': 'off'
-        }
-    },
     prettierConfig
 ])

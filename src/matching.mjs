@@ -7,6 +7,8 @@
  * @typedef {import('./typedefs.mjs').HTTPMethod} HTTPMethod
  * @typedef {import('./typedefs.mjs').MockHandler} MockHandler
  * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
+ * @typedef {import('./typedefs.mjs').DataMatcher} DataMatcher
+ * @typedef {import('./typedefs.mjs').RequestData} RequestData
  */
 
 import { getSettings } from './settings.mjs'
@@ -55,10 +57,10 @@ export function findMatchingHandler(handlers, requestSettings) {
 
 /**
  * Match a request URL against a handler URL pattern
- * @param {(String|RegExp|undefined)} handlerUrl - Handler URL pattern
- * @param {String} requestUrl - Request URL to match
- * @param {(String|null)} namespace - Namespace to prepend to handler URL
- * @returns {Boolean} True if URL matches
+ * @param {?(string | RegExp)} handlerUrl - Handler URL pattern
+ * @param {string} requestUrl - Request URL to match
+ * @param {(string | null)} namespace - Namespace to prepend to handler URL
+ * @returns {boolean} True if URL matches
  */
 export function matchUrl(handlerUrl, requestUrl, namespace) {
     if (!handlerUrl) {
@@ -69,7 +71,7 @@ export function matchUrl(handlerUrl, requestUrl, namespace) {
         let pattern = handlerUrl
         if (namespace) {
             namespace = namespace.replace(/(\/+)$/, '')
-            const patternSource = handlerUrl.source.replace(/^\^?/, '^(?:' + namespace + ')\/?')
+            const patternSource = handlerUrl.source.replace(/^\^?/, `^(?:${namespace})\/?`)
             pattern = new RegExp(patternSource, handlerUrl.flags)
         }
         return pattern.test(requestUrl)
@@ -96,9 +98,9 @@ export function matchUrl(handlerUrl, requestUrl, namespace) {
 
 /**
  * Match request data against handler data pattern
- * @param {(Function|String|Object|undefined)} handlerData - Handler data pattern
- * @param {(String|Object)} requestData - Request data to match
- * @returns {Boolean} True if data matches
+ * @param {?DataMatcher} handlerData - Handler data pattern
+ * @param {(string | RequestData)} requestData - Request data to match
+ * @returns {boolean} True if data matches
  */
 export function matchData(handlerData, requestData) {
     if (typeof handlerData === 'undefined') {
@@ -156,9 +158,9 @@ export function matchData(handlerData, requestData) {
 
 /**
  * Match request headers against handler header requirements
- * @param {Object|undefined} handlerHeaders - Handler header requirements
- * @param {Object} requestHeaders - Request headers to match
- * @returns {Boolean} True if headers match
+ * @param {?{[key: string]: string}} handlerHeaders - Handler header requirements
+ * @param {?{[key: string]: string}} requestHeaders - Request headers to match
+ * @returns {boolean} True if headers match
  */
 export function matchHeaders(handlerHeaders, requestHeaders) {
     if (!handlerHeaders) {
@@ -193,14 +195,20 @@ export function matchHeaders(handlerHeaders, requestHeaders) {
 
 /**
  * Match HTTP method (type) against handler type
- * @param {(HTTPMethod|undefined)} handlerMethod - Handler HTTP method
- * @param {String} requestMethod - Actual request HTTP method
- * @returns {Boolean} True if method matches
+ * @param {(HTTPMethod | undefined)} handlerMethod - Handler HTTP method
+ * @param {string} requestMethod - Actual request HTTP method
+ * @returns {boolean} True if method matches
  */
 export function matchMethod(handlerMethod, requestMethod) {
     return !handlerMethod || handlerMethod.toUpperCase() === requestMethod.toUpperCase()
 }
 
+/**
+ * Parse the provided query string into a hash of name-value pairs,
+ * including generating an array for duplicate query param names.
+ * @param {string} queryString - A well formatted query string
+ * @returns {{[key: string]: (string | string[])}} A hash of the query params
+ */
 function getQueryParams(queryString) {
     const params = {}
     String(queryString)
