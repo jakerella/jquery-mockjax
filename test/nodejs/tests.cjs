@@ -6,17 +6,22 @@ const JSDOM = require('jsdom').JSDOM
 
 const metadata = JSON.parse(fs.readFileSync('./package.json').toString())
 const jqVersions = Object.keys(metadata.peerDependencies)
-
-// NOTE: There is a bug in jQuery 4.0.0 which breaks usage of jQuery in CommonJS
-// (at least, how it is used in v3.7.1)
-// For now, we'll run these tests in v3. When the bug is fixed, we can change 
-// the "-2" below to "-1" to test on the latest jQuery version
-// https://github.com/jquery/jquery/issues/5797
-const jqLibrary = jqVersions[jqVersions.length-2]
+const jqLibrary = jqVersions[jqVersions.length-1]
 
 const window = (new JSDOM('<html></html>')).window
-window.jQuery = require(jqLibrary)(window)
+
+// NOTE: jQuery 4.0.0 changed the UMD wrapper which changes how we use 
+// jQuery in a CommonJS context. This check ensures we use the correct
+// method (https://github.com/jquery/jquery/issues/5797)
+if (/4$/.test(jqLibrary)) {
+    const { jQueryFactory } = require('jquery4/factory')
+    window.jQuery = jQueryFactory(window)
+} else {
+    window.jQuery = require(jqLibrary)(window)
+}
 const $ = window.jQuery
+
+console.log(`Running Nodejs tests against jQuery ${$.fn.jquery} and Mockjax ${metadata.version}`)
 
 QUnit.module('Basic Nodejs Tests', {
     teardown: () => {
