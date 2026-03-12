@@ -3,11 +3,7 @@
  * @module mockjax
  */
 
-import {
-    getSettings,
-    resetSettings,
-    validateSettings
-} from './settings.mjs'
+import { getSettings, resetSettings, validateSettings } from './settings.mjs'
 import { getLogger } from './logger.mjs'
 import {
     registerMockjaxHandler,
@@ -20,7 +16,7 @@ import {
     unfiredHandlers,
     mockedAjaxCalls,
     unmockedAjaxCalls,
-    clearRetainedAjaxCalls
+    clearRetainedAjaxCalls,
 } from './core.mjs'
 
 // Export public API
@@ -39,7 +35,7 @@ export {
     getSettings,
     resetSettings,
     validateSettings,
-    getLogger
+    getLogger,
 }
 
 // Default export
@@ -58,12 +54,12 @@ export default {
     getSettings,
     resetSettings,
     validateSettings,
-    getLogger
+    getLogger,
 }
 
 $.mockjaxSettings = getSettings()
 $.mockjax = registerMockjaxHandler
-$.mockjax.getLogger =getLogger
+$.mockjax.getLogger = getLogger
 $.mockjax.resetSettings = resetSettings
 $.mockjax.validateSettings = validateSettings
 $.mockjax.clear = clear

@@ -1,4 +1,3 @@
-
 /**
  * Valid HTTP methods enum
  * @typedef HTTPMethod
@@ -19,7 +18,7 @@
 
 /**
  * Global configuration object for mockjax
- * 
+ *
  * @typedef {Object} MockjaxSettings
  * @property {Object.<String, Function>} logger - Logger object
  * @property {Number} logging - Logging level
@@ -49,7 +48,7 @@
  * Valid options for a jQuery Mockjax handler. Note that any missing
  * options for the Response will be pulled from $.mockjaxSettings.
  * One of (url, type, data, or requestHeaders) must be provided.
- * 
+ *
  * @typedef {Object} MockHandler
  * @property {?(String|RegExp)} url - The URL to match against
  * @property {?HTTPMethod} type - Deprecated, use method
@@ -78,13 +77,13 @@
 
 /**
  * The current jQuery ajaxSettings (from version 4.0.0). Note that
- * there are many other properties and  callback methods not 
+ * there are many other properties and  callback methods not
  * specified here, but supported by the framework.
  * https://api.jquery.com/jQuery.ajax/
- * 
+ *
  * Additionally, this object includes three Mockjax properties added on
  * (mocked, mockHandlerId, and a timestamp) for tracking mockjax operations.
- * 
+ *
  * @typedef {Object} JQueryAjaxSettings
  * @property {String} url - The location for the request (location.href)
  * @property {HTTPMethod} method - The HTTP Method ("GET")
@@ -104,9 +103,9 @@
 /**
  * A mock of an XMLHttpRequest object that can be used to simulate
  * an ajax call inside of jQuery. Note that this does NOT implement
- * all methods of a real XHR object, so it should not be used 
+ * all methods of a real XHR object, so it should not be used
  * outside of the Mockjax library!
- * 
+ *
  * @typedef {Object} MockXHR
  * @property {Number} status The mocked HTTP status code
  * @property {String} statusText The mocked HTTP status text

@@ -13,9 +13,12 @@ import { getSettings } from './settings.mjs'
 import { realAjaxCall } from './core.mjs'
 
 const READYSTATE = {
-    unsent: 0, opened: 1, headers: 2, loading: 3, done: 4
+    unsent: 0,
+    opened: 1,
+    headers: 2,
+    loading: 3,
+    done: 4,
 }
-
 
 /**
  * Create a mock XMLHttpRequest object
@@ -24,7 +27,7 @@ const READYSTATE = {
  * @returns {MockXHR} Mock XHR object suitable for inserting into a jQuery.ajax() call
  */
 export function createMockXHR(mockHandler, requestSettings) {
-    const allMockSettings = {...getSettings(), ...mockHandler}
+    const allMockSettings = { ...getSettings(), ...mockHandler }
 
     if (!allMockSettings.headers) {
         allMockSettings.headers = {}
@@ -59,7 +62,7 @@ export function createMockXHR(mockHandler, requestSettings) {
             if (allMockSettings.headers && allMockSettings.headers[header]) {
                 return allMockSettings.headers[header]
             } else if (header.toLowerCase() === 'last-modified') {
-                return allMockSettings.lastModified || (new Date()).toString()
+                return allMockSettings.lastModified || new Date().toString()
             } else if (header.toLowerCase() === 'etag') {
                 return allMockSettings.etag || ''
             } else if (header.toLowerCase() === 'content-type') {
@@ -69,28 +72,28 @@ export function createMockXHR(mockHandler, requestSettings) {
         getAllResponseHeaders: function () {
             // since jQuery 1.9 responseText type has to match contentType
             if (allMockSettings.contentType) {
-                allMockSettings.headers['content-type'] = allMockSettings.contentType;
+                allMockSettings.headers['content-type'] = allMockSettings.contentType
             }
             return Object.entries(allMockSettings.headers)
-                .map(entry => {
+                .map((entry) => {
                     return `${entry[0]}: ${entry[1]}`
                 })
                 .join('\n')
-        }
+        },
     }
 }
 
 /**
  * Do the XHR send() and generate a mock response on the MockXHR object
- * 
- * @param {MockHandler} mockHandler 
- * @param {JQueryAjaxSettings} requestSettings 
+ *
+ * @param {MockHandler} mockHandler
+ * @param {JQueryAjaxSettings} requestSettings
  * @returns {void}
  */
 function sendXHR(mockHandler, requestSettings) {
     const mockXHR = this
 
-    const processRequest = function() {
+    const processRequest = function () {
         mockXHR.readyState = READYSTATE.loading
 
         if (typeof mockHandler.response === 'function') {
@@ -104,7 +107,7 @@ function sendXHR(mockHandler, requestSettings) {
                 mockHandler.response(requestSettings)
             }
         }
-        
+
         generateResponse(mockXHR, mockHandler, requestSettings)
     }
 
@@ -118,34 +121,40 @@ function sendXHR(mockHandler, requestSettings) {
             async: false,
             // If the underlying (mocked) ajax request is doing a `script` call,
             // we need to get the script in plain text so it can be run by jQuery later
-            dataType: requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
-            complete: function(xhr) {
+            dataType:
+                requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
+            complete: function (xhr) {
                 // Fix for bug #105
                 // jQuery will convert the text to XML for us, and if we use the actual responseXML here
                 // then some other things don't happen, resulting in no data given to the 'success' cb
-                mockHandler.responseXML = mockHandler.responseText = String(xhr.responseText);
-                
-                if ( requestSettings.async === false ) {
+                mockHandler.responseXML = mockHandler.responseText = String(xhr.responseText)
+
+                if (requestSettings.async === false) {
                     processRequest()
                 } else {
-                    this.responseTimer = setTimeout(processRequest, determineResponseTime(mockHandler.responseTime))
+                    this.responseTimer = setTimeout(
+                        processRequest,
+                        determineResponseTime(mockHandler.responseTime),
+                    )
                 }
-            }
+            },
         })
     } else {
         if (requestSettings.async === false) {
             processRequest()
         } else {
-            mockXHR.responseTimer = setTimeout(processRequest, determineResponseTime(mockHandler.responseTime))
+            mockXHR.responseTimer = setTimeout(
+                processRequest,
+                determineResponseTime(mockHandler.responseTime),
+            )
         }
     }
 }
 
-
 /**
  * Determine an appropriate response time for the mock request
- * 
- * @param {(Number|Number[2])} responseTime 
+ *
+ * @param {(Number|Number[2])} responseTime
  * @returns {Number}
  */
 export function determineResponseTime(responseTime) {
@@ -155,18 +164,16 @@ export function determineResponseTime(responseTime) {
         const min = Math.min(one, two)
         const max = Math.max(one, two)
         return Math.floor(Math.random() * (max - min)) + min
-
     } else if (Number(responseTime)) {
         return Number(responseTime)
     }
     return getSettings().responseTime
 }
 
-
 /**
  * Mock the response by updating the MockXHR object for the request with various
  * response fields before passing control back to jQuery's onreadystatechange callback.
- * 
+ *
  * @param {MockXHR} mockXHR - The mock XmlHTTPRequest object to modify
  * @param {MockHandler} mockHandler
  * @param {JQueryAjaxSettings} requestSettings
@@ -177,9 +184,8 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
     mockXHR.statusText = mockHandler.statusText
     mockXHR.readyState = READYSTATE.done
 
-    if (requestSettings.dataType === 'json' && (typeof mockHandler.responseText === 'object') ) {
+    if (requestSettings.dataType === 'json' && typeof mockHandler.responseText === 'object') {
         mockXHR.responseText = JSON.stringify(mockHandler.responseText)
-
     } else if (requestSettings.dataType === 'xml') {
         if (typeof mockHandler.responseXML === 'string') {
             mockXHR.responseXML = parseXML(mockHandler.responseXML)
@@ -188,12 +194,10 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
         } else {
             mockXHR.responseXML = mockHandler.responseXML
         }
-
     } else if (typeof mockHandler.responseText === 'object' && mockHandler.responseText !== null) {
         // since jQuery 1.9 responseText type has to match contentType
         mockHandler.contentType = 'application/json'
         mockXHR.responseText = JSON.stringify(mockHandler.responseText)
-
     } else {
         mockXHR.responseText = String(mockHandler.responseText)
     }
@@ -203,7 +207,6 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
         // Random status code assignment in mock handler
         statusIndex = Math.floor(Math.random() * mockHandler.status.length)
         mockXHR.status = mockHandler.status[statusIndex]
-
     } else {
         mockXHR.status = Number(mockHandler.status) || getSettings().status || 200
     }
@@ -220,36 +223,35 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
     const onReady = mockXHR.onload || mockXHR.onreadystatechange
 
     if (typeof onReady === 'function') {
-        if(mockHandler.isTimeout) {
+        if (mockHandler.isTimeout) {
             mockXHR.status = -1
         }
-        onReady.call( mockXHR, mockHandler.isTimeout ? 'timeout' : undefined )
+        onReady.call(mockXHR, mockHandler.isTimeout ? 'timeout' : undefined)
     }
 }
 
 /**
  * Parse an XML string into a document
- * 
+ *
  * @param {String} xml - The xml string to parse
  * @returns {Document}
  * @throws {TypeError}
  */
 function parseXML(xml) {
     try {
-        const xmlDoc = (new DOMParser()).parseFromString(xml, 'text/xml')
-        if ( $.isXMLDoc( xmlDoc ) ) {
+        const xmlDoc = new DOMParser().parseFromString(xml, 'text/xml')
+        if ($.isXMLDoc(xmlDoc)) {
             var err = $('parsererror', xmlDoc)
-            if ( err.length === 1 ) {
-                throw new TypeError('Error: ' + $(xmlDoc).text() )
+            if (err.length === 1) {
+                throw new TypeError('Error: ' + $(xmlDoc).text())
             }
         } else {
             throw new TypeError('Unable to parse XML')
         }
         return xmlDoc
-
-    } catch(err) {
-        var msg = (err.name === undefined) ? err : `${err.name}: ${err.message}`
-        $(document).trigger('xmlParseError', [ msg ])
+    } catch (err) {
+        var msg = err.name === undefined ? err : `${err.name}: ${err.message}`
+        $(document).trigger('xmlParseError', [msg])
         throw new TypeError(msg)
     }
 }

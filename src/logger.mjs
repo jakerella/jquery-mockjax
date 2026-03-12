@@ -8,11 +8,10 @@ import { getSettings } from './settings.mjs'
 const DEFAULT_LOG_LEVEL = 2
 const DEFAULT_LOG_LEVEL_METHODS = ['error', 'warn', 'info', 'log', 'debug']
 
-
 /**
  * This will return the current logger implementation from $.mockjaxSettings
  * or a no-op version if that setting is null or otherwise not implemented
- * 
+ *
  * @returns {Object} The current logger implementation
  */
 export function getLogger() {
@@ -37,8 +36,8 @@ class Logger {
     constructor(level, methods) {
         this.#level = level
         this.#methods = methods
-        this.#methods.forEach(m => {
-            this[m] = function() {
+        this.#methods.forEach((m) => {
+            this[m] = function () {
                 return this.#writeLog(m, ...arguments)
             }
         })

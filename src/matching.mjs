@@ -36,9 +36,8 @@ export function findMatchingHandler(handlers, requestSettings) {
         }
 
         // Determine namespace
-        const namespace = handler.namespace !== undefined
-            ? handler.namespace
-            : getSettings().namespace
+        const namespace =
+            handler.namespace !== undefined ? handler.namespace : getSettings().namespace
 
         // Match all criteria (AND logic)
         if (
@@ -70,19 +69,17 @@ export function matchUrl(handlerUrl, requestUrl, namespace) {
         let pattern = handlerUrl
         if (namespace) {
             namespace = namespace.replace(/(\/+)$/, '')
-            const patternSource = handlerUrl.source.replace(/^\^?/, '^(?:' + namespace + ')\/?');
+            const patternSource = handlerUrl.source.replace(/^\^?/, '^(?:' + namespace + ')\/?')
             pattern = new RegExp(patternSource, handlerUrl.flags)
         }
         return pattern.test(requestUrl)
-
     } else {
-
         let effectiveUrlPattern = String(handlerUrl)
 
         if (namespace) {
             effectiveUrlPattern = [
                 namespace.replace(/(\/+)$/, ''),
-                handlerUrl.replace(/^(\/+)/, '')
+                handlerUrl.replace(/^(\/+)/, ''),
             ].join('/')
         }
 
@@ -91,8 +88,8 @@ export function matchUrl(handlerUrl, requestUrl, namespace) {
         } else {
             effectiveUrlPattern = effectiveUrlPattern
                 .replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&')
-                .replace(/\*/g, '[A-Za-z0-9\\-\\._~:\\/?#\\[\\]@!\\$&\'()*+,;%=]+')
-            return (new RegExp(effectiveUrlPattern)).test(requestUrl)
+                .replace(/\*/g, "[A-Za-z0-9\\-\\._~:\\/?#\\[\\]@!\\$&'()*+,;%=]+")
+            return new RegExp(effectiveUrlPattern).test(requestUrl)
         }
     }
 }
@@ -132,17 +129,19 @@ export function matchData(handlerData, requestData) {
         }
 
         const keys = Object.keys(handlerData)
-        for (let i=0, l=keys.length; i<l; ++i) {
+        for (let i = 0, l = keys.length; i < l; ++i) {
             const mockValue = handlerData[keys[i]]
             const actualValue = requestDataObject && requestDataObject[keys[i]]
             if (actualValue === undefined) {
                 valid = false
             } else if (mockValue instanceof RegExp && typeof actualValue === 'string') {
                 valid = valid && mockValue.test(actualValue)
-            } else if (Array.isArray(mockValue) && 
-                       Array.isArray(actualValue) &&
-                       mockValue.length === actualValue.length) {
-                valid = valid && !mockValue.filter(v => !actualValue.includes(v)).length
+            } else if (
+                Array.isArray(mockValue) &&
+                Array.isArray(actualValue) &&
+                mockValue.length === actualValue.length
+            ) {
+                valid = valid && !mockValue.filter((v) => !actualValue.includes(v)).length
             } else if (typeof mockValue === 'object' && typeof actualValue === 'object') {
                 valid = valid && matchData(mockValue, actualValue)
             } else if (typeof mockValue === 'function') {
@@ -170,14 +169,16 @@ export function matchHeaders(handlerHeaders, requestHeaders) {
     }
 
     const lowercaseRequestHeaders = {}
-    Object.keys(requestHeaders || {}).forEach(name => {
+    Object.keys(requestHeaders || {}).forEach((name) => {
         lowercaseRequestHeaders[name.toLowerCase()] = name
     })
     const handlerHeaderNames = Object.keys(handlerHeaders)
 
-    for (let i=0, l=handlerHeaderNames.length; i<l; ++i) {
+    for (let i = 0, l = handlerHeaderNames.length; i < l; ++i) {
         const mockValue = handlerHeaders[handlerHeaderNames[i]]
-        const actualValue = requestHeaders && requestHeaders[lowercaseRequestHeaders[handlerHeaderNames[i].toLowerCase()]]
+        const actualValue =
+            requestHeaders &&
+            requestHeaders[lowercaseRequestHeaders[handlerHeaderNames[i].toLowerCase()]]
         if (typeof mockValue !== 'string') {
             return false
         } else if (!lowercaseRequestHeaders[handlerHeaderNames[i].toLowerCase()]) {
@@ -200,19 +201,18 @@ export function matchMethod(handlerMethod, requestMethod) {
     return !handlerMethod || handlerMethod.toUpperCase() === requestMethod.toUpperCase()
 }
 
-
 function getQueryParams(queryString) {
     const params = {}
     String(queryString)
         .split(/&/)
-        .map(p => {
+        .map((p) => {
             return decodeURIComponent(p.replace(/\+/g, ' ')).split(/=/)
         })
-        .forEach(param => {
+        .forEach((param) => {
             if (params[param[0]]) {
                 // this is an array query param (more than one entry in query)
                 if (!Array.isArray(params[param[0]])) {
-                    params[param[0]] = [ params[param[0]] ]
+                    params[param[0]] = [params[param[0]]]
                 }
                 params[param[0]].push(param[1])
             } else {

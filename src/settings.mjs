@@ -9,7 +9,7 @@
 
 const DEFAULTS = {
     logger: null,
-    logging: null,  // Deprecated
+    logging: null, // Deprecated
     logLevel: 2,
     namespace: null,
     status: 200,
@@ -26,10 +26,10 @@ const DEFAULTS = {
     proxyType: 'GET',
     lastModified: null,
     etag: 'IJF@H#@923uf8023hFO@I#H#',
-    headers: null,  // Deprecated
+    headers: null, // Deprecated
     responseHeaders: {},
     matchInRegistrationOrder: true,
-    followRedirects: true
+    followRedirects: true,
 }
 
 /**
@@ -37,7 +37,7 @@ const DEFAULTS = {
  * @returns {MockjaxSettings}
  */
 export function getSettings() {
-    return $.mockjaxSettings || {...DEFAULTS}
+    return $.mockjaxSettings || { ...DEFAULTS }
 }
 
 /**
@@ -45,7 +45,7 @@ export function getSettings() {
  * @returns {MockjaxSettings}
  */
 export function resetSettings() {
-    $.mockjaxSettings = {...DEFAULTS}
+    $.mockjaxSettings = { ...DEFAULTS }
     return $.mockjaxSettings
 }
 
@@ -59,13 +59,16 @@ export function validateSettings() {
 
     const messages = []
 
-    if (settings.logger &&
+    if (
+        settings.logger &&
         (typeof settings.logger !== 'object' ||
-        ['error', 'warn', 'info', 'log', 'debug'].filter(m => typeof settings.logger[m] !== 'function').length)
+            ['error', 'warn', 'info', 'log', 'debug'].filter(
+                (m) => typeof settings.logger[m] !== 'function',
+            ).length)
     ) {
         messages.push('The logger must be an object with standard window.console logging methods')
     }
-    
+
     if (!Number.isInteger(settings.logLevel) && !Number.isInteger(settings.logging)) {
         messages.push(`The logLevel setting must be an integer`)
     }
@@ -74,15 +77,20 @@ export function validateSettings() {
         messages.push('The namespace setting must be a string or null')
     }
 
-    const statusErrMessage = 'The status setting must be a number between 100 and 599 or an array of such numbers'
+    const statusErrMessage =
+        'The status setting must be a number between 100 and 599 or an array of such numbers'
     if (Array.isArray(settings.status)) {
-        const invalidStatuses = settings.status.filter(s => {
+        const invalidStatuses = settings.status.filter((s) => {
             return !Number.isInteger(s) || s < 100 || s > 599
         })
         if (invalidStatuses.length) {
             messages.push(statusErrMessage)
         }
-    } else if (!Number.isInteger(settings.status) || settings.status < 100 || settings.status > 599) {
+    } else if (
+        !Number.isInteger(settings.status) ||
+        settings.status < 100 ||
+        settings.status > 599
+    ) {
         messages.push(statusErrMessage)
     }
 
@@ -106,7 +114,10 @@ export function validateSettings() {
         messages.push('The retainAjaxCalls setting must be an integer (-1 to retain all calls)')
     }
 
-    if (typeof settings.contentType !== 'string' || !/^[a-z0-9\.\-+]+\/[a-z0-9\.\-+]+/i.test(settings.contentType)) {
+    if (
+        typeof settings.contentType !== 'string' ||
+        !/^[a-z0-9\.\-+]+\/[a-z0-9\.\-+]+/i.test(settings.contentType)
+    ) {
         messages.push('The contentType setting must be a valid minetype string')
     }
 
@@ -121,15 +132,15 @@ export function validateSettings() {
     if (settings.responseXML !== null && typeof settings.responseXML !== 'string') {
         messages.push('The responseXML setting must be a string or null')
     }
-    
+
     if (settings.proxy !== null && typeof settings.proxy !== 'string') {
         messages.push('The proxy setting must be a string or null')
     }
-    
+
     if (settings.proxyType !== null && typeof settings.proxyType !== 'string') {
         messages.push('The proxyType setting must be a string or null')
     }
-    
+
     if (settings.lastModified !== null && typeof settings.lastModified !== 'string') {
         messages.push('The lastModified setting must be a date string or null')
     }
@@ -138,16 +149,19 @@ export function validateSettings() {
         messages.push('The etag setting must be a string or null')
     }
 
-    const headersErrMessage = 'If no null, the responseHeaders must be a simple object of string keys and values'
+    const headersErrMessage =
+        'If no null, the responseHeaders must be a simple object of string keys and values'
     if (typeof settings.responseHeaders === 'object' && settings.responseHeaders !== null) {
-        const badHeaders = Object.keys(settings.responseHeaders).filter(k => (typeof k !== 'string' || typeof settings.responseHeaders[k] !== 'string'))
+        const badHeaders = Object.keys(settings.responseHeaders).filter(
+            (k) => typeof k !== 'string' || typeof settings.responseHeaders[k] !== 'string',
+        )
         if (badHeaders.length) {
             messages.push(headersErrMessage)
         }
     } else if (typeof settings.responseHeaders !== null) {
         messages.push(headersErrMessage)
     }
-    
+
     if (typeof settings.matchInRegistrationOrder !== 'boolean') {
         messages.push('The matchInRegistrationOrder setting must be a boolean')
     }

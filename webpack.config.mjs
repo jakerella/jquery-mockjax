@@ -10,7 +10,7 @@ const pkg = JSON.parse(readFileSync(path.resolve(import.meta.dirname, 'package.j
 // Generate banner comment with version and build date
 const banner = `/*!
  * jQuery Mockjax v${pkg.version} - https://github.com/jakerella/jquery-mockjax
- * Build Timestamp: ${new Date().toISOString()}
+ * Build Date: ${new Date().toISOString().split('T')[0]}
  * Copyright (c) ${new Date().getFullYear()} Jordan Kasper and contributors, formerly appendTo
  * Licensed under the MIT license
  */

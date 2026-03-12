@@ -17,18 +17,16 @@ import { findMatchingHandler } from './matching.mjs'
 import { processJsonpMock } from './jsonp.mjs'
 import { createMockXHR } from './xhr.mjs'
 
-
 // TODO: should this go in here??
 const _ajax = $.ajax
 $.extend({
-	ajax: mockAjaxCall
+    ajax: mockAjaxCall,
 })
 // getLogger().debug('Mockjax startup')
 
-
 /**
  * Make a real $.ajax() call, ignoring any mock handling
- * 
+ *
  * @param {(String|jQuery.ajaxSettings)} url - The request URL or ajax settings object
  * @param {?jQuery.ajaxSettings} settings - Optionally pass in jQuery Ajax settings (can also be passed as the first argument)
  * @returns {jqXHR} The jQuery Ajax XHR object
@@ -36,7 +34,6 @@ $.extend({
 export function realAjaxCall(url, settings) {
     return _ajax.apply($, [url, settings])
 }
-
 
 /**
  * Array of registered mock handlers
@@ -56,9 +53,7 @@ const mockHandlerLookup = {}
  */
 const retainedAjaxCalls = []
 
-
 let settingsValidated = false
-
 
 /**
  * Register a mock AJAX handler
@@ -67,7 +62,6 @@ let settingsValidated = false
  * @throws {TypeError} If settings are invalid
  */
 export function registerMockjaxHandler(options) {
-
     // We only do this once per load of Mockjax (the the first handler is registered)
     if (!settingsValidated) {
         validateSettings()
@@ -77,19 +71,19 @@ export function registerMockjaxHandler(options) {
     options = options || {}
 
     if (Array.isArray(options)) {
-        return options.map(handlerSettings => registerMockjaxHandler(handlerSettings))
+        return options.map((handlerSettings) => registerMockjaxHandler(handlerSettings))
     }
 
     if (typeof options === 'object') {
         options.method = options.method || options.type
         options.responseHeaders
     }
-    
+
     // Validate options
     validateHandlerOptions(options)
 
     // Create handler object
-    const handler = (typeof options === 'function') ? options : { ...options }
+    const handler = typeof options === 'function' ? options : { ...options }
     handler.id = generateUUID()
     handler.fired = false
     handler.registeredAt = Date.now()
@@ -109,11 +103,11 @@ export function registerMockjaxHandler(options) {
 }
 
 /**
- * Intercept an AJAX request, find matching handler, and construct the 
- * mock request, if applicable. Note that this method matches the 
- * signature of jQuery's `ajax` method, so the first argument can be 
+ * Intercept an AJAX request, find matching handler, and construct the
+ * mock request, if applicable. Note that this method matches the
+ * signature of jQuery's `ajax` method, so the first argument can be
  * a URL _or_ the full ajax settings object.
- * 
+ *
  * @param {(String|JQueryAjaxSettings)} url - The request URL or ajax settings object
  * @param {?JQueryAjaxSettings} origSettings - Optionally pass in jQuery Ajax settings (can also be passed as the first argument)
  * @returns {MockXHR} The XHR object used in the request. Note that this will be the real jQuery jqXHR object if the call was not mocked
@@ -122,7 +116,7 @@ export function mockAjaxCall(url, origSettings) {
     let tempSettings = {}
 
     // If url is an object, simulate pre-1.5 signature
-    if ( typeof url === 'object' ) {
+    if (typeof url === 'object') {
         tempSettings = url
     } else if (origSettings && typeof origSettings === 'object') {
         tempSettings = origSettings
@@ -131,42 +125,45 @@ export function mockAjaxCall(url, origSettings) {
 
     // Extend the original settings for the request to include defaults
     const requestSettings = $.ajaxSetup({}, tempSettings)
-    
+
     // Standardize HTTP method
     requestSettings.type = requestSettings.method || requestSettings.type
     requestSettings.method = requestSettings.type
 
     const mockHandler = findMatchingHandler(mockHandlers, requestSettings)
 
-    requestSettings.mocked = (mockHandler) ? true : false
-    requestSettings.mockHandlerId = (mockHandler) ? mockHandler.id : null
+    requestSettings.mocked = mockHandler ? true : false
+    requestSettings.mockHandlerId = mockHandler ? mockHandler.id : null
 
     retainAjaxCall(requestSettings)
 
     if (!mockHandler) {
-        if(getSettings().throwUnmocked === true) {
+        if (getSettings().throwUnmocked === true) {
             throw new Error('AJAX not mocked: ' + requestSettings.url)
         } else {
             // Not mocked, trigger a normal ajax request
             return realAjaxCall(url, origSettings)
         }
     }
-    
+
     mockHandler.fired = true
 
     // HTTP Redirect handling
     // TODO: make this work for other 300's and methods
-    if ((mockHandler.status === 301 || mockHandler.status === 302) &&
+    if (
+        (mockHandler.status === 301 || mockHandler.status === 302) &&
         getSettings().followRedirects === true &&
         (mockHandler.responseHeaders.Location || mockHandler.responseHeaders.location) &&
-        (requestSettings.method.toUpperCase() === 'GET' || requestSettings.method.toUpperCase() === 'HEAD')
+        (requestSettings.method.toUpperCase() === 'GET' ||
+            requestSettings.method.toUpperCase() === 'HEAD')
     ) {
         return redirectMockedRequest(mockHandler, requestSettings)
     }
 
-    if (Number($.fn.jquery.split('.')[0]) > 3 &&
+    if (
+        Number($.fn.jquery.split('.')[0]) > 3 &&
         (requestSettings.dataType?.toUpperCase() === 'JSONP' ||
-         requestSettings.dataType?.toUpperCase() === 'SCRIPT') &&
+            requestSettings.dataType?.toUpperCase() === 'SCRIPT') &&
         !Object.keys(requestSettings.headers || {}).length
     ) {
         // In Jquery 4.0.0 they introduced a change that uses <script> tags in more situations,
@@ -194,7 +191,7 @@ export function mockAjaxCall(url, origSettings) {
     // mockHandler.timeout = requestSettings.timeout;
     // mockHandler.global = requestSettings.global;
 
-    // In the case of a timeout, we need to ensure an actual jQuery timeout 
+    // In the case of a timeout, we need to ensure an actual jQuery timeout
     // (That is, our reponse won't) return faster than the timeout setting.
     if (mockHandler.isTimeout === true) {
         if (mockHandler.responseTime > 1) {
@@ -206,9 +203,14 @@ export function mockAjaxCall(url, origSettings) {
     }
 
     const that = this
-    ;['Success', 'Error', 'Complete'].forEach(action => {
+    ;['Success', 'Error', 'Complete'].forEach((action) => {
         if (typeof mockHandler[`onAfter${action}`] === 'function') {
-            requestSettings[action.toLowerCase()] = overrideCallback(that, action, mockHandler, requestSettings)
+            requestSettings[action.toLowerCase()] = overrideCallback(
+                that,
+                action,
+                mockHandler,
+                requestSettings,
+            )
         }
     })
 
@@ -217,10 +219,11 @@ export function mockAjaxCall(url, origSettings) {
     // Now we call the real jQuery ajax() method, but with our own XHR
     return realAjaxCall({
         ...requestSettings,
-        xhr: () => { return createMockXHR(mockHandler, requestSettings) }
+        xhr: () => {
+            return createMockXHR(mockHandler, requestSettings)
+        },
     })
 }
-
 
 /**
  * Clear mock handler(s) by handler ID, RegExp, or String pattern
@@ -229,8 +232,10 @@ export function mockAjaxCall(url, origSettings) {
  * @returns {void}
  */
 export function clear(idOrUrl) {
-    console.warn('The clear() method is deprecated. Use clearAll(), clearById(), or clearByUrl() instead.')
-    
+    console.warn(
+        'The clear() method is deprecated. Use clearAll(), clearById(), or clearByUrl() instead.',
+    )
+
     // Clear all handlers
     if (idOrUrl === undefined) {
         return clearAll()
@@ -265,7 +270,7 @@ export function clearAll() {
 export function clearById(id) {
     if (mockHandlerLookup[id]) {
         delete mockHandlerLookup[id]
-        const index = mockHandlers.findIndex(h => h.id === id)
+        const index = mockHandlers.findIndex((h) => h.id === id)
         if (index !== -1) {
             mockHandlers.splice(index, 1)
             clearRetainedAjaxCalls([id])
@@ -283,12 +288,13 @@ export function clearById(id) {
 export function clearByUrl(urlOrPattern) {
     const removed = []
     for (let i = mockHandlers.length - 1; i > -1; --i) {
-        if (urlOrPattern instanceof RegExp && mockHandlers[i].url instanceof RegExp &&
+        if (
+            urlOrPattern instanceof RegExp &&
+            mockHandlers[i].url instanceof RegExp &&
             urlOrPattern.toString() === mockHandlers[i].url.toString()
         ) {
             removed.push(mockHandlers[i].id)
             mockHandlers.splice(i, 1)
-
         } else if (typeof mockHandlers[i].url === 'string') {
             if (urlOrPattern instanceof RegExp && urlOrPattern.test(mockHandlers[i].url)) {
                 removed.push(mockHandlers[i].id)
@@ -299,7 +305,7 @@ export function clearByUrl(urlOrPattern) {
             }
         }
     }
-    removed.forEach(handlerId => delete mockHandlerLookup[handlerId])
+    removed.forEach((handlerId) => delete mockHandlerLookup[handlerId])
     clearRetainedAjaxCalls(removed)
 }
 
@@ -310,7 +316,7 @@ export function clearByUrl(urlOrPattern) {
  */
 export function handlers(ids) {
     if (!ids) {
-        return mockHandlers.map(h => {
+        return mockHandlers.map((h) => {
             const cloned = deepClone(h)
             cloned.clear = function () {
                 clearById(this.id)
@@ -319,7 +325,7 @@ export function handlers(ids) {
         })
     }
 
-    return ids.map(id => {
+    return ids.map((id) => {
         const handler = mockHandlerLookup[id]
         if (!handler) {
             return null
@@ -349,8 +355,8 @@ export function handler(id) {
  */
 export function unfiredHandlers() {
     return mockHandlers
-        .filter(h => !h.fired)
-        .map(h => {
+        .filter((h) => !h.fired)
+        .map((h) => {
             const cloned = deepClone(h)
             cloned.clear = function () {
                 clearById(this.id)
@@ -364,7 +370,7 @@ export function unfiredHandlers() {
  * @returns {JQueryAjaxSettings[]} Array of mocked AJAX calls
  */
 export function mockedAjaxCalls() {
-    return retainedAjaxCalls.filter(call => call.mocked)
+    return retainedAjaxCalls.filter((call) => call.mocked)
 }
 
 /**
@@ -372,7 +378,7 @@ export function mockedAjaxCalls() {
  * @returns {JQueryAjaxSettings[]} Array of unmocked AJAX calls
  */
 export function unmockedAjaxCalls() {
-    return retainedAjaxCalls.filter(call => !call.mocked)
+    return retainedAjaxCalls.filter((call) => !call.mocked)
 }
 
 /**
@@ -392,7 +398,6 @@ export function clearRetainedAjaxCalls(mockHandlerIds) {
         }
     }
 }
-
 
 /**************************************/
 /*         INTERNAL HELPERS           */
@@ -416,33 +421,46 @@ function validateHandlerOptions(settings) {
     const messages = []
 
     if (!settings.url && !settings.data && !settings.requestHeaders && !settings.method) {
-        messages.push('A mock handler must have at least one of: url, data, requestHeaders, or method to match against.')
+        messages.push(
+            'A mock handler must have at least one of: url, data, requestHeaders, or method to match against.',
+        )
     }
 
-    if (settings.url && 
-        (typeof settings.url !== 'string' && !(settings.url instanceof RegExp))
-    ) {
+    if (settings.url && typeof settings.url !== 'string' && !(settings.url instanceof RegExp)) {
         messages.push('The url property must be a String or RegExp if it is set.')
     }
 
-    if (settings.method && !['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'CONNECT', 'TRACE', 'PATCH'].includes(settings.method.toUpperCase())) {
+    if (
+        settings.method &&
+        !['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'CONNECT', 'TRACE', 'PATCH'].includes(
+            settings.method.toUpperCase(),
+        )
+    ) {
         messages.push('The method property must be a valid HTTP method if it is set.')
     }
 
-    if (settings.data && 
-        (typeof settings.data !== 'string' && typeof settings.data !== 'function' && typeof settings.data !== 'object')
+    if (
+        settings.data &&
+        typeof settings.data !== 'string' &&
+        typeof settings.data !== 'function' &&
+        typeof settings.data !== 'object'
     ) {
         messages.push('The data property must be a String, Function, or Object if it is set.')
     }
 
-    if (settings.requestHeaders &&
+    if (
+        settings.requestHeaders &&
         (typeof settings.requestHeaders !== 'object' || Array.isArray(settings.requestHeaders))
     ) {
-        messages.push('The requestHeaders property must be a plain object of string names and values if it is set.')
+        messages.push(
+            'The requestHeaders property must be a plain object of string names and values if it is set.',
+        )
     } else {
         for (let key in settings.requestHeaders) {
             if (typeof key !== 'string' || typeof settings.requestHeaders[key] !== 'string') {
-                messages.push('The requestHeaders property must be a plain object of string names and values if it is set.')
+                messages.push(
+                    'The requestHeaders property must be a plain object of string names and values if it is set.',
+                )
                 break
             }
         }
@@ -454,13 +472,17 @@ function validateHandlerOptions(settings) {
 
     if (settings.status !== undefined) {
         if (Array.isArray(settings.status)) {
-            const invalidStatuses = settings.status.filter(s => {
+            const invalidStatuses = settings.status.filter((s) => {
                 return !Number.isInteger(s) || s < 100 || s > 599
             })
             if (invalidStatuses.length) {
                 messages.push('All statuses must be integers between 100 and 599.')
             }
-        } else if (!Number.isInteger(settings.status) || settings.status < 100 || settings.status > 599) {
+        } else if (
+            !Number.isInteger(settings.status) ||
+            settings.status < 100 ||
+            settings.status > 599
+        ) {
             messages.push('The status must be an integer between 100 and 599.')
         }
     }
@@ -468,7 +490,9 @@ function validateHandlerOptions(settings) {
     if (settings.statusText !== undefined) {
         if (Array.isArray(settings.statusText)) {
             if (!Array.isArray(settings.status)) {
-                messages.push('The statusText property may only be an array if the status property is also an array.')
+                messages.push(
+                    'The statusText property may only be an array if the status property is also an array.',
+                )
             } else if (settings.statusText.length !== settings.status.length) {
                 messages.push('The statusText array must be the same size as the status array.')
             }
@@ -479,11 +503,16 @@ function validateHandlerOptions(settings) {
 
     if (settings.responseTime !== undefined) {
         if (Array.isArray(settings.responseTime)) {
-            if (settings.responseTime.length !== 2 ||
-                (!Number.isInteger(settings.responseTime[0]) || settings.responseTime[0] < 0) ||
-                (!Number.isInteger(settings.responseTime[1]) || settings.responseTime[1] < 0)
+            if (
+                settings.responseTime.length !== 2 ||
+                !Number.isInteger(settings.responseTime[0]) ||
+                settings.responseTime[0] < 0 ||
+                !Number.isInteger(settings.responseTime[1]) ||
+                settings.responseTime[1] < 0
             ) {
-                messages.push('A responseTime range must be an array of 2 non-negitve integers ([min, max])')
+                messages.push(
+                    'A responseTime range must be an array of 2 non-negitve integers ([min, max])',
+                )
             }
         } else if (!Number.isInteger(settings.responseTime) || settings.responseTime < 0) {
             messages.push('The responseTime must be a non-negative integer if it is set.')
@@ -506,25 +535,31 @@ function validateHandlerOptions(settings) {
         messages.push('The proxy must be a string if it is set.')
     }
 
-    if (settings.proxyType !== undefined && 
+    if (
+        settings.proxyType !== undefined &&
         !['get', 'post', 'put', 'delete'].includes(String(settings.proxyType).toLowerCase())
     ) {
         messages.push('The proxyType must be a valid HTTP method if it is set.')
     }
 
-    if (settings.responseHeaders &&
+    if (
+        settings.responseHeaders &&
         (typeof settings.responseHeaders !== 'object' || Array.isArray(settings.responseHeaders))
     ) {
-        messages.push('The responseHeaders property must be a plain object of string names and values if it is set.')
+        messages.push(
+            'The responseHeaders property must be a plain object of string names and values if it is set.',
+        )
     } else {
         for (let key in settings.responseHeaders) {
             if (typeof key !== 'string' || typeof settings.responseHeaders[key] !== 'string') {
-                messages.push('The responseHeaders property must be a plain object of string names and values if it is set.')
+                messages.push(
+                    'The responseHeaders property must be a plain object of string names and values if it is set.',
+                )
                 break
             }
         }
     }
-    
+
     if (messages.length) {
         throw new TypeError(messages.join(' '))
     }
@@ -532,7 +567,7 @@ function validateHandlerOptions(settings) {
 
 /**
  * Retain an AJAX call settings object and enforce retention limit
- * 
+ *
  * @param {JQueryAjaxSettings} ajaxSettings - original jQuery Ajax call settings; note that this should already have the `mocked` and `mockHandlerId` properties set!
  * @returns {void}
  */
@@ -549,7 +584,7 @@ function retainAjaxCall(ajaxSettings) {
         return
     }
 
-    retainedAjaxCalls.push({...ajaxSettings, timestamp: Date.now()})
+    retainedAjaxCalls.push({ ...ajaxSettings, timestamp: Date.now() })
 
     if (limit > 0) {
         while (retainedAjaxCalls.length > limit) {
@@ -561,16 +596,16 @@ function retainAjaxCall(ajaxSettings) {
 /**
  * Generic function to override callback methods for use with ajax
  * callback options (onAfterSuccess, onAfterError, onAfterComplete)
- * 
+ *
  * @param {Object} context The original context that the callback should execute in (the value of `this`)
- * @param {AjaxCallbackType} action 
- * @param {MockHandler} mockHandler 
+ * @param {AjaxCallbackType} action
+ * @param {MockHandler} mockHandler
  * @param {JQueryAjaxSettings} requestSettings
  * @returns {Function} The callback to be used after the ajax call
  */
 function overrideCallback(context, action, mockHandler, requestSettings) {
     const origCallback = requestSettings[action.toLowerCase()]
-    return function() {
+    return function () {
         if (typeof origCallback === 'function') {
             origCallback.apply(context || {}, Array.from(arguments))
         }
@@ -580,9 +615,9 @@ function overrideCallback(context, action, mockHandler, requestSettings) {
 
 /**
  * Redirect the mocked request to the location in the mock handler's headers
- * 
- * @param {MockHandler} mockHandler 
- * @param {JQueryAjaxSettings} requestSettings 
+ *
+ * @param {MockHandler} mockHandler
+ * @param {JQueryAjaxSettings} requestSettings
  * @returns {MockXHR}
  */
 function redirectMockedRequest(mockHandler, requestSettings) {
@@ -592,7 +627,7 @@ function redirectMockedRequest(mockHandler, requestSettings) {
     redirectSettings.url = newUrl
     redirectSettings.headers = {
         // TODO: do 300's keep original headers? (this is what is in the v2.7 codebase)
-        Referer: requestSettings.url
+        Referer: requestSettings.url,
     }
 
     // Revert mockjax tracking for redirect
@@ -604,9 +639,9 @@ function redirectMockedRequest(mockHandler, requestSettings) {
 }
 
 /**
- * Copies URL parameter values captured by a regular expression 
+ * Copies URL parameter values captured by a regular expression
  * during URL matching into the requestSettings `urlParams` property.
- * 
+ *
  * @param {MockHandler} mockHandler
  * @param {JQueryAjaxSettings} requestSettings
  * @returns {void}
@@ -629,7 +664,7 @@ function copyUrlParameters(mockHandler, requestSettings) {
 
     const max = Math.min(captures.length, mockHandler.urlParams.length)
     const urlParams = {}
-    for (let i=0; i<max; ++i) {
+    for (let i = 0; i < max; ++i) {
         urlParams[mockHandler.urlParams[i]] = captures[i]
     }
     requestSettings.urlParams = urlParams

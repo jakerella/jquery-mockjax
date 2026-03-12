@@ -17,7 +17,6 @@ const URL_PROTOCOL_REGEX = /^(\w+:)?\/\/([^\/?#]+)/
 // Counter for generating unique JSONP callback names
 let jsonpCallbackCounter = Date.now()
 
-
 /**
  * Process a JSONP mock request
  * @param {JQueryAjaxSettings} requestSettings - Request settings to process
@@ -30,14 +29,18 @@ export function processJsonpMock(requestSettings, mockHandler, origSettings) {
 
     requestSettings.dataType = 'json'
 
-    if (CALLBACK_REGEX.test(requestSettings.url) ||
+    if (
+        CALLBACK_REGEX.test(requestSettings.url) ||
         (requestSettings.data && CALLBACK_REGEX.test(requestSettings.data))
     ) {
         createCallback(requestSettings, mockHandler, origSettings, triggerSuccess, triggerComplete)
 
         requestSettings.dataType = 'script'
-        
-        if (requestSettings.method.toUpperCase() === 'GET' && isRemoteRequest(requestSettings.url)) {
+
+        if (
+            requestSettings.method.toUpperCase() === 'GET' &&
+            isRemoteRequest(requestSettings.url)
+        ) {
             const result = executeJsonpRequest(requestSettings, mockHandler, origSettings)
             return result || true
         }
@@ -45,21 +48,20 @@ export function processJsonpMock(requestSettings, mockHandler, origSettings) {
     return null
 }
 
-
 /**
  * Append the required callback parameter to the request URL or data
  * @param {JQueryAjaxSettings} requestSettings - Request settings to modify
  */
 function appendCallbackParameter(requestSettings) {
     const callbackParam = requestSettings.jsonp || 'callback'
-    
+
     if (requestSettings.method.toUpperCase() === 'GET') {
         if (!CALLBACK_REGEX.test(requestSettings.url)) {
-            const separator = (/\?/.test(requestSettings.url)) ? '&' : '?'
+            const separator = /\?/.test(requestSettings.url) ? '&' : '?'
             requestSettings.url += `${separator}${callbackParam}=?`
         }
     } else if (!requestSettings.data || !CALLBACK_REGEX.test(requestSettings.data)) {
-        const prefix = (requestSettings.data) ? `${requestSettings.data}&` : ''
+        const prefix = requestSettings.data ? `${requestSettings.data}&` : ''
         requestSettings.data = `${prefix}${callbackParam}=?`
     }
 }
@@ -78,24 +80,30 @@ function createCallback(requestSettings, mockHandler, origSettings, onSuccess, o
     let callbackName = `jsonp${jsonpCallbackCounter++}`
     if (typeof requestSettings.jsonpCallback === 'string') {
         callbackName = requestSettings.jsonpCallback
-    }                        
+    }
 
     if (requestSettings.data) {
-        requestSettings.data = String(requestSettings.data).replace(CALLBACK_REGEX, `=${callbackName}$1`)
+        requestSettings.data = String(requestSettings.data).replace(
+            CALLBACK_REGEX,
+            `=${callbackName}$1`,
+        )
     }
     requestSettings.url = requestSettings.url.replace(CALLBACK_REGEX, `=${callbackName}$1`)
 
-    
-    window[callbackName] = window[callbackName] || function() {
-        onSuccess(requestSettings, callbackContext, mockHandler)
-        onComplete(requestSettings, callbackContext)
-        
-        window[callbackName] = undefined
-        try {
-            delete window[callbackName]
-        } catch(e) { /* Ignore errors, this may already be gone */ }
-    }
-    
+    window[callbackName] =
+        window[callbackName] ||
+        function () {
+            onSuccess(requestSettings, callbackContext, mockHandler)
+            onComplete(requestSettings, callbackContext)
+
+            window[callbackName] = undefined
+            try {
+                delete window[callbackName]
+            } catch (e) {
+                /* Ignore errors, this may already be gone */
+            }
+        }
+
     requestSettings.jsonpCallback = callbackName
 }
 
@@ -107,7 +115,7 @@ function createCallback(requestSettings, mockHandler, origSettings, onSuccess, o
 function isRemoteRequest(url) {
     const parts = URL_PROTOCOL_REGEX.exec(url)
     return !!(
-        parts && 
+        parts &&
         ((parts[1] && parts[1] !== window.location.protocol) || parts[2] !== window.location.host)
     )
 }
@@ -125,28 +133,27 @@ function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
 
     if (typeof mockHandler.response === 'function') {
         mockHandler.response(origSettings)
-
     } else if (typeof mockHandler.responseText === 'object') {
         $.globalEval(`(${JSON.stringify(mockHandler.responseText)})`)
-
     } else if (mockHandler.proxy) {
         realAjaxCall({
             global: false,
             url: mockHandler.proxy,
             type: mockHandler.proxyType,
             data: mockHandler.data,
-            dataType: requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
-            complete: function(xhr) {
+            dataType:
+                requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
+            complete: function (xhr) {
                 $.globalEval(`(${xhr.responseText})`)
                 completeJsonpCall(requestSettings, mockHandler, callbackContext, deferred)
-            }
+            },
         })
         return deferred
-
     } else {
-        const responseValue = (typeof mockHandler.responseText === 'string')
-            ? `"${mockHandler.responseText}"`
-            : mockHandler.responseText
+        const responseValue =
+            typeof mockHandler.responseText === 'string'
+                ? `"${mockHandler.responseText}"`
+                : mockHandler.responseText
         $.globalEval(`(${responseValue})`)
     }
 
@@ -164,7 +171,7 @@ function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
  */
 function completeJsonpCall(requestSettings, mockHandler, callbackContext, deferred) {
     const delay = determineResponseTime(mockHandler.responseTime)
-    
+
     setTimeout(() => {
         triggerSuccess(requestSettings, callbackContext, mockHandler)
         triggerComplete(requestSettings, callbackContext)
@@ -173,8 +180,10 @@ function completeJsonpCall(requestSettings, mockHandler, callbackContext, deferr
             let json = null
             try {
                 json = JSON.parse(mockHandler.responseText)
-            } catch (err) {  /* we're okay if this fails, just send back the raw responseText */}
-            
+            } catch (err) {
+                /* we're okay if this fails, just send back the raw responseText */
+            }
+
             deferred.resolveWith(callbackContext, [json || mockHandler.responseText])
         }
     }, delay)
@@ -193,7 +202,7 @@ function triggerSuccess(requestSettings, callbackContext, mockHandler) {
     }
 
     if (requestSettings.global) {
-        const eventTarget = (requestSettings.context) ? $(requestSettings.context) : $.event
+        const eventTarget = requestSettings.context ? $(requestSettings.context) : $.event
         eventTarget.trigger('ajaxSuccess', [{}, requestSettings])
     }
 }
@@ -206,9 +215,13 @@ function triggerSuccess(requestSettings, callbackContext, mockHandler) {
  */
 function triggerComplete(requestSettings, callbackContext) {
     if (typeof requestSettings.complete === 'function') {
-        requestSettings.complete.call(callbackContext, { statusText: 'success', status: 200 }, 'success')
+        requestSettings.complete.call(
+            callbackContext,
+            { statusText: 'success', status: 200 },
+            'success',
+        )
     }
-    
+
     if (requestSettings.global) {
         const eventTarget = requestSettings.context ? $(requestSettings.context) : $.event
         eventTarget.trigger('ajaxComplete', [{}, requestSettings])

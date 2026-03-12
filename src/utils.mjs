@@ -24,14 +24,16 @@ export function deepClone(obj) {
     try {
         const clone = structuredClone(obj)
         return clone
-    } catch(_) { /* can't clone functions, so we'll do this the harad way */ }
+    } catch (_) {
+        /* can't clone functions, so we'll do this the harad way */
+    }
 
     if (obj === null || typeof obj !== 'object') {
         return obj
     }
 
     if (Array.isArray(obj)) {
-        return obj.map(item => deepClone(item))
+        return obj.map((item) => deepClone(item))
     }
 
     const clone = {}

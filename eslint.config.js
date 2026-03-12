@@ -1,6 +1,5 @@
 import jsdoc from 'eslint-plugin-jsdoc'
 import prettierConfig from 'eslint-config-prettier/flat'
-import globals from 'globals'
 import { defineConfig } from 'eslint/config'
 
 export default defineConfig([
@@ -11,8 +10,6 @@ export default defineConfig([
         languageOptions: {
             sourceType: 'module',
             globals: {
-                ...globals.browser,
-                ...globals.node,
                 jQuery: 'readonly',
                 $: 'readonly'
             }
@@ -72,8 +69,6 @@ export default defineConfig([
         files: ['test/**/*.js'],
         languageOptions: {
             globals: {
-                ...globals.browser,
-                ...globals.node,
                 QUnit: 'readonly',
                 sinon: 'readonly'
             }
