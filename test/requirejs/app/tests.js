@@ -3,10 +3,17 @@ define(function (require) {
     window.$ = require('jquery')
     const mockjax = require('jquery.mockjax')
 	// We don't do this because our headless runner injects stuff,
-	// so we have to pull QUnit in earlier
+	// so we have to use a <script> tag for QUnit in the HTML head
     // window.QUnit = require('qunit')
+	QUnit.defaultMockjaxSettings = {...$.mockjaxSettings}
 
-    QUnit.module('Mockjax as RequireJS / AMD module')
+    QUnit.module('Mockjax as RequireJS / AMD module', {
+		teardown: () => {
+			$.mockjax.clearAll()
+			$.mockjax.clearRetainedAjaxCalls()
+			$.mockjaxSettings = $.extend({}, QUnit.defaultMockjaxSettings)
+		}
+	})
 
     QUnit.test('mockjax exists and was required properly', function(assert) {
         assert.strictEqual(typeof(mockjax), 'function', 'mockjax local is a function')

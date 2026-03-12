@@ -1,5 +1,5 @@
 
-import testRunner from '../qunit-puppeteer.js'
+import testRunner from '../qunit-puppeteer.mjs'
 
 const PORT = 3000
 

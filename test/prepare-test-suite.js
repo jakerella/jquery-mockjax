@@ -9,6 +9,7 @@
 		'match-order',
 		'data-types',
 		'headers',
+		'jsonp',
 		'mock-clearing',
 		'retaining-ajax-calls',
 		'namespace',
