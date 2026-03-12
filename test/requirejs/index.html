@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>MockJax RequireJS Test</title>
+
+        <link rel='stylesheet' href='../../node_modules/qunit/qunit/qunit.css' media='screen' />
+        <!-- Our headless runner needs this defined early so it can inject QUnit reporting -->
+        <script src='../../node_modules/qunit/qunit/qunit.js'></script>
+        <script>
+            QUnit.config.autostart = false
+            QUnit.config.noHeadlessStart = true
+        </script>
+    </head>
+
+    <body>
+        <div id='qunit'></div>
+        
+        <script data-main='app' src='../../node_modules/requirejs/require.js'></script>
+    </body>
+</html>

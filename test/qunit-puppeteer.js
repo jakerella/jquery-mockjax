@@ -202,7 +202,7 @@ async function startTests(page, targetURL) {
         console.log(`\nRunning with params: ${JSON.stringify(QUnit.urlParams)}\n`)
       }
 
-      if (!QUnit.config.autostart) {
+      if (!QUnit.config.autostart && !QUnit.config.noHeadlessStart) {
         QUnit.start()
       }
     })
@@ -210,10 +210,11 @@ async function startTests(page, targetURL) {
     function wait(timeout) {
       let total = 0
       return new Promise(resolve => {
-        setInterval(() => {
+        const completeInterval = setInterval(() => {
           total += 500
           if (page.testsComplete || total >= timeout) {
-            resolve()
+            clearInterval(completeInterval)
+            return resolve()
           }
         }, 500)
       })
@@ -227,6 +228,8 @@ async function startTests(page, targetURL) {
 
   } catch (err) {
     process.stderr.write(`TEST ERROR: ${err}\n`)
+    Error.captureStackTrace(err)
+    process.stderr.write(err.stack + '\n\n')
   }
 }
 

@@ -8,6 +8,8 @@ const assert = require('assert')
 
 const metadata = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', '..', 'package.json')).toString())
 const jqVersions = Object.keys(metadata.peerDependencies)
+
+// TODO: Nodejs works with jq 3.7.1, but not with 4.0.0
 const jqLibrary = jqVersions[jqVersions.length-2]
 
 describe('Node module setup', function() {
