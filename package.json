@@ -51,7 +51,7 @@
     "test:integration:all": "node test/headless-runner.js all",
     "test:integration:latest": "node test/headless-runner.mjs latest",
     "test:nodejs": "node test/nodejs/test-runner.cjs",
-    "test:requirejs": "node test/requirejs/headless-require.mjs",
+    "test:requirejs": "node test/requirejs/test-runner.mjs",
     "test:headless": "npm run test:integration:latest && npm run test:nodejs && npm run test:requirejs",
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
