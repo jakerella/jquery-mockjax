@@ -110,8 +110,8 @@ export default async function testRunner(targetURLs, projectBaseDir, port) {
 function startServer(projectBaseDir, port) {
   return new Promise((resolve, _) => {
     const server = spawn(
-      path.resolve(projectBaseDir, 'node_modules', 'http-server', 'bin', 'http-server'),
-      ['-c-1', `-p ${port}`, '.'],
+      'node',
+      [path.resolve(projectBaseDir, 'node_modules', 'http-server', 'bin', 'http-server'), '-c-1', `-p ${port}`, '.'],
       { encoding: 'utf8' }
     )
     
@@ -311,8 +311,8 @@ function wait(trigger, timeout=5000, delay) {
 
 async function killServerProcess() {
   if (IS_WINDOWS) {
-    if (!serverProc.kill()) {
-      process.stderr.write(`${COLORS.red}Problem killing server process on Windows!${COLORS.reset}`)
+    if (!serverProc?.kill()) {
+      process.stderr.write(`${COLORS.red}Problem killing server process on Windows! (${serverProc ? '(false result)' : 'No serverProc exists'})${COLORS.reset}`)
     }
   } else if (serverProc && serverProc.pid && !serverProc.killed) {
     console.log(`Killing http-server process`)
