@@ -19,7 +19,7 @@
 		'logging'
 	]
 
-	const metadata = await getPackageJSON(`${basePath}package.json`)
+	const metadata = await getPackageJSON(`${basePath}/package.json`)
 
 	await insertJQuery(metadata)
 	await insertMockjax(metadata)
@@ -50,7 +50,7 @@
 		let version = Object.keys(metadata.peerDependencies).pop().replace(/[^0-9]+/, '')
 		version = getMajorJQVersionFromURL() || version
 
-		const filepath = `${basePath}node_modules/jquery${version}/dist/jquery.js`
+		const filepath = `${basePath}/node_modules/jquery${version}/dist/jquery.js`
 		document.write(`<script id='jquery' src='${filepath}'></script>`)
 
 		return new Promise((resolve, _) => {
@@ -91,7 +91,7 @@
 		if (getQueryParams().min) {
 			min = '.min'
 		}
-		document.write(`<script id='mockjax' src='../dist/jquery.mockjax${min}.js'></script>`)
+		document.write(`<script id='mockjax' src='${basePath}/dist/jquery.mockjax${min}.js'></script>`)
 		return new Promise((resolve, _) => {
 			document.getElementById('mockjax').addEventListener('load', () => {
 				console.info(`Testing Mockjax version ${metadata.version} ${(min) ? '(min)' : ''}`)
@@ -137,7 +137,7 @@
 
 			const links = []
 			for (let major of majorVersions) {
-				const jqueryMetadata = await getPackageJSON(`${basePath}node_modules/jquery${major}/package.json`)
+				const jqueryMetadata = await getPackageJSON(`${basePath}/node_modules/jquery${major}/package.json`)
 				let strong = false
 				if (jqVersion === jqueryMetadata.version.split('.')[0]) {
 					strong = true
@@ -196,4 +196,4 @@
 	}
 
 
-})(window.QUnit, window.testJQPath || '../');
+})(window.QUnit, window.testJQPath || '../..');

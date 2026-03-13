@@ -1,7 +1,7 @@
 
 import { resolve } from 'path'
 import { readFileSync } from 'fs'
-import testRunner from './qunit-puppeteer.mjs'
+import testRunner from '../qunit-puppeteer.mjs'
 
 const PORT = 3000
 
@@ -27,16 +27,15 @@ const PORT = 3000
 
     const URLs = []
     for (let jqVersion of versions) {
-        URLs.push(`http://localhost:${PORT}/test/index.html?jquery=${jqVersion}`)
+        URLs.push(`http://localhost:${PORT}/test/integration/index.html?jquery=${jqVersion}`)
     }
     console.log(`
 ************************************************************************************
 Running Mockjax v${metadata.version} test suite with jQuery version(s): ${versions}
-************************************************************************************
-    `)
+************************************************************************************`)
 
     try {
-        const results = await testRunner(URLs, resolve(import.meta.dirname, '..'), PORT)
+        const results = await testRunner(URLs, resolve(import.meta.dirname, '..','..'), PORT)
         if (URLs.length > 1) {
             console.log('\nConsolidated Results:')
             for (let url in results) {

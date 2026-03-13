@@ -310,12 +310,13 @@ function wait(trigger, timeout=5000, delay) {
 }
 
 async function killServerProcess() {
-  if (IS_WINDOWS) {
+  if (IS_WINDOWS && serverProc && !serverProc.killed) {
+    process.stdout.write('\nKilling http-server process\n')
     if (!serverProc?.kill()) {
       process.stderr.write(`${COLORS.red}Problem killing server process on Windows! (${serverProc ? '(false result)' : 'No serverProc exists'})${COLORS.reset}`)
     }
   } else if (serverProc && serverProc.pid && !serverProc.killed) {
-    console.log(`Killing http-server process`)
+    process.stdout.write('\nKilling http-server process\n')
     spawnSync('kill', [serverProc.pid])
   }
 }
