@@ -32,10 +32,6 @@ export function deepClone(obj) {
         return obj
     }
 
-    if (Array.isArray(obj)) {
-        return obj.map((item) => deepClone(item))
-    }
-
     const clone = {}
     for (const key in obj) {
         clone[key] = deepClone(obj[key])
