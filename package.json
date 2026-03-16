@@ -61,7 +61,7 @@
     "style": "npx prettier --write 'src/**/*.mjs'",
     "style:check": "npx prettier --check 'src/**/*.mjs'",
     "watch:build": "npx npm-watch build",
-    "watch:test": "npx npm-watch test:headless"
+    "watch:test": "npx npm-watch test:unit"
   },
   "watch": {
     "build": {
@@ -73,7 +73,7 @@
       "extensions": "mjs,cjs,js",
       "delay": 1500
     },
-    "test:integration:latest": {
+    "test:unit": {
       "patterns": [
         "src",
         "test"
