@@ -1,17 +1,24 @@
 
-const QUnit = require('qunit')
+import sinon from 'sinon'
+import QUnit from 'qunit'
+import * as settingsModule from '../../src/settings.mjs'
 const it = QUnit.test
 
 // Set up mock jQuery for settings to attach to
-global.$ = {
-    mockjaxSettings: {
-        matchInRegistrationOrder: true,
-        namespace: null
-    }
-}
+global.$ = {}
 
-// Import the module to test
-const { matchMethod, matchUrl, matchData, matchHeaders, findMatchingHandler } = require('../../src/matching.mjs')
+const mockSettings = {...settingsModule.getSettings()}
+let mockGetSettings = null
+
+const sandbox = sinon.createSandbox()
+
+import {
+    matchMethod,
+    matchUrl,
+    matchData,
+    matchHeaders,
+    findMatchingHandler
+} from '../../src/matching.mjs'
 
 /* ----------------- */
 QUnit.module('Matching: matchMethod')
@@ -418,11 +425,15 @@ it('should handle headers with special characters', (assert) => {
 
 /* ----------------- */
 QUnit.module('Matching: findMatchingHandler', {
-    beforeEach: function() {
-        global.$.mockjaxSettings = {
-            matchInRegistrationOrder: true,
-            namespace: null
-        }
+    beforeEach: () => {
+        const testSettings = {...mockSettings}
+        mockGetSettings = sandbox.fake(() => {
+            return testSettings
+        })
+        sandbox.replace.usingAccessor(settingsModule.mocks, 'getSettings', mockGetSettings)
+    },
+    afterEach: () => {
+        sandbox.restore()
     }
 })
 /* ----------------- */
@@ -436,6 +447,7 @@ it('should find matching handler', (assert) => {
     const request = { url: '/api/users', method: 'GET' }
     const result = findMatchingHandler(handlers, request)
     assert.equal(result, handlers[0], 'returns first matching handler')
+    assert.ok(mockGetSettings.called, 'mock settings should be called')
 })
 
 it('should return null when no handler matches', (assert) => {
@@ -455,11 +467,13 @@ it('should respect matchInRegistrationOrder setting', (assert) => {
     ]
     const request = { url: '/api/users', method: 'GET' }
     
-    global.$.mockjaxSettings.matchInRegistrationOrder = true
+    mockGetSettings().matchInRegistrationOrder = true
+
     let result = findMatchingHandler(handlers, request)
     assert.equal(result.id, 1, 'returns first handler when matchInRegistrationOrder is true')
     
-    global.$.mockjaxSettings.matchInRegistrationOrder = false
+    mockGetSettings().matchInRegistrationOrder = false
+
     result = findMatchingHandler(handlers, request)
     assert.equal(result.id, 2, 'returns last handler when matchInRegistrationOrder is false')
 })
@@ -490,7 +504,8 @@ it('should skip function handlers that return null', (assert) => {
 
 // Namespace handling
 it('should use global namespace', (assert) => {
-    global.$.mockjaxSettings.namespace = '/api'
+    mockGetSettings().namespace = '/api'
+
     const handlers = [{ url: '/users', method: 'GET' }]
     const request = { url: '/api/users', method: 'GET' }
     const result = findMatchingHandler(handlers, request)
@@ -498,7 +513,8 @@ it('should use global namespace', (assert) => {
 })
 
 it('should use handler-specific namespace', (assert) => {
-    global.$.mockjaxSettings.namespace = '/api'
+    mockGetSettings().namespace = '/api'
+
     const handlers = [{ url: '/users', method: 'GET', namespace: '/v2' }]
     const request = { url: '/v2/users', method: 'GET' }
     const result = findMatchingHandler(handlers, request)
@@ -506,7 +522,8 @@ it('should use handler-specific namespace', (assert) => {
 })
 
 it('should handle null handler namespace', (assert) => {
-    global.$.mockjaxSettings.namespace = '/api'
+    mockGetSettings().namespace = '/api'
+
     const handlers = [{ url: '/users', method: 'GET', namespace: null }]
     const request = { url: '/users', method: 'GET' }
     const result = findMatchingHandler(handlers, request)

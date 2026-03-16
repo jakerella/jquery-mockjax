@@ -6,7 +6,7 @@
 import { getSettings } from './settings.mjs'
 
 const DEFAULT_LOG_LEVEL = 2
-const DEFAULT_LOG_LEVEL_METHODS = ['error', 'warn', 'info', 'log', 'debug']
+export const DEFAULT_LOG_LEVEL_METHODS = ['error', 'warn', 'info', 'log', 'debug']
 
 class Logger {
     #level = DEFAULT_LOG_LEVEL
@@ -21,11 +21,16 @@ class Logger {
         })
     }
 
+    getLevel() {
+        return this.#level
+    }
+
     #writeLog(level, ...elements) {
         if (this.#methods.indexOf(level) > this.#level) {
             return
         }
-        window.console[level](...elements)
+        const root = (typeof global !== 'undefined') ? global : window
+        root.console[level](...elements)
     }
 }
 

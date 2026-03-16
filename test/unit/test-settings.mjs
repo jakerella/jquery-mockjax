@@ -1,12 +1,16 @@
 
-const QUnit = require('qunit')
+import QUnit from 'qunit'
 const it = QUnit.test
 
 // Set up mock jQuery for settings to attach to
 global.$ = {}
 
 // Import the module to test
-const { getSettings, resetSettings, validateSettings } = require('../../src/settings.mjs')
+import {
+    getSettings,
+    resetSettings,
+    validateSettings
+} from '../../src/settings.mjs'
 
 /* ----------------- */
 QUnit.module('Settings: getSettings', {

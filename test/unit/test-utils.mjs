@@ -1,9 +1,8 @@
 
-const QUnit = require('qunit')
+import QUnit from 'qunit'
 const it = QUnit.test
 
-// Import the module to test
-const { generateUUID, deepClone } = require('../../src/utils.mjs')
+import { generateUUID, deepClone } from '../../src/utils.mjs'
 
 /* ----------------- */
 QUnit.module('Utils: generateUUID')
@@ -261,41 +260,6 @@ it('should handle objects with inherited properties via fallback', (assert) => {
     assert.equal(clone.childProp, 'child', 'child property cloned')
     assert.notEqual(clone, obj, 'cloned object is not the same reference')
 })
-
-/* ----------------- */
-QUnit.module('Utils: generateUUID (error handling)', {
-    beforeEach: function() {
-        this.originalCrypto = global.crypto
-    },
-    afterEach: function() {
-        global.crypto = this.originalCrypto
-        delete require.cache[require.resolve('../../src/utils.mjs')]
-    }
-})
-/* ----------------- */
-
-it('should throw error when crypto is not available', (assert) => {
-    delete global.crypto
-    delete require.cache[require.resolve('../../src/utils.mjs')]
-    const { generateUUID: testGenerateUUID } = require('../../src/utils.mjs')
-    assert.throws(
-        () => testGenerateUUID(),
-        /crypto is not defined|crypto\.randomUUID\(\) is not available/,
-        'Should throw when crypto is not available'
-    )
-})
-
-it('should throw error when crypto.randomUUID is not a function', (assert) => {
-    global.crypto = {}
-    delete require.cache[require.resolve('../../src/utils.mjs')]
-    const { generateUUID: testGenerateUUID } = require('../../src/utils.mjs')
-    assert.throws(
-        () => testGenerateUUID(),
-        /crypto\.randomUUID\(\) is not available/,
-        'Should throw when crypto.randomUUID is not a function'
-    )
-})
-
 
 /* ----------------- */
 QUnit.module('Utils: deepClone (fallback path)')

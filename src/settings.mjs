@@ -36,8 +36,18 @@ const DEFAULTS = {
  * Get all current global Mockjax settings
  * @returns {MockjaxSettings} The global mockjax settings
  */
-export function getSettings() {
+function _getSettings() {
     return $.mockjaxSettings || { ...DEFAULTS }
+}
+
+export let getSettings = _getSettings
+export const mocks = {
+    set getSettings(mock) {
+        getSettings = mock
+    },
+    get getSettings() {
+        return _getSettings
+    }
 }
 
 /**
