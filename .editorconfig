@@ -4,7 +4,7 @@
 root = true
 
 ; Tab indentation (no size specified)
-[*.js]
+[*.js, *.mjs, *.cjs]
 indent_style = space
 indent_size = 4
 end_of_line = lf

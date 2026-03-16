@@ -6,3 +6,4 @@
 *.log
 node_modules/
 test/browserify/bundle.js
+coverage/

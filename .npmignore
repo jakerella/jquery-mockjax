@@ -1,8 +1,11 @@
 .github/
 test/
+.c8rc.json
 .editorconfig
 .gitignore
 .npmignore
 bower.json
 eslint.config.js
-webpack.config.js
+prettier.config.mjs
+webpack.config.mjs
+webpack.custom-umd.mjs

@@ -5,14 +5,18 @@
     "jquery": ">=1.12.4"
   },
   "ignore": [
+    ".c8rc.json",
     ".editorconfig",
     ".github",
     ".gitignore",
+    ".npmignore",
     "package.json",
     "test",
     "*.json",
     "*.html",
     "eslint.config.js",
-    "webpack.config.js"
+    "prettier.config.mjs",
+    "webpack.config.js",
+    "webpack.custom-umd.mjs"
   ]
 }

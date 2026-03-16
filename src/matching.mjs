@@ -200,7 +200,7 @@ export function matchHeaders(handlerHeaders, requestHeaders) {
  * @returns {boolean} True if method matches
  */
 export function matchMethod(handlerMethod, requestMethod) {
-    return !handlerMethod || handlerMethod.toUpperCase() === requestMethod.toUpperCase()
+    return !handlerMethod || String(handlerMethod).toUpperCase() === String(requestMethod).toUpperCase()
 }
 
 /**

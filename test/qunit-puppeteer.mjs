@@ -1,6 +1,7 @@
 
 /**
- * This file was modified from the original to support being used as an ES module.
+ * This file was heavily modified from the original to support being used as an ES module
+ * and with other benefits like an external (shared) reporter.
  * https://github.com/davidtaylorhq/qunit-puppeteer
  * 
  * LICENSE: MIT
@@ -33,6 +34,8 @@ import path from 'path'
 import puppeteer from 'puppeteer'
 import { spawn, spawnSync } from 'child_process'
 
+import { moduleStart, log, testDone, moduleDone, done, reset } from './qunit-reporter.cjs'
+
 const PROCESS_TIMEOUT = 30000
 const IS_WINDOWS = process.platform === 'win32'
 const COLORS = {
@@ -44,7 +47,6 @@ const COLORS = {
   green: '\x1b[32m',
   teal: '\x1b[36m'
 }
-const UNDERLINE = IS_WINDOWS ? '' : '\x1b[4m'
 
 let serverProc = null
 
@@ -53,11 +55,11 @@ process.on('SIGINT', killServerProcess)
 process.on('SIGHUP', killServerProcess)
 
 /**
- * TODO: fill this in
- * @param {*} targetURLs 
- * @param {*} projectBaseDir 
- * @param {*} port 
- * @returns 
+ * Run one or more target QUnit URLs with tests in a headless browser
+ * @param {string[]} targetURLs The URLs to run in the headless browser
+ * @param {string} projectBaseDir The base directory for the project
+ * @param {number} port The port to run the http server on
+ * @returns {Promise<object>} Resolves with the test stats
  */
 export default async function testRunner(targetURLs, projectBaseDir, port) {
   if (IS_WINDOWS) {
@@ -140,7 +142,7 @@ async function setupNewPage(browser) {
   try {
     const page = await browser.newPage()
     page.testsComplete = false
-    page.skippedTests = 0
+    reset()
 
     // Attach to page's console log events, and log to node console
     page.on('console', (...params) => {
@@ -158,81 +160,17 @@ async function setupNewPage(browser) {
       }
     })
 
-    let moduleErrors = []
-    let testErrors = []
-    let assertionErrors = []
-    let skippedModules = []
+    await page.exposeFunction('harness_moduleStart', moduleStart)
 
-    await page.exposeFunction('harness_moduleStart', context => {
-      if (skippedModules.includes(context.name)) { return }
-      const skipCount = context.tests.filter(t => t.skip).length
-      let method = `${COLORS.gray}Runnning`
-      if (skipCount === context.tests.length) {
-        method = `${COLORS.yellow}Skipping`
-        skippedModules.push(context.name)
-      }
-      process.stdout.write(`${method} Module: ${UNDERLINE}${context.name}${COLORS.reset} `)
-    })
+    await page.exposeFunction('harness_moduleDone', moduleDone)
 
-    await page.exposeFunction('harness_moduleDone', context => {
-      if (context.failed) {
-        const msg = `${COLORS.yellow}Module Failed: "${context.name}"\n${testErrors.join('\n')}${COLORS.reset}`
-        moduleErrors.push(msg)
-        testErrors = []
-      }
-      process.stdout.write('\n')
-    })
+    await page.exposeFunction('harness_testDone', testDone)
 
-    await page.exposeFunction('harness_testDone', context => {
-      if (context.failed) {
-        const msg = `  ${COLORS.red}Test Failed: ${context.name}${assertionErrors.join('    ')}${COLORS.reset}`
-        testErrors.push(msg)
-        assertionErrors = []
-        process.stdout.write(`${COLORS.red}F${COLORS.reset}`)
-      } else if (context.skipped) {
-        page.skippedTests++
-        process.stdout.write(`${COLORS.yellow}S${COLORS.reset}`)
-      } else {
-        process.stdout.write(`${COLORS.white}.${COLORS.reset}`)
-      }
-    })
-
-    await page.exposeFunction('harness_log', context => {
-      if (context.result) { return } // If success doesn't log
-
-      let msg = `\n    ${COLORS.white}Assertion:`
-      if (context.message) {
-        msg += ` ${context.message}`
-      }
-
-      if (context.expected) {
-        msg += `
-      ${COLORS.white}✓ ${COLORS.teal}${context.expected}
-      ${COLORS.white}X ${COLORS.red}${context.actual}${COLORS.reset}`
-      }
-
-      assertionErrors.push(msg)
-    })
+    await page.exposeFunction('harness_log', log)
 
     await page.exposeFunction('harness_done', context => {
-      process.stdout.write('\n')
-
-      if (moduleErrors.length > 0) {
-        for (let idx = 0; idx < moduleErrors.length; idx++) {
-          process.stderr.write(`${moduleErrors[idx]}\n\n`)
-        }
-      }
-
-      const stats = [
-        `${COLORS.white}Runtime: ${context.runtime}ms`,
-        `${COLORS.white}Total: ${context.total}`,
-        `${COLORS.green}Passed: ${context.passed}${COLORS.reset}`,
-        `${(page.skippedTests > 0) ? COLORS.yellow : COLORS.green}Skipped: ${page.skippedTests}${COLORS.reset}`,
-        `${(context.failed > 0) ? COLORS.red : COLORS.green}Failed: ${context.failed}${COLORS.reset}`
-      ]
-      process.stdout.write(stats.join(', ') + '\n\n')
-
-      page.testStats = { ...context, skipped: page.skippedTests }
+      done(context)
+      page.testStats = context
       page.testsComplete = true
     })
 

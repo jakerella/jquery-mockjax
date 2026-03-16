@@ -1,6 +1,6 @@
 /*!
  * jQuery Mockjax v3.0.0 - https://github.com/jakerella/jquery-mockjax
- * Build Date: 2026-03-12
+ * Build Date: 2026-03-16
  * Copyright (c) 2026 Jordan Kasper and contributors, formerly appendTo
  * Licensed under the MIT license
  */
@@ -502,7 +502,7 @@ function matchHeaders(handlerHeaders, requestHeaders) {
  * @returns {boolean} True if method matches
  */
 function matchMethod(handlerMethod, requestMethod) {
-    return !handlerMethod || handlerMethod.toUpperCase() === requestMethod.toUpperCase()
+    return !handlerMethod || String(handlerMethod).toUpperCase() === String(requestMethod).toUpperCase()
 }
 
 /**

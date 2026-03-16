@@ -3,7 +3,7 @@
   "title": "jQuery Mockjax",
   "version": "3.0.0",
   "main": "./dist/jquery.mockjax.js",
-  "module": "./src/index.js",
+  "module": "./src/index.mjs",
   "description": "The jQuery Mockjax Plugin provides a simple and extremely flexible interface for mocking or simulating ajax requests and responses.",
   "url": "https://github.com/jakerella/jquery-mockjax",
   "keywords": [
@@ -46,14 +46,16 @@
   ],
   "scripts": {
     "build": "npx webpack --mode production --config webpack.config.mjs",
-    "build:dist": "npm run style && npm run lint && npm run build && npm test",
-    "test": "npm run test:headless",
-    "test:unit": "node test/unit/test-settings.mjs",
-    "test:integration:all": "node test/integration/_test-runner.js all",
+    "build:dist": "npm run style && npm run lint && npm run coverage && npm run build && npm test:integration:all",
+    "test": "npm run test:unit",
+    "test:unit": "npx qunit --reporter ../../../../test/qunit-reporter.cjs test/unit/test-*",
+    "test:integration": "npm run test:integration:latest",
+    "test:integration:all": "node test/integration/_test-runner.mjs all",
     "test:integration:latest": "node test/integration/_test-runner.mjs latest",
     "test:nodejs": "node test/nodejs/test-runner.cjs",
     "test:requirejs": "node test/requirejs/test-runner.mjs",
     "test:headless": "npm run test:unit && npm run test:integration:latest && npm run test:nodejs && npm run test:requirejs",
+    "coverage": "npx c8 npm run test:unit",
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",
     "style": "npx prettier --write 'src/**/*.mjs'",
@@ -68,7 +70,7 @@
         "webpack.config.mjs",
         "webpack.custom-umd.mjs"
       ],
-      "extensions": "mjs",
+      "extensions": "mjs,cjs,js",
       "delay": 1500
     },
     "test:integration:latest": {
@@ -76,24 +78,23 @@
         "src",
         "test"
       ],
-      "extensions": "mjs,js,json,html",
+      "extensions": "mjs,cjs,js,json,html",
       "delay": 1500
     }
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "browserstack-runner": "^0.9.4",
+    "c8": "^11.0.0",
     "eslint": "^10.0.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsdoc": "^62.8.0",
     "http-server": "^14.1.1",
     "jsdom": "^28.1.0",
-    "node-qunit": "^2.0.1",
     "npm-watch": "^0.13.0",
     "prettier": "^3.8.1",
     "puppeteer": "^24.39.0",
     "qunit": "^2.25.0",
-    "requirejs": "^2.3.8",
     "sinon": "^21.0.2",
     "terser-webpack-plugin": "^5.4.0",
     "webpack": "^5.105.4",
@@ -105,5 +106,8 @@
     "jquery2": "npm:jquery@^2.2.4",
     "jquery3": "npm:jquery@^3.7.1",
     "jquery4": "npm:jquery@^4.0.0"
+  },
+  "optionalDependencies": {
+    "requirejs": "^2.3.8"
   }
 }
