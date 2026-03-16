@@ -115,12 +115,19 @@ export function matchData(handlerData, requestData) {
         return true
     }
 
-    if (handlerData instanceof RegExp && typeof requestData === 'string') {
-        return handlerData.test(requestData)
+    if (handlerData instanceof RegExp) {
+        return handlerData.test(String(requestData))
     }
 
     if (typeof handlerData === 'string') {
         return handlerData === requestData
+    }
+
+    if (Array.isArray(handlerData)) {
+        if (!Array.isArray(requestData) || handlerData.length !== requestData.length) {
+            return false
+        }
+        return !handlerData.filter((v) => !requestData.includes(v)).length
     }
 
     let valid = true
