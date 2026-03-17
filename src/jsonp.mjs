@@ -7,10 +7,14 @@
  * @typedef {import('./typedefs.mjs').MockHandler} MockHandler
  * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
  * @typedef {import('./typedefs.mjs').JSONPCallback} JSONPCallback
+ * @typedef {import('./typedefs.mjs')Deferred} Deferred
  */
 
 import { realAjaxCall } from './core.mjs'
 import { determineResponseTime } from './xhr.mjs'
+import { getJQuery } from './lib.mjs'
+
+const jq = getJQuery()
 
 const CALLBACK_REGEX = /=\?(&|$)/
 const URL_PROTOCOL_REGEX = /^(\w+:)?\/\/([^\/?#]+)/
@@ -23,7 +27,7 @@ let jsonpCallbackCounter = Date.now()
  * @param {JQueryAjaxSettings} requestSettings - Request settings to process
  * @param {MockHandler} mockHandler - Mock handler configuration
  * @param {JQueryAjaxSettings} origSettings - Original request settings
- * @returns {object | boolean | null} Deferred object, true for handled, or null for not handled
+ * @returns {Deferred | boolean | null} Deferred object or true if handled, or null if not handled
  */
 export function processJsonpMock(requestSettings, mockHandler, origSettings) {
     appendCallbackParameter(requestSettings)
@@ -130,12 +134,12 @@ function isRemoteRequest(url) {
  */
 function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
     const callbackContext = origSettings?.context || requestSettings
-    const deferred = $.Deferred ? new $.Deferred() : null
+    const deferred = jq.Deferred ? new jq.Deferred() : null
 
     if (typeof mockHandler.response === 'function') {
         mockHandler.response(origSettings)
     } else if (typeof mockHandler.responseText === 'object') {
-        $.globalEval(`(${JSON.stringify(mockHandler.responseText)})`)
+        jq.globalEval(`(${JSON.stringify(mockHandler.responseText)})`)
     } else if (mockHandler.proxy) {
         realAjaxCall({
             global: false,
@@ -145,7 +149,7 @@ function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
             dataType:
                 requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
             complete: function (xhr) {
-                $.globalEval(`(${xhr.responseText})`)
+                jq.globalEval(`(${xhr.responseText})`)
                 completeJsonpCall(requestSettings, mockHandler, callbackContext, deferred)
             },
         })
@@ -155,7 +159,7 @@ function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
             typeof mockHandler.responseText === 'string'
                 ? `"${mockHandler.responseText}"`
                 : mockHandler.responseText
-        $.globalEval(`(${responseValue})`)
+        jq.globalEval(`(${responseValue})`)
     }
 
     completeJsonpCall(requestSettings, mockHandler, callbackContext, deferred)
@@ -203,7 +207,7 @@ function triggerSuccess(requestSettings, callbackContext, mockHandler) {
     }
 
     if (requestSettings.global) {
-        const eventTarget = requestSettings.context ? $(requestSettings.context) : $.event
+        const eventTarget = requestSettings.context ? jq(requestSettings.context) : jq.event
         eventTarget.trigger('ajaxSuccess', [{}, requestSettings])
     }
 }
@@ -224,15 +228,15 @@ function triggerComplete(requestSettings, callbackContext) {
     }
 
     if (requestSettings.global) {
-        const eventTarget = requestSettings.context ? $(requestSettings.context) : $.event
+        const eventTarget = requestSettings.context ? jq(requestSettings.context) : jq.event
         eventTarget.trigger('ajaxComplete', [{}, requestSettings])
     }
 
     // Handle the global AJAX counter
-    if (requestSettings.global && $.active) {
-        $.active--
-        if ($.active === 0) {
-            $.event.trigger('ajaxStop')
+    if (requestSettings.global && jq.active) {
+        jq.active--
+        if (jq.active === 0) {
+            jq.event.trigger('ajaxStop')
         }
     }
 }

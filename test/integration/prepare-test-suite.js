@@ -116,7 +116,7 @@
 			$.mockjaxSettings.logging = 1
 
 			// Cache default settings for a quick restore after each test
-			QUnit.defaultMockjaxSettings = $.extend({}, $.mockjaxSettings)
+			QUnit.defaultMockjaxSettings = {...$.mockjaxSettings}
 		})
 
 		QUnit.testDone(function() {
@@ -125,7 +125,7 @@
 			// For some reason, calling resetSettings() causes every test
 			// to take about 10x as long to run...
 			// $.mockjax.resetSettings()
-			$.mockjaxSettings = $.extend({}, QUnit.defaultMockjaxSettings)
+			$.mockjaxSettings = {...QUnit.defaultMockjaxSettings}
 		})
 		
 		window.addEventListener('load', async () => {

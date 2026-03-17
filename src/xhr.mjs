@@ -11,6 +11,9 @@
 
 import { getSettings } from './settings.mjs'
 import { realAjaxCall } from './core.mjs'
+import { getJQuery } from './lib.mjs'
+
+const jq = getJQuery()
 
 const READYSTATE = {
     unsent: 0,
@@ -234,10 +237,10 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
 function parseXML(xml) {
     try {
         const xmlDoc = new DOMParser().parseFromString(xml, 'text/xml')
-        if ($.isXMLDoc(xmlDoc)) {
-            const err = $('parsererror', xmlDoc)
+        if (jq.isXMLDoc(xmlDoc)) {
+            const err = jq('parsererror', xmlDoc)
             if (err.length === 1) {
-                throw new TypeError(`Error: ${$(xmlDoc).text()}`)
+                throw new TypeError(`Error: ${jq(xmlDoc).text()}`)
             }
         } else {
             throw new TypeError('Unable to parse XML')
@@ -245,7 +248,7 @@ function parseXML(xml) {
         return xmlDoc
     } catch (err) {
         const msg = err.name === undefined ? err : `${err.name}: ${err.message}`
-        $(document).trigger('xmlParseError', [msg])
+        jq(document).trigger('xmlParseError', [msg])
         throw new TypeError(msg)
     }
 }

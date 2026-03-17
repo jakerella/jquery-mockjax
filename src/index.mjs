@@ -3,6 +3,7 @@
  * @module mockjax
  */
 
+import { getJQuery } from './lib.mjs'
 import { getSettings, resetSettings, validateSettings } from './settings.mjs'
 import { getLogger } from './logger.mjs'
 import {
@@ -17,6 +18,7 @@ import {
     mockedAjaxCalls,
     unmockedAjaxCalls,
     clearRetainedAjaxCalls,
+    mockAjaxCall
 } from './core.mjs'
 
 // Export public API
@@ -35,7 +37,7 @@ export {
     getSettings,
     resetSettings,
     validateSettings,
-    getLogger,
+    getLogger
 }
 
 // Default export
@@ -54,21 +56,26 @@ export default {
     getSettings,
     resetSettings,
     validateSettings,
-    getLogger,
+    getLogger
 }
 
-$.mockjaxSettings = getSettings()
-$.mockjax = registerMockjaxHandler
-$.mockjax.getLogger = getLogger
-$.mockjax.resetSettings = resetSettings
-$.mockjax.validateSettings = validateSettings
-$.mockjax.clear = clear
-$.mockjax.clearById = clearById
-$.mockjax.clearByUrl = clearByUrl
-$.mockjax.clearAll = clearAll
-$.mockjax.handler = handler
-$.mockjax.handlers = handlers
-$.mockjax.unfiredHandlers = unfiredHandlers
-$.mockjax.mockedAjaxCalls = mockedAjaxCalls
-$.mockjax.unmockedAjaxCalls = unmockedAjaxCalls
-$.mockjax.clearRetainedAjaxCalls = clearRetainedAjaxCalls
+const jq = getJQuery()
+
+jq._ajax = jq.ajax
+jq.ajax = mockAjaxCall
+
+jq.mockjaxSettings = getSettings()
+jq.mockjax = registerMockjaxHandler
+jq.mockjax.getLogger = getLogger
+jq.mockjax.resetSettings = resetSettings
+jq.mockjax.validateSettings = validateSettings
+jq.mockjax.clear = clear
+jq.mockjax.clearById = clearById
+jq.mockjax.clearByUrl = clearByUrl
+jq.mockjax.clearAll = clearAll
+jq.mockjax.handler = handler
+jq.mockjax.handlers = handlers
+jq.mockjax.unfiredHandlers = unfiredHandlers
+jq.mockjax.mockedAjaxCalls = mockedAjaxCalls
+jq.mockjax.unmockedAjaxCalls = unmockedAjaxCalls
+jq.mockjax.clearRetainedAjaxCalls = clearRetainedAjaxCalls

@@ -1,9 +1,9 @@
 
 import QUnit from 'qunit'
-const it = QUnit.test
+import { getJQuery, resetJQueryMock } from '../../src/lib.mjs'
 
-// Set up mock jQuery for settings to attach to
-global.$ = {}
+const it = QUnit.test
+const $ = getJQuery()
 
 import {
     getSettings,
@@ -13,8 +13,9 @@ import {
 
 /* ----------------- */
 QUnit.module('Settings: getSettings', {
-    beforeEach: function () {
-        delete global.$.mockjaxSettings
+    afterEach: () => {
+        resetJQueryMock()
+        resetSettings()
     }
 })
 /* ----------------- */
@@ -33,7 +34,7 @@ it('should return default settings when not initialized', (assert) => {
 })
 
 it('should return current global settings', (assert) => {
-    global.$.mockjaxSettings = {
+    $.mockjaxSettings = {
         status: 404,
         statusText: 'Not Found',
         responseTime: 1000,
@@ -69,14 +70,15 @@ it('should return object with all default properties', (assert) => {
 
 /* ----------------- */
 QUnit.module('Settings: resetSettings', {
-    beforeEach: function () {
-        delete global.$.mockjaxSettings
+    afterEach: () => {
+        resetJQueryMock()
+        resetSettings()
     }
 })
 /* ----------------- */
 
 it('should restore default values', (assert) => {
-    global.$.mockjaxSettings = {
+    $.mockjaxSettings = {
         status: 404,
         responseTime: 1000,
         namespace: '/api',
@@ -91,16 +93,16 @@ it('should restore default values', (assert) => {
 })
 
 it('should return the reset settings object', (assert) => {
-    global.$.mockjaxSettings = { status: 404 }
+    $.mockjaxSettings = { status: 404 }
     const settings = resetSettings()
     assert.ok(typeof settings === 'object', 'Should return settings object')
     assert.equal(settings.status, 200, 'Returned settings should have default status')
 })
 
 it('should set $.mockjaxSettings', (assert) => {
-    global.$.mockjaxSettings = { status: 404 }
+    $.mockjaxSettings = { status: 404 }
     resetSettings()
-    assert.equal(global.$.mockjaxSettings.status, 200, '$.mockjaxSettings should be updated')
+    assert.equal($.mockjaxSettings.status, 200, '$.mockjaxSettings should be updated')
 })
 
 it('should be able to be called multiple times', (assert) => {
@@ -112,7 +114,7 @@ it('should be able to be called multiple times', (assert) => {
 })
 
 it('should handle missing $.mockjaxSettings', (assert) => {
-    global.$.mockjaxSettings = undefined
+    $.mockjaxSettings = undefined
     const settings = resetSettings()
     assert.ok(settings !== undefined, 'Should create settings object')
     assert.equal(settings.status, 200, 'Should have default status')
@@ -133,7 +135,7 @@ it('should accept valid default settings', (assert) => {
 })
 
 it('should accept valid custom settings', (assert) => {
-    global.$.mockjaxSettings = {
+    $.mockjaxSettings = {
         logger: {
             error: () => {},
             warn: () => {},
@@ -166,7 +168,7 @@ it('should accept valid custom settings', (assert) => {
 })
 
 it('should accept status as array', (assert) => {
-    global.$.mockjaxSettings = { 
+    $.mockjaxSettings = { 
         status: [200, 201, 204], 
         statusText: 'OK', 
         responseTime: 500, 
@@ -192,7 +194,7 @@ it('should accept status as array', (assert) => {
 })
 
 it('should accept null logger', (assert) => {
-    global.$.mockjaxSettings = { 
+    $.mockjaxSettings = { 
         logger: null, 
         logLevel: 2, 
         status: 200, 
@@ -219,7 +221,7 @@ it('should accept null logger', (assert) => {
 })
 
 it('should accept null namespace', (assert) => {
-    global.$.mockjaxSettings = { 
+    $.mockjaxSettings = { 
         namespace: null, 
         logLevel: 2, 
         status: 200, 
@@ -245,7 +247,7 @@ it('should accept null namespace', (assert) => {
 })
 
 it('should accept empty responseHeaders', (assert) => {
-    global.$.mockjaxSettings = { 
+    $.mockjaxSettings = { 
         responseHeaders: {}, 
         logLevel: 2, 
         status: 200, 
@@ -271,7 +273,7 @@ it('should accept empty responseHeaders', (assert) => {
 })
 
 it('should accept responseHeaders with string values', (assert) => {
-    global.$.mockjaxSettings = { 
+    $.mockjaxSettings = { 
         responseHeaders: { 'Content-Type': 'application/json', 'X-Custom': 'value' },
         logLevel: 2, 
         status: 200, 
@@ -305,7 +307,7 @@ QUnit.module('Settings: validateSettings (negative)', {
 /* ----------------- */
 
 it('should throw for invalid logger type', (assert) => {
-    global.$.mockjaxSettings.logger = 'not-an-object'
+    $.mockjaxSettings.logger = 'not-an-object'
     assert.throws(
         () => validateSettings(),
         /logger/,
@@ -314,7 +316,7 @@ it('should throw for invalid logger type', (assert) => {
 })
 
 it('should throw for logger missing methods', (assert) => {
-    global.$.mockjaxSettings.logger = { error: () => {} }
+    $.mockjaxSettings.logger = { error: () => {} }
     assert.throws(
         () => validateSettings(),
         /logger/,
@@ -323,7 +325,7 @@ it('should throw for logger missing methods', (assert) => {
 })
 
 it('should throw for invalid logLevel', (assert) => {
-    global.$.mockjaxSettings.logLevel = 'not-a-number'
+    $.mockjaxSettings.logLevel = 'not-a-number'
     assert.throws(
         () => validateSettings(),
         /logLevel/,
@@ -332,7 +334,7 @@ it('should throw for invalid logLevel', (assert) => {
 })
 
 it('should throw for invalid namespace type', (assert) => {
-    global.$.mockjaxSettings.namespace = 123
+    $.mockjaxSettings.namespace = 123
     assert.throws(
         () => validateSettings(),
         /namespace/,
@@ -341,7 +343,7 @@ it('should throw for invalid namespace type', (assert) => {
 })
 
 it('should throw for status out of range (too high)', (assert) => {
-    global.$.mockjaxSettings.status = 600
+    $.mockjaxSettings.status = 600
     assert.throws(
         () => validateSettings(),
         /status/,
@@ -350,7 +352,7 @@ it('should throw for status out of range (too high)', (assert) => {
 })
 
 it('should throw for status out of range (too low)', (assert) => {
-    global.$.mockjaxSettings.status = 99
+    $.mockjaxSettings.status = 99
     assert.throws(
         () => validateSettings(),
         /status/,
@@ -359,7 +361,7 @@ it('should throw for status out of range (too low)', (assert) => {
 })
 
 it('should throw for invalid status in array', (assert) => {
-    global.$.mockjaxSettings.status = [200, 999]
+    $.mockjaxSettings.status = [200, 999]
     assert.throws(
         () => validateSettings(),
         /status/,
@@ -368,7 +370,7 @@ it('should throw for invalid status in array', (assert) => {
 })
 
 it('should throw for non-string statusText', (assert) => {
-    global.$.mockjaxSettings.statusText = 123
+    $.mockjaxSettings.statusText = 123
     assert.throws(
         () => validateSettings(),
         /statusText/,
@@ -377,7 +379,7 @@ it('should throw for non-string statusText', (assert) => {
 })
 
 it('should throw for negative responseTime', (assert) => {
-    global.$.mockjaxSettings.responseTime = -1
+    $.mockjaxSettings.responseTime = -1
     assert.throws(
         () => validateSettings(),
         /responseTime/,
@@ -386,7 +388,7 @@ it('should throw for negative responseTime', (assert) => {
 })
 
 it('should throw for non-integer responseTime', (assert) => {
-    global.$.mockjaxSettings.responseTime = 'not-a-number'
+    $.mockjaxSettings.responseTime = 'not-a-number'
     assert.throws(
         () => validateSettings(),
         /responseTime/,
@@ -395,7 +397,7 @@ it('should throw for non-integer responseTime', (assert) => {
 })
 
 it('should throw for non-boolean isTimeout', (assert) => {
-    global.$.mockjaxSettings.isTimeout = 'not-a-boolean'
+    $.mockjaxSettings.isTimeout = 'not-a-boolean'
     assert.throws(
         () => validateSettings(),
         /isTimeout/,
@@ -404,7 +406,7 @@ it('should throw for non-boolean isTimeout', (assert) => {
 })
 
 it('should throw for non-boolean throwUnmocked', (assert) => {
-    global.$.mockjaxSettings.throwUnmocked = 'not-a-boolean'
+    $.mockjaxSettings.throwUnmocked = 'not-a-boolean'
     assert.throws(
         () => validateSettings(),
         /throwUnmocked/,
@@ -413,7 +415,7 @@ it('should throw for non-boolean throwUnmocked', (assert) => {
 })
 
 it('should throw for non-integer retainAjaxCalls', (assert) => {
-    global.$.mockjaxSettings.retainAjaxCalls = 'not-a-number'
+    $.mockjaxSettings.retainAjaxCalls = 'not-a-number'
     assert.throws(
         () => validateSettings(),
         /retainAjaxCalls/,
@@ -422,7 +424,7 @@ it('should throw for non-integer retainAjaxCalls', (assert) => {
 })
 
 it('should throw for invalid contentType format', (assert) => {
-    global.$.mockjaxSettings.contentType = 'invalid'
+    $.mockjaxSettings.contentType = 'invalid'
     assert.throws(
         () => validateSettings(),
         /contentType/,
@@ -431,7 +433,7 @@ it('should throw for invalid contentType format', (assert) => {
 })
 
 it('should throw for non-function response', (assert) => {
-    global.$.mockjaxSettings.response = 'not-a-function'
+    $.mockjaxSettings.response = 'not-a-function'
     assert.throws(
         () => validateSettings(),
         /response/,
@@ -440,7 +442,7 @@ it('should throw for non-function response', (assert) => {
 })
 
 it('should throw for null responseText', (assert) => {
-    global.$.mockjaxSettings.responseText = null
+    $.mockjaxSettings.responseText = null
     assert.throws(
         () => validateSettings(),
         /responseText/,
@@ -449,7 +451,7 @@ it('should throw for null responseText', (assert) => {
 })
 
 it('should throw for undefined responseText', (assert) => {
-    global.$.mockjaxSettings.responseText = undefined
+    $.mockjaxSettings.responseText = undefined
     assert.throws(
         () => validateSettings(),
         /responseText/,
@@ -458,7 +460,7 @@ it('should throw for undefined responseText', (assert) => {
 })
 
 it('should throw for non-string responseXML', (assert) => {
-    global.$.mockjaxSettings.responseXML = 123
+    $.mockjaxSettings.responseXML = 123
     assert.throws(
         () => validateSettings(),
         /responseXML/,
@@ -467,7 +469,7 @@ it('should throw for non-string responseXML', (assert) => {
 })
 
 it('should throw for non-string proxy', (assert) => {
-    global.$.mockjaxSettings.proxy = 123
+    $.mockjaxSettings.proxy = 123
     assert.throws(
         () => validateSettings(),
         /proxy/,
@@ -476,7 +478,7 @@ it('should throw for non-string proxy', (assert) => {
 })
 
 it('should throw for non-string proxyType', (assert) => {
-    global.$.mockjaxSettings.proxyType = 123
+    $.mockjaxSettings.proxyType = 123
     assert.throws(
         () => validateSettings(),
         /proxyType/,
@@ -485,7 +487,7 @@ it('should throw for non-string proxyType', (assert) => {
 })
 
 it('should throw for non-string lastModified', (assert) => {
-    global.$.mockjaxSettings.lastModified = 123
+    $.mockjaxSettings.lastModified = 123
     assert.throws(
         () => validateSettings(),
         /lastModified/,
@@ -494,7 +496,7 @@ it('should throw for non-string lastModified', (assert) => {
 })
 
 it('should throw for non-string etag', (assert) => {
-    global.$.mockjaxSettings.etag = 123
+    $.mockjaxSettings.etag = 123
     assert.throws(
         () => validateSettings(),
         /etag/,
@@ -503,7 +505,7 @@ it('should throw for non-string etag', (assert) => {
 })
 
 it('should throw for invalid responseHeaders type', (assert) => {
-    global.$.mockjaxSettings.responseHeaders = 'not-an-object'
+    $.mockjaxSettings.responseHeaders = 'not-an-object'
     assert.throws(
         () => validateSettings(),
         /responseHeaders/,
@@ -512,7 +514,7 @@ it('should throw for invalid responseHeaders type', (assert) => {
 })
 
 it('should throw for responseHeaders with non-string values', (assert) => {
-    global.$.mockjaxSettings.responseHeaders = { 'X-Custom': 123 }
+    $.mockjaxSettings.responseHeaders = { 'X-Custom': 123 }
     assert.throws(
         () => validateSettings(),
         /responseHeaders/,
@@ -521,7 +523,7 @@ it('should throw for responseHeaders with non-string values', (assert) => {
 })
 
 it('should throw for non-boolean matchInRegistrationOrder', (assert) => {
-    global.$.mockjaxSettings.matchInRegistrationOrder = 'not-a-boolean'
+    $.mockjaxSettings.matchInRegistrationOrder = 'not-a-boolean'
     assert.throws(
         () => validateSettings(),
         /matchInRegistrationOrder/,
@@ -530,7 +532,7 @@ it('should throw for non-boolean matchInRegistrationOrder', (assert) => {
 })
 
 it('should throw for non-boolean followRedirects', (assert) => {
-    global.$.mockjaxSettings.followRedirects = 'not-a-boolean'
+    $.mockjaxSettings.followRedirects = 'not-a-boolean'
     assert.throws(
         () => validateSettings(),
         /followRedirects/,
@@ -547,31 +549,31 @@ QUnit.module('Settings: validateSettings (edge cases)', {
 /* ----------------- */
 
 it('should accept zero responseTime', (assert) => {
-    global.$.mockjaxSettings.responseTime = 0
+    $.mockjaxSettings.responseTime = 0
     validateSettings()
     assert.ok(true, 'Zero responseTime should be valid')
 })
 
 it('should accept retainAjaxCalls = 0', (assert) => {
-    global.$.mockjaxSettings.retainAjaxCalls = 0
+    $.mockjaxSettings.retainAjaxCalls = 0
     validateSettings()
     assert.ok(true, 'retainAjaxCalls = 0 should be valid')
 })
 
 it('should accept retainAjaxCalls = -1', (assert) => {
-    global.$.mockjaxSettings.retainAjaxCalls = -1
+    $.mockjaxSettings.retainAjaxCalls = -1
     validateSettings()
     assert.ok(true, 'retainAjaxCalls = -1 should be valid')
 })
 
 it('should accept large positive retainAjaxCalls', (assert) => {
-    global.$.mockjaxSettings.retainAjaxCalls = 10000
+    $.mockjaxSettings.retainAjaxCalls = 10000
     validateSettings()
     assert.ok(true, 'Large retainAjaxCalls should be valid')
 })
 
 it('should accept empty string responseText', (assert) => {
-    global.$.mockjaxSettings.responseText = ''
+    $.mockjaxSettings.responseText = ''
     validateSettings()
     assert.ok(true, 'Empty string responseText should be valid')
 })
@@ -580,73 +582,73 @@ it('should accept various contentType formats', (assert) => {
     const validTypes = ['text/plain', 'application/json', 'application/xml', 'text/html', 'application/x-www-form-urlencoded']
     validTypes.forEach(contentType => {
         resetSettings()
-        global.$.mockjaxSettings.contentType = contentType
+        $.mockjaxSettings.contentType = contentType
         validateSettings()
     })
     assert.ok(true, 'Various contentType formats should be valid')
 })
 
 it('should accept status boundary values', (assert) => {
-    global.$.mockjaxSettings.status = 100
+    $.mockjaxSettings.status = 100
     validateSettings()
     
     resetSettings()
-    global.$.mockjaxSettings.status = 599
+    $.mockjaxSettings.status = 599
     validateSettings()
     
     assert.ok(true, 'Boundary status values (100, 599) should be valid')
 })
 
 it('should accept deprecated logging setting', (assert) => {
-    global.$.mockjaxSettings.logging = 2
+    $.mockjaxSettings.logging = 2
     validateSettings()
     assert.ok(true, 'Deprecated logging setting should be valid')
 })
 
 it('should accept null for optional string properties', (assert) => {
-    global.$.mockjaxSettings.namespace = null
-    global.$.mockjaxSettings.response = null
-    global.$.mockjaxSettings.responseXML = null
-    global.$.mockjaxSettings.proxy = null
-    global.$.mockjaxSettings.proxyType = null
-    global.$.mockjaxSettings.lastModified = null
-    global.$.mockjaxSettings.etag = null
+    $.mockjaxSettings.namespace = null
+    $.mockjaxSettings.response = null
+    $.mockjaxSettings.responseXML = null
+    $.mockjaxSettings.proxy = null
+    $.mockjaxSettings.proxyType = null
+    $.mockjaxSettings.lastModified = null
+    $.mockjaxSettings.etag = null
     validateSettings()
     assert.ok(true, 'Null values for optional properties should be valid')
 })
 
 it('should accept string etag', (assert) => {
-    global.$.mockjaxSettings.etag = 'custom-etag-value'
+    $.mockjaxSettings.etag = 'custom-etag-value'
     validateSettings()
     assert.ok(true, 'String etag should be valid')
 })
 
 it('should accept string lastModified', (assert) => {
-    global.$.mockjaxSettings.lastModified = 'Mon, 01 Jan 2024 00:00:00 GMT'
+    $.mockjaxSettings.lastModified = 'Mon, 01 Jan 2024 00:00:00 GMT'
     validateSettings()
     assert.ok(true, 'String lastModified should be valid')
 })
 
 it('should accept function response', (assert) => {
-    global.$.mockjaxSettings.response = function () {}
+    $.mockjaxSettings.response = function () {}
     validateSettings()
     assert.ok(true, 'Function response should be valid')
 })
 
 it('should accept string responseXML', (assert) => {
-    global.$.mockjaxSettings.responseXML = '<xml/>'
+    $.mockjaxSettings.responseXML = '<xml/>'
     validateSettings()
     assert.ok(true, 'String responseXML should be valid')
 })
 
 it('should accept string proxy', (assert) => {
-    global.$.mockjaxSettings.proxy = '/proxy/path'
+    $.mockjaxSettings.proxy = '/proxy/path'
     validateSettings()
     assert.ok(true, 'String proxy should be valid')
 })
 
 it('should accept string proxyType', (assert) => {
-    global.$.mockjaxSettings.proxyType = 'POST'
+    $.mockjaxSettings.proxyType = 'POST'
     validateSettings()
     assert.ok(true, 'String proxyType should be valid')
 })

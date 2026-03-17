@@ -27,7 +27,7 @@ QUnit.module('Basic Nodejs Tests', {
     teardown: () => {
         $.mockjax.clearAll()
         $.mockjax.clearRetainedAjaxCalls()
-        $.mockjaxSettings = $.extend({}, QUnit.defaultMockjaxSettings)
+        $.mockjaxSettings = {...QUnit.defaultMockjaxSettings}
     }
 })
 
@@ -66,72 +66,72 @@ QUnit.test('Basic mock and match', function(assert) {
     })
 })
 
-// QUnit.test('Basic match with onAfterSuccess callback', function(assert) {
-//     var done = assert.async();
-//     assert.expect(2)
+QUnit.test.skip('Basic match with onAfterSuccess callback', function(assert) {
+    var done = assert.async();
+    assert.expect(2)
 
-//     let successFired = false
+    let successFired = false
     
-//     $.mockjax({
-//         url: '/api/resource',
-//         responseText: 'resource content',
-//         onAfterSuccess: (settings) => {
-//             assert.equal(successFired, true, 'onAfterSuccess fires after success')
-//             done()
-//         }
-//     })
+    $.mockjax({
+        url: '/api/resource',
+        responseText: 'resource content',
+        onAfterSuccess: (settings) => {
+            assert.equal(successFired, true, 'onAfterSuccess fires after success')
+            done()
+        }
+    })
 
-//     $.ajax({
-//         url: '/api/resource',
-//         error: () => {
-//             assert.ok(false, 'Basic matching mocked request should not fail')
-//         },
-//         success: function(data) {
-//             successFired = true
-//             assert.equal(data, 'resource content', 'Basic url string match')
-//         }
-//     })
-// })
+    $.ajax({
+        url: '/api/resource',
+        error: () => {
+            assert.ok(false, 'Basic matching mocked request should not fail')
+        },
+        success: function(data) {
+            successFired = true
+            assert.equal(data, 'resource content', 'Basic url string match')
+        }
+    })
+})
 
-// QUnit.test('Blank response with no Response params', function(assert) {
-//     var done = assert.async();
+QUnit.test.skip('Blank response with no Response params', function(assert) {
+    var done = assert.async();
     
-//     $.mockjax({
-//         url: '/api/resource'
-//     })
+    $.mockjax({
+        url: '/api/resource'
+    })
 
-//     $.ajax({
-//         url: '/api/resource',
-//         error: () => {
-//             assert.ok(false, 'Basic matching mocked request should not fail')
-//         },
-//         complete: function(xhr) {
-//             assert.equal(xhr.responseText, '', 'Blank response expected with no params')
-//             done()
-//         }
-//     })
-// })
+    $.ajax({
+        url: '/api/resource',
+        error: () => {
+            assert.ok(false, 'Basic matching mocked request should not fail')
+        },
+        complete: function(xhr) {
+            assert.equal(xhr.responseText, '', 'Blank response expected with no params')
+            done()
+        }
+    })
+})
 
-// QUnit.test('Throw with no match criteria in settings', function(assert) {
-//     assert.throws(() => {
-//         $.mockjax({})
-//     }, 'Registering a handler with no match settings throws')
-// })
+QUnit.test.skip('Throw with no match criteria in settings', function(assert) {
+    assert.throws(() => {
+        $.mockjax({})
+    }, 'Registering a handler with no match settings throws')
+})
 
-// QUnit.test('Return XMLHttpRequest object from $.ajax', function(assert) {
-//     $.mockjax({
-//         url: '/xmlhttprequest',
-//         responseText: 'Hello Word'
-//     })
+QUnit.test.skip('Return XMLHttpRequest object from $.ajax', function(assert) {
+    $.mockjax({
+        url: '/xmlhttprequest',
+        responseText: 'Hello Word'
+    })
 
-//     var xhr = $.ajax({
-//         url: '/xmlhttprequest',
-//         complete: function() { }
-//     })
-//     if (xhr && xhr.abort) {
-//         xhr.abort()
-//     }
+    var xhr = $.ajax({
+        url: '/xmlhttprequest',
+        complete: function() { }
+    })
+    if (xhr && xhr.abort) {
+        xhr.abort()
+    }
 
-//     assert.ok(xhr, 'XHR object is not null or undefined')
-//     assert.ok(xhr.done && xhr.fail, 'Got Promise methods')
-// })
+    assert.ok(xhr, 'XHR object is not null or undefined')
+    assert.ok(xhr.done && xhr.fail, 'Got Promise methods')
+})

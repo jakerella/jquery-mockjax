@@ -11,7 +11,7 @@ define(function (require) {
 		teardown: () => {
 			$.mockjax.clearAll()
 			$.mockjax.clearRetainedAjaxCalls()
-			$.mockjaxSettings = $.extend({}, QUnit.defaultMockjaxSettings)
+			$.mockjaxSettings = {...QUnit.defaultMockjaxSettings}
 		}
 	})
 

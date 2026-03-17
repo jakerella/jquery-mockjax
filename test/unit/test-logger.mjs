@@ -2,10 +2,8 @@
 import sinon from 'sinon'
 import QUnit from 'qunit'
 import * as settingsModule from '../../src/settings.mjs'
-const it = QUnit.test
 
-// Set up mock jQuery for settings to attach to
-global.$ = {}
+const it = QUnit.test
 
 const mockSettings = {...settingsModule.getSettings()}
 let mockGetSettings = null

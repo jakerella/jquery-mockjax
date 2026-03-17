@@ -26,6 +26,7 @@
 /**
  * A method called once a async operation is complete
  * @callback AsyncComplete
+ * @param {?...AnyType}
  * @returns {void}
  */
 
@@ -43,15 +44,15 @@
  */
 
 /**
- * The matcher for request data
- * @typedef {(DataMatcherFn | string | {[key: string]: DataMatcher})} DataMatcher
- */
-
-/**
  * Request Data matching function
  * @function DataMatcherFn
  * @param {RequestData} requestData - The data to match against
  * @returns {boolean} Whether the data was matched against or not
+ */
+
+/**
+ * The matcher for request data
+ * @typedef {(DataMatcherFn | string | {[key: string]: DataMatcher})} DataMatcher
  */
 
 /**
@@ -61,8 +62,24 @@
 
 /**
  * A function to determine if an ajax call should be matched or not
+ * @function DynamicMockHandler
  * @param {JQueryAjaxSettings} requestSettings - The request settings to determine mock or not
  * @returns {(MockHandler | null)} - The dynamically generated mock handler, or null if not mocked
+ */
+
+/**
+ * A Deferred method to send args given context
+ * @function MethodWithContextAndArgs
+ * @param {object} context The context the function should execute within
+ * @param {...AnyType} args The arguments to send
+ * @returns Deferred
+ */
+
+/**
+ * A callback provided to a Deferred event such as done, fail, or always
+ * @function DeferredHandler
+ * @param {...AsyncComplete}
+ * @returns {void}
  */
 
 /**
@@ -203,8 +220,8 @@
 /**
  * A mock of an XMLHttpRequest object that can be used to simulate
  * an ajax call inside of jQuery. Note that this does NOT implement
- * all methods of a real XHR object, so it should not be used
- * outside of the Mockjax library!
+ * all methods of a real XHR object, OR of the jqXHR, so it should 
+ * not be used outside of the Mockjax library!
  * @typedef {object} MockXHR
  * @property {number} status The mocked HTTP status code
  * @property {string} statusText The mocked HTTP status text
@@ -216,4 +233,24 @@
  * @property {GetHeader} getResponseHeader Retreives a single mocked header (accepts header name as argument)
  * @property {GetHeaders} getAllResponseHeaders Retrieves all mocked request headers as "name: value", separated by newlines (accepts no arguments)
  * @property {number} responseTimer The ID of the timeout handler for this XHR
+ */
+
+/**
+ * 
+ * @typedef {object} Deferred
+ * @property {MethodWithContextAndArgs} resolveWith
+ * @property {DeferredHandler} done
+ * @property {DeferredHandler} then
+ * @property {DeferredHandler} fail
+ * @property {DeferredHandler} catch
+ * @property {DeferredHandler} always
+ */
+
+
+/**
+ * Mock jqXHR which is a combination of XHR and Deferred, typically
+ * returned from a $.ajax() call
+ * @typedef {object} jqXHR
+ * @extends MockXHR
+ * @extends Deferred
  */

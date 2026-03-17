@@ -9,7 +9,7 @@
  * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
  * @typedef {import('./typedefs.mjs').AjaxCallbackType} AjaxCallbackType
  * @typedef {import('./typedefs.mjs').AjaxCallback} AjaxCallback
- * @typedef {import('./typedefs.mjs').MockXHR} MockXHR
+ * @typedef {import('./typedefs.mjs').jqXHR} jqXHR
  */
 
 // import { getLogger } from './logger.js'
@@ -18,21 +18,18 @@ import { generateUUID, deepClone } from './utils.mjs'
 import { findMatchingHandler } from './matching.mjs'
 import { processJsonpMock } from './jsonp.mjs'
 import { createMockXHR } from './xhr.mjs'
+import { getJQuery } from './lib.mjs'
 
-// TODO: should this go in here??
-const _ajax = $.ajax
-$.extend({
-    ajax: mockAjaxCall,
-})
+const jq = getJQuery()
 
 /**
- * Make a real $.ajax() call, ignoring any mock handling
+ * Make a real jquery ajax() call, ignoring any mock handling
  * @param {(string | JQueryAjaxSettings)} url - The request URL or ajax settings object
  * @param {?JQueryAjaxSettings} settings - Optionally pass in jQuery Ajax settings (can also be passed as the first argument)
- * @returns {MockXHR} The jQuery Ajax XHR object
+ * @returns {jqXHR} The jQuery Ajax XHR object
  */
 export function realAjaxCall(url, settings) {
-    return _ajax.apply($, [url, settings])
+    return jq._ajax.apply($, [url, settings])
 }
 
 /**
@@ -108,7 +105,7 @@ export function registerMockjaxHandler(options) {
  * a URL _or_ the full ajax settings object.
  * @param {(string | JQueryAjaxSettings)} url - The request URL or ajax settings object
  * @param {?JQueryAjaxSettings} origSettings - Optionally pass in jQuery Ajax settings (can also be passed as the first argument)
- * @returns {MockXHR} The XHR object used in the request. Note that this will be the real jQuery jqXHR object if the call was not mocked
+ * @returns {jqXHR} The jqXHR object used in the request. Note that this will be the real jQuery jqXHR object if the call was not mocked
  */
 export function mockAjaxCall(url, origSettings) {
     let tempSettings = {}
@@ -122,7 +119,7 @@ export function mockAjaxCall(url, origSettings) {
     }
 
     // Extend the original settings for the request to include defaults
-    const requestSettings = $.ajaxSetup({}, tempSettings)
+    const requestSettings = jq.ajaxSetup({}, tempSettings)
 
     // Standardize HTTP method
     requestSettings.type = requestSettings.method || requestSettings.type
@@ -159,7 +156,7 @@ export function mockAjaxCall(url, origSettings) {
     }
 
     if (
-        Number($.fn.jquery.split('.')[0]) > 3 &&
+        Number(jq.fn.jquery.split('.')[0]) > 3 &&
         (requestSettings.dataType?.toUpperCase() === 'JSONP' ||
             requestSettings.dataType?.toUpperCase() === 'SCRIPT') &&
         !Object.keys(requestSettings.headers || {}).length
@@ -613,12 +610,12 @@ function overrideCallback(context, action, mockHandler, requestSettings) {
  * Redirect the mocked request to the location in the mock handler's headers
  * @param {MockHandler} mockHandler - The mock handler for this request
  * @param {JQueryAjaxSettings} requestSettings - The request settings for this ajax call
- * @returns {MockXHR} - The new MockXHR object for the redirection
+ * @returns {jqXHR} - The new jqXHR object for the redirection
  */
 function redirectMockedRequest(mockHandler, requestSettings) {
     const newUrl = mockHandler.responseHeaders.Location || mockHandler.responseHeaders.location
 
-    const redirectSettings = $.ajaxSetup({}, requestSettings)
+    const redirectSettings = jq.ajaxSetup({}, requestSettings)
     redirectSettings.url = newUrl
     redirectSettings.headers = {
         // TODO: do 300's keep original headers? (this is what is in the v2.7 codebase)

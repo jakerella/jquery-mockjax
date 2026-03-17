@@ -7,6 +7,9 @@
  * @typedef {import('./typedefs.mjs').MockjaxSettings} MockjaxSettings
  */
 
+import { getJQuery } from './lib.mjs'
+const jq = getJQuery()
+
 const DEFAULTS = {
     logger: null,
     logging: null, // Deprecated
@@ -37,7 +40,7 @@ const DEFAULTS = {
  * @returns {MockjaxSettings} The global mockjax settings
  */
 function _getSettings() {
-    return $.mockjaxSettings || { ...DEFAULTS }
+    return jq.mockjaxSettings || { ...DEFAULTS }
 }
 
 export let getSettings = _getSettings
@@ -55,8 +58,8 @@ export const mocks = {
  * @returns {MockjaxSettings} The (reset) global mockjax settings
  */
 export function resetSettings() {
-    $.mockjaxSettings = { ...DEFAULTS }
-    return $.mockjaxSettings
+    jq.mockjaxSettings = { ...DEFAULTS }
+    return jq.mockjaxSettings
 }
 
 /**
