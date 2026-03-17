@@ -5,7 +5,6 @@ const it = QUnit.test
 // Set up mock jQuery for settings to attach to
 global.$ = {}
 
-// Import the module to test
 import {
     getSettings,
     resetSettings,

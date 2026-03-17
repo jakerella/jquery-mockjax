@@ -1,6 +1,8 @@
 {
     "all": true,
     "src": "src/",
+    "include": ["src/**/*.mjs"],
+    "exclude": ["src/typedefs.mjs"],
     "checkCoverage": {
         "lines": 85,
         "functions": 95,
