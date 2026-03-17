@@ -1,8 +1,10 @@
-/* Globals: QUnit */
 
+const QUnit = require('qunit')
 const path = require('path')
 const fs = require('fs')
 const JSDOM = require('jsdom').JSDOM
+
+const it = QUnit.test
 
 const metadata = JSON.parse(fs.readFileSync('./package.json').toString())
 const jqVersions = Object.keys(metadata.peerDependencies)
@@ -23,15 +25,16 @@ const $ = window.jQuery
 
 console.log(`Running Nodejs tests against jQuery ${$.fn.jquery} and Mockjax ${metadata.version}`)
 
-QUnit.module('Basic Nodejs Tests', {
-    teardown: () => {
+QUnit.module('Mockjax: require via CommonJS', {
+    afterEach: () => {
         $.mockjax.clearAll()
         $.mockjax.clearRetainedAjaxCalls()
         $.mockjaxSettings = {...QUnit.defaultMockjaxSettings}
     }
 })
 
-QUnit.test('Mockjax can be required using CommonJS', (assert) => {
+
+it('should be pulled in using require()', (assert) => {
     const mockjax = require(path.resolve(__dirname, '..', '..', 'dist', 'jquery.mockjax.js'))(window.jQuery, window)
     assert.equal(typeof mockjax, 'function', 'local mockjax is a function')
     assert.equal(typeof window.jQuery.mockjax, 'function', 'mockjax is on window.jQuery')
@@ -41,60 +44,64 @@ QUnit.test('Mockjax can be required using CommonJS', (assert) => {
     QUnit.defaultMockjaxSettings = {...$.mockjaxSettings}
 })
 
-QUnit.test('Basic mock and match', function(assert) {
+it('should be able to perform a basic mock and match', function(assert) {
     var done = assert.async()
-    assert.expect(3)
+    assert.expect(5)
     
+    assert.equal($.mockjax.handlers().length, 0, 'There are zero handlers to start')
+
     $.mockjax({
-        url: '/api/resource',
-        responseText: 'resource content'
+        url: '/api/basic',
+        responseText: 'basic content'
     })
 
+    assert.equal($.mockjax.handlers().length, 1, 'There is one handler after registration')
+
     $.ajax({
-        url: '/api/resource',
+        url: '/api/basic',
         error: () => {
             assert.ok(false, 'Basic matching mocked request should not fail')
         },
         success: function(data) {
-            assert.equal(data, 'resource content', 'Basic url string match')
+            assert.equal(data, 'basic content', 'Basic url string match')
         },
         complete: function(xhr) {
-            assert.equal(xhr.responseText, 'resource content', 'Basic url string match')
+            assert.equal(xhr.responseText, 'basic content', 'Basic url string match')
             assert.equal($.mockjax.mockedAjaxCalls().length, 1, 'One mock call is registered')
             done()
         }
     })
 })
 
-QUnit.test.skip('Basic match with onAfterSuccess callback', function(assert) {
-    var done = assert.async();
+it('Basic match with onAfterSuccess callback', function(assert) {
+    var done = assert.async()
     assert.expect(2)
 
     let successFired = false
     
     $.mockjax({
-        url: '/api/resource',
-        responseText: 'resource content',
-        onAfterSuccess: (settings) => {
+        url: '/api/afterSuccess',
+        responseText: 'success content',
+        onAfterSuccess: () => {
             assert.equal(successFired, true, 'onAfterSuccess fires after success')
             done()
         }
     })
 
     $.ajax({
-        url: '/api/resource',
+        url: '/api/afterSuccess',
         error: () => {
             assert.ok(false, 'Basic matching mocked request should not fail')
         },
         success: function(data) {
             successFired = true
-            assert.equal(data, 'resource content', 'Basic url string match')
+            assert.equal(data, 'success content', 'Basic url string match')
         }
     })
 })
 
-QUnit.test.skip('Blank response with no Response params', function(assert) {
-    var done = assert.async();
+it('should use the default responseText with no provided argument', function(assert) {
+    var done = assert.async()
     
     $.mockjax({
         url: '/api/resource'
@@ -106,32 +113,75 @@ QUnit.test.skip('Blank response with no Response params', function(assert) {
             assert.ok(false, 'Basic matching mocked request should not fail')
         },
         complete: function(xhr) {
-            assert.equal(xhr.responseText, '', 'Blank response expected with no params')
+            assert.equal(xhr.responseText, $.mockjaxSettings.responseText, 'Use default response text with no explicit arg')
             done()
         }
     })
 })
 
-QUnit.test.skip('Throw with no match criteria in settings', function(assert) {
+it('should clear all mocks when told', function(assert) {
+    var done = assert.async()
+    assert.expect(5)
+    
+    $.mockjax({
+        url: '/api/clear/one',
+        responseText: 'content one'
+    })
+    $.mockjax({
+        url: '/api/clear/two',
+        responseText: 'content two'
+    })
+
+    assert.equal($.mockjax.handlers().length, 2, 'There are two handlers')
+
+    $.ajax({
+        url: '/api/clear/one',
+        async: false,
+        complete: function(xhr) {
+            assert.equal(xhr.responseText, 'content one', 'responseText should match')
+        }
+    })
+
+    $.mockjax.clearAll()
+
+    assert.equal($.mockjax.handlers().length, 0, 'There are zero handlers')
+
+    $.ajax('/api/clear/one', $.ajaxSetup({
+        error: function(xhr) {
+            assert.ok(xhr, 'ajax call one should fail')
+        },
+        complete: () => {
+            $.ajax('/api/clear/two', {
+                error: function(xhr) {
+                    assert.ok(xhr, 'ajax call two should fail')
+                },
+                complete: done
+            })
+        }
+    }))
+})
+
+it('should throw with no match criteria in settings', function(assert) {
     assert.throws(() => {
         $.mockjax({})
     }, 'Registering a handler with no match settings throws')
 })
 
-QUnit.test.skip('Return XMLHttpRequest object from $.ajax', function(assert) {
+it('should return an XHR object from $.ajax', function(assert) {
+    const done = assert.async()
+    assert.expect(2)
+
     $.mockjax({
-        url: '/xmlhttprequest',
+        url: '/foobar',
         responseText: 'Hello Word'
     })
 
     var xhr = $.ajax({
-        url: '/xmlhttprequest',
+        url: '/foobar',
+        async: false,
         complete: function() { }
     })
-    if (xhr && xhr.abort) {
-        xhr.abort()
-    }
-
     assert.ok(xhr, 'XHR object is not null or undefined')
     assert.ok(xhr.done && xhr.fail, 'Got Promise methods')
+    done()
 })

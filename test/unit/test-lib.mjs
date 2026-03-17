@@ -91,13 +91,17 @@ it('should return no selection when called with parseerror', async (assert) => {
     assert.equal(selection.length, 0, 'The selection should have a length of 0')
 })
 
-it('should have a callable ajax method', async (assert) => {
+it('should have a callable ajax method that returns a Deferred object', async (assert) => {
     const done = assert.async()
 
     let $ = getJQuery()
-    const result = await $.ajax()
-    assert.equal(result.status, 200, 'The ajax mock should return a promise with status code 200')
-    done()
+    const deferred = $.ajax()
+    assert.equal(typeof deferred, 'object', 'ajax should return a deferred object')
+    assert.equal(typeof deferred.complete, 'function', 'The deferred object should have a complete method')
+    deferred.complete((xhr) => {
+        assert.equal(xhr.status, 200, 'The ajax mock should return a deferred that completes with status code 200')
+        done()
+    })
 })
 
 it('should have a callable ajaxSetup method that returns default values', async (assert) => {

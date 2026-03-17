@@ -134,7 +134,7 @@ export function mockAjaxCall(url, origSettings) {
 
     if (!mockHandler) {
         if (getSettings().throwUnmocked === true) {
-            throw new Error(`AJAX not mocked: ${  requestSettings.url}`)
+            throw new Error(`AJAX not mocked: ${requestSettings.url}`)
         } else {
             // Not mocked, trigger a normal ajax request
             return realAjaxCall(url, origSettings)
@@ -204,7 +204,7 @@ export function mockAjaxCall(url, origSettings) {
                 that,
                 action,
                 mockHandler,
-                requestSettings,
+                requestSettings
             )
         }
     })
@@ -216,7 +216,7 @@ export function mockAjaxCall(url, origSettings) {
         ...requestSettings,
         xhr: () => {
             return createMockXHR(mockHandler, requestSettings)
-        },
+        }
     })
 }
 
@@ -228,7 +228,7 @@ export function mockAjaxCall(url, origSettings) {
  */
 export function clear(mechanism) {
     console.warn(
-        'The clear() method is deprecated. Use clearAll(), clearById(), or clearByUrl() instead.',
+        'The clear() method is deprecated. Use clearAll(), clearById(), or clearByUrl() instead.'
     )
 
     // Clear all handlers
@@ -417,7 +417,7 @@ function validateHandlerOptions(settings) {
 
     if (!settings.url && !settings.data && !settings.requestHeaders && !settings.method) {
         messages.push(
-            'A mock handler must have at least one of: url, data, requestHeaders, or method to match against.',
+            'A mock handler must have at least one of: url, data, requestHeaders, or method to match against.'
         )
     }
 
@@ -428,7 +428,7 @@ function validateHandlerOptions(settings) {
     if (
         settings.method &&
         !['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'CONNECT', 'TRACE', 'PATCH'].includes(
-            settings.method.toUpperCase(),
+            settings.method.toUpperCase()
         )
     ) {
         messages.push('The method property must be a valid HTTP method if it is set.')
@@ -448,13 +448,13 @@ function validateHandlerOptions(settings) {
         (typeof settings.requestHeaders !== 'object' || Array.isArray(settings.requestHeaders))
     ) {
         messages.push(
-            'The requestHeaders property must be a plain object of string names and values if it is set.',
+            'The requestHeaders property must be a plain object of string names and values if it is set.'
         )
     } else {
         for (const key in settings.requestHeaders) {
             if (typeof key !== 'string' || typeof settings.requestHeaders[key] !== 'string') {
                 messages.push(
-                    'The requestHeaders property must be a plain object of string names and values if it is set.',
+                    'The requestHeaders property must be a plain object of string names and values if it is set.'
                 )
                 break
             }
@@ -486,7 +486,7 @@ function validateHandlerOptions(settings) {
         if (Array.isArray(settings.statusText)) {
             if (!Array.isArray(settings.status)) {
                 messages.push(
-                    'The statusText property may only be an array if the status property is also an array.',
+                    'The statusText property may only be an array if the status property is also an array.'
                 )
             } else if (settings.statusText.length !== settings.status.length) {
                 messages.push('The statusText array must be the same size as the status array.')
@@ -506,7 +506,7 @@ function validateHandlerOptions(settings) {
                 settings.responseTime[1] < 0
             ) {
                 messages.push(
-                    'A responseTime range must be an array of 2 non-negitve integers ([min, max])',
+                    'A responseTime range must be an array of 2 non-negitve integers ([min, max])'
                 )
             }
         } else if (!Number.isInteger(settings.responseTime) || settings.responseTime < 0) {
@@ -542,13 +542,13 @@ function validateHandlerOptions(settings) {
         (typeof settings.responseHeaders !== 'object' || Array.isArray(settings.responseHeaders))
     ) {
         messages.push(
-            'The responseHeaders property must be a plain object of string names and values if it is set.',
+            'The responseHeaders property must be a plain object of string names and values if it is set.'
         )
     } else {
         for (const key in settings.responseHeaders) {
             if (typeof key !== 'string' || typeof settings.responseHeaders[key] !== 'string') {
                 messages.push(
-                    'The responseHeaders property must be a plain object of string names and values if it is set.',
+                    'The responseHeaders property must be a plain object of string names and values if it is set.'
                 )
                 break
             }
@@ -602,7 +602,7 @@ function overrideCallback(context, action, mockHandler, requestSettings) {
         if (typeof origCallback === 'function') {
             origCallback.apply(context || {}, args)
         }
-        mockHandler[`onAfter${  action}`](requestSettings)
+        mockHandler[`onAfter${action}`](requestSettings)
     }
 }
 
@@ -619,7 +619,7 @@ function redirectMockedRequest(mockHandler, requestSettings) {
     redirectSettings.url = newUrl
     redirectSettings.headers = {
         // TODO: do 300's keep original headers? (this is what is in the v2.7 codebase)
-        Referer: requestSettings.url,
+        Referer: requestSettings.url
     }
 
     // Revert mockjax tracking for redirect

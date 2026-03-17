@@ -16,13 +16,7 @@ import { getDOMParser, getJQuery } from './lib.mjs'
 const jq = getJQuery()
 const DocumentParser = getDOMParser()
 
-const READYSTATE = {
-    unsent: 0,
-    opened: 1,
-    headers: 2,
-    loading: 3,
-    done: 4,
-}
+export const READYSTATE = { unsent: 0, opened: 1, headers: 2, loading: 3, done: 4 }
 
 /**
  * Create a mock XMLHttpRequest object
@@ -81,7 +75,7 @@ export function createMockXHR(mockHandler, requestSettings) {
                     return `${entry[0]}: ${entry[1]}`
                 })
                 .join('\n')
-        },
+        }
     }
 }
 
@@ -135,10 +129,10 @@ function sendXHR(mockHandler, requestSettings) {
                 } else {
                     this.responseTimer = setTimeout(
                         processRequest,
-                        determineResponseTime(mockHandler.responseTime),
+                        determineResponseTime(mockHandler.responseTime)
                     )
                 }
-            },
+            }
         })
     } else {
         if (requestSettings.async === false) {
@@ -146,7 +140,7 @@ function sendXHR(mockHandler, requestSettings) {
         } else {
             mockXHR.responseTimer = setTimeout(
                 processRequest,
-                determineResponseTime(mockHandler.responseTime),
+                determineResponseTime(mockHandler.responseTime)
             )
         }
     }

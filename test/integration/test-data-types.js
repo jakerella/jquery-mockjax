@@ -77,7 +77,7 @@
 		$.mockjax({
 			url: '/script',
 			contentType: 'text/plain',
-			proxy: 'external-script.js'
+			proxy: '../proxies/external-script.js'
 		});
 
 		window.TEST_SCRIPT_VAR = 0;

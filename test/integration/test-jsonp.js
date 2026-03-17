@@ -13,7 +13,7 @@
 		$.mockjax({
 				url: '/jsonp*',
 				contentType: 'text/json',
-				proxy: 'jsonp-script.js'
+				proxy: '../proxies/jsonp-script.js'
 		});
 
 		window.abcdef123456 = function() {};
@@ -39,7 +39,7 @@
 		$.mockjax({
 				url: '/jsonp*',
 				contentType: 'text/json',
-				proxy: 'jsonp-script.js'
+				proxy: '../proxies/jsonp-script.js'
 		});
 
 		window.abcdef123456 = function() {};
@@ -97,7 +97,7 @@
 		$.mockjax({
 			url: '/jsonp*',
 			contentType: 'text/json',
-			proxy: 'jsonp-script.js'
+			proxy: '../proxies/jsonp-script.js'
 		});
 		window.abcdef123456 = function(json) {
 			assert.ok( true, 'JSONP Callback executed');

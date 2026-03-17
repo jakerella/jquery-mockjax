@@ -83,7 +83,7 @@
  */
 
 /**
- * A function to dynamically handle generating an HTTP response. 
+ * A function to dynamically handle generating an HTTP response.
  * The response fields should be added to the requestSettings
  * @function ResponseHandler
  * @param {JQueryAjaxSettings} requestSettings - The request settings to generate the response from
@@ -134,7 +134,6 @@
  * @function GetHeaders
  * @returns {string} The header names and values, delimited by newlines ("one: value\ntwo: other")
  */
-
 
 /**
  * Global configuration settings for mockjax
@@ -220,7 +219,7 @@
 /**
  * A mock of an XMLHttpRequest object that can be used to simulate
  * an ajax call inside of jQuery. Note that this does NOT implement
- * all methods of a real XHR object, OR of the jqXHR, so it should 
+ * all methods of a real XHR object, OR of the jqXHR, so it should
  * not be used outside of the Mockjax library!
  * @typedef {object} MockXHR
  * @property {number} status The mocked HTTP status code
@@ -236,21 +235,21 @@
  */
 
 /**
- * 
+ * A Promise-like object that will execute provided ccallbacks if supplied
  * @typedef {object} Deferred
- * @property {MethodWithContextAndArgs} resolveWith
- * @property {DeferredHandler} done
- * @property {DeferredHandler} then
- * @property {DeferredHandler} fail
- * @property {DeferredHandler} catch
- * @property {DeferredHandler} always
+ * @property {MethodWithContextAndArgs} resolveWith A method to resolve a Deferred in a given context
+ * @property {DeferredHandler} done Call to set handlers for when this Deferred is complete
+ * @property {DeferredHandler} then Call to set handlers for when this Deferred succeeds
+ * @property {DeferredHandler} fail Call to set handlers for when this Deferred fails
+ * @property {DeferredHandler} catch Call to set handlers for when this Deferred fails
+ * @property {DeferredHandler} always Call to set handlers for when this Deferred is complete
  */
-
 
 /**
  * Mock jqXHR which is a combination of XHR and Deferred, typically
  * returned from a $.ajax() call
  * @typedef {object} jqXHR
- * @extends MockXHR
- * @extends Deferred
+ * @augments MockXHR The base MoxkXHR created by Mockjax
+ * @augments Deferred The jQuery Deferred interface
+ * @property {AsyncComplete} statusCode A method to retrieve the status code once ready
  */

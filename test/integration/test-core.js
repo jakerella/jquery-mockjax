@@ -153,7 +153,7 @@
 	t('Intercept synchronized proxy calls and return synchronously', function(assert) {
 		$.mockjax({
 			url: '/proxy',
-			proxy: 'data-proxy.json'
+			proxy: '../proxies/data-proxy.json'
 		});
 
 		$.ajax({
@@ -171,7 +171,7 @@
 		var done = assert.async();
 		$.mockjax({
 			url: '/proxy',
-			proxy: 'data-proxy.json'
+			proxy: '../proxies/data-proxy.json'
 		});
 
 		$.ajax({
@@ -188,7 +188,7 @@
 	t('Intercept proxy calls for XML', function(assert) {
 		$.mockjax({
 			url: '/proxy',
-			proxy: 'data-proxy.xml'
+			proxy: '../proxies/data-proxy.xml'
 		});
 
 		$.ajax({
@@ -209,7 +209,7 @@
 
 		$.mockjax({
 			url: '/proxy',
-			proxy: 'data-proxy.json'
+			proxy: '../proxies/data-proxy.json'
 		});
 
 		$.ajax({
@@ -228,7 +228,7 @@
 
 		$.mockjax({
 			url: '/proxy',
-			proxy: 'data-proxy.json',
+			proxy: '../proxies/data-proxy.json',
 			proxyType: 'GET'
 		});
 
@@ -553,7 +553,7 @@
 		$.mockjax({
 				url: '/jsonp*',
 				contentType: 'text/json',
-				proxy: 'jsonp-script.js'
+				proxy: '../proxies/jsonp-script.js'
 		});
 
 		window.abcdef123456 = function() {};
@@ -579,7 +579,7 @@
 		$.mockjax({
 				url: '/jsonp*',
 				contentType: 'text/json',
-				proxy: 'jsonp-script.js'
+				proxy: '../proxies/jsonp-script.js'
 		});
 
 		window.abcdef123456 = function() {};
@@ -604,7 +604,7 @@
 			var service = settings.url.match(/\/users\/(.+)\/edit$/);
 			if (service) {
 				return {
-					proxy: 'data-proxy.json'
+					proxy: '../proxies/data-proxy.json'
 				};
 			} else {
 				return false;

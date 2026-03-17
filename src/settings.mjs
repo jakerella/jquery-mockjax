@@ -32,7 +32,7 @@ const DEFAULTS = {
     headers: null, // Deprecated
     responseHeaders: {},
     matchInRegistrationOrder: true,
-    followRedirects: true,
+    followRedirects: true
 }
 
 /**
@@ -76,7 +76,7 @@ export function validateSettings() {
         settings.logger &&
         (typeof settings.logger !== 'object' ||
             ['error', 'warn', 'info', 'log', 'debug'].filter(
-                (m) => typeof settings.logger[m] !== 'function',
+                (m) => typeof settings.logger[m] !== 'function'
             ).length)
     ) {
         messages.push('The logger must be an object with standard window.console logging methods')
@@ -166,7 +166,7 @@ export function validateSettings() {
         'If no null, the responseHeaders must be a simple object of string keys and values'
     if (typeof settings.responseHeaders === 'object' && settings.responseHeaders !== null) {
         const badHeaders = Object.keys(settings.responseHeaders).filter(
-            (k) => typeof k !== 'string' || typeof settings.responseHeaders[k] !== 'string',
+            (k) => typeof k !== 'string' || typeof settings.responseHeaders[k] !== 'string'
         )
         if (badHeaders.length) {
             messages.push(headersErrMessage)

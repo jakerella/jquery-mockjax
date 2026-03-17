@@ -5,12 +5,17 @@
  * @type {import("prettier").Config}
  */
 const config = {
-    tabWidth: 4,
-    useTabs: false,
+    arrowParens: 'always',
+    bracketSpacing: true,
+    endOfLine: 'lf',
+    objectWrap: 'collapse',
+    printWidth: 100,
+    quoteProps: 'as-needed',
     semi: false,
     singleQuote: true,
-    printWidth: 100,
-    endOfLine: 'lf'
+    tabWidth: 4,
+    trailingComma: 'none',
+    useTabs: false
 }
 
 export default config

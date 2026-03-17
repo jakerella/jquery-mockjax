@@ -39,11 +39,18 @@
 // UNUSED EXPORTS: clear, clearAll, clearById, clearByUrl, clearRetainedAjaxCalls, default, getLogger, getSettings, handler, handlers, mockedAjaxCalls, mockjax, resetSettings, unfiredHandlers, unmockedAjaxCalls, validateSettings
 
 ;// ./src/lib.mjs
-
 // TODO: add crypto
 
 /**
- * Retrieve the jQuery main object/function from the "global" 
+ * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
+ * @typedef {import('./typedefs.mjs').Deferred} Deferred
+ * @typedef {import('./typedefs.mjs').AsyncComplete} AsyncComplete
+ */
+
+let mockJQuery = {}
+
+/**
+ * Retrieve the jQuery main object/function from the "global"
  * context (in a couple ways). In the dist build, the "$"
  * variable will exist from the UMD wrapper
  * @returns {object} The jQuery object/function
@@ -60,6 +67,10 @@ function getJQuery() {
     }
 }
 
+/**
+ * Get the DOMParser to use
+ * @returns {object} Either the real DOMParser from the global scope or the Mock
+ */
 function getDOMParser() {
     if (typeof DOMParser !== 'undefined') {
         return DOMParser
@@ -72,6 +83,10 @@ function getDOMParser() {
 /*  Mock implementations for use in tests  */
 /*******************************************/
 
+/**
+ * A mock DOMParser to be used in testing
+ * @class
+ */
 function MockDOMParser() {
     return {
         parseFromString: () => {
@@ -80,13 +95,21 @@ function MockDOMParser() {
     }
 }
 
-function ajax() {
-    mockJQuery.active++
-    return new Promise((resolve, _) => {
-        mockJQuery.active--
-        resolve({ status: 200 })
-    })
+/**
+ * A mock implementation of jQuery's ajax method
+ * @param {string} url The URL to go to
+ * @param {JQueryAjaxSettings} settings The ajax settings
+ * @returns {Deferred} The Deferred object to listen to for completion
+ */
+function ajax(url, settings) {
+    return new Deferred(settings)
 }
+
+/**
+ * A mock $.ajaxSetup() for use in tests
+ * @param {JQueryAjaxSettings} settings The settings you want to override the defaults with
+ * @returns {JQueryAjaxSettings} The compiled settings to use for an ajax() call
+ */
 function ajaxSetup(settings) {
     return {
         // These are settings we care about in Mockjax that are returned from $.ajaxSetup()
@@ -98,29 +121,88 @@ function ajaxSetup(settings) {
         ...settings
     }
 }
-function globalEval() { return true }
-function isXMLDoc() { return true }
-function trigger() { return true }
-function lib_text() { return 'text' }
+
+/**
+ * A mock $.globalEval() for use in tests
+ * @returns {boolean} Always returns true
+ */
+function globalEval() {
+    return true
+}
+
+/**
+ * A mock $.isXMLDoc() for use in tests
+ * @returns {boolean} Always returns true
+ */
+function isXMLDoc() {
+    return true
+}
+
+/**
+ * A mock $().trigger() for use in tests
+ * @returns {boolean} Always returns true
+ */
+function trigger() {
+    return true
+}
+
+/**
+ * A mock $().text() for use in tests
+ * @returns {boolean} Always returns true
+ */
+function lib_text() {
+    return 'text'
+}
+
+/**
+ * Creates a mock selection object a la $('selector')
+ * @returns {boolean} Always returns true
+ */
 function makeNodeSelection() {
     return { trigger, text: lib_text, length: 1 }
 }
-function Deferred() {
-    return { resolveWith: () => { return true } }
+
+/**
+ * A mock Deferred constructor for use in tests
+ * @param {JQueryAjaxSettings} settings The settings used for this deferred object
+ * @returns {boolean} Always returns true
+ */
+function Deferred(settings) {
+    return {
+        /**
+         * Creates a mock Deferred.resolveWith() for use in tests
+         * @returns {boolean} Always returns true
+         */
+        resolveWith: () => {
+            return true
+        },
+
+        /**
+         * Creates a mock Deferred.complete() for use in tests
+         * @param {AsyncComplete} callback The function to call once the Deferred is complete
+         * @returns {void}
+         */
+        complete: (callback) => {
+            callback({
+                status: settings?.status || 200,
+                responseText: settings?.responseText || 'success'
+            })
+        }
+    }
 }
 
-let mockJQuery = {}
 resetJQueryMock()
 
 /**
- * For use in tests, we can reset the mock jQuery object to 
- * its original values. Note that this function will have 
+ * For use in tests, we can reset the mock jQuery object to
+ * its original values. Note that this function will have
  * no effect when a global "$" is available.
  * @returns {void}
  */
 function resetJQueryMock() {
     mockJQuery = function jQuery(selector) {
-        if (selector === 'parseerror') {  // see xhr.mjs -> parseXML
+        if (selector === 'parseerror') {
+            // see xhr.mjs -> parseXML
             return []
         } else {
             return makeNodeSelection()
@@ -171,7 +253,7 @@ const DEFAULTS = {
     headers: null, // Deprecated
     responseHeaders: {},
     matchInRegistrationOrder: true,
-    followRedirects: true,
+    followRedirects: true
 }
 
 /**
@@ -215,7 +297,7 @@ function validateSettings() {
         settings.logger &&
         (typeof settings.logger !== 'object' ||
             ['error', 'warn', 'info', 'log', 'debug'].filter(
-                (m) => typeof settings.logger[m] !== 'function',
+                (m) => typeof settings.logger[m] !== 'function'
             ).length)
     ) {
         messages.push('The logger must be an object with standard window.console logging methods')
@@ -305,7 +387,7 @@ function validateSettings() {
         'If no null, the responseHeaders must be a simple object of string keys and values'
     if (typeof settings.responseHeaders === 'object' && settings.responseHeaders !== null) {
         const badHeaders = Object.keys(settings.responseHeaders).filter(
-            (k) => typeof k !== 'string' || typeof settings.responseHeaders[k] !== 'string',
+            (k) => typeof k !== 'string' || typeof settings.responseHeaders[k] !== 'string'
         )
         if (badHeaders.length) {
             messages.push(headersErrMessage)
@@ -359,7 +441,7 @@ class Logger {
         if (this.#methods.indexOf(level) > this.#level) {
             return
         }
-        const root = (typeof __webpack_require__.g !== 'undefined') ? __webpack_require__.g : window
+        const root = typeof __webpack_require__.g !== 'undefined' ? __webpack_require__.g : window
         root.console[level](...elements)
     }
 }
@@ -512,7 +594,7 @@ function matchUrl(handlerUrl, requestUrl, namespace) {
         if (namespace) {
             effectiveUrlPattern = [
                 namespace.replace(/(\/+)$/, ''),
-                handlerUrl.replace(/^(\/+)/, ''),
+                handlerUrl.replace(/^(\/+)/, '')
             ].join('/')
         }
 
@@ -638,7 +720,10 @@ function matchHeaders(handlerHeaders, requestHeaders) {
  * @returns {boolean} True if method matches
  */
 function matchMethod(handlerMethod, requestMethod) {
-    return !handlerMethod || String(handlerMethod).toUpperCase() === String(requestMethod).toUpperCase()
+    return (
+        !handlerMethod ||
+        String(handlerMethod).toUpperCase() === String(requestMethod).toUpperCase()
+    )
 }
 
 /**
@@ -688,13 +773,7 @@ function getQueryParams(queryString) {
 const xhr_jq = getJQuery()
 const DocumentParser = getDOMParser()
 
-const READYSTATE = {
-    unsent: 0,
-    opened: 1,
-    headers: 2,
-    loading: 3,
-    done: 4,
-}
+const READYSTATE = { unsent: 0, opened: 1, headers: 2, loading: 3, done: 4 }
 
 /**
  * Create a mock XMLHttpRequest object
@@ -753,7 +832,7 @@ function createMockXHR(mockHandler, requestSettings) {
                     return `${entry[0]}: ${entry[1]}`
                 })
                 .join('\n')
-        },
+        }
     }
 }
 
@@ -807,10 +886,10 @@ function sendXHR(mockHandler, requestSettings) {
                 } else {
                     this.responseTimer = setTimeout(
                         processRequest,
-                        determineResponseTime(mockHandler.responseTime),
+                        determineResponseTime(mockHandler.responseTime)
                     )
                 }
-            },
+            }
         })
     } else {
         if (requestSettings.async === false) {
@@ -818,7 +897,7 @@ function sendXHR(mockHandler, requestSettings) {
         } else {
             mockXHR.responseTimer = setTimeout(
                 processRequest,
-                determineResponseTime(mockHandler.responseTime),
+                determineResponseTime(mockHandler.responseTime)
             )
         }
     }
@@ -936,7 +1015,7 @@ function parseXML(xml) {
  * @typedef {import('./typedefs.mjs').MockHandler} MockHandler
  * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
  * @typedef {import('./typedefs.mjs').JSONPCallback} JSONPCallback
- * @typedef {import('./typedefs.mjs')Deferred} Deferred
+ * @typedef {import('./typedefs.mjs').Deferred} Deferred
  */
 
 
@@ -1019,7 +1098,7 @@ function createCallback(requestSettings, mockHandler, origSettings, onSuccess, o
     if (requestSettings.data) {
         requestSettings.data = String(requestSettings.data).replace(
             CALLBACK_REGEX,
-            `=${callbackName}$1`,
+            `=${callbackName}$1`
         )
     }
     requestSettings.url = requestSettings.url.replace(CALLBACK_REGEX, `=${callbackName}$1`)
@@ -1080,7 +1159,7 @@ function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
             complete: function (xhr) {
                 jsonp_jq.globalEval(`(${xhr.responseText})`)
                 completeJsonpCall(requestSettings, mockHandler, callbackContext, deferred)
-            },
+            }
         })
         return deferred
     } else {
@@ -1152,7 +1231,7 @@ function triggerComplete(requestSettings, callbackContext) {
         requestSettings.complete.call(
             callbackContext,
             { statusText: 'success', status: 200 },
-            'success',
+            'success'
         )
     }
 
@@ -1307,7 +1386,7 @@ function mockAjaxCall(url, origSettings) {
 
     if (!mockHandler) {
         if (getSettings().throwUnmocked === true) {
-            throw new Error(`AJAX not mocked: ${  requestSettings.url}`)
+            throw new Error(`AJAX not mocked: ${requestSettings.url}`)
         } else {
             // Not mocked, trigger a normal ajax request
             return realAjaxCall(url, origSettings)
@@ -1377,7 +1456,7 @@ function mockAjaxCall(url, origSettings) {
                 that,
                 action,
                 mockHandler,
-                requestSettings,
+                requestSettings
             )
         }
     })
@@ -1389,7 +1468,7 @@ function mockAjaxCall(url, origSettings) {
         ...requestSettings,
         xhr: () => {
             return createMockXHR(mockHandler, requestSettings)
-        },
+        }
     })
 }
 
@@ -1401,7 +1480,7 @@ function mockAjaxCall(url, origSettings) {
  */
 function clear(mechanism) {
     console.warn(
-        'The clear() method is deprecated. Use clearAll(), clearById(), or clearByUrl() instead.',
+        'The clear() method is deprecated. Use clearAll(), clearById(), or clearByUrl() instead.'
     )
 
     // Clear all handlers
@@ -1590,7 +1669,7 @@ function validateHandlerOptions(settings) {
 
     if (!settings.url && !settings.data && !settings.requestHeaders && !settings.method) {
         messages.push(
-            'A mock handler must have at least one of: url, data, requestHeaders, or method to match against.',
+            'A mock handler must have at least one of: url, data, requestHeaders, or method to match against.'
         )
     }
 
@@ -1601,7 +1680,7 @@ function validateHandlerOptions(settings) {
     if (
         settings.method &&
         !['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'CONNECT', 'TRACE', 'PATCH'].includes(
-            settings.method.toUpperCase(),
+            settings.method.toUpperCase()
         )
     ) {
         messages.push('The method property must be a valid HTTP method if it is set.')
@@ -1621,13 +1700,13 @@ function validateHandlerOptions(settings) {
         (typeof settings.requestHeaders !== 'object' || Array.isArray(settings.requestHeaders))
     ) {
         messages.push(
-            'The requestHeaders property must be a plain object of string names and values if it is set.',
+            'The requestHeaders property must be a plain object of string names and values if it is set.'
         )
     } else {
         for (const key in settings.requestHeaders) {
             if (typeof key !== 'string' || typeof settings.requestHeaders[key] !== 'string') {
                 messages.push(
-                    'The requestHeaders property must be a plain object of string names and values if it is set.',
+                    'The requestHeaders property must be a plain object of string names and values if it is set.'
                 )
                 break
             }
@@ -1659,7 +1738,7 @@ function validateHandlerOptions(settings) {
         if (Array.isArray(settings.statusText)) {
             if (!Array.isArray(settings.status)) {
                 messages.push(
-                    'The statusText property may only be an array if the status property is also an array.',
+                    'The statusText property may only be an array if the status property is also an array.'
                 )
             } else if (settings.statusText.length !== settings.status.length) {
                 messages.push('The statusText array must be the same size as the status array.')
@@ -1679,7 +1758,7 @@ function validateHandlerOptions(settings) {
                 settings.responseTime[1] < 0
             ) {
                 messages.push(
-                    'A responseTime range must be an array of 2 non-negitve integers ([min, max])',
+                    'A responseTime range must be an array of 2 non-negitve integers ([min, max])'
                 )
             }
         } else if (!Number.isInteger(settings.responseTime) || settings.responseTime < 0) {
@@ -1715,13 +1794,13 @@ function validateHandlerOptions(settings) {
         (typeof settings.responseHeaders !== 'object' || Array.isArray(settings.responseHeaders))
     ) {
         messages.push(
-            'The responseHeaders property must be a plain object of string names and values if it is set.',
+            'The responseHeaders property must be a plain object of string names and values if it is set.'
         )
     } else {
         for (const key in settings.responseHeaders) {
             if (typeof key !== 'string' || typeof settings.responseHeaders[key] !== 'string') {
                 messages.push(
-                    'The responseHeaders property must be a plain object of string names and values if it is set.',
+                    'The responseHeaders property must be a plain object of string names and values if it is set.'
                 )
                 break
             }
@@ -1775,7 +1854,7 @@ function overrideCallback(context, action, mockHandler, requestSettings) {
         if (typeof origCallback === 'function') {
             origCallback.apply(context || {}, args)
         }
-        mockHandler[`onAfter${  action}`](requestSettings)
+        mockHandler[`onAfter${action}`](requestSettings)
     }
 }
 
@@ -1792,7 +1871,7 @@ function redirectMockedRequest(mockHandler, requestSettings) {
     redirectSettings.url = newUrl
     redirectSettings.headers = {
         // TODO: do 300's keep original headers? (this is what is in the v2.7 codebase)
-        Referer: requestSettings.url,
+        Referer: requestSettings.url
     }
 
     // Revert mockjax tracking for redirect

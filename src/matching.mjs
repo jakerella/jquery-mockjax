@@ -81,7 +81,7 @@ export function matchUrl(handlerUrl, requestUrl, namespace) {
         if (namespace) {
             effectiveUrlPattern = [
                 namespace.replace(/(\/+)$/, ''),
-                handlerUrl.replace(/^(\/+)/, ''),
+                handlerUrl.replace(/^(\/+)/, '')
             ].join('/')
         }
 
@@ -207,7 +207,10 @@ export function matchHeaders(handlerHeaders, requestHeaders) {
  * @returns {boolean} True if method matches
  */
 export function matchMethod(handlerMethod, requestMethod) {
-    return !handlerMethod || String(handlerMethod).toUpperCase() === String(requestMethod).toUpperCase()
+    return (
+        !handlerMethod ||
+        String(handlerMethod).toUpperCase() === String(requestMethod).toUpperCase()
+    )
 }
 
 /**

@@ -29,7 +29,7 @@ class Logger {
         if (this.#methods.indexOf(level) > this.#level) {
             return
         }
-        const root = (typeof global !== 'undefined') ? global : window
+        const root = typeof global !== 'undefined' ? global : window
         root.console[level](...elements)
     }
 }

@@ -64,7 +64,7 @@
 		$.mockjax({
 			url: '/response-callback',
 			status: 409,
-			proxy: 'data-proxy.json'
+			proxy: '../proxies/data-proxy.json'
 		});
 
 		$.ajax({
@@ -223,7 +223,7 @@
 		$.mockjax({
 			url: 'http://example.com/jsonp*',
 			contentType: 'text/json',
-			proxy: 'jsonp-script.js'
+			proxy: '../proxies/jsonp-script.js'
 		});
 		var callbackExecuted = false;
 		window.abcdef123456 = function(json) {

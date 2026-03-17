@@ -7,7 +7,7 @@
  * @typedef {import('./typedefs.mjs').MockHandler} MockHandler
  * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
  * @typedef {import('./typedefs.mjs').JSONPCallback} JSONPCallback
- * @typedef {import('./typedefs.mjs')Deferred} Deferred
+ * @typedef {import('./typedefs.mjs').Deferred} Deferred
  */
 
 import { realAjaxCall } from './core.mjs'
@@ -90,7 +90,7 @@ function createCallback(requestSettings, mockHandler, origSettings, onSuccess, o
     if (requestSettings.data) {
         requestSettings.data = String(requestSettings.data).replace(
             CALLBACK_REGEX,
-            `=${callbackName}$1`,
+            `=${callbackName}$1`
         )
     }
     requestSettings.url = requestSettings.url.replace(CALLBACK_REGEX, `=${callbackName}$1`)
@@ -151,7 +151,7 @@ function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
             complete: function (xhr) {
                 jq.globalEval(`(${xhr.responseText})`)
                 completeJsonpCall(requestSettings, mockHandler, callbackContext, deferred)
-            },
+            }
         })
         return deferred
     } else {
@@ -223,7 +223,7 @@ function triggerComplete(requestSettings, callbackContext) {
         requestSettings.complete.call(
             callbackContext,
             { statusText: 'success', status: 200 },
-            'success',
+            'success'
         )
     }
 
