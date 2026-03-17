@@ -40,9 +40,7 @@
 
 ;// ./src/lib.mjs
 
-
-// TODO: add crypto and DOMParser
-
+// TODO: add crypto
 
 /**
  * Retrieve the jQuery main object/function from the "global" 
@@ -51,21 +49,37 @@
  * @returns {object} The jQuery object/function
  */
 function getJQuery() {
-    let jq = null
     if (typeof $ !== 'undefined') {
-        jq = $
+        return $
     } else if (typeof jQuery !== 'undefined') {
-        jq = jQuery
+        return jQuery
     } else {
         // If jQuery is not defined, we'll return a mock instance
         // for use in test cases
         return mockJQuery
     }
-    return jq
 }
 
+function getDOMParser() {
+    if (typeof DOMParser !== 'undefined') {
+        return DOMParser
+    } else {
+        return MockDOMParser
+    }
+}
 
-// Mock implementations for use in tests
+/*******************************************/
+/*  Mock implementations for use in tests  */
+/*******************************************/
+
+function MockDOMParser() {
+    return {
+        parseFromString: () => {
+            return { namespaceURI: 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul' }
+        }
+    }
+}
+
 function ajax() {
     mockJQuery.active++
     return new Promise((resolve, _) => {
@@ -87,8 +101,9 @@ function ajaxSetup(settings) {
 function globalEval() { return true }
 function isXMLDoc() { return true }
 function trigger() { return true }
+function lib_text() { return 'text' }
 function makeNodeSelection() {
-    return { trigger, length: 1 }
+    return { trigger, text: lib_text, length: 1 }
 }
 function Deferred() {
     return { resolveWith: () => { return true } }
@@ -671,6 +686,7 @@ function getQueryParams(queryString) {
 
 
 const xhr_jq = getJQuery()
+const DocumentParser = getDOMParser()
 
 const READYSTATE = {
     unsent: 0,
@@ -893,7 +909,7 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
  */
 function parseXML(xml) {
     try {
-        const xmlDoc = new DOMParser().parseFromString(xml, 'text/xml')
+        const xmlDoc = new DocumentParser().parseFromString(xml, 'text/xml')
         if (xhr_jq.isXMLDoc(xmlDoc)) {
             const err = xhr_jq('parsererror', xmlDoc)
             if (err.length === 1) {

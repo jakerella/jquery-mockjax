@@ -1,9 +1,32 @@
 import QUnit from 'qunit'
-import { getJQuery, resetJQueryMock } from '../../src/lib.mjs'
+import { getDOMParser, getJQuery, resetJQueryMock } from '../../src/lib.mjs'
 
 const it = QUnit.test
 
-QUnit.module('Lib Retrieval', {
+QUnit.module('DOMParser Library')
+
+it('should return a mock document parser when not present globally', (assert) => {
+    const MockParser = getDOMParser()
+    assert.equal(MockParser.name, 'MockDOMParser', 'The mock parser should be returned')
+    assert.equal(typeof MockParser, 'function', 'The mock parser should be a function')
+})
+
+it('should return the global "DOMParser" object if present', (assert) => {
+    global.DOMParser = function DOMParser() {}
+    const Parser = getDOMParser()
+    assert.equal(Parser.name, 'DOMParser', 'The global parser should be returned')
+    delete global.DOMParser
+})
+
+it('should have a string parse method on it', (assert) => {
+    const MockParser = getDOMParser()
+    const parser = new MockParser()
+    assert.equal(typeof parser.parseFromString, 'function', 'The constructed mock parser should have a parseFromString method')
+    assert.deepEqual(parser.parseFromString(), { namespaceURI: 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul' }, 'The parsed document should have a namespace URI')
+})
+
+
+QUnit.module('jQuery Library', {
     afterEach: () => {
         resetJQueryMock()
     }
@@ -57,6 +80,8 @@ it('should return a selection when called', async (assert) => {
     let $ = getJQuery()
     const selection = $('foo')
     assert.equal(typeof selection.trigger, 'function', 'The trigger method on the selection should be callable')
+    assert.equal(typeof selection.text, 'function', 'The text method on the selection should be callable')
+    assert.equal(selection.text(), 'text', 'The text method returns some text')
     assert.equal(selection.length, 1, 'The selection should have a length of 1')
 })
 

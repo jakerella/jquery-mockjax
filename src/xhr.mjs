@@ -11,9 +11,10 @@
 
 import { getSettings } from './settings.mjs'
 import { realAjaxCall } from './core.mjs'
-import { getJQuery } from './lib.mjs'
+import { getDOMParser, getJQuery } from './lib.mjs'
 
 const jq = getJQuery()
+const DocumentParser = getDOMParser()
 
 const READYSTATE = {
     unsent: 0,
@@ -236,7 +237,7 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
  */
 function parseXML(xml) {
     try {
-        const xmlDoc = new DOMParser().parseFromString(xml, 'text/xml')
+        const xmlDoc = new DocumentParser().parseFromString(xml, 'text/xml')
         if (jq.isXMLDoc(xmlDoc)) {
             const err = jq('parsererror', xmlDoc)
             if (err.length === 1) {

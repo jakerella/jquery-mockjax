@@ -1,7 +1,5 @@
 
-
-// TODO: add crypto and DOMParser
-
+// TODO: add crypto
 
 /**
  * Retrieve the jQuery main object/function from the "global" 
@@ -10,21 +8,37 @@
  * @returns {object} The jQuery object/function
  */
 export function getJQuery() {
-    let jq = null
     if (typeof $ !== 'undefined') {
-        jq = $
+        return $
     } else if (typeof jQuery !== 'undefined') {
-        jq = jQuery
+        return jQuery
     } else {
         // If jQuery is not defined, we'll return a mock instance
         // for use in test cases
         return mockJQuery
     }
-    return jq
 }
 
+export function getDOMParser() {
+    if (typeof DOMParser !== 'undefined') {
+        return DOMParser
+    } else {
+        return MockDOMParser
+    }
+}
 
-// Mock implementations for use in tests
+/*******************************************/
+/*  Mock implementations for use in tests  */
+/*******************************************/
+
+function MockDOMParser() {
+    return {
+        parseFromString: () => {
+            return { namespaceURI: 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul' }
+        }
+    }
+}
+
 function ajax() {
     mockJQuery.active++
     return new Promise((resolve, _) => {
@@ -46,8 +60,9 @@ function ajaxSetup(settings) {
 function globalEval() { return true }
 function isXMLDoc() { return true }
 function trigger() { return true }
+function text() { return 'text' }
 function makeNodeSelection() {
-    return { trigger, length: 1 }
+    return { trigger, text, length: 1 }
 }
 function Deferred() {
     return { resolveWith: () => { return true } }
