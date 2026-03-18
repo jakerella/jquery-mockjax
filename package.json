@@ -38,12 +38,7 @@
   "bugs": {
     "web": "http://github.com/jakerella/jquery-mockjax/issues"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://opensource.org/licenses/MIT"
-    }
-  ],
+  "license": "MIT",
   "scripts": {
     "build": "npx webpack --mode production --config webpack.config.mjs",
     "build:dist": "npm run style && npm run lint && npm run coverage && npm run build && npm test:all",
