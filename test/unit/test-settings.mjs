@@ -1,9 +1,10 @@
 
 import QUnit from 'qunit'
-import { getJQuery, resetJQueryMock } from '../../src/lib.mjs'
+import { getJQueryMock } from './mocks.mjs'
+import { getJQuery } from '../../src/lib.mjs'
 
 const it = QUnit.test
-const $ = getJQuery()
+let $ = getJQuery(getJQueryMock())
 
 import {
     getSettings,
@@ -13,8 +14,11 @@ import {
 
 /* ----------------- */
 QUnit.module('Settings: getSettings', {
+    beforeEach: () => {
+        $ = getJQuery(getJQueryMock())
+        resetSettings()
+    },
     afterEach: () => {
-        resetJQueryMock()
         resetSettings()
     }
 })
@@ -70,8 +74,11 @@ it('should return object with all default properties', (assert) => {
 
 /* ----------------- */
 QUnit.module('Settings: resetSettings', {
+    beforeEach: () => {
+        $ = getJQuery(getJQueryMock())
+        resetSettings()
+    },
     afterEach: () => {
-        resetJQueryMock()
         resetSettings()
     }
 })
@@ -122,7 +129,11 @@ it('should handle missing $.mockjaxSettings', (assert) => {
 
 /* ----------------- */
 QUnit.module('Settings: validateSettings (positive)', {
-    beforeEach: function () {
+    beforeEach: () => {
+        $ = getJQuery(getJQueryMock())
+        resetSettings()
+    },
+    afterEach: () => {
         resetSettings()
     }
 })
@@ -300,7 +311,11 @@ it('should accept responseHeaders with string values', (assert) => {
 
 /* ----------------- */
 QUnit.module('Settings: validateSettings (negative)', {
-    beforeEach: function () {
+    beforeEach: () => {
+        $ = getJQuery(getJQueryMock())
+        resetSettings()
+    },
+    afterEach: () => {
         resetSettings()
     }
 })
@@ -542,7 +557,11 @@ it('should throw for non-boolean followRedirects', (assert) => {
 
 /* ----------------- */
 QUnit.module('Settings: validateSettings (edge cases)', {
-    beforeEach: function () {
+    beforeEach: () => {
+        $ = getJQuery(getJQueryMock())
+        resetSettings()
+    },
+    afterEach: () => {
         resetSettings()
     }
 })

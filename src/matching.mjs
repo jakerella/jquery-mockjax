@@ -19,7 +19,7 @@ import { getSettings } from './settings.mjs'
  * @param {JQueryAjaxSettings} requestSettings - jQuery AJAX request settings
  * @returns {MockHandler|null} Matching handler or null
  */
-export function findMatchingHandler(handlers, requestSettings) {
+function _findMatchingHandler(handlers, requestSettings) {
     const matchOrder = getSettings().matchInRegistrationOrder
     const startIndex = matchOrder ? 0 : handlers.length - 1
     const endIndex = matchOrder ? handlers.length : -1
@@ -53,6 +53,17 @@ export function findMatchingHandler(handlers, requestSettings) {
     }
 
     return null
+}
+
+// Support dependency injection
+export let findMatchingHandler = _findMatchingHandler
+export const mocks = {
+    set findMatchingHandler(mock) {
+        findMatchingHandler = mock
+    },
+    get findMatchingHandler() {
+        return _findMatchingHandler
+    }
 }
 
 /**

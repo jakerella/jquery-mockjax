@@ -14,8 +14,6 @@ import { realAjaxCall } from './core.mjs'
 import { determineResponseTime } from './xhr.mjs'
 import { getJQuery } from './lib.mjs'
 
-const jq = getJQuery()
-
 const CALLBACK_REGEX = /=\?(&|$)/
 const URL_PROTOCOL_REGEX = /^(\w+:)?\/\/([^\/?#]+)/
 
@@ -133,6 +131,7 @@ function isRemoteRequest(url) {
  * @returns {object | null} jQuery Deferred object or null
  */
 function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
+    const jq = getJQuery()
     const callbackContext = origSettings?.context || requestSettings
     const deferred = jq.Deferred ? new jq.Deferred() : null
 
@@ -202,6 +201,7 @@ function completeJsonpCall(requestSettings, mockHandler, callbackContext, deferr
  * @returns {void}
  */
 function triggerSuccess(requestSettings, callbackContext, mockHandler) {
+    const jq = getJQuery()
     if (typeof requestSettings.success === 'function') {
         requestSettings.success.call(callbackContext, mockHandler.responseText || '', 'success', {})
     }
@@ -219,6 +219,7 @@ function triggerSuccess(requestSettings, callbackContext, mockHandler) {
  * @returns {void}
  */
 function triggerComplete(requestSettings, callbackContext) {
+    const jq = getJQuery()
     if (typeof requestSettings.complete === 'function') {
         requestSettings.complete.call(
             callbackContext,

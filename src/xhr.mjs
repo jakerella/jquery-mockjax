@@ -13,9 +13,6 @@ import { getSettings } from './settings.mjs'
 import { realAjaxCall } from './core.mjs'
 import { getDOMParser, getJQuery } from './lib.mjs'
 
-const jq = getJQuery()
-const DocumentParser = getDOMParser()
-
 export const READYSTATE = { unsent: 0, opened: 1, headers: 2, loading: 3, done: 4 }
 
 /**
@@ -24,7 +21,7 @@ export const READYSTATE = { unsent: 0, opened: 1, headers: 2, loading: 3, done: 
  * @param {JQueryAjaxSettings} requestSettings - jQuery AJAX request settings
  * @returns {MockXHR} Mock XHR object suitable for inserting into a jQuery.ajax() call
  */
-export function createMockXHR(mockHandler, requestSettings) {
+function _createMockXHR(mockHandler, requestSettings) {
     const allMockSettings = { ...getSettings(), ...mockHandler }
 
     if (!allMockSettings.headers) {
@@ -76,6 +73,17 @@ export function createMockXHR(mockHandler, requestSettings) {
                 })
                 .join('\n')
         }
+    }
+}
+
+// Support dependency injection
+export let createMockXHR = _createMockXHR
+export const mocks = {
+    set createMockXHR(mock) {
+        createMockXHR = mock
+    },
+    get createMockXHR() {
+        return _createMockXHR
     }
 }
 
@@ -230,6 +238,8 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
  * @throws {TypeError}
  */
 function parseXML(xml) {
+    const jq = getJQuery()
+    const DocumentParser = getDOMParser()
     try {
         const xmlDoc = new DocumentParser().parseFromString(xml, 'text/xml')
         if (jq.isXMLDoc(xmlDoc)) {

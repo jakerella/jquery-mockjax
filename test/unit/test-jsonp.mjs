@@ -1,9 +1,10 @@
 
 import QUnit from 'qunit'
-import { getJQuery, resetJQueryMock } from '../../src/lib.mjs'
+import { getJQueryMock } from './mocks.mjs'
+import { getJQuery } from '../../src/lib.mjs'
 
 const it = QUnit.test
-const $ = getJQuery()
+let $ = getJQuery(getJQueryMock())
 
 function setMockWindow(protocol='http:', host='localhost') {
     global.window = { location: { protocol, host } }
@@ -23,7 +24,7 @@ import { processJsonpMock } from '../../src/jsonp.mjs'
 QUnit.module('JSONP: processJsonpMock - basic functionality', {
     beforeEach: () => { setMockWindow() },
     afterEach: () => {
-        resetJQueryMock()
+        $ = getJQuery(getJQueryMock())
         removeJSONPCallbacks()
     }
 })
@@ -129,7 +130,7 @@ it('should use custom jsonp parameter name', (assert) => {
 QUnit.module('JSONP: processJsonpMock - callback creation', {
     beforeEach: () => { setMockWindow() },
     afterEach: () => {
-        resetJQueryMock()
+        $ = getJQuery(getJQueryMock())
         removeJSONPCallbacks()
     }
 })
@@ -203,7 +204,7 @@ it('should replace callback placeholder in data', (assert) => {
 QUnit.module('JSONP: processJsonpMock - remote request detection', {
     beforeEach: () => { setMockWindow('http:', 'localhost:3000') },
     afterEach: () => {
-        resetJQueryMock()
+        $ = getJQuery(getJQueryMock())
         removeJSONPCallbacks()
     }
 })
@@ -253,7 +254,7 @@ it('should not treat same-origin request as remote', (assert) => {
 QUnit.module('JSONP: processJsonpMock - response handling', {
     beforeEach: () => { setMockWindow() },
     afterEach: () => {
-        resetJQueryMock()
+        $ = getJQuery(getJQueryMock())
         removeJSONPCallbacks()
     }
 })
@@ -401,7 +402,7 @@ it('should respect responseTime setting', (assert) => {
 QUnit.module('JSONP: processJsonpMock - deferred object', {
     beforeEach: () => { setMockWindow() },
     afterEach: () => {
-        resetJQueryMock()
+        $ = getJQuery(getJQueryMock())
         removeJSONPCallbacks()
     }
 })
@@ -476,7 +477,7 @@ it('should resolve deferred with raw text if JSON parse fails', (assert) => {
 QUnit.module('JSONP: processJsonpMock - global events', {
     beforeEach: () => { setMockWindow() },
     afterEach: () => {
-        resetJQueryMock()
+        $ = getJQuery(getJQueryMock())
         removeJSONPCallbacks()
     }
 })
@@ -618,7 +619,7 @@ it('should handle ajaxStop trigger when counter reaches zero', (assert) => {
 QUnit.module('JSONP: processJsonpMock - edge cases', {
     beforeEach: () => { setMockWindow() },
     afterEach: () => {
-        resetJQueryMock()
+        $ = getJQuery(getJQueryMock())
         removeJSONPCallbacks()
     }
 })

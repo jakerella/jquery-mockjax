@@ -1,37 +1,48 @@
 
 import QUnit from 'qunit'
-import { getJQuery, resetJQueryMock } from '../../src/lib.mjs'
+import { getJQueryMock } from './mocks.mjs'
+import { getJQuery } from '../../src/lib.mjs'
 
 const it = QUnit.test
-const $ = getJQuery()
+let $ = getJQuery(getJQueryMock())
 
-import { mockjax } from '../../src/index.mjs'
+import { init, mockjax } from '../../src/index.mjs'
+import { mockAjaxCall } from '../../src/core.mjs'
 import { getSettings } from '../../src/settings.mjs'
 
+
+
 /* ----------------- */
-QUnit.module('Index', {
-    afterEach: () => {
-        resetJQueryMock()
+QUnit.module('Index: init', {
+    beforeEach: () => {
+        $ = getJQuery(getJQueryMock())
     }
 })
 /* ----------------- */
 
 it('should add the mockjax function to jQuery', (assert) => {
-    assert.equal(typeof mockjax, 'function', 'mockjax should be a function')
+    init()
+    assert.equal(typeof $.mockjax, 'function', 'mockjax should be a function')
     assert.strictEqual($.mockjax, mockjax, 'the mockjax function should be the same on the $ object')
 })
 
 it('should swap out the ajax method for the mockjax version', (assert) => {
-    assert.equal($.ajax.name, 'mockAjaxCall', 'the jQuery ajax method should be replaced with mockAjaxCall')
-    assert.equal($._ajax.name, 'ajax', 'the original ajax method should exist on $._ajax')
+    init()
+    assert.equal(typeof $.ajax, 'function', 'The jQuery ajax property is a function')
+    assert.equal($.ajax?.name, 'mockAjaxCall', 'the jQuery ajax method should be replaced with mockAjaxCall')
+    assert.strictEqual($.ajax, mockAjaxCall, 'the jQuery ajax method should be the core mockAjaxCall function')
+    assert.equal(typeof $._ajax, 'function', 'The jQuery _ajax property is a function')
+    assert.equal($._ajax?.name, 'ajax', 'the original ajax method should exist on $._ajax')
 })
 
 it('should add the mockjax settings to jQuery', (assert) => {
+    init()
     const settings = getSettings()
     assert.strictEqual($.mockjaxSettings, settings, 'the settings and $.mockjaxSettings should be the same object')
 })
 
 it('should add all public mockjax methods to the $.mockjax object', (assert) => {
+    init()
     assert.equal($.mockjax.getLogger.name, 'getLogger', 'The getLogger method should be added to $.mockjax')
     assert.equal(typeof $.mockjax.getLogger, 'function', 'The getLogger property is a function')
     assert.equal($.mockjax.resetSettings.name, 'resetSettings', 'The resetSettings method should be added to $.mockjax')

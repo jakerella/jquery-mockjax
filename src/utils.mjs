@@ -3,15 +3,15 @@
  * @module utils
  */
 
+import { getCrypto } from './lib.mjs'
+
 /**
  * Generate a UUID using the Web Crypto API
  * @returns {string} RFC 4122 compliant UUID
  * @throws {Error} If crypto.randomUUID() is not available
  */
 export function generateUUID() {
-    if (!crypto || typeof crypto.randomUUID !== 'function') {
-        throw new Error('crypto.randomUUID() is not available. This browser is not supported.')
-    }
+    const crypto = getCrypto()
     return crypto.randomUUID()
 }
 
@@ -25,7 +25,7 @@ export function deepClone(obj) {
         const clone = structuredClone(obj)
         return clone
     } catch (_) {
-        /* can't clone functions, so we'll do this the harad way */
+        /* can't clone functions, so we'll do this the hard way */
     }
 
     if (obj === null || typeof obj !== 'object') {

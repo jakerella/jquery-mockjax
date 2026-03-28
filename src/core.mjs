@@ -20,8 +20,6 @@ import { processJsonpMock } from './jsonp.mjs'
 import { createMockXHR } from './xhr.mjs'
 import { getJQuery } from './lib.mjs'
 
-const jq = getJQuery()
-
 /**
  * Make a real jquery ajax() call, ignoring any mock handling
  * @param {(string | JQueryAjaxSettings)} url - The request URL or ajax settings object
@@ -29,7 +27,8 @@ const jq = getJQuery()
  * @returns {jqXHR} The jQuery Ajax XHR object
  */
 export function realAjaxCall(url, settings) {
-    return jq._ajax.apply($, [url, settings])
+    const jq = getJQuery()
+    return jq._ajax.apply(jq, [url, settings])
 }
 
 /**
@@ -108,6 +107,8 @@ export function registerMockjaxHandler(options) {
  * @returns {jqXHR} The jqXHR object used in the request. Note that this will be the real jQuery jqXHR object if the call was not mocked
  */
 export function mockAjaxCall(url, origSettings) {
+    const jq = getJQuery()
+
     let tempSettings = {}
 
     // If url is an object, simulate pre-1.5 signature
@@ -116,6 +117,8 @@ export function mockAjaxCall(url, origSettings) {
     } else if (origSettings && typeof origSettings === 'object') {
         tempSettings = origSettings
         tempSettings.url = url || origSettings.url
+    } else {
+        tempSettings.url = url
     }
 
     // Extend the original settings for the request to include defaults
@@ -227,9 +230,10 @@ export function mockAjaxCall(url, origSettings) {
  * @returns {void}
  */
 export function clear(mechanism) {
-    console.warn(
-        'The clear() method is deprecated. Use clearAll(), clearById(), or clearByUrl() instead.'
-    )
+    // TODO: update to use logger
+    // console.warn(
+    //     'The clear() method is deprecated. Use clearAll(), clearById(), or clearByUrl() instead.'
+    // )
 
     // Clear all handlers
     if (mechanism === undefined) {
@@ -340,7 +344,8 @@ export function handlers(ids) {
  * @returns {(MockHandler|null)} Handler or null
  */
 export function handler(id) {
-    console.warn('The handler(id) method is deprecated. Use handlers([id]) instead.')
+    // TODO: update to use logger
+    // console.warn('The handler(id) method is deprecated. Use handlers([id]) instead.')
     return handlers([id])[0]
 }
 
@@ -492,7 +497,7 @@ function validateHandlerOptions(settings) {
                 messages.push('The statusText array must be the same size as the status array.')
             }
         } else if (typeof settings.statusText !== 'string') {
-            messages.push('The statusText must be a string if it is set.')
+            messages.push('The statusText must be a string or array of strings if it is set.')
         }
     }
 
@@ -546,7 +551,7 @@ function validateHandlerOptions(settings) {
         )
     } else {
         for (const key in settings.responseHeaders) {
-            if (typeof key !== 'string' || typeof settings.responseHeaders[key] !== 'string') {
+            if (typeof settings.responseHeaders[key] !== 'string') {
                 messages.push(
                     'The responseHeaders property must be a plain object of string names and values if it is set.'
                 )
@@ -615,7 +620,7 @@ function overrideCallback(context, action, mockHandler, requestSettings) {
 function redirectMockedRequest(mockHandler, requestSettings) {
     const newUrl = mockHandler.responseHeaders.Location || mockHandler.responseHeaders.location
 
-    const redirectSettings = jq.ajaxSetup({}, requestSettings)
+    const redirectSettings = getJQuery().ajaxSetup({}, requestSettings)
     redirectSettings.url = newUrl
     redirectSettings.headers = {
         // TODO: do 300's keep original headers? (this is what is in the v2.7 codebase)

@@ -1,6 +1,6 @@
 /*!
  * jQuery Mockjax v3.0.0 - https://github.com/jakerella/jquery-mockjax
- * Build Date: 2026-03-18
+ * Build Date: 2026-03-28
  * Copyright (c) 2026 Jordan Kasper and contributors, formerly appendTo
  * Licensed under the MIT license
  */
@@ -36,186 +36,80 @@
 /******/ 	
 /************************************************************************/
 
-// UNUSED EXPORTS: clear, clearAll, clearById, clearByUrl, clearRetainedAjaxCalls, default, getLogger, getSettings, handler, handlers, mockedAjaxCalls, mockjax, resetSettings, unfiredHandlers, unmockedAjaxCalls, validateSettings
+// UNUSED EXPORTS: clear, clearAll, clearById, clearByUrl, clearRetainedAjaxCalls, default, getLogger, getSettings, handler, handlers, init, mockedAjaxCalls, mockjax, resetSettings, unfiredHandlers, unmockedAjaxCalls, validateSettings
 
 ;// ./src/lib.mjs
-// TODO: add crypto
-
-/**
- * @typedef {import('./typedefs.mjs').JQueryAjaxSettings} JQueryAjaxSettings
- * @typedef {import('./typedefs.mjs').Deferred} Deferred
- * @typedef {import('./typedefs.mjs').AsyncComplete} AsyncComplete
- */
-
-let mockJQuery = {}
+let mockJQuery = null
+let mockDOMParser = null
+let mockCrypto = null
 
 /**
  * Retrieve the jQuery main object/function from the "global"
  * context (in a couple ways). In the dist build, the "$"
- * variable will exist from the UMD wrapper
- * @returns {object} The jQuery object/function
+ * variable will exist from the UMD wrapper. This also allows
+ * for dependency injection as necessary in our tests
+ * @param {object} mockJQueryFn A mock jQuery function to use for testing
+ * @returns {object} Either the real jQuery from the global scope or the Mock
  */
-function getJQuery() {
+function getJQuery(mockJQueryFn) {
+    if (mockJQueryFn) {
+        mockJQuery = mockJQueryFn
+    }
+
     if (typeof $ !== 'undefined') {
         return $
     } else if (typeof jQuery !== 'undefined') {
         return jQuery
-    } else {
-        // If jQuery is not defined, we'll return a mock instance
-        // for use in test cases
+    } else if (mockJQuery) {
         return mockJQuery
+    } else {
+        throw new Error('jQuery not available!')
     }
 }
 
 /**
- * Get the DOMParser to use
+ * Get the DOMParser to use. This allows for injection
+ * of a mock instance for use in tests.
+ * @param {object} mockDOMParserObject A mock DOMParser for use in tests
  * @returns {object} Either the real DOMParser from the global scope or the Mock
  */
-function getDOMParser() {
+function getDOMParser(mockDOMParserObject) {
+    if (mockDOMParserObject) {
+        mockDOMParser = mockDOMParserObject
+    }
+
     if (typeof DOMParser !== 'undefined') {
         return DOMParser
+    } else if (mockDOMParser) {
+        return mockDOMParser
     } else {
-        return MockDOMParser
-    }
-}
-
-/*******************************************/
-/*  Mock implementations for use in tests  */
-/*******************************************/
-
-/**
- * A mock DOMParser to be used in testing
- * @class
- */
-function MockDOMParser() {
-    return {
-        parseFromString: () => {
-            return { namespaceURI: 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul' }
-        }
+        setTimeout(() => {
+            if (mockDOMParser) {
+                return mockDOMParser
+            } else {
+                throw new Error('DOMParser not available!')
+            }
+        }, 0)
     }
 }
 
 /**
- * A mock implementation of jQuery's ajax method
- * @param {string} url The URL to go to
- * @param {JQueryAjaxSettings} settings The ajax settings
- * @returns {Deferred} The Deferred object to listen to for completion
+ * Get the crypto library to use. This allows for injection
+ * of a mock instance for use in tests.
+ * @param {object} mockCryptoObject A mock crypto for use in tests
+ * @returns {object} Either the real crypto from the global scope or the Mock
  */
-function ajax(url, settings) {
-    return new Deferred(settings)
-}
-
-/**
- * A mock $.ajaxSetup() for use in tests
- * @param {JQueryAjaxSettings} settings The settings you want to override the defaults with
- * @returns {JQueryAjaxSettings} The compiled settings to use for an ajax() call
- */
-function ajaxSetup(settings) {
-    return {
-        // These are settings we care about in Mockjax that are returned from $.ajaxSetup()
-        type: 'GET',
-        global: true,
-        async: true,
-        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-        jsonp: 'callback',
-        ...settings
+function getCrypto(mockCryptoObject) {
+    if (mockCryptoObject) {
+        mockCrypto = mockCryptoObject
     }
-}
-
-/**
- * A mock $.globalEval() for use in tests
- * @returns {boolean} Always returns true
- */
-function globalEval() {
-    return true
-}
-
-/**
- * A mock $.isXMLDoc() for use in tests
- * @returns {boolean} Always returns true
- */
-function isXMLDoc() {
-    return true
-}
-
-/**
- * A mock $().trigger() for use in tests
- * @returns {boolean} Always returns true
- */
-function trigger() {
-    return true
-}
-
-/**
- * A mock $().text() for use in tests
- * @returns {boolean} Always returns true
- */
-function lib_text() {
-    return 'text'
-}
-
-/**
- * Creates a mock selection object a la $('selector')
- * @returns {boolean} Always returns true
- */
-function makeNodeSelection() {
-    return { trigger, text: lib_text, length: 1 }
-}
-
-/**
- * A mock Deferred constructor for use in tests
- * @param {JQueryAjaxSettings} settings The settings used for this deferred object
- * @returns {boolean} Always returns true
- */
-function Deferred(settings) {
-    return {
-        /**
-         * Creates a mock Deferred.resolveWith() for use in tests
-         * @returns {boolean} Always returns true
-         */
-        resolveWith: () => {
-            return true
-        },
-
-        /**
-         * Creates a mock Deferred.complete() for use in tests
-         * @param {AsyncComplete} callback The function to call once the Deferred is complete
-         * @returns {void}
-         */
-        complete: (callback) => {
-            callback({
-                status: settings?.status || 200,
-                responseText: settings?.responseText || 'success'
-            })
-        }
+    if (mockCrypto) {
+        return mockCrypto
+    } else if (typeof crypto !== 'undefined') {
+        return crypto
+    } else {
+        throw new Error('crypto not available!')
     }
-}
-
-resetJQueryMock()
-
-/**
- * For use in tests, we can reset the mock jQuery object to
- * its original values. Note that this function will have
- * no effect when a global "$" is available.
- * @returns {void}
- */
-function resetJQueryMock() {
-    mockJQuery = function jQuery(selector) {
-        if (selector === 'parseerror') {
-            // see xhr.mjs -> parseXML
-            return []
-        } else {
-            return makeNodeSelection()
-        }
-    }
-    mockJQuery.fn = { jquery: '4.0.0' }
-    mockJQuery.ajax = ajax
-    mockJQuery.ajaxSetup = ajaxSetup
-    mockJQuery.globalEval = globalEval
-    mockJQuery.isXMLDoc = isXMLDoc
-    mockJQuery.Deferred = Deferred
-    mockJQuery.event = { trigger }
-    mockJQuery.active = 0
 }
 
 ;// ./src/settings.mjs
@@ -229,7 +123,6 @@ function resetJQueryMock() {
  */
 
 
-const jq = getJQuery()
 
 const DEFAULTS = {
     logger: null,
@@ -261,9 +154,11 @@ const DEFAULTS = {
  * @returns {MockjaxSettings} The global mockjax settings
  */
 function _getSettings() {
+    const jq = getJQuery()
     return jq.mockjaxSettings || { ...DEFAULTS }
 }
 
+// Support dependency injection
 let getSettings = _getSettings
 const mocks = {
     set getSettings(mock) {
@@ -279,6 +174,7 @@ const mocks = {
  * @returns {MockjaxSettings} The (reset) global mockjax settings
  */
 function resetSettings() {
+    const jq = getJQuery()
     jq.mockjaxSettings = { ...DEFAULTS }
     return jq.mockjaxSettings
 }
@@ -473,15 +369,15 @@ function getLogger() {
  * @module utils
  */
 
+
+
 /**
  * Generate a UUID using the Web Crypto API
  * @returns {string} RFC 4122 compliant UUID
  * @throws {Error} If crypto.randomUUID() is not available
  */
 function generateUUID() {
-    if (!crypto || typeof crypto.randomUUID !== 'function') {
-        throw new Error('crypto.randomUUID() is not available. This browser is not supported.')
-    }
+    const crypto = getCrypto()
     return crypto.randomUUID()
 }
 
@@ -495,7 +391,7 @@ function deepClone(obj) {
         const clone = structuredClone(obj)
         return clone
     } catch (_) {
-        /* can't clone functions, so we'll do this the harad way */
+        /* can't clone functions, so we'll do this the hard way */
     }
 
     if (obj === null || typeof obj !== 'object') {
@@ -532,7 +428,7 @@ function deepClone(obj) {
  * @param {JQueryAjaxSettings} requestSettings - jQuery AJAX request settings
  * @returns {MockHandler|null} Matching handler or null
  */
-function findMatchingHandler(handlers, requestSettings) {
+function _findMatchingHandler(handlers, requestSettings) {
     const matchOrder = getSettings().matchInRegistrationOrder
     const startIndex = matchOrder ? 0 : handlers.length - 1
     const endIndex = matchOrder ? handlers.length : -1
@@ -566,6 +462,17 @@ function findMatchingHandler(handlers, requestSettings) {
     }
 
     return null
+}
+
+// Support dependency injection
+let findMatchingHandler = _findMatchingHandler
+const matching_mocks = {
+    set findMatchingHandler(mock) {
+        findMatchingHandler = mock
+    },
+    get findMatchingHandler() {
+        return _findMatchingHandler
+    }
 }
 
 /**
@@ -770,9 +677,6 @@ function getQueryParams(queryString) {
 
 
 
-const xhr_jq = getJQuery()
-const DocumentParser = getDOMParser()
-
 const READYSTATE = { unsent: 0, opened: 1, headers: 2, loading: 3, done: 4 }
 
 /**
@@ -781,7 +685,7 @@ const READYSTATE = { unsent: 0, opened: 1, headers: 2, loading: 3, done: 4 }
  * @param {JQueryAjaxSettings} requestSettings - jQuery AJAX request settings
  * @returns {MockXHR} Mock XHR object suitable for inserting into a jQuery.ajax() call
  */
-function createMockXHR(mockHandler, requestSettings) {
+function _createMockXHR(mockHandler, requestSettings) {
     const allMockSettings = { ...getSettings(), ...mockHandler }
 
     if (!allMockSettings.headers) {
@@ -833,6 +737,17 @@ function createMockXHR(mockHandler, requestSettings) {
                 })
                 .join('\n')
         }
+    }
+}
+
+// Support dependency injection
+let createMockXHR = _createMockXHR
+const xhr_mocks = {
+    set createMockXHR(mock) {
+        createMockXHR = mock
+    },
+    get createMockXHR() {
+        return _createMockXHR
     }
 }
 
@@ -987,12 +902,14 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
  * @throws {TypeError}
  */
 function parseXML(xml) {
+    const jq = getJQuery()
+    const DocumentParser = getDOMParser()
     try {
         const xmlDoc = new DocumentParser().parseFromString(xml, 'text/xml')
-        if (xhr_jq.isXMLDoc(xmlDoc)) {
-            const err = xhr_jq('parsererror', xmlDoc)
+        if (jq.isXMLDoc(xmlDoc)) {
+            const err = jq('parsererror', xmlDoc)
             if (err.length === 1) {
-                throw new TypeError(`Error: ${xhr_jq(xmlDoc).text()}`)
+                throw new TypeError(`Error: ${jq(xmlDoc).text()}`)
             }
         } else {
             throw new TypeError('Unable to parse XML')
@@ -1000,7 +917,7 @@ function parseXML(xml) {
         return xmlDoc
     } catch (err) {
         const msg = err.name === undefined ? err : `${err.name}: ${err.message}`
-        xhr_jq(document).trigger('xmlParseError', [msg])
+        jq(document).trigger('xmlParseError', [msg])
         throw new TypeError(msg)
     }
 }
@@ -1021,8 +938,6 @@ function parseXML(xml) {
 
 
 
-
-const jsonp_jq = getJQuery()
 
 const CALLBACK_REGEX = /=\?(&|$)/
 const URL_PROTOCOL_REGEX = /^(\w+:)?\/\/([^\/?#]+)/
@@ -1141,13 +1056,14 @@ function isRemoteRequest(url) {
  * @returns {object | null} jQuery Deferred object or null
  */
 function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
+    const jq = getJQuery()
     const callbackContext = origSettings?.context || requestSettings
-    const deferred = jsonp_jq.Deferred ? new jsonp_jq.Deferred() : null
+    const deferred = jq.Deferred ? new jq.Deferred() : null
 
     if (typeof mockHandler.response === 'function') {
         mockHandler.response(origSettings)
     } else if (typeof mockHandler.responseText === 'object') {
-        jsonp_jq.globalEval(`(${JSON.stringify(mockHandler.responseText)})`)
+        jq.globalEval(`(${JSON.stringify(mockHandler.responseText)})`)
     } else if (mockHandler.proxy) {
         realAjaxCall({
             global: false,
@@ -1157,7 +1073,7 @@ function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
             dataType:
                 requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
             complete: function (xhr) {
-                jsonp_jq.globalEval(`(${xhr.responseText})`)
+                jq.globalEval(`(${xhr.responseText})`)
                 completeJsonpCall(requestSettings, mockHandler, callbackContext, deferred)
             }
         })
@@ -1167,7 +1083,7 @@ function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
             typeof mockHandler.responseText === 'string'
                 ? `"${mockHandler.responseText}"`
                 : mockHandler.responseText
-        jsonp_jq.globalEval(`(${responseValue})`)
+        jq.globalEval(`(${responseValue})`)
     }
 
     completeJsonpCall(requestSettings, mockHandler, callbackContext, deferred)
@@ -1210,12 +1126,13 @@ function completeJsonpCall(requestSettings, mockHandler, callbackContext, deferr
  * @returns {void}
  */
 function triggerSuccess(requestSettings, callbackContext, mockHandler) {
+    const jq = getJQuery()
     if (typeof requestSettings.success === 'function') {
         requestSettings.success.call(callbackContext, mockHandler.responseText || '', 'success', {})
     }
 
     if (requestSettings.global) {
-        const eventTarget = requestSettings.context ? jsonp_jq(requestSettings.context) : jsonp_jq.event
+        const eventTarget = requestSettings.context ? jq(requestSettings.context) : jq.event
         eventTarget.trigger('ajaxSuccess', [{}, requestSettings])
     }
 }
@@ -1227,6 +1144,7 @@ function triggerSuccess(requestSettings, callbackContext, mockHandler) {
  * @returns {void}
  */
 function triggerComplete(requestSettings, callbackContext) {
+    const jq = getJQuery()
     if (typeof requestSettings.complete === 'function') {
         requestSettings.complete.call(
             callbackContext,
@@ -1236,15 +1154,15 @@ function triggerComplete(requestSettings, callbackContext) {
     }
 
     if (requestSettings.global) {
-        const eventTarget = requestSettings.context ? jsonp_jq(requestSettings.context) : jsonp_jq.event
+        const eventTarget = requestSettings.context ? jq(requestSettings.context) : jq.event
         eventTarget.trigger('ajaxComplete', [{}, requestSettings])
     }
 
     // Handle the global AJAX counter
-    if (requestSettings.global && jsonp_jq.active) {
-        jsonp_jq.active--
-        if (jsonp_jq.active === 0) {
-            jsonp_jq.event.trigger('ajaxStop')
+    if (requestSettings.global && jq.active) {
+        jq.active--
+        if (jq.active === 0) {
+            jq.event.trigger('ajaxStop')
         }
     }
 }
@@ -1272,8 +1190,6 @@ function triggerComplete(requestSettings, callbackContext) {
 
 
 
-const core_jq = getJQuery()
-
 /**
  * Make a real jquery ajax() call, ignoring any mock handling
  * @param {(string | JQueryAjaxSettings)} url - The request URL or ajax settings object
@@ -1281,7 +1197,8 @@ const core_jq = getJQuery()
  * @returns {jqXHR} The jQuery Ajax XHR object
  */
 function realAjaxCall(url, settings) {
-    return core_jq._ajax.apply($, [url, settings])
+    const jq = getJQuery()
+    return jq._ajax.apply(jq, [url, settings])
 }
 
 /**
@@ -1360,6 +1277,8 @@ function registerMockjaxHandler(options) {
  * @returns {jqXHR} The jqXHR object used in the request. Note that this will be the real jQuery jqXHR object if the call was not mocked
  */
 function mockAjaxCall(url, origSettings) {
+    const jq = getJQuery()
+
     let tempSettings = {}
 
     // If url is an object, simulate pre-1.5 signature
@@ -1368,10 +1287,12 @@ function mockAjaxCall(url, origSettings) {
     } else if (origSettings && typeof origSettings === 'object') {
         tempSettings = origSettings
         tempSettings.url = url || origSettings.url
+    } else {
+        tempSettings.url = url
     }
 
     // Extend the original settings for the request to include defaults
-    const requestSettings = core_jq.ajaxSetup({}, tempSettings)
+    const requestSettings = jq.ajaxSetup({}, tempSettings)
 
     // Standardize HTTP method
     requestSettings.type = requestSettings.method || requestSettings.type
@@ -1408,7 +1329,7 @@ function mockAjaxCall(url, origSettings) {
     }
 
     if (
-        Number(core_jq.fn.jquery.split('.')[0]) > 3 &&
+        Number(jq.fn.jquery.split('.')[0]) > 3 &&
         (requestSettings.dataType?.toUpperCase() === 'JSONP' ||
             requestSettings.dataType?.toUpperCase() === 'SCRIPT') &&
         !Object.keys(requestSettings.headers || {}).length
@@ -1479,9 +1400,10 @@ function mockAjaxCall(url, origSettings) {
  * @returns {void}
  */
 function clear(mechanism) {
-    console.warn(
-        'The clear() method is deprecated. Use clearAll(), clearById(), or clearByUrl() instead.'
-    )
+    // TODO: update to use logger
+    // console.warn(
+    //     'The clear() method is deprecated. Use clearAll(), clearById(), or clearByUrl() instead.'
+    // )
 
     // Clear all handlers
     if (mechanism === undefined) {
@@ -1592,7 +1514,8 @@ function handlers(ids) {
  * @returns {(MockHandler|null)} Handler or null
  */
 function handler(id) {
-    console.warn('The handler(id) method is deprecated. Use handlers([id]) instead.')
+    // TODO: update to use logger
+    // console.warn('The handler(id) method is deprecated. Use handlers([id]) instead.')
     return handlers([id])[0]
 }
 
@@ -1744,7 +1667,7 @@ function validateHandlerOptions(settings) {
                 messages.push('The statusText array must be the same size as the status array.')
             }
         } else if (typeof settings.statusText !== 'string') {
-            messages.push('The statusText must be a string if it is set.')
+            messages.push('The statusText must be a string or array of strings if it is set.')
         }
     }
 
@@ -1798,7 +1721,7 @@ function validateHandlerOptions(settings) {
         )
     } else {
         for (const key in settings.responseHeaders) {
-            if (typeof key !== 'string' || typeof settings.responseHeaders[key] !== 'string') {
+            if (typeof settings.responseHeaders[key] !== 'string') {
                 messages.push(
                     'The responseHeaders property must be a plain object of string names and values if it is set.'
                 )
@@ -1867,7 +1790,7 @@ function overrideCallback(context, action, mockHandler, requestSettings) {
 function redirectMockedRequest(mockHandler, requestSettings) {
     const newUrl = mockHandler.responseHeaders.Location || mockHandler.responseHeaders.location
 
-    const redirectSettings = core_jq.ajaxSetup({}, requestSettings)
+    const redirectSettings = getJQuery().ajaxSetup({}, requestSettings)
     redirectSettings.url = newUrl
     redirectSettings.headers = {
         // TODO: do 300's keep original headers? (this is what is in the v2.7 codebase)
@@ -1929,6 +1852,7 @@ function copyUrlParameters(mockHandler, requestSettings) {
 
 // Default export
 /* harmony default export */ const src = ({
+    init,
     mockjax: registerMockjaxHandler,
     clear: clear,
     clearById: clearById,
@@ -1946,26 +1870,34 @@ function copyUrlParameters(mockHandler, requestSettings) {
     getLogger: getLogger
 });
 
-const src_jq = getJQuery()
+function init() {
+    const jq = getJQuery()
 
-src_jq._ajax = src_jq.ajax
-src_jq.ajax = mockAjaxCall
+    jq._ajax = jq.ajax
+    jq.ajax = mockAjaxCall
 
-src_jq.mockjaxSettings = getSettings()
-src_jq.mockjax = registerMockjaxHandler
-src_jq.mockjax.getLogger = getLogger
-src_jq.mockjax.resetSettings = resetSettings
-src_jq.mockjax.validateSettings = validateSettings
-src_jq.mockjax.clear = clear
-src_jq.mockjax.clearById = clearById
-src_jq.mockjax.clearByUrl = clearByUrl
-src_jq.mockjax.clearAll = clearAll
-src_jq.mockjax.handler = handler
-src_jq.mockjax.handlers = handlers
-src_jq.mockjax.unfiredHandlers = unfiredHandlers
-src_jq.mockjax.mockedAjaxCalls = mockedAjaxCalls
-src_jq.mockjax.unmockedAjaxCalls = unmockedAjaxCalls
-src_jq.mockjax.clearRetainedAjaxCalls = clearRetainedAjaxCalls
+    jq.mockjaxSettings = getSettings()
+    jq.mockjax = registerMockjaxHandler
+    jq.mockjax.getLogger = getLogger
+    jq.mockjax.resetSettings = resetSettings
+    jq.mockjax.validateSettings = validateSettings
+    jq.mockjax.clear = clear
+    jq.mockjax.clearById = clearById
+    jq.mockjax.clearByUrl = clearByUrl
+    jq.mockjax.clearAll = clearAll
+    jq.mockjax.handler = handler
+    jq.mockjax.handlers = handlers
+    jq.mockjax.unfiredHandlers = unfiredHandlers
+    jq.mockjax.mockedAjaxCalls = mockedAjaxCalls
+    jq.mockjax.unmockedAjaxCalls = unmockedAjaxCalls
+    jq.mockjax.clearRetainedAjaxCalls = clearRetainedAjaxCalls
+
+    return jq.mockjax
+}
+
+if (typeof $ !== 'undefined') {
+    init()
+}
 
 /******/ })()
 ;

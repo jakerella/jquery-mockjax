@@ -8,7 +8,6 @@
  */
 
 import { getJQuery } from './lib.mjs'
-const jq = getJQuery()
 
 const DEFAULTS = {
     logger: null,
@@ -40,9 +39,11 @@ const DEFAULTS = {
  * @returns {MockjaxSettings} The global mockjax settings
  */
 function _getSettings() {
+    const jq = getJQuery()
     return jq.mockjaxSettings || { ...DEFAULTS }
 }
 
+// Support dependency injection
 export let getSettings = _getSettings
 export const mocks = {
     set getSettings(mock) {
@@ -58,6 +59,7 @@ export const mocks = {
  * @returns {MockjaxSettings} The (reset) global mockjax settings
  */
 export function resetSettings() {
+    const jq = getJQuery()
     jq.mockjaxSettings = { ...DEFAULTS }
     return jq.mockjaxSettings
 }
