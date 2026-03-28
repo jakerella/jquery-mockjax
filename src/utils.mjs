@@ -1,5 +1,6 @@
 /**
  * Utility functions for mockjax
+ * @private
  * @module utils
  */
 

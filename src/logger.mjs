@@ -1,6 +1,11 @@
 /**
  * A basic logger for the Mockjax library
+ * @private
  * @module logger
+ */
+
+/**
+ * @typedef {import('./typedefs.mjs').LogMethod} LogMethod
  */
 
 import { getSettings } from './settings.mjs'
@@ -34,10 +39,11 @@ class Logger {
     }
 }
 
+/* eslint-disable jsdoc/check-types */
 /**
  * This will return the current logger implementation from $.mockjaxSettings
  * or a no-op version if that setting is null or otherwise not implemented
- * @returns {{[key: string]: import('./typedefs.mjs').LogMethod}} The current logger implementation
+ * @returns {Object.<string, LogMethod>} The current logger implementation
  */
 export function getLogger() {
     const settings = getSettings()
@@ -54,3 +60,4 @@ export function getLogger() {
     }
     return settings.logger
 }
+/* eslint-enable jsdoc/check-types */

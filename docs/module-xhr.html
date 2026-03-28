@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Module: xhr</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Module: xhr</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        
+            
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">Mock XHR object creation and response simulation</div>
+        
+
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="xhr.mjs.html">xhr.mjs</a>, <a href="xhr.mjs.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".determineResponseTime"><span class="type-signature">(static) </span>determineResponseTime<span class="signature">(responseTime)</span><span class="type-signature"> &rarr; {number}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Determine an appropriate response time for the mock request
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>responseTime</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The responseTime option from the mock handler, if an array, must be length 2 (min, max)</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="xhr.mjs.html">xhr.mjs</a>, <a href="xhr.mjs.html#line165">line 165</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    The response time to be used
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~createMockXHR"><span class="type-signature">(inner) </span>createMockXHR<span class="signature">(mockHandler, requestSettings)</span><span class="type-signature"> &rarr; {<a href="module-xhr.html#~MockXHR">module:xhr~MockXHR</a>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Create a mock XMLHttpRequest object
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>mockHandler</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">module:xhr~MockHandler</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Original mock handler configuration object</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>requestSettings</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">module:xhr~JQueryAjaxSettings</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">jQuery AJAX request settings</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="xhr.mjs.html">xhr.mjs</a>, <a href="xhr.mjs.html#line18">line 18</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Mock XHR object suitable for inserting into a jQuery.ajax() call
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="module-xhr.html#~MockXHR">module:xhr~MockXHR</a></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Type Definitions</h3>
+
+        
+                
+<h4 class="name" id="~MockXHR">MockXHR</h4>
+
+
+
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">module:xhr~MockHandler</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="xhr.mjs.html">xhr.mjs</a>, <a href="xhr.mjs.html#line6">line 6</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+            
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-jsonp.html">jsonp</a></li><li><a href="module-matching.html">matching</a></li><li><a href="module-settings.html">settings</a></li><li><a href="module-utils.html">utils</a></li><li><a href="module-xhr.html">xhr</a></li></ul><h3>Global</h3><ul><li><a href="global.html#%2522$.mockjax%2522">"$.mockjax"</a></li><li><a href="global.html#clear">clear</a></li><li><a href="global.html#clearAll">clearAll</a></li><li><a href="global.html#clearById">clearById</a></li><li><a href="global.html#clearByUrl">clearByUrl</a></li><li><a href="global.html#clearRetainedAjaxCalls">clearRetainedAjaxCalls</a></li><li><a href="global.html#getSettings">getSettings</a></li><li><a href="global.html#handler">handler</a></li><li><a href="global.html#handlers">handlers</a></li><li><a href="global.html#mockedAjaxCalls">mockedAjaxCalls</a></li><li><a href="global.html#resetSettings">resetSettings</a></li><li><a href="global.html#unfiredHandlers">unfiredHandlers</a></li><li><a href="global.html#unmockedAjaxCalls">unmockedAjaxCalls</a></li><li><a href="global.html#validateSettings">validateSettings</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Sat Mar 28 2026 11:17:41 GMT-0400 (Eastern Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

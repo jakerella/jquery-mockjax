@@ -1,0 +1,14 @@
+{
+    "opts": {
+        "destination": "docs/",
+        "readme": "README.md"
+    },
+    "plugins": [
+        "node_modules/jsdoc-tsimport-plugin/index.js"
+    ],
+    "source": {
+        "include": ["src/"],
+        "includePattern": ".+\\.mjs?$"
+    },
+    "sourceType": "module"
+}

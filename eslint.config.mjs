@@ -4,7 +4,7 @@ import { defineConfig } from 'eslint/config'
 
 export default defineConfig([
     {
-        ignores: ['dist/', 'test/'],
+        ignores: ['dist/', 'test/', 'docs/'],
     },
     jsdoc.configs['flat/recommended'],
     {
@@ -58,7 +58,14 @@ export default defineConfig([
             'jsdoc/check-alignment': 'warn',
             'jsdoc/check-param-names': 'error',
             'jsdoc/check-tag-names': 'warn',
-            'jsdoc/check-types': 'warn',
+            'jsdoc/check-types': ['warn', { exemptTagContexts: [
+                { tag: 'property', types: ['Object.<string, string>'] },
+                { tag: 'property', types: ['?Object.<string, string>'] },
+                { tag: 'property', types: ['Object.<string, LogMethod>'] },
+                { tag: 'param', types: ['Object.<string, string>'] },
+                { tag: 'param', types: ['?Object.<string, string>'] },
+                { tag: 'returns', types: ['Object.<string, string>'] }
+            ]}],
             'jsdoc/require-param': 'error',
             'jsdoc/require-param-description': 'warn',
             'jsdoc/require-param-type': 'error',

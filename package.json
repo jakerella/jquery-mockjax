@@ -3,7 +3,7 @@
   "title": "jQuery Mockjax",
   "version": "3.0.0",
   "main": "./dist/jquery.mockjax.js",
-  "module": "./src/index.mjs",
+  "module": "./src/attach.mjs",
   "description": "The jQuery Mockjax Plugin provides a simple and extremely flexible interface for mocking or simulating ajax requests and responses.",
   "url": "https://github.com/jakerella/jquery-mockjax",
   "keywords": [
@@ -55,6 +55,7 @@
     "lint:fix": "npx eslint --fix",
     "style": "npx prettier --write 'src/**/*.mjs'",
     "style:check": "npx prettier --check 'src/**/*.mjs'",
+    "docs": "npx jsdoc -c jsdoc.config.json",
     "watch:build": "npx npm-watch build",
     "watch:test": "npx npm-watch test:unit"
   },
@@ -85,6 +86,8 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsdoc": "^62.8.0",
     "http-server": "^14.1.1",
+    "jsdoc": "^4.0.5",
+    "jsdoc-tsimport-plugin": "^1.0.5",
     "jsdom": "^28.1.0",
     "npm-watch": "^0.13.0",
     "prettier": "^3.8.1",

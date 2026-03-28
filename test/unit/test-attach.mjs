@@ -6,14 +6,14 @@ import { getJQuery } from '../../src/lib.mjs'
 const it = QUnit.test
 let $ = getJQuery(getJQueryMock())
 
-import { init, mockjax } from '../../src/index.mjs'
+import { init, mockjax } from '../../src/attach.mjs'
 import { mockAjaxCall } from '../../src/core.mjs'
 import { getSettings } from '../../src/settings.mjs'
 
 
 
 /* ----------------- */
-QUnit.module('Index: init', {
+QUnit.module('Attach: init', {
     beforeEach: () => {
         $ = getJQuery(getJQueryMock())
     }

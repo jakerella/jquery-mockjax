@@ -20,8 +20,8 @@ const banner = `/*!
 export default () => {
     return {
         entry: {
-            'jquery.mockjax': path.resolve(import.meta.dirname, 'src', 'index.mjs'),
-            'jquery.mockjax.min': path.resolve(import.meta.dirname, 'src', 'index.mjs'),
+            'jquery.mockjax': path.resolve(import.meta.dirname, 'src', 'attach.mjs'),
+            'jquery.mockjax.min': path.resolve(import.meta.dirname, 'src', 'attach.mjs'),
         },
         output: {
             path: path.resolve(import.meta.dirname, 'dist'),
