@@ -32,7 +32,7 @@
 
 /**
  * A simple function which takes no arguments and returns no value
- * @function SimpleFn
+ * @function VoidMethod
  * @returns {void}
  */
 
@@ -135,6 +135,28 @@
  * @returns {string} The header names and values, delimited by newlines ("one: value\ntwo: other")
  */
 
+/* eslint-disable */
+/**
+ * The main Mockjax object, which is also a function for registering
+ * new mock ajax handlers.
+ * @typedef {object} Mockjax
+ * @property {function} getLogger A method to retrieve the Mockjax logger (typically only used internally)
+ * @property {function} getSettings A method to retrieve the current Mockjax global settings (same as accessing $.mockjaxSettings)
+ * @property {function} resetSettings A method to reset the Mockjax global settings to their defaults
+ * @property {function} validateSettings A method to validate the current Mockjax global settings
+ * @property {function} clear Deprecated, use one of the specific ClearByXx() methods
+ * @property {function} clearById A method to clear a single mock handler by its ID
+ * @property {function} clearByUrl A method to clear all mock handlers matching a URL
+ * @property {function} clearAll A method to clear all currently registered mock handlers
+ * @property {function} handler Deprecated, use handlers() with an array of size 1
+ * @property {function} handlers A method to retrieve clones of mock handlers by an array of IDs
+ * @property {function} unfiredHandlers A method to retrieve an array of all mock handlers not yet matched by an ajax call
+ * @property {function} mockedAjaxCalls A method to retrieve the settings for all ajax calls that have been mocked
+ * @property {function} unmockedAjaxCalls A method to retrieve the settings for all ajax calls that have NOT been mocked
+ * @property {function} clearRetainedAjaxCalls A method to clear all ajax calls that have been retained, regardless of mock status
+ */
+/* eslint-enable */
+
 /**
  * Global configuration settings for mockjax
  * @typedef {object} MockjaxSettings
@@ -225,9 +247,9 @@
  * @property {number} status The mocked HTTP status code
  * @property {string} statusText The mocked HTTP status text
  * @property {ReadyState} readyState The state of the mock XHR
- * @property {SimpleFn} open For mocked calls this is a no-op function
- * @property {SimpleFn} send For mocked calls, this will execute a mocked XHR send and sets the "fired" property to true (takes no arguments)
- * @property {SimpleFn} abort For mocked calls, this will clear the timeout that has been set (takes no arguments)
+ * @property {VoidMethod} open For mocked calls this is a no-op function
+ * @property {VoidMethod} send For mocked calls, this will execute a mocked XHR send and sets the "fired" property to true (takes no arguments)
+ * @property {VoidMethod} abort For mocked calls, this will clear the timeout that has been set (takes no arguments)
  * @property {SetHeader} setRequestHeader Sets a single mocked request header (accepts header and value as arguments)
  * @property {GetHeader} getResponseHeader Retreives a single mocked header (accepts header name as argument)
  * @property {GetHeaders} getAllResponseHeaders Retrieves all mocked request headers as "name: value", separated by newlines (accepts no arguments)

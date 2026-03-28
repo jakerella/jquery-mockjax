@@ -50,6 +50,7 @@ let mockCrypto = null
  * for dependency injection as necessary in our tests
  * @param {object} mockJQueryFn A mock jQuery function to use for testing
  * @returns {object} Either the real jQuery from the global scope or the Mock
+ * @throws {Error} If jQuery not available
  */
 function getJQuery(mockJQueryFn) {
     if (mockJQueryFn) {
@@ -72,6 +73,7 @@ function getJQuery(mockJQueryFn) {
  * of a mock instance for use in tests.
  * @param {object} mockDOMParserObject A mock DOMParser for use in tests
  * @returns {object} Either the real DOMParser from the global scope or the Mock
+ * @throws {Error} If DOMParser not available
  */
 function getDOMParser(mockDOMParserObject) {
     if (mockDOMParserObject) {
@@ -83,13 +85,11 @@ function getDOMParser(mockDOMParserObject) {
     } else if (mockDOMParser) {
         return mockDOMParser
     } else {
-        setTimeout(() => {
-            if (mockDOMParser) {
-                return mockDOMParser
-            } else {
-                throw new Error('DOMParser not available!')
-            }
-        }, 0)
+        if (mockDOMParser) {
+            return mockDOMParser
+        } else {
+            throw new Error('DOMParser not available!')
+        }
     }
 }
 
@@ -98,6 +98,7 @@ function getDOMParser(mockDOMParserObject) {
  * of a mock instance for use in tests.
  * @param {object} mockCryptoObject A mock crypto for use in tests
  * @returns {object} Either the real crypto from the global scope or the Mock
+ * @throws {Error} If crypto not available
  */
 function getCrypto(mockCryptoObject) {
     if (mockCryptoObject) {
@@ -1843,6 +1844,12 @@ function copyUrlParameters(mockHandler, requestSettings) {
  */
 
 
+/**
+ * @typedef {import('./typedefs.mjs').Mockjax} Mockjax
+ */
+
+
+
 
 
 
@@ -1870,6 +1877,15 @@ function copyUrlParameters(mockHandler, requestSettings) {
     getLogger: getLogger
 });
 
+/**
+ * A simple function to attach the mockjax object to jQuery along
+ * with the full public API. This initialization will also switch
+ * the default jQuery.ajax() method with our own mock implementation.
+ * NOTE: this method is called automatically when "$" is available
+ * globally, there is no need to call it outside of importing it 
+ * directly (such as for tests).
+ * @returns {Mockjax} Mockjax The main mockjax function/object
+ */
 function init() {
     const jq = getJQuery()
 
@@ -1879,6 +1895,7 @@ function init() {
     jq.mockjaxSettings = getSettings()
     jq.mockjax = registerMockjaxHandler
     jq.mockjax.getLogger = getLogger
+    jq.mockjax.getSettings = getSettings
     jq.mockjax.resetSettings = resetSettings
     jq.mockjax.validateSettings = validateSettings
     jq.mockjax.clear = clear

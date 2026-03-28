@@ -9,6 +9,7 @@ let mockCrypto = null
  * for dependency injection as necessary in our tests
  * @param {object} mockJQueryFn A mock jQuery function to use for testing
  * @returns {object} Either the real jQuery from the global scope or the Mock
+ * @throws {Error} If jQuery not available
  */
 export function getJQuery(mockJQueryFn) {
     if (mockJQueryFn) {
@@ -31,6 +32,7 @@ export function getJQuery(mockJQueryFn) {
  * of a mock instance for use in tests.
  * @param {object} mockDOMParserObject A mock DOMParser for use in tests
  * @returns {object} Either the real DOMParser from the global scope or the Mock
+ * @throws {Error} If DOMParser not available
  */
 export function getDOMParser(mockDOMParserObject) {
     if (mockDOMParserObject) {
@@ -42,13 +44,11 @@ export function getDOMParser(mockDOMParserObject) {
     } else if (mockDOMParser) {
         return mockDOMParser
     } else {
-        setTimeout(() => {
-            if (mockDOMParser) {
-                return mockDOMParser
-            } else {
-                throw new Error('DOMParser not available!')
-            }
-        }, 0)
+        if (mockDOMParser) {
+            return mockDOMParser
+        } else {
+            throw new Error('DOMParser not available!')
+        }
     }
 }
 
@@ -57,6 +57,7 @@ export function getDOMParser(mockDOMParserObject) {
  * of a mock instance for use in tests.
  * @param {object} mockCryptoObject A mock crypto for use in tests
  * @returns {object} Either the real crypto from the global scope or the Mock
+ * @throws {Error} If crypto not available
  */
 export function getCrypto(mockCryptoObject) {
     if (mockCryptoObject) {

@@ -3,6 +3,12 @@
  * @module mockjax
  */
 
+
+/**
+ * @typedef {import('./typedefs.mjs').Mockjax} Mockjax
+ */
+
+
 import { getJQuery } from './lib.mjs'
 import { getSettings, resetSettings, validateSettings } from './settings.mjs'
 import { getLogger } from './logger.mjs'
@@ -61,6 +67,15 @@ export default {
     getLogger
 }
 
+/**
+ * A simple function to attach the mockjax object to jQuery along
+ * with the full public API. This initialization will also switch
+ * the default jQuery.ajax() method with our own mock implementation.
+ * NOTE: this method is called automatically when "$" is available
+ * globally, there is no need to call it outside of importing it 
+ * directly (such as for tests).
+ * @returns {Mockjax} Mockjax The main mockjax function/object
+ */
 function init() {
     const jq = getJQuery()
 
@@ -70,6 +85,7 @@ function init() {
     jq.mockjaxSettings = getSettings()
     jq.mockjax = registerMockjaxHandler
     jq.mockjax.getLogger = getLogger
+    jq.mockjax.getSettings = getSettings
     jq.mockjax.resetSettings = resetSettings
     jq.mockjax.validateSettings = validateSettings
     jq.mockjax.clear = clear
