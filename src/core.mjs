@@ -13,25 +13,13 @@
  * @typedef {import('./typedefs.mjs').jqXHR} jqXHR
  */
 
-// import { getLogger } from './logger.js'
+import { getLogger } from './logger.mjs'
 import { getSettings, validateSettings } from './settings.mjs'
 import { generateUUID, deepClone } from './utils.mjs'
 import { findMatchingHandler } from './matching.mjs'
 import { processJsonpMock } from './jsonp.mjs'
 import { createMockXHR } from './xhr.mjs'
 import { getJQuery } from './lib.mjs'
-
-/**
- * Make a real jquery ajax() call, ignoring any mock handling
- * @private
- * @param {(string | JQueryAjaxSettings)} url - The request URL or ajax settings object
- * @param {?JQueryAjaxSettings} settings - Optionally pass in jQuery Ajax settings (can also be passed as the first argument)
- * @returns {jqXHR} The jQuery Ajax XHR object
- */
-export function realAjaxCall(url, settings) {
-    const jq = getJQuery()
-    return jq._ajax.apply(jq, [url, settings])
-}
 
 /**
  * Array of registered mock handlers
@@ -57,6 +45,19 @@ const mockHandlerLookup = {}
 const retainedAjaxCalls = []
 
 let settingsValidated = false
+
+/**
+ * Make a real jquery ajax() call, ignoring any mock handling
+ * @private
+ * @param {(string | JQueryAjaxSettings)} url - The request URL or ajax settings object
+ * @param {?JQueryAjaxSettings} settings - Optionally pass in jQuery Ajax settings (can also be passed as the first argument)
+ * @returns {jqXHR} The jQuery Ajax XHR object
+ */
+export function realAjaxCall(url, settings) {
+    const jq = getJQuery()
+    getLogger().debug(`Calling real jQuery ajax method on ${url}`)
+    return jq._ajax.apply(jq, [url, settings])
+}
 
 /**
  * Register a mock AJAX handler
@@ -100,8 +101,7 @@ export function registerMockjaxHandler(options) {
     mockHandlers.push(mockHhandler)
     mockHandlerLookup[mockHhandler.id] = mockHhandler
 
-    // TODO: update me
-    // console.debug('Registered new handler:', {...handler})
+    getLogger().info('Registered new mock handler:', { ...mockHhandler })
 
     return mockHhandler.id
 }
@@ -157,7 +157,6 @@ export function mockAjaxCall(url, origSettings) {
     mockHandler.fired = true
 
     // HTTP Redirect handling
-    // TODO: make this work for other 300's and methods
     if (
         (mockHandler.status === 301 || mockHandler.status === 302) &&
         getSettings().followRedirects === true &&
@@ -193,11 +192,6 @@ export function mockAjaxCall(url, origSettings) {
     // aggressively pursues this if the domains don't match, so we need to
     // explicitly disallow it. (See #136)
     requestSettings.crossDomain = false
-
-    // TODO: Do we need these in the mock handler?
-    // mockHandler.cache = requestSettings.cache;
-    // mockHandler.timeout = requestSettings.timeout;
-    // mockHandler.global = requestSettings.global;
 
     // In the case of a timeout, we need to ensure an actual jQuery timeout
     // (That is, our reponse won't) return faster than the timeout setting.
@@ -241,10 +235,9 @@ export function mockAjaxCall(url, origSettings) {
  * @returns {void}
  */
 export function clear(mechanism) {
-    // TODO: update to use logger
-    // console.warn(
-    //     'The clear() method is deprecated. Use clearAll(), clearById(), or clearByUrl() instead.'
-    // )
+    getLogger().warn(
+        'The clear() method is deprecated. Use clearAll(), clearById(), or clearByUrl() instead.'
+    )
 
     // Clear all handlers
     if (mechanism === undefined) {
@@ -360,8 +353,7 @@ export function handlers(ids) {
  * @returns {(MockHandler|null)} Handler or null
  */
 export function handler(id) {
-    // TODO: update to use logger
-    // console.warn('The handler(id) method is deprecated. Use handlers([id]) instead.')
+    getLogger().warn('The handler(id) method is deprecated. Use handlers([id]) instead.')
     return handlers([id])[0]
 }
 
@@ -646,10 +638,7 @@ function redirectMockedRequest(mockHandler, requestSettings) {
 
     const redirectSettings = getJQuery().ajaxSetup({}, requestSettings)
     redirectSettings.url = newUrl
-    redirectSettings.headers = {
-        // TODO: do 300's keep original headers? (this is what is in the v2.7 codebase)
-        Referer: requestSettings.url
-    }
+    redirectSettings.headers = { Referer: requestSettings.url }
 
     // Revert mockjax tracking for redirect
     redirectSettings.mocked = false

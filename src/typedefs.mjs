@@ -155,7 +155,7 @@
 /* eslint-disable jsdoc/valid-types */
 /**
  * The main Mockjax object, which is also a function for registering
- * new mock ajax handlers. The attached functions below are the 
+ * new mock ajax handlers. The attached functions below are the
  * public interface for Mockjax
  * @typedef {object} Mockjax
  * @property {function} getSettings A method to retrieve the current Mockjax global settings (same as accessing $.mockjaxSettings)

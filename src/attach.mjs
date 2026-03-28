@@ -4,11 +4,9 @@
  * @module attach
  */
 
-
 /**
  * @typedef {import('./typedefs.mjs').Mockjax} Mockjax
  */
-
 
 import { getJQuery } from './lib.mjs'
 import { getSettings, resetSettings, validateSettings } from './settings.mjs'
@@ -73,11 +71,12 @@ export default {
  * with the full public API. This initialization will also switch
  * the default jQuery.ajax() method with our own mock implementation.
  * NOTE: this method is called automatically when "$" is available
- * globally, there is no need to call it outside of importing it 
+ * globally, there is no need to call it outside of importing it
  * directly (such as for tests).
  * @returns {Mockjax} Mockjax The main mockjax function/object
  */
 function init() {
+    getLogger().info('Initializing Mockjax and adding methods to jQuery')
     const jq = getJQuery()
 
     jq._ajax = jq.ajax

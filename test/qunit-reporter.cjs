@@ -18,6 +18,7 @@ if (IS_WINDOWS) {
 }
 process.stdout.write(`${COLORS.reset}\n`)
 
+let moduleChain = []
 const modulesStarted = new Set()
 const moduleErrors = []
 let testErrors = []
@@ -27,7 +28,13 @@ let skippedTests = 0
 
 function begin(context) {
     reset()
-    process.stdout.write(`${COLORS.white}Starting test suite, running ${context.totalTests} Tests across ${context.modules?.length || 'all'} Modules\n`)
+
+    let moduleCount = context.modules.length
+    context.modules.forEach(module => {
+        moduleCount += module.childSuites.length
+    })
+
+    process.stdout.write(`${COLORS.white}Starting test suite, running ${context.totalTests} Tests across ${moduleCount} Modules\n`)
 }
 
 function moduleStart(context) {
@@ -36,7 +43,13 @@ function moduleStart(context) {
     } else {
         modulesStarted.add(context.name)
     }
-    process.stdout.write(`${COLORS.gray}  Module: ${UNDERLINE}${context.name}${COLORS.reset} `)
+
+    moduleChain.push(context.name)
+
+    if (context.tests.length) {
+        let name = moduleChain.join(': ')
+        process.stdout.write(`${COLORS.gray}  Module: ${UNDERLINE}${name}${COLORS.reset} `)
+    }
 }
 
 function testDone(context) {
@@ -72,17 +85,18 @@ function log(context) {
 }
 
 function moduleDone(context) {
+    moduleChain.pop()
     if (context.failed) {
         const msg = `${testErrors.join('\n')}${COLORS.reset}`
         moduleErrors.push(msg)
     }
     testErrors = []
-    process.stdout.write('\n')
+    if (context.tests.length) {
+        process.stdout.write('\n')
+    }
 }
 
 function done(context) {
-    process.stdout.write('\n')
-
     if (moduleErrors.length > 0) {
         for (let idx = 0; idx < moduleErrors.length; idx++) {
             process.stderr.write(`${moduleErrors[idx]}\n\n`)

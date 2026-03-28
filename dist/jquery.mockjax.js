@@ -184,11 +184,16 @@ const mocks = {
  * Reset global Mockjax settings to their defaults
  * @public
  * @global
+ * @param {boolean} maintainLogger Whether or not to maintain the logger instance when resetting global settings
  * @returns {MockjaxSettings} The (reset) global mockjax settings
  */
-function resetSettings() {
+function resetSettings(maintainLogger = false) {
     const jq = getJQuery()
-    jq.mockjaxSettings = { ...DEFAULTS }
+    let logger = null
+    if (maintainLogger === true) {
+        logger = getSettings().logger
+    }
+    jq.mockjaxSettings = { ...DEFAULTS, logger }
     return jq.mockjaxSettings
 }
 
@@ -337,6 +342,7 @@ const DEFAULT_LOG_LEVEL = 2
 const DEFAULT_LOG_LEVEL_METHODS = ['error', 'warn', 'info', 'log', 'debug']
 
 class Logger {
+    #disabled = false
     #level = DEFAULT_LOG_LEVEL
     #methods = DEFAULT_LOG_LEVEL_METHODS
     constructor(level, methods) {
@@ -349,12 +355,22 @@ class Logger {
         })
     }
 
+    disable() {
+        this.#disabled = true
+    }
+    enable() {
+        this.#disabled = false
+    }
+    isDisabled() {
+        return this.#disabled
+    }
+
     getLevel() {
         return this.#level
     }
 
     #writeLog(level, ...elements) {
-        if (this.#methods.indexOf(level) > this.#level) {
+        if (this.#disabled || this.#methods.indexOf(level) > this.#level) {
             return
         }
         const root = typeof __webpack_require__.g !== 'undefined' ? __webpack_require__.g : window
@@ -1226,7 +1242,6 @@ function triggerComplete(requestSettings, callbackContext) {
  * @typedef {import('./typedefs.mjs').jqXHR} jqXHR
  */
 
-// import { getLogger } from './logger.js'
 
 
 
@@ -1234,17 +1249,6 @@ function triggerComplete(requestSettings, callbackContext) {
 
 
 
-/**
- * Make a real jquery ajax() call, ignoring any mock handling
- * @private
- * @param {(string | JQueryAjaxSettings)} url - The request URL or ajax settings object
- * @param {?JQueryAjaxSettings} settings - Optionally pass in jQuery Ajax settings (can also be passed as the first argument)
- * @returns {jqXHR} The jQuery Ajax XHR object
- */
-function realAjaxCall(url, settings) {
-    const jq = getJQuery()
-    return jq._ajax.apply(jq, [url, settings])
-}
 
 /**
  * Array of registered mock handlers
@@ -1270,6 +1274,19 @@ const mockHandlerLookup = {}
 const retainedAjaxCalls = []
 
 let settingsValidated = false
+
+/**
+ * Make a real jquery ajax() call, ignoring any mock handling
+ * @private
+ * @param {(string | JQueryAjaxSettings)} url - The request URL or ajax settings object
+ * @param {?JQueryAjaxSettings} settings - Optionally pass in jQuery Ajax settings (can also be passed as the first argument)
+ * @returns {jqXHR} The jQuery Ajax XHR object
+ */
+function realAjaxCall(url, settings) {
+    const jq = getJQuery()
+    getLogger().debug(`Calling real jQuery ajax method on ${url}`)
+    return jq._ajax.apply(jq, [url, settings])
+}
 
 /**
  * Register a mock AJAX handler
@@ -1313,8 +1330,7 @@ function registerMockjaxHandler(options) {
     mockHandlers.push(mockHhandler)
     mockHandlerLookup[mockHhandler.id] = mockHhandler
 
-    // TODO: update me
-    // console.debug('Registered new handler:', {...handler})
+    getLogger().info('Registered new mock handler:', { ...mockHhandler })
 
     return mockHhandler.id
 }
@@ -1370,7 +1386,6 @@ function mockAjaxCall(url, origSettings) {
     mockHandler.fired = true
 
     // HTTP Redirect handling
-    // TODO: make this work for other 300's and methods
     if (
         (mockHandler.status === 301 || mockHandler.status === 302) &&
         getSettings().followRedirects === true &&
@@ -1406,11 +1421,6 @@ function mockAjaxCall(url, origSettings) {
     // aggressively pursues this if the domains don't match, so we need to
     // explicitly disallow it. (See #136)
     requestSettings.crossDomain = false
-
-    // TODO: Do we need these in the mock handler?
-    // mockHandler.cache = requestSettings.cache;
-    // mockHandler.timeout = requestSettings.timeout;
-    // mockHandler.global = requestSettings.global;
 
     // In the case of a timeout, we need to ensure an actual jQuery timeout
     // (That is, our reponse won't) return faster than the timeout setting.
@@ -1454,10 +1464,9 @@ function mockAjaxCall(url, origSettings) {
  * @returns {void}
  */
 function clear(mechanism) {
-    // TODO: update to use logger
-    // console.warn(
-    //     'The clear() method is deprecated. Use clearAll(), clearById(), or clearByUrl() instead.'
-    // )
+    getLogger().warn(
+        'The clear() method is deprecated. Use clearAll(), clearById(), or clearByUrl() instead.'
+    )
 
     // Clear all handlers
     if (mechanism === undefined) {
@@ -1573,8 +1582,7 @@ function handlers(ids) {
  * @returns {(MockHandler|null)} Handler or null
  */
 function handler(id) {
-    // TODO: update to use logger
-    // console.warn('The handler(id) method is deprecated. Use handlers([id]) instead.')
+    getLogger().warn('The handler(id) method is deprecated. Use handlers([id]) instead.')
     return handlers([id])[0]
 }
 
@@ -1859,10 +1867,7 @@ function redirectMockedRequest(mockHandler, requestSettings) {
 
     const redirectSettings = getJQuery().ajaxSetup({}, requestSettings)
     redirectSettings.url = newUrl
-    redirectSettings.headers = {
-        // TODO: do 300's keep original headers? (this is what is in the v2.7 codebase)
-        Referer: requestSettings.url
-    }
+    redirectSettings.headers = { Referer: requestSettings.url }
 
     // Revert mockjax tracking for redirect
     redirectSettings.mocked = false
@@ -1911,11 +1916,9 @@ function copyUrlParameters(mockHandler, requestSettings) {
  * @module attach
  */
 
-
 /**
  * @typedef {import('./typedefs.mjs').Mockjax} Mockjax
  */
-
 
 
 
@@ -1950,11 +1953,12 @@ function copyUrlParameters(mockHandler, requestSettings) {
  * with the full public API. This initialization will also switch
  * the default jQuery.ajax() method with our own mock implementation.
  * NOTE: this method is called automatically when "$" is available
- * globally, there is no need to call it outside of importing it 
+ * globally, there is no need to call it outside of importing it
  * directly (such as for tests).
  * @returns {Mockjax} Mockjax The main mockjax function/object
  */
 function init() {
+    getLogger().info('Initializing Mockjax and adding methods to jQuery')
     const jq = getJQuery()
 
     jq._ajax = jq.ajax

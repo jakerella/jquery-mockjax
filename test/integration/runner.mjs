@@ -49,8 +49,6 @@ Running Mockjax v${metadata.version} test suite with jQuery version(s): ${versio
         console.error(`\nTESTING ERROR: ${err.message || err}\n`)
     }
 
-    // TODO: capture test output overviews and collect them at the end
-
     process.exit(0)
 
     function getPackageJSON(filepath) {

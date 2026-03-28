@@ -62,11 +62,16 @@ export const mocks = {
  * Reset global Mockjax settings to their defaults
  * @public
  * @global
+ * @param {boolean} maintainLogger Whether or not to maintain the logger instance when resetting global settings
  * @returns {MockjaxSettings} The (reset) global mockjax settings
  */
-export function resetSettings() {
+export function resetSettings(maintainLogger = false) {
     const jq = getJQuery()
-    jq.mockjaxSettings = { ...DEFAULTS }
+    let logger = null
+    if (maintainLogger === true) {
+        logger = getSettings().logger
+    }
+    jq.mockjaxSettings = { ...DEFAULTS, logger }
     return jq.mockjaxSettings
 }
 

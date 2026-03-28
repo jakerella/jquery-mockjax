@@ -14,6 +14,7 @@ const DEFAULT_LOG_LEVEL = 2
 export const DEFAULT_LOG_LEVEL_METHODS = ['error', 'warn', 'info', 'log', 'debug']
 
 class Logger {
+    #disabled = false
     #level = DEFAULT_LOG_LEVEL
     #methods = DEFAULT_LOG_LEVEL_METHODS
     constructor(level, methods) {
@@ -26,12 +27,22 @@ class Logger {
         })
     }
 
+    disable() {
+        this.#disabled = true
+    }
+    enable() {
+        this.#disabled = false
+    }
+    isDisabled() {
+        return this.#disabled
+    }
+
     getLevel() {
         return this.#level
     }
 
     #writeLog(level, ...elements) {
-        if (this.#methods.indexOf(level) > this.#level) {
+        if (this.#disabled || this.#methods.indexOf(level) > this.#level) {
             return
         }
         const root = typeof global !== 'undefined' ? global : window
