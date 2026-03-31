@@ -14,6 +14,7 @@
 import { realAjaxCall } from './core.mjs'
 import { determineResponseTime } from './xhr.mjs'
 import { getJQuery } from './lib.mjs'
+import { getLogger } from './logger.mjs'
 
 const CALLBACK_REGEX = /=\?(&|$)/
 const URL_PROTOCOL_REGEX = /^(\w+:)?\/\/([^\/?#]+)/
@@ -29,6 +30,8 @@ let jsonpCallbackCounter = Date.now()
  * @returns {Deferred | boolean | null} Deferred object or true if handled, or null if not handled
  */
 export function processJsonpMock(requestSettings, mockHandler, origSettings) {
+    getLogger().log(``)
+    
     appendCallbackParameter(requestSettings)
 
     requestSettings.dataType = 'json'
@@ -136,15 +139,20 @@ function isRemoteRequest(url) {
  * @returns {object | null} jQuery Deferred object or null
  */
 function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
+    getLogger().log('Performing JSONP request', mockHandler, requestSettings, origSettings)
+    
     const jq = getJQuery()
     const callbackContext = origSettings?.context || requestSettings
     const deferred = jq.Deferred ? new jq.Deferred() : null
 
     if (typeof mockHandler.response === 'function') {
+        getLogger().debug(`Calling dynamic "response" function for JSONP mock handler`, mockHandler)
         mockHandler.response(origSettings)
     } else if (typeof mockHandler.responseText === 'object') {
+        getLogger().debug(`Performing eval on JSONP mock responseText object`, mockHandler)
         jq.globalEval(`(${JSON.stringify(mockHandler.responseText)})`)
     } else if (mockHandler.proxy) {
+        getLogger().debug(`Performing JSONP proxy request to:  ${mockHandler.proxy}`, mockHandler)
         realAjaxCall({
             global: false,
             url: mockHandler.proxy,
@@ -159,6 +167,7 @@ function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
         })
         return deferred
     } else {
+        getLogger().debug(`Performing eval on JSONP mock responseText string`, mockHandler)
         const responseValue =
             typeof mockHandler.responseText === 'string'
                 ? `"${mockHandler.responseText}"`
@@ -194,6 +203,10 @@ function completeJsonpCall(requestSettings, mockHandler, callbackContext, deferr
                 /* we're okay if this fails, just send back the raw responseText */
             }
 
+            getLogger().debug(
+                `Resolving JSONP Deferred object with response`,
+                json || mockHandler.responseText
+            )
             deferred.resolveWith(callbackContext, [json || mockHandler.responseText])
         }
     }, delay)

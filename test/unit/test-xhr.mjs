@@ -4,6 +4,7 @@ import QUnit from 'qunit'
 import { getSettings, resetSettings } from '../../src/settings.mjs'
 import { getJQuery, getDOMParser } from '../../src/lib.mjs'
 import { getJQueryMock, MockDOMParser } from './mocks.mjs'
+import { getLogger } from '../../src/logger.mjs'
 
 // Initialize jQuery to the mock for this and any imported modules
 getJQuery(getJQueryMock())
@@ -14,7 +15,10 @@ const it = QUnit.test
 
 import { createMockXHR, determineResponseTime, READYSTATE } from '../../src/xhr.mjs'
 
-QUnit.module('XHR', () => {
+QUnit.module('XHR', (hooks) => {
+    hooks.before(() => {
+        getLogger().disable()
+    })
 
     QUnit.module('READYSTATE constants', () => {
 

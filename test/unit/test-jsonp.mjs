@@ -2,6 +2,7 @@
 import QUnit from 'qunit'
 import { getJQueryMock } from './mocks.mjs'
 import { getJQuery } from '../../src/lib.mjs'
+import { getLogger } from '../../src/logger.mjs'
 
 // Initialize jQuery to the mock for this and any imported modules
 let $ = getJQuery(getJQueryMock())
@@ -22,7 +23,11 @@ function removeJSONPCallbacks() {
 
 import { processJsonpMock } from '../../src/jsonp.mjs'
 
-QUnit.module('JSONP', () => {
+QUnit.module('JSONP', (hooks) => {
+    hooks.before(() => {
+        getLogger().disable()
+    })
+
     QUnit.module('processJsonpMock - basic functionality', (hooks) => {
         hooks.beforeEach(() => { setMockWindow() })
         hooks.afterEach(() => {

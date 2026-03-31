@@ -3,6 +3,7 @@ import QUnit from 'qunit'
 import { getSettings, resetSettings } from '../../src/settings.mjs'
 import { getJQueryMock } from './mocks.mjs'
 import { getJQuery } from '../../src/lib.mjs'
+import { getLogger } from '../../src/logger.mjs'
 
 // Initialize jQuery to the mock for this and any imported modules
 getJQuery(getJQueryMock())
@@ -17,7 +18,10 @@ import {
     findMatchingHandler
 } from '../../src/matching.mjs'
 
-QUnit.module('Matching', () => {
+QUnit.module('Matching', (hooks) => {
+    hooks.before(() => {
+        getLogger().disable()
+    })
 
     QUnit.module('matchMethod', () => {
 

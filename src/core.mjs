@@ -55,7 +55,7 @@ let settingsValidated = false
  */
 export function realAjaxCall(url, settings) {
     const jq = getJQuery()
-    getLogger().debug(`Calling real jQuery ajax method on ${url}`)
+    getLogger().debug(`Calling jQuery ajax method on ${url}`)
     return jq._ajax.apply(jq, [url, settings])
 }
 
@@ -101,7 +101,7 @@ export function registerMockjaxHandler(options) {
     mockHandlers.push(mockHhandler)
     mockHandlerLookup[mockHhandler.id] = mockHhandler
 
-    getLogger().info('Registered new mock handler:', { ...mockHhandler })
+    getLogger().info('Registered new mock handler:', mockHhandler)
 
     return mockHhandler.id
 }
@@ -138,6 +138,8 @@ export function mockAjaxCall(url, origSettings) {
     requestSettings.type = requestSettings.method || requestSettings.type
     requestSettings.method = requestSettings.type
 
+    getLogger().debug('Ajax call intercepted:', requestSettings.url, origSettings)
+
     const mockHandler = findMatchingHandler(mockHandlers, requestSettings)
 
     requestSettings.mocked = mockHandler ? true : false
@@ -146,6 +148,7 @@ export function mockAjaxCall(url, origSettings) {
     retainAjaxCall(requestSettings)
 
     if (!mockHandler) {
+        getLogger().debug('No mock handler matched to request', requestSettings)
         if (getSettings().throwUnmocked === true) {
             throw new Error(`AJAX not mocked: ${requestSettings.url}`)
         } else {
@@ -166,6 +169,12 @@ export function mockAjaxCall(url, origSettings) {
     ) {
         return redirectMockedRequest(mockHandler, requestSettings)
     }
+
+    getLogger().info(
+        `Mocking ${requestSettings.method.toUpperCase()} call to ${requestSettings.url}`,
+        mockHandler,
+        requestSettings
+    )
 
     if (
         Number(jq.fn.jquery.split('.')[0]) > 3 &&
@@ -264,6 +273,7 @@ export function clearAll() {
         delete mockHandlerLookup[id]
     }
     clearRetainedAjaxCalls(removed)
+    getLogger().log(`Cleared all ${removed.length} mock handlers and retained mocked ajax calls.`)
 }
 
 /**
@@ -280,6 +290,7 @@ export function clearById(id) {
             mockHandlers.splice(index, 1)
             clearRetainedAjaxCalls([id])
         }
+        getLogger().log(`Cleared mock handler ${id} and retained mocked ajax calls.`)
     }
 }
 
@@ -313,6 +324,7 @@ export function clearByUrl(urlOrPattern) {
     }
     removed.forEach((handlerId) => delete mockHandlerLookup[handlerId])
     clearRetainedAjaxCalls(removed)
+    getLogger().log(`Cleared ${removed.length} mock handlers by URL and retained mocked ajax calls.`)
 }
 
 /**
@@ -399,6 +411,7 @@ export function unmockedAjaxCalls() {
  * @returns {void}
  */
 export function clearRetainedAjaxCalls(mockHandlerIds) {
+    let removeCount = mockHandlerIds?.length || retainedAjaxCalls.length
     if (!mockHandlerIds) {
         retainedAjaxCalls.length = 0
     } else {
@@ -409,6 +422,7 @@ export function clearRetainedAjaxCalls(mockHandlerIds) {
             }
         }
     }
+    getLogger().log(`Cleared ${removeCount} retained ajax calls.`)
 }
 
 /**************************************/
@@ -597,11 +611,14 @@ function retainAjaxCall(ajaxSettings) {
         return
     }
 
-    retainedAjaxCalls.push({ ...ajaxSettings, timestamp: Date.now() })
+    const settings = { ...ajaxSettings, timestamp: Date.now() }
+    retainedAjaxCalls.push(settings)
+    getLogger().debug(`Retained ${ajaxSettings.mocked ? 'mocked ' : ''}ajax call.`, settings)
 
     if (limit > 0) {
         while (retainedAjaxCalls.length > limit) {
-            retainedAjaxCalls.shift()
+            const removed = retainedAjaxCalls.shift()
+            getLogger().debug(`Removed oldest retained ajax call per "retainAjaxCalls" limit setting.`, removed)
         }
     }
 }
@@ -645,6 +662,13 @@ function redirectMockedRequest(mockHandler, requestSettings) {
     redirectSettings.mockHandlerId = null
     redirectSettings.timestamp = null
 
+    getLogger().log(
+        `Following mock redirect from ${requestSettings.url} to ${newUrl}`,
+        mockHandler,
+        requestSettings,
+        redirectSettings
+    )
+
     return mockAjaxCall(newUrl, redirectSettings)
 }
 
@@ -678,4 +702,11 @@ function copyUrlParameters(mockHandler, requestSettings) {
         urlParams[mockHandler.urlParams[i]] = captures[i]
     }
     requestSettings.urlParams = urlParams
+
+    getLogger().debug(
+        `Added ${Object.keys(urlParams).length} urlParams to requestSettings from path.`,
+        mockHandler.url,
+        requestSettings.url,
+        urlParams
+    )
 }

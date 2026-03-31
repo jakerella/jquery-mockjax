@@ -2,6 +2,7 @@
 import QUnit from 'qunit'
 import { getJQueryMock } from './mocks.mjs'
 import { getJQuery } from '../../src/lib.mjs'
+import { getLogger } from '../../src/logger.mjs'
 
 // Initialize jQuery to the mock for this and any imported modules
 let $ = getJQuery(getJQueryMock())
@@ -18,6 +19,7 @@ QUnit.module('Settings', (hooks) => {
     hooks.beforeEach(() => {
         $ = getJQuery(getJQueryMock())
         resetSettings(true)
+        getLogger().disable()
     })
 
     QUnit.module('getSettings', () => {

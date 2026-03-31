@@ -9,6 +9,7 @@
 
 
 	t('Global settings explicit validation', function(assert) {
+		const expectedErrors = 19
 		assert.throws(
 			() => {
 				$.mockjaxSettings.logger = 'foobar'
@@ -37,7 +38,7 @@
 			(err) => {
 				const errors = err.message.split('\n')
 				assert.ok(err instanceof TypeError, 'Error object should be a TypeError')
-				assert.equal(errors.length, 18, 'There should be 21 line-delimited errors')
+				assert.equal(errors.length, expectedErrors, `There should be ${expectedErrors} line-delimited errors`)
 				assert.ok(/logger/.test(errors[0]), 'The first error should be about the logger')
 				assert.ok(/followRedirects/.test(errors[errors.length-1]), 'The last error should be about the followRedirects')
 				return true

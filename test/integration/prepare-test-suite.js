@@ -113,7 +113,7 @@
 			$.mockjaxSettings.responseTime = 0
 			
 			// Change this if you want more logging on test runs, but it will slow them down
-			$.mockjaxSettings.logging = 1
+			$.mockjaxSettings.logLevel = 1
 
 			// Cache default settings for a quick restore after each test
 			QUnit.defaultMockjaxSettings = {...$.mockjaxSettings}

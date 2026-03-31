@@ -24,9 +24,8 @@
 		}
 	});
 
-	t('Default log handler is window.console and logs info message with default level', function(assert) {
-		assert.equal($.mockjaxSettings.logLevel, 2, 'Default log level is correct')
-
+	t('Default log handler is window.console and logs info message with level 2', function(assert) {
+		$.mockjaxSettings.logLevel = 2
 		const logger = $.mockjax.getLogger()
 
 		logger.debug('foobar debug')

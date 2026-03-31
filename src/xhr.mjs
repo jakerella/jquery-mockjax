@@ -13,6 +13,7 @@
 import { getSettings } from './settings.mjs'
 import { realAjaxCall } from './core.mjs'
 import { getDOMParser, getJQuery } from './lib.mjs'
+import { getLogger } from './logger.mjs'
 
 export const READYSTATE = { unsent: 0, opened: 1, headers: 2, loading: 3, done: 4 }
 
@@ -37,7 +38,7 @@ function _createMockXHR(mockHandler, requestSettings) {
         allMockSettings.headers['content-type'] = allMockSettings.contentType
     }
 
-    return {
+    const mockXHR = {
         status: -1,
         statusText: '',
         readyState: READYSTATE.unsent,
@@ -77,6 +78,12 @@ function _createMockXHR(mockHandler, requestSettings) {
                 .join('\n')
         }
     }
+
+    getLogger().debug(
+        `Generated mock XHR for mocked request to ${requestSettings.url}`,
+        mockXHR
+    )
+    return mockXHR
 }
 
 // Support dependency injection
@@ -119,7 +126,12 @@ function sendXHR(mockHandler, requestSettings) {
     }
 
     if (typeof mockHandler.proxy === 'string' && mockHandler.proxy.length) {
-        // We're proxying this request and loading in an external file instead
+        getLogger().debug(
+            `Sending proxy ajax request for mock data to ${mockHandler.proxy}`,
+            mockHandler,
+            requestSettings
+        )
+
         realAjaxCall({
             global: false,
             url: mockHandler.proxy,
@@ -164,16 +176,20 @@ function sendXHR(mockHandler, requestSettings) {
  * @returns {number} The response time to be used
  */
 export function determineResponseTime(responseTime) {
+    let actualResponseTime = getSettings().responseTime
+
     if (Array.isArray(responseTime) && responseTime.length === 2) {
         const one = Math.max(0, Number(responseTime[0]))
         const two = Math.max(0, Number(responseTime[1]))
         const min = Math.min(one, two)
         const max = Math.max(one, two)
-        return Math.floor(Math.random() * (max - min)) + min
+        actualResponseTime = Math.floor(Math.random() * (max - min)) + min
     } else if (Number(responseTime)) {
-        return Number(responseTime)
+        actualResponseTime = Number(responseTime)
     }
-    return getSettings().responseTime
+
+    getLogger().debug(`Response time for request will be: ${actualResponseTime}`)
+    return actualResponseTime
 }
 
 /**
@@ -224,6 +240,11 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
     } else {
         mockXHR.statusText = String(mockHandler.statusText)
     }
+    
+    getLogger().debug(
+        `Mock response generated for request to ${requestSettings.url}`,
+        mockXHR
+    )
 
     // jQuery 2.0 renamed onreadystatechange to onload
     const onReady = mockXHR.onload || mockXHR.onreadystatechange

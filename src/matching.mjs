@@ -13,6 +13,7 @@
  */
 
 import { getSettings } from './settings.mjs'
+import { getLogger } from './logger.mjs'
 
 /**
  * Find a matching handler for an AJAX request
@@ -81,6 +82,7 @@ export function matchUrl(handlerUrl, requestUrl, namespace) {
         return true
     }
 
+    let result = false
     if (handlerUrl instanceof RegExp) {
         let pattern = handlerUrl
         if (namespace) {
@@ -88,7 +90,7 @@ export function matchUrl(handlerUrl, requestUrl, namespace) {
             const patternSource = handlerUrl.source.replace(/^\^?/, `^(?:${namespace})\/?`)
             pattern = new RegExp(patternSource, handlerUrl.flags)
         }
-        return pattern.test(requestUrl)
+        result = pattern.test(requestUrl)
     } else {
         let effectiveUrlPattern = String(handlerUrl)
 
@@ -100,14 +102,19 @@ export function matchUrl(handlerUrl, requestUrl, namespace) {
         }
 
         if (effectiveUrlPattern.indexOf('*') < 0) {
-            return effectiveUrlPattern === requestUrl
+            result = effectiveUrlPattern === requestUrl
         } else {
             effectiveUrlPattern = effectiveUrlPattern
                 .replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&')
                 .replace(/\*/g, "[A-Za-z0-9\\-\\._~:\\/?#\\[\\]@!\\$&'()*+,;%=]+")
-            return new RegExp(effectiveUrlPattern).test(requestUrl)
+            result = (new RegExp(effectiveUrlPattern)).test(requestUrl)
         }
     }
+
+    if (result) {
+        getLogger().debug(`Mock handler matched URL of request.`, namespace, handlerUrl, requestUrl)
+    }
+    return result
 }
 
 /**
@@ -121,36 +128,33 @@ export function matchData(handlerData, requestData) {
         return true
     }
 
+    let valid = false
+
     if (typeof handlerData === 'function') {
-        return handlerData(requestData)
-    }
+        valid = handlerData(requestData)
 
-    if (handlerData === requestData) {
-        return true
-    }
+    } else if (handlerData === requestData) {
+        valid = true
 
-    if (handlerData instanceof RegExp) {
-        return handlerData.test(String(requestData))
-    }
+    } else if (handlerData instanceof RegExp) {
+        valid = handlerData.test(String(requestData))
 
-    if (typeof handlerData === 'string') {
-        return handlerData === requestData
-    }
+    } else if (typeof handlerData === 'string') {
+        valid = handlerData === requestData
 
-    if (Array.isArray(handlerData)) {
+    } else if (Array.isArray(handlerData)) {
         if (!Array.isArray(requestData) || handlerData.length !== requestData.length) {
-            return false
+            valid = false
+        } else {
+            valid = !handlerData.filter((v) => !requestData.includes(v)).length
         }
-        return !handlerData.filter((v) => !requestData.includes(v)).length
-    }
-
-    let valid = true
-    if (handlerData && typeof handlerData === 'object') {
+    } else if (handlerData && typeof handlerData === 'object') {
         let requestDataObject = requestData
         if (typeof requestDataObject === 'string') {
             requestDataObject = getQueryParams(requestDataObject)
         }
 
+        valid = true
         const keys = Object.keys(handlerData)
         for (let i = 0, l = keys.length; i < l; ++i) {
             const mockValue = handlerData[keys[i]]
@@ -174,6 +178,10 @@ export function matchData(handlerData, requestData) {
             }
         }
     }
+
+    if (valid) {
+        getLogger().debug(`Mock handler matched data of request.`, handlerData, requestData)
+    }
     return valid
 }
 
@@ -191,6 +199,8 @@ export function matchHeaders(handlerHeaders, requestHeaders) {
         return false
     }
 
+    let result = true
+
     const lowercaseRequestHeaders = {}
     Object.keys(requestHeaders || {}).forEach((name) => {
         lowercaseRequestHeaders[name.toLowerCase()] = name
@@ -203,15 +213,18 @@ export function matchHeaders(handlerHeaders, requestHeaders) {
             requestHeaders &&
             requestHeaders[lowercaseRequestHeaders[handlerHeaderNames[i].toLowerCase()]]
         if (typeof mockValue !== 'string') {
-            return false
+            result = false
         } else if (!lowercaseRequestHeaders[handlerHeaderNames[i].toLowerCase()]) {
-            return false
+            result = false
         } else if (mockValue !== actualValue) {
-            return false
+            result = false
         }
     }
 
-    return true
+    if (result) {
+        getLogger().debug(`Mock handler matched headers of request.`, handlerHeaders, requestHeaders)
+    }
+    return result
 }
 
 /**
@@ -221,10 +234,14 @@ export function matchHeaders(handlerHeaders, requestHeaders) {
  * @returns {boolean} True if method matches
  */
 export function matchMethod(handlerMethod, requestMethod) {
-    return (
+    const result = 
         !handlerMethod ||
         String(handlerMethod).toUpperCase() === String(requestMethod).toUpperCase()
-    )
+    
+    if (result) {
+        getLogger().debug(`Mock handler matched method of request.`, handlerMethod, requestMethod)
+    }
+    return result
 }
 
 /* eslint-disable jsdoc/check-types */
