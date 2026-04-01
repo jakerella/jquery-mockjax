@@ -24,7 +24,7 @@ QUnit.module('Settings', (hooks) => {
         getLogger().disable()
     })
 
-    QUnit.module('dependency injection', () => {
+    QUnit.module('getSettings dependency injection', () => {
         it('should use mock method when set', (assert) => {
             const sandbox = sinon.createSandbox()
             const mock = sandbox.fake(function mockGetSettings() { return { foo: 'bar' } })
@@ -80,7 +80,7 @@ QUnit.module('Settings', (hooks) => {
             assert.ok('response' in settings, 'Should have response property')
             assert.ok('responseText' in settings, 'Should have responseText property')
             assert.ok('proxy' in settings, 'Should have proxy property')
-            assert.ok('proxyType' in settings, 'Should have proxyType property')
+            assert.ok('proxyMethod' in settings, 'Should have proxyMethod property')
             assert.ok('responseHeaders' in settings, 'Should have responseHeaders property')
             assert.ok('matchInRegistrationOrder' in settings, 'Should have matchInRegistrationOrder property')
         })
@@ -162,7 +162,7 @@ QUnit.module('Settings', (hooks) => {
                 responseText: 'test',
                 responseXML: '<xml/>',
                 proxy: '/proxy',
-                proxyType: 'POST',
+                proxyMethod: 'POST',
                 lastModified: 'Mon, 01 Jan 2024 00:00:00 GMT',
                 etag: 'abc123',
                 responseHeaders: { 'X-Custom': 'value' },
@@ -191,7 +191,7 @@ QUnit.module('Settings', (hooks) => {
                 response: null,
                 responseXML: null,
                 proxy: null,
-                proxyType: null,
+                proxyMethod: null,
                 lastModified: null,
                 etag: null
             }
@@ -218,7 +218,7 @@ QUnit.module('Settings', (hooks) => {
                 response: null,
                 responseXML: null,
                 proxy: null,
-                proxyType: null,
+                proxyMethod: null,
                 lastModified: null,
                 etag: null
             }
@@ -244,7 +244,7 @@ QUnit.module('Settings', (hooks) => {
                 response: null,
                 responseXML: null,
                 proxy: null,
-                proxyType: null,
+                proxyMethod: null,
                 lastModified: null,
                 etag: null
             }
@@ -270,7 +270,7 @@ QUnit.module('Settings', (hooks) => {
                 response: null,
                 responseXML: null,
                 proxy: null,
-                proxyType: null,
+                proxyMethod: null,
                 lastModified: null,
                 etag: null
             }
@@ -296,7 +296,7 @@ QUnit.module('Settings', (hooks) => {
                 response: null,
                 responseXML: null,
                 proxy: null,
-                proxyType: null,
+                proxyMethod: null,
                 lastModified: null,
                 etag: null
             }
@@ -479,11 +479,31 @@ QUnit.module('Settings', (hooks) => {
         })
 
         it('should throw for non-string proxyType', (assert) => {
+            $.mockjaxSettings.proxyMethod = null
             $.mockjaxSettings.proxyType = 123
             assert.throws(
                 () => validateSettings(),
                 /proxyType/,
                 'Should throw for invalid proxyType'
+            )
+        })
+
+        it('should throw for non-string proxyMethod', (assert) => {
+            $.mockjaxSettings.proxyMethod = 123
+            assert.throws(
+                () => validateSettings(),
+                /proxyMethod/,
+                'Should throw for invalid proxyMethod'
+            )
+        })
+
+        it('should throw if proxyMethod and proxyType set differently', (assert) => {
+            $.mockjaxSettings.proxyMethod = 'GET'
+            $.mockjaxSettings.proxyType = 'POST'
+            assert.throws(
+                () => validateSettings(),
+                /proxy/,
+                'Should throw for mismatched proxyMethod & proxyType'
             )
         })
 
@@ -606,7 +626,7 @@ QUnit.module('Settings', (hooks) => {
             $.mockjaxSettings.response = null
             $.mockjaxSettings.responseXML = null
             $.mockjaxSettings.proxy = null
-            $.mockjaxSettings.proxyType = null
+            $.mockjaxSettings.proxyMethod = null
             $.mockjaxSettings.lastModified = null
             $.mockjaxSettings.etag = null
             validateSettings()
@@ -644,6 +664,7 @@ QUnit.module('Settings', (hooks) => {
         })
 
         it('should accept string proxyType', (assert) => {
+            $.mockjaxSettings.proxyMethod = null
             $.mockjaxSettings.proxyType = 'POST'
             validateSettings()
             assert.ok(true, 'String proxyType should be valid')

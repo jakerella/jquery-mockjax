@@ -153,7 +153,8 @@ const DEFAULTS = {
     responseText: '',
     responseXML: '',
     proxy: null,
-    proxyType: 'GET',
+    proxyType: null, // Deprecated
+    proxyMethod: 'GET',
     lastModified: null,
     etag: 'IJF@H#@923uf8023hFO@I#H#',
     headers: null, // Deprecated
@@ -292,8 +293,21 @@ function validateSettings() {
         messages.push('The proxy setting must be a string or null')
     }
 
-    if (settings.proxyType !== null && typeof settings.proxyType !== 'string') {
+    if (
+        typeof settings.proxyType !== 'undefined' &&
+        settings.proxyType !== null &&
+        typeof settings.proxyType !== 'string'
+    ) {
         messages.push('The proxyType setting must be a string or null')
+    }
+    if (settings.proxyMethod !== null && typeof settings.proxyMethod !== 'string') {
+        messages.push('The proxyMethod setting must be a string or null')
+    } else if (
+        settings.proxyType &&
+        settings.proxyMethod &&
+        settings.proxyMethod !== settings.proxyType
+    ) {
+        messages.push('The proxyType setting should not be used if proxyMethod is set')
     }
 
     if (settings.lastModified !== null && typeof settings.lastModified !== 'string') {
@@ -304,8 +318,8 @@ function validateSettings() {
         messages.push('The etag setting must be a string or null')
     }
 
-    const headersErrMessage =
-        'If no null, the responseHeaders must be a simple object of string keys and values'
+    let headersErrMessage =
+        'If not null, the responseHeaders must be a simple object of string keys and values'
     if (typeof settings.responseHeaders === 'object' && settings.responseHeaders !== null) {
         const badHeaders = Object.keys(settings.responseHeaders).filter(
             (k) => typeof k !== 'string' || typeof settings.responseHeaders[k] !== 'string'
@@ -315,6 +329,19 @@ function validateSettings() {
         }
     } else if (typeof settings.responseHeaders !== null) {
         messages.push(headersErrMessage)
+    } else if (settings.headers) {
+        headersErrMessage =
+            'If not null, the headers must be a simple object of string keys and values'
+        if (typeof settings.headers === 'object' && settings.headers !== null) {
+            const badHeaders = Object.keys(settings.headers).filter(
+                (k) => typeof k !== 'string' || typeof settings.headers[k] !== 'string'
+            )
+            if (badHeaders.length) {
+                messages.push(headersErrMessage)
+            }
+        } else if (typeof settings.headers !== null) {
+            messages.push(headersErrMessage)
+        }
     }
 
     if (typeof settings.matchInRegistrationOrder !== 'boolean') {
@@ -792,9 +819,9 @@ function _createMockXHR(mockHandler, requestSettings) {
             } else if (header.toLowerCase() === 'last-modified') {
                 return allMockSettings.lastModified || new Date().toString()
             } else if (header.toLowerCase() === 'etag') {
-                return allMockSettings.etag || ''
+                return String(allMockSettings.etag)
             } else if (header.toLowerCase() === 'content-type') {
-                return allMockSettings.contentType || 'text/plain'
+                return allMockSettings.contentType
             }
         },
         getAllResponseHeaders: function () {
@@ -863,8 +890,9 @@ function sendXHR(mockHandler, requestSettings) {
         realAjaxCall({
             global: false,
             url: mockHandler.proxy,
-            type: mockHandler.proxyType || 'GET',
+            type: mockHandler.proxyMethod || mockHandler.proxyType || 'GET',
             data: mockHandler.data,
+            xhr: requestSettings.xhr || null,
             async: false,
             // If the underlying (mocked) ajax request is doing a `script` call,
             // we need to get the script in plain text so it can be run by jQuery later
@@ -958,7 +986,7 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
         statusIndex = Math.floor(Math.random() * mockHandler.status.length)
         mockXHR.status = mockHandler.status[statusIndex]
     } else {
-        mockXHR.status = Number(mockHandler.status) || getSettings().status || 200
+        mockXHR.status = Number(mockHandler.status) || getSettings().status
     }
 
     if (Array.isArray(mockHandler.statusText) && statusIndex > -1) {
@@ -1004,7 +1032,7 @@ function parseXML(xml) {
         }
         return xmlDoc
     } catch (err) {
-        const msg = err.name === undefined ? err : `${err.name}: ${err.message}`
+        const msg = `${err.name}: ${err.message}`
         jq(document).trigger('xmlParseError', [msg])
         throw new TypeError(msg)
     }
@@ -1061,8 +1089,7 @@ function processJsonpMock(requestSettings, mockHandler, origSettings) {
             requestSettings.method.toUpperCase() === 'GET' &&
             isRemoteRequest(requestSettings.url)
         ) {
-            const result = executeJsonpRequest(requestSettings, mockHandler, origSettings)
-            return result || true
+            return executeJsonpRequest(requestSettings, mockHandler, origSettings)
         }
     }
     return null
@@ -1117,13 +1144,7 @@ function createCallback(requestSettings, mockHandler, origSettings, onSuccess, o
         function () {
             onSuccess(requestSettings, callbackContext, mockHandler)
             onComplete(requestSettings, callbackContext)
-
-            window[callbackName] = undefined
-            try {
-                delete window[callbackName]
-            } catch (e) {
-                /* Ignore errors, this may already be gone */
-            }
+            delete window[callbackName]
         }
 
     requestSettings.jsonpCallback = callbackName
@@ -1156,7 +1177,7 @@ function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
 
     const jq = getJQuery()
     const callbackContext = origSettings?.context || requestSettings
-    const deferred = jq.Deferred ? new jq.Deferred() : null
+    const deferred = new jq.Deferred()
 
     if (typeof mockHandler.response === 'function') {
         getLogger().debug(`Calling dynamic "response" function for JSONP mock handler`, mockHandler)
@@ -1169,13 +1190,19 @@ function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
         realAjaxCall({
             global: false,
             url: mockHandler.proxy,
-            type: mockHandler.proxyType,
-            data: mockHandler.data,
+            method: mockHandler.proxyMethod || mockHandler.proxyType || 'GET',
+            data: mockHandler.data || null,
+            xhr: requestSettings.xhr || null,
             dataType:
                 requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
             complete: function (xhr) {
                 jq.globalEval(`(${xhr.responseText})`)
-                completeJsonpCall(requestSettings, mockHandler, callbackContext, deferred)
+                completeJsonpCall(
+                    requestSettings,
+                    { ...mockHandler, responseText: xhr.responseText },
+                    callbackContext,
+                    deferred
+                )
             }
         })
         return deferred
@@ -1844,6 +1871,11 @@ function validateHandlerOptions(settings) {
     }
 
     if (
+        settings.proxyMethod !== undefined &&
+        !['get', 'post', 'put', 'delete'].includes(String(settings.proxyMethod).toLowerCase())
+    ) {
+        messages.push('The proxyMethod must be a valid HTTP method if it is set.')
+    } else if (
         settings.proxyType !== undefined &&
         !['get', 'post', 'put', 'delete'].includes(String(settings.proxyType).toLowerCase())
     ) {

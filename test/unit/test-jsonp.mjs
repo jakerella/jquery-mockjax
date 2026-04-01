@@ -1,8 +1,10 @@
 
+import sinon from 'sinon'
 import QUnit from 'qunit'
 import { getJQueryMock } from './mocks.mjs'
 import { getJQuery } from '../../src/lib.mjs'
 import { getLogger } from '../../src/logger.mjs'
+import { realAjaxCall } from '../../src/core.mjs'
 
 // Initialize jQuery to the mock for this and any imported modules
 let $ = getJQuery(getJQueryMock())
@@ -396,6 +398,45 @@ QUnit.module('JSONP', (hooks) => {
                 responseTime: 50
             }
             processJsonpMock(requestSettings, mockHandler, requestSettings)
+        })
+    })
+
+    QUnit.module('processJsonpMock - proxy response', (hooks) => {
+        hooks.beforeEach(() => {
+            delete global.scriptEval
+        })
+        hooks.afterEach(() => {
+            $ = getJQuery(getJQueryMock())
+            removeJSONPCallbacks()
+            delete global.scriptEval
+        })
+
+        it('should eval proxy content as response', (assert) => {
+            const done = assert.async()
+
+            const mockXHR = {
+                status: 200,
+                responseText: 'global.proxyTest = true'
+            }
+            const getXHR = () => {
+                return mockXHR
+            }
+            const mockHandler = {
+                proxy: '/proxy/data',
+                responseTime: 10
+            }
+            const requestSettings = {
+                url: 'https://api.example.com/users?callback=?',
+                method: 'GET',
+                dataType: 'jsonp',
+                xhr: getXHR
+            }
+            
+            const defer = processJsonpMock(requestSettings, mockHandler, requestSettings)
+            defer.always(() => {
+                assert.equal(global.scriptEval, `(${mockXHR.responseText})`, 'The JSONP proxy script was evaluated')
+                done()
+            })
         })
     })
 

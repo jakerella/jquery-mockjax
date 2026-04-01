@@ -48,8 +48,7 @@ export function processJsonpMock(requestSettings, mockHandler, origSettings) {
             requestSettings.method.toUpperCase() === 'GET' &&
             isRemoteRequest(requestSettings.url)
         ) {
-            const result = executeJsonpRequest(requestSettings, mockHandler, origSettings)
-            return result || true
+            return executeJsonpRequest(requestSettings, mockHandler, origSettings)
         }
     }
     return null
@@ -104,13 +103,7 @@ function createCallback(requestSettings, mockHandler, origSettings, onSuccess, o
         function () {
             onSuccess(requestSettings, callbackContext, mockHandler)
             onComplete(requestSettings, callbackContext)
-
-            window[callbackName] = undefined
-            try {
-                delete window[callbackName]
-            } catch (e) {
-                /* Ignore errors, this may already be gone */
-            }
+            delete window[callbackName]
         }
 
     requestSettings.jsonpCallback = callbackName
@@ -143,7 +136,7 @@ function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
 
     const jq = getJQuery()
     const callbackContext = origSettings?.context || requestSettings
-    const deferred = jq.Deferred ? new jq.Deferred() : null
+    const deferred = new jq.Deferred()
 
     if (typeof mockHandler.response === 'function') {
         getLogger().debug(`Calling dynamic "response" function for JSONP mock handler`, mockHandler)
@@ -156,13 +149,19 @@ function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
         realAjaxCall({
             global: false,
             url: mockHandler.proxy,
-            type: mockHandler.proxyType,
-            data: mockHandler.data,
+            method: mockHandler.proxyMethod || mockHandler.proxyType || 'GET',
+            data: mockHandler.data || null,
+            xhr: requestSettings.xhr || null,
             dataType:
                 requestSettings.dataType === 'script' ? 'text/plain' : requestSettings.dataType,
             complete: function (xhr) {
                 jq.globalEval(`(${xhr.responseText})`)
-                completeJsonpCall(requestSettings, mockHandler, callbackContext, deferred)
+                completeJsonpCall(
+                    requestSettings,
+                    { ...mockHandler, responseText: xhr.responseText },
+                    callbackContext,
+                    deferred
+                )
             }
         })
         return deferred

@@ -25,7 +25,7 @@ QUnit.module('Matching', (hooks) => {
         getLogger().disable()
     })
 
-    QUnit.module('dependency injection', () => {
+    QUnit.module('findMatchingHandler dependency injection', () => {
         it('should use mock method when set', (assert) => {
             const sandbox = sinon.createSandbox()
             const mock = sandbox.fake(function mockMatcher() { return 123 })

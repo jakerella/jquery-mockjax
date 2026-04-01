@@ -5,8 +5,8 @@
     "exclude": ["src/typedefs.mjs"],
     "perFile": true,
     "checkCoverage": true,
-    "statements": 85,
+    "statements": 90,
     "branches": 90,
     "functions": 90,
-    "lines": 85
+    "lines": 90
 }

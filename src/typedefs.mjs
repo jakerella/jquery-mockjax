@@ -178,7 +178,8 @@
  * Global configuration settings for mockjax
  * @typedef {object} MockjaxSettings
  * @property {Object.<string, LogMethod>} logger - Logger object
- * @property {number} logging - Logging level
+ * @property {number} logLevel - How much to log (-1 = log nothing)
+ * @property {number} logging - Deprecated, use logLevel
  * @property {string[]} logLevelMethods - Log level method names
  * @property {(string | null)} namespace - Global URL namespace
  * @property {number} status - Default HTTP status code
@@ -192,7 +193,8 @@
  * @property {AnyType} responseText - Default response text
  * @property {(string | null)} responseXML - Default for XML responses
  * @property {(string | null)} proxy - Default proxy URL
- * @property {(string | null)} proxyType - Default proxy HTTP method
+ * @property {HTTPMethod} proxyType - Deprecated, use proxyMethod
+ * @property {HTTPMethod} proxyMethod Default proxy HTTP method
  * @property {string | null} lastModified - Default last modified header
  * @property {string} etag - Default etag header
  * @property {Object.<string, string>} headers - Deprecated, use responseHeaders

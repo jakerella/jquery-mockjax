@@ -20,7 +20,7 @@ QUnit.module('XHR', (hooks) => {
         getLogger().disable()
     })
 
-    QUnit.module('dependency injection', () => {
+    QUnit.module('createMockXHR dependency injection', () => {
         it('should use mock method when set', (assert) => {
             const sandbox = sinon.createSandbox()
             const mock = sandbox.fake(function mockCreation() { return { foo: 'bar' } })
@@ -460,6 +460,12 @@ QUnit.module('XHR', (hooks) => {
 
         it('should parse XML string for xml dataType', (assert) => {
             const done = assert.async()
+
+            // Set up our mock DOM and parser
+            getJQuery(getJQueryMock())
+            getDOMParser(MockDOMParser)
+            global.document = {}
+
             const mockHandler = {
                 status: 200,
                 responseXML: '<root><item>test</item></root>'
@@ -467,7 +473,7 @@ QUnit.module('XHR', (hooks) => {
             const requestSettings = { async: false, dataType: 'xml' }
             const xhr = createMockXHR(mockHandler, requestSettings)
             
-            xhr.onreadystatechange = function() {
+            xhr.onload = function() {
                 if (this.readyState === READYSTATE.done) {
                     assert.ok(this.responseXML, 'responseXML should be set')
                     assert.equal(this.responseText, '<root><item>test</item></root>', 'responseText should also be set')
@@ -475,14 +481,7 @@ QUnit.module('XHR', (hooks) => {
                 }
             }
             
-            try {
-                xhr.send()
-            } catch (err) {
-                // In Node.js environment, document may not be defined, which is expected
-                // The important thing is that the code path is tested
-                assert.ok(true, 'XML parsing attempted (may fail in Node.js without DOM)')
-                done()
-            }
+            xhr.send()
         })
 
         it('should handle pre-parsed XML object', (assert) => {
@@ -507,6 +506,60 @@ QUnit.module('XHR', (hooks) => {
             xhr.send()
         })
 
+        it('should throw an error trying to parse invalid XML string', (assert) => {
+            const done = assert.async()
+            
+            const mockHandler = {
+                status: 200,
+                responseXML: '<parsererror>oh no</parsererror>'
+            }
+            const requestSettings = { async: false, dataType: 'xml' }
+            const xhr = createMockXHR(mockHandler, requestSettings)
+            
+            xhr.onload = function() {
+                if (this.readyState === READYSTATE.done) {
+                    assert.ok(false, 'should not complete call on parsererror')
+                    done()
+                }
+            }
+            
+            assert.throws(
+                () => {
+                    xhr.send()
+                },
+                /parsererror/,
+                'An invalid XML string should throw an error'
+            )
+            done()
+        })
+
+        it('should throw an error for invalid XML inputs', (assert) => {
+            const done = assert.async()
+            
+            const mockHandler = {
+                status: 200,
+                responseXML: 'notxml'
+            }
+            const requestSettings = { async: false, dataType: 'xml' }
+            const xhr = createMockXHR(mockHandler, requestSettings)
+            
+            xhr.onload = function() {
+                if (this.readyState === READYSTATE.done) {
+                    assert.ok(false, 'should not complete call on non-XML response')
+                    done()
+                }
+            }
+            
+            assert.throws(
+                () => {
+                    xhr.send()
+                },
+                /Unable to parse XML/,
+                'An invalid XML string should throw an error'
+            )
+            done()
+        })
+
         it('should handle async response callback with 2 arguments', (assert) => {
             const done = assert.async()
             const mockHandler = {
@@ -526,6 +579,89 @@ QUnit.module('XHR', (hooks) => {
             xhr.onreadystatechange = function() {
                 if (this.readyState === READYSTATE.done) {
                     assert.equal(this.responseText, 'async modified', 'async response callback should modify responseText')
+                    done()
+                }
+            }
+            
+            xhr.send()
+        })
+
+        it('should get proxy content as response asynchronously', (assert) => {
+            const done = assert.async()
+
+            const mockXHR = {
+                status: 200,
+                responseText: '{ foo: "bar" }'
+            }
+            const getXHR = () => { return mockXHR }
+            const mockHandler = { proxy: '/proxy/data' }
+            const requestSettings = {
+                url: '/gimme/proxy',
+                method: 'GET',
+                dataType: 'json',
+                xhr: getXHR
+            }
+            
+            const xhr = createMockXHR(mockHandler, requestSettings)
+            xhr.onload = function() {
+                if (this.readyState === READYSTATE.done) {
+                    assert.equal(this.responseText, '{ foo: "bar" }', 'proxy responseText sent when requested')
+                    done()
+                }
+            }
+            
+            xhr.send()
+        })
+
+        it('should get proxy content as response with POST method', (assert) => {
+            const done = assert.async()
+
+            const mockXHR = {
+                status: 200,
+                method: 'POST',
+                responseText: '{ foo: "bar" }'
+            }
+            const getXHR = () => { return mockXHR }
+            const mockHandler = { proxy: '/proxy/data', proxyMethod: 'POST' }
+            const requestSettings = {
+                url: '/gimme/proxy',
+                method: 'GET',
+                dataType: 'json',
+                xhr: getXHR
+            }
+            
+            const xhr = createMockXHR(mockHandler, requestSettings)
+            xhr.onload = function() {
+                if (this.readyState === READYSTATE.done) {
+                    assert.equal(this.responseText, '{ foo: "bar" }', 'proxy responseText sent when requested')
+                    done()
+                }
+            }
+            
+            xhr.send()
+        })
+
+        it('should get proxy content as response not async', (assert) => {
+            const done = assert.async()
+
+            const mockXHR = {
+                status: 200,
+                responseText: '{ foo: "bar" }'
+            }
+            const getXHR = () => { return mockXHR }
+            const mockHandler = { proxy: '/proxy/data' }
+            const requestSettings = {
+                url: '/gimme/proxy',
+                method: 'GET',
+                dataType: 'json',
+                async: false,
+                xhr: getXHR
+            }
+            
+            const xhr = createMockXHR(mockHandler, requestSettings)
+            xhr.onload = function() {
+                if (this.readyState === READYSTATE.done) {
+                    assert.equal(this.responseText, '{ foo: "bar" }', 'proxy responseText sent when requested')
                     done()
                 }
             }

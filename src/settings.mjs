@@ -26,7 +26,8 @@ const DEFAULTS = {
     responseText: '',
     responseXML: '',
     proxy: null,
-    proxyType: 'GET',
+    proxyType: null, // Deprecated
+    proxyMethod: 'GET',
     lastModified: null,
     etag: 'IJF@H#@923uf8023hFO@I#H#',
     headers: null, // Deprecated
@@ -165,8 +166,21 @@ export function validateSettings() {
         messages.push('The proxy setting must be a string or null')
     }
 
-    if (settings.proxyType !== null && typeof settings.proxyType !== 'string') {
+    if (
+        typeof settings.proxyType !== 'undefined' &&
+        settings.proxyType !== null &&
+        typeof settings.proxyType !== 'string'
+    ) {
         messages.push('The proxyType setting must be a string or null')
+    }
+    if (settings.proxyMethod !== null && typeof settings.proxyMethod !== 'string') {
+        messages.push('The proxyMethod setting must be a string or null')
+    } else if (
+        settings.proxyType &&
+        settings.proxyMethod &&
+        settings.proxyMethod !== settings.proxyType
+    ) {
+        messages.push('The proxyType setting should not be used if proxyMethod is set')
     }
 
     if (settings.lastModified !== null && typeof settings.lastModified !== 'string') {
@@ -177,8 +191,8 @@ export function validateSettings() {
         messages.push('The etag setting must be a string or null')
     }
 
-    const headersErrMessage =
-        'If no null, the responseHeaders must be a simple object of string keys and values'
+    let headersErrMessage =
+        'If not null, the responseHeaders must be a simple object of string keys and values'
     if (typeof settings.responseHeaders === 'object' && settings.responseHeaders !== null) {
         const badHeaders = Object.keys(settings.responseHeaders).filter(
             (k) => typeof k !== 'string' || typeof settings.responseHeaders[k] !== 'string'
@@ -188,6 +202,19 @@ export function validateSettings() {
         }
     } else if (typeof settings.responseHeaders !== null) {
         messages.push(headersErrMessage)
+    } else if (settings.headers) {
+        headersErrMessage =
+            'If not null, the headers must be a simple object of string keys and values'
+        if (typeof settings.headers === 'object' && settings.headers !== null) {
+            const badHeaders = Object.keys(settings.headers).filter(
+                (k) => typeof k !== 'string' || typeof settings.headers[k] !== 'string'
+            )
+            if (badHeaders.length) {
+                messages.push(headersErrMessage)
+            }
+        } else if (typeof settings.headers !== null) {
+            messages.push(headersErrMessage)
+        }
     }
 
     if (typeof settings.matchInRegistrationOrder !== 'boolean') {

@@ -50,18 +50,15 @@ QUnit.module('Core', (hooks) => {
             assert.expect(3)
 
             const defer = realAjaxCall('/foo', {})
-            assert.equal(typeof defer.complete, 'function', 'The method returns a Deferred object')
+            assert.equal(typeof defer.always, 'function', 'The method returns a Deferred object')
 
-            defer.complete((xhr) => {
-                assert.equal(xhr.url, '/foo', 'The complete callback received the url')
-                assert.equal(xhr.status, 200, 'The complete callback received 200 status')
+            defer.always((xhr) => {
+                assert.equal(xhr.url, '/foo', 'The callback received the url')
+                assert.equal(xhr.status, 200, 'The callback received 200 status')
                 done()
             })
 
-            defer.resolveWith({
-                url: '/foo',
-                status: 200
-            })
+            defer.resolveWith({}, [{ url: '/foo', status: 200 }])
         })
     })
 
@@ -335,7 +332,7 @@ QUnit.module('Core', (hooks) => {
             )
         })
 
-        it('should throw error for invalid proxy type', (assert) => {
+        it('should throw error for non-string proxy', (assert) => {
             assert.throws(
                 () => registerMockjaxHandler({ url: '/test', proxy: 123 }),
                 /proxy must be a string/,
@@ -343,11 +340,11 @@ QUnit.module('Core', (hooks) => {
             )
         })
 
-        it('should throw error for invalid proxyType', (assert) => {
+        it('should throw error for invalid proxyMethod', (assert) => {
             assert.throws(
-                () => registerMockjaxHandler({ url: '/test', proxyType: 'INVALID' }),
-                /proxyType must be a valid HTTP method/,
-                'should throw for invalid proxyType'
+                () => registerMockjaxHandler({ url: '/test', proxyMethod: 'INVALID' }),
+                /proxyMethod must be a valid HTTP method/,
+                'should throw for invalid proxyMethod'
             )
         })
     })
@@ -372,7 +369,7 @@ QUnit.module('Core', (hooks) => {
             assert.strictEqual(handler.fired, false, 'The mock handler is marked as not "fired" initially')
 
             const defer = mockAjaxCall('/foo')
-            defer.complete((xhr) => {
+            defer.always((xhr) => {
                 assert.equal(xhr.status, status, 'The ajax call was mocked with the correct status code')
                 assert.equal(mockedAjaxCalls().length, 1, 'The mocked call was retained')
                 
@@ -382,10 +379,7 @@ QUnit.module('Core', (hooks) => {
                 done()
             })
 
-            defer.resolveWith({
-                url,
-                status
-            })
+            defer.resolveWith({}, [{ url, status }])
         })
 
         it('should mock a basic call for an object in first argument', (assert) => {
@@ -393,11 +387,11 @@ QUnit.module('Core', (hooks) => {
             registerMockjaxHandler({ url: '/foo', status: 201 })
 
             const defer = mockAjaxCall({ url: '/foo' })
-            defer.complete((xhr) => {
+            defer.always((xhr) => {
                 assert.equal(xhr.status, 201, 'The ajax call was mocked with the correct status code')
                 done()
             })
-            defer.resolveWith({ url: '/foo', status: 201 })
+            defer.resolveWith({}, [{ url: '/foo', status: 201 }])
         })
 
         it('should not retain the mocked call with limit "false"', (assert) => {
@@ -409,7 +403,7 @@ QUnit.module('Core', (hooks) => {
 
             registerMockjaxHandler({ url, status })
             const defer = mockAjaxCall('/foo')
-            defer.complete((xhr) => {
+            defer.always((xhr) => {
                 assert.equal(xhr.status, status, 'The ajax call was mocked with the correct status code')
                 assert.equal(mockedAjaxCalls().length, 0, 'The mocked call was NOT retained')
                 
@@ -417,7 +411,7 @@ QUnit.module('Core', (hooks) => {
                 done()
             })
 
-            defer.resolveWith({ url, status })
+            defer.resolveWith({}, [{ url, status }])
         })
 
         it('should retain the mocked call with limit "true"', (assert) => {
@@ -429,7 +423,7 @@ QUnit.module('Core', (hooks) => {
 
             registerMockjaxHandler({ url, status })
             const defer = mockAjaxCall('/foo')
-            defer.complete((xhr) => {
+            defer.always((xhr) => {
                 assert.equal(xhr.status, status, 'The ajax call was mocked with the correct status code')
                 assert.equal(mockedAjaxCalls().length, 1, 'The mocked call was retained')
                 
@@ -437,7 +431,7 @@ QUnit.module('Core', (hooks) => {
                 done()
             })
 
-            defer.resolveWith({ url, status })
+            defer.resolveWith({}, [{ url, status }])
         })
 
         it('should retain the correct number of calls with limit set as number', (assert) => {
@@ -448,13 +442,13 @@ QUnit.module('Core', (hooks) => {
 
             registerMockjaxHandler({ url, status: 200 })
             let defer = mockAjaxCall('/foo')
-            defer.resolveWith({ url, status: 200 })
+            defer.resolveWith({}, [{ url, status: 200 }])
             assert.equal(mockedAjaxCalls().length, 1, 'The first call was retained')
             defer = mockAjaxCall('/foobar')
-            defer.resolveWith({ url, status: 404 })
+            defer.resolveWith({}, [{ url, status: 404 }])
             assert.equal(unmockedAjaxCalls().length, 1, 'The second call was retained')
             defer = mockAjaxCall('/foo')
-            defer.resolveWith({ url, status: 200 })
+            defer.resolveWith({}, [{ url, status: 200 }])
             assert.equal(mockedAjaxCalls().length, 1, 'The third call was retained')
             assert.equal(unmockedAjaxCalls().length, 1, 'The second call was retained')
 
@@ -735,10 +729,10 @@ QUnit.module('Core', (hooks) => {
 
             mockedCallSettings.forEach((call, i) => {
                 const defer = mockAjaxCall(call.url)
-                defer.resolveWith(call)
+                defer.resolveWith({}, [call])
             })
             const defer = mockAjaxCall('/foo-nope')
-            defer.resolveWith({ url: '/foo-nope', status: 404 })
+            defer.resolveWith({}, [{ url: '/foo-nope', status: 404 }])
 
             const mockedCalls = mockedAjaxCalls()
             assert.equal(mockedCalls.length, 3, 'mocked calls were retained')
@@ -777,10 +771,10 @@ QUnit.module('Core', (hooks) => {
 
             unmockedCallURLs.forEach((url) => {
                 const defer = mockAjaxCall(url)
-                defer.resolveWith({ url, status: 404 })
+                defer.resolveWith({}, [{ url, status: 404 }])
             })
             const defer = mockAjaxCall('/foo-one')
-            defer.resolveWith({ url: '/foo-one', status: 200 })
+            defer.resolveWith({}, [{ url: '/foo-one', status: 200 }])
 
             const unmockedCalls = unmockedAjaxCalls()
             assert.equal(unmockedCalls.length, 3, 'unmocked calls were retained')
@@ -813,10 +807,10 @@ QUnit.module('Core', (hooks) => {
             assert.equal(handlers().length, 1, 'mock handler was registered')
 
             const defer = mockAjaxCall(mockedUrl)
-            defer.complete(() => {
+            defer.always(() => {
                 assert.equal(mockedAjaxCalls().length, 1, 'mocked call was retained')
                 const defer2 = mockAjaxCall(unmockedUrl)
-                defer2.complete(() => {
+                defer2.always(() => {
                     assert.equal(unmockedAjaxCalls().length, 1, 'unmocked call was retained')
                     
                     clearRetainedAjaxCalls()
@@ -825,16 +819,10 @@ QUnit.module('Core', (hooks) => {
 
                     done()
                 })
-                defer2.resolveWith({
-                    url: unmockedUrl,
-                    status: 404
-                })
+                defer2.resolveWith({}, [{ url: unmockedUrl, status: 404 }])
             })
 
-            defer.resolveWith({
-                url: mockedUrl,
-                status
-            })
+            defer.resolveWith({}, [{ url: mockedUrl, status }])
         })
 
         it('should handle array of handler IDs', (assert) => {
@@ -882,7 +870,7 @@ QUnit.module('Core', (hooks) => {
 
             const defer = mockAjaxCall('/redirect-me')
             defer.resolve()
-            defer.complete((xhr) => {
+            defer.always((xhr) => {
                 assert.equal(xhr.url, '/foobar1', 'URL is correct for redirect to Location header')
                 assert.equal(xhr.status, 201, 'Status is correct from redirected Location')
                 assert.equal(xhr.responseText, 'redirected', 'ResponseText is correct from redirected Location')
@@ -909,7 +897,7 @@ QUnit.module('Core', (hooks) => {
 
             const defer = mockAjaxCall('/redirect-me')
             defer.resolve()
-            defer.complete((xhr) => {
+            defer.always((xhr) => {
                 assert.equal(xhr.url, '/foobar2', 'URL is correct for redirect to Location header')
                 assert.equal(xhr.status, 202, 'Status is correct from redirected Location')
                 assert.equal(xhr.responseText, 'redirected', 'ResponseText is correct from redirected Location')
@@ -936,7 +924,7 @@ QUnit.module('Core', (hooks) => {
 
             const defer = mockAjaxCall('/redirect-me')
             defer.resolve()
-            defer.complete((xhr) => {
+            defer.always((xhr) => {
                 assert.equal(xhr.url, '/foobar3', 'URL is correct for redirect to Location header')
                 assert.equal(xhr.status, 203, 'Status is correct from redirected Location')
                 assert.equal(xhr.responseText, 'redirected', 'ResponseText is correct from redirected Location')
@@ -963,7 +951,7 @@ QUnit.module('Core', (hooks) => {
 
             const defer = mockAjaxCall('/redirect-me')
             defer.resolve()
-            defer.complete((xhr) => {
+            defer.always((xhr) => {
                 assert.equal(xhr.url, '/foobar-nope', 'URL is correct for redirect to Location header')
                 assert.equal(xhr.status, 404, 'Status is correct from redirected Location')
                 assert.equal(xhr.responseText, '', 'ResponseText is correct from redirected Location')
@@ -991,7 +979,7 @@ QUnit.module('Core', (hooks) => {
 
             const defer = mockAjaxCall('/no-redirect', { method: 'POST' })
             defer.resolve()
-            defer.complete((xhr) => {
+            defer.always((xhr) => {
                 assert.equal(xhr.url, '/no-redirect', 'URL is correct for non-redirect on POST')
                 assert.equal(xhr.status, 301, 'Status is correct for non-redirect on POST')
                 assert.equal(xhr.responseText, '', 'ResponseText is correct for non-redirect on POST')

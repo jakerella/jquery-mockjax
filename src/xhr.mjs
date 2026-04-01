@@ -61,9 +61,9 @@ function _createMockXHR(mockHandler, requestSettings) {
             } else if (header.toLowerCase() === 'last-modified') {
                 return allMockSettings.lastModified || new Date().toString()
             } else if (header.toLowerCase() === 'etag') {
-                return allMockSettings.etag || ''
+                return String(allMockSettings.etag)
             } else if (header.toLowerCase() === 'content-type') {
-                return allMockSettings.contentType || 'text/plain'
+                return allMockSettings.contentType
             }
         },
         getAllResponseHeaders: function () {
@@ -132,8 +132,9 @@ function sendXHR(mockHandler, requestSettings) {
         realAjaxCall({
             global: false,
             url: mockHandler.proxy,
-            type: mockHandler.proxyType || 'GET',
+            type: mockHandler.proxyMethod || mockHandler.proxyType || 'GET',
             data: mockHandler.data,
+            xhr: requestSettings.xhr || null,
             async: false,
             // If the underlying (mocked) ajax request is doing a `script` call,
             // we need to get the script in plain text so it can be run by jQuery later
@@ -227,7 +228,7 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
         statusIndex = Math.floor(Math.random() * mockHandler.status.length)
         mockXHR.status = mockHandler.status[statusIndex]
     } else {
-        mockXHR.status = Number(mockHandler.status) || getSettings().status || 200
+        mockXHR.status = Number(mockHandler.status) || getSettings().status
     }
 
     if (Array.isArray(mockHandler.statusText) && statusIndex > -1) {
@@ -273,7 +274,7 @@ function parseXML(xml) {
         }
         return xmlDoc
     } catch (err) {
-        const msg = err.name === undefined ? err : `${err.name}: ${err.message}`
+        const msg = `${err.name}: ${err.message}`
         jq(document).trigger('xmlParseError', [msg])
         throw new TypeError(msg)
     }

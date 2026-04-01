@@ -20,6 +20,7 @@
     * `$.mockjax.handler(id)` is deprecated (use `handlers([id, ...])`)
     * `$.mockjax.clear()` is deprecated (use the appropriate `clearByXx()` methods)
     * The `type` matching property on mock handlers is deprecated (use `method` in the same way)
+    * The `proxyType` settings on both settings and handlers is deprecated (use `proxyMethod` in the same way)
     * Boolean values for `retainAjaxCalls` are deprecated (use integer values: -1 replicates deprecated `true` and `0` replicates deprecated `false`)
     * The `logging` setting is deprecated (use `logLevel` in the same way)
 

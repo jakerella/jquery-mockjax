@@ -565,6 +565,11 @@ function validateHandlerOptions(settings) {
     }
 
     if (
+        settings.proxyMethod !== undefined &&
+        !['get', 'post', 'put', 'delete'].includes(String(settings.proxyMethod).toLowerCase())
+    ) {
+        messages.push('The proxyMethod must be a valid HTTP method if it is set.')
+    } else if (
         settings.proxyType !== undefined &&
         !['get', 'post', 'put', 'delete'].includes(String(settings.proxyType).toLowerCase())
     ) {

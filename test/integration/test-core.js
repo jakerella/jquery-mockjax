@@ -26,7 +26,7 @@
 				$.mockjaxSettings.responseText = false,
 				$.mockjaxSettings.responseXML = 123,
 				$.mockjaxSettings.proxy = () => {},
-				$.mockjaxSettings.proxyType = 123,
+				$.mockjaxSettings.proxyMethod = 123,
 				$.mockjaxSettings.lastModified = {},
 				$.mockjaxSettings.etag = false,
 				$.mockjaxSettings.responseHeaders = { foo: 'bar', fn: () => {} },
@@ -230,7 +230,7 @@
 		$.mockjax({
 			url: '/proxy',
 			proxy: '../proxies/data-proxy.json',
-			proxyType: 'GET'
+			proxyMethod: 'GET'
 		});
 
 		$.ajax({
