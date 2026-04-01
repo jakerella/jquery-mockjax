@@ -457,6 +457,31 @@ QUnit.module('Core', (hooks) => {
             done()
         })
 
+        it('should fire onAfterComplete callback', (assert) => {
+            const done = assert.async()
+
+            let completeFired = false
+
+            registerMockjaxHandler({
+                url: '/foo',
+                status: 200,
+                onAfterComplete: (settings, handler) => {
+                    assert.ok(completeFired, 'The original complete callback fired before onAfterComplete')
+                    assert.strictEqual(settings.mocked, true, 'The onAfterComplete callbaack fired with settings object')
+                    assert.equal(handler.status, 200, 'The onAfterComplete callbaack fired with handler object')
+                    done()
+                }
+            })
+
+            const defer = mockAjaxCall({
+                url: '/foo',
+                complete: () => {
+                    completeFired = true
+                }
+            })
+            defer.resolveWith({}, [{ url: '/foo', status: 200 }])
+        })
+
         it('should throw error for unmocked request when throwUnmocked is true', (assert) => {
             getSettings().throwUnmocked = true
             

@@ -649,7 +649,7 @@ function overrideCallback(context, action, mockHandler, requestSettings) {
         if (typeof origCallback === 'function') {
             origCallback.apply(context || {}, args)
         }
-        mockHandler[`onAfter${action}`](requestSettings)
+        mockHandler[`onAfter${action}`](...[requestSettings, mockHandler, ...args])
     }
 }
 
