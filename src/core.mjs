@@ -324,7 +324,9 @@ export function clearByUrl(urlOrPattern) {
     }
     removed.forEach((handlerId) => delete mockHandlerLookup[handlerId])
     clearRetainedAjaxCalls(removed)
-    getLogger().log(`Cleared ${removed.length} mock handlers by URL and retained mocked ajax calls.`)
+    getLogger().log(
+        `Cleared ${removed.length} mock handlers by URL and retained mocked ajax calls.`
+    )
 }
 
 /**
@@ -411,7 +413,7 @@ export function unmockedAjaxCalls() {
  * @returns {void}
  */
 export function clearRetainedAjaxCalls(mockHandlerIds) {
-    let removeCount = mockHandlerIds?.length || retainedAjaxCalls.length
+    const removeCount = mockHandlerIds?.length || retainedAjaxCalls.length
     if (!mockHandlerIds) {
         retainedAjaxCalls.length = 0
     } else {
@@ -618,7 +620,10 @@ function retainAjaxCall(ajaxSettings) {
     if (limit > 0) {
         while (retainedAjaxCalls.length > limit) {
             const removed = retainedAjaxCalls.shift()
-            getLogger().debug(`Removed oldest retained ajax call per "retainAjaxCalls" limit setting.`, removed)
+            getLogger().debug(
+                `Removed oldest retained ajax call per "retainAjaxCalls" limit setting.`,
+                removed
+            )
         }
     }
 }

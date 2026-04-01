@@ -31,7 +31,7 @@ let jsonpCallbackCounter = Date.now()
  */
 export function processJsonpMock(requestSettings, mockHandler, origSettings) {
     getLogger().log(``)
-    
+
     appendCallbackParameter(requestSettings)
 
     requestSettings.dataType = 'json'
@@ -140,7 +140,7 @@ function isRemoteRequest(url) {
  */
 function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
     getLogger().log('Performing JSONP request', mockHandler, requestSettings, origSettings)
-    
+
     const jq = getJQuery()
     const callbackContext = origSettings?.context || requestSettings
     const deferred = jq.Deferred ? new jq.Deferred() : null

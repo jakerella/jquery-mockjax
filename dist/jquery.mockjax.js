@@ -1,6 +1,6 @@
 /*!
  * jQuery Mockjax v3.0.0 - https://github.com/jakerella/jquery-mockjax
- * Build Date: 2026-03-28
+ * Build Date: 2026-04-01
  * Copyright (c) 2026 Jordan Kasper and contributors, formerly appendTo
  * Licensed under the MIT license
  */
@@ -91,11 +91,7 @@ function getDOMParser(mockDOMParserObject) {
     } else if (mockDOMParser) {
         return mockDOMParser
     } else {
-        if (mockDOMParser) {
-            return mockDOMParser
-        } else {
-            throw new Error('DOMParser not available!')
-        }
+        throw new Error('DOMParser not available!')
     }
 }
 
@@ -110,13 +106,22 @@ function getCrypto(mockCryptoObject) {
     if (mockCryptoObject) {
         mockCrypto = mockCryptoObject
     }
+
     if (mockCrypto) {
         return mockCrypto
-    } else if (typeof crypto !== 'undefined') {
-        return crypto
     } else {
-        throw new Error('crypto not available!')
+        return crypto
     }
+}
+
+/**
+ * Resets the mock library objects to null. Useful for testing
+ * @returns {void}
+ */
+function resetMocks() {
+    mockJQuery = null
+    mockDOMParser = null
+    mockCrypto = null
 }
 
 ;// ./src/settings.mjs
@@ -345,9 +350,9 @@ class Logger {
     #disabled = false
     #level = DEFAULT_LOG_LEVEL
     #methods = DEFAULT_LOG_LEVEL_METHODS
-    constructor(level, methods) {
-        this.#level = level
-        this.#methods = methods
+    constructor(level, methods = null) {
+        this.#level = level || DEFAULT_LOG_LEVEL
+        this.#methods = methods || DEFAULT_LOG_LEVEL_METHODS
         this.#methods.forEach((m) => {
             this[m] = function (...args) {
                 return this.#writeLog(m, ...args)
@@ -395,7 +400,7 @@ function getLogger() {
         } else if (settings.logging === false) {
             level = -1
         }
-        settings.logger = new Logger(level, DEFAULT_LOG_LEVEL_METHODS)
+        settings.logger = new Logger(level)
     }
     return settings.logger
 }
@@ -459,6 +464,7 @@ function deepClone(obj) {
  * @typedef {import('./typedefs.mjs').DataMatcher} DataMatcher
  * @typedef {import('./typedefs.mjs').RequestData} RequestData
  */
+
 
 
 
@@ -529,6 +535,7 @@ function matchUrl(handlerUrl, requestUrl, namespace) {
         return true
     }
 
+    let result = false
     if (handlerUrl instanceof RegExp) {
         let pattern = handlerUrl
         if (namespace) {
@@ -536,7 +543,7 @@ function matchUrl(handlerUrl, requestUrl, namespace) {
             const patternSource = handlerUrl.source.replace(/^\^?/, `^(?:${namespace})\/?`)
             pattern = new RegExp(patternSource, handlerUrl.flags)
         }
-        return pattern.test(requestUrl)
+        result = pattern.test(requestUrl)
     } else {
         let effectiveUrlPattern = String(handlerUrl)
 
@@ -548,14 +555,19 @@ function matchUrl(handlerUrl, requestUrl, namespace) {
         }
 
         if (effectiveUrlPattern.indexOf('*') < 0) {
-            return effectiveUrlPattern === requestUrl
+            result = effectiveUrlPattern === requestUrl
         } else {
             effectiveUrlPattern = effectiveUrlPattern
                 .replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&')
                 .replace(/\*/g, "[A-Za-z0-9\\-\\._~:\\/?#\\[\\]@!\\$&'()*+,;%=]+")
-            return new RegExp(effectiveUrlPattern).test(requestUrl)
+            result = new RegExp(effectiveUrlPattern).test(requestUrl)
         }
     }
+
+    if (result) {
+        getLogger().debug(`Mock handler matched URL of request.`, namespace, handlerUrl, requestUrl)
+    }
+    return result
 }
 
 /**
@@ -569,36 +581,29 @@ function matchData(handlerData, requestData) {
         return true
     }
 
+    let valid = false
+
     if (typeof handlerData === 'function') {
-        return handlerData(requestData)
-    }
-
-    if (handlerData === requestData) {
-        return true
-    }
-
-    if (handlerData instanceof RegExp) {
-        return handlerData.test(String(requestData))
-    }
-
-    if (typeof handlerData === 'string') {
-        return handlerData === requestData
-    }
-
-    if (Array.isArray(handlerData)) {
+        valid = handlerData(requestData)
+    } else if (handlerData === requestData) {
+        valid = true
+    } else if (handlerData instanceof RegExp) {
+        valid = handlerData.test(String(requestData))
+    } else if (typeof handlerData === 'string') {
+        valid = handlerData === requestData
+    } else if (Array.isArray(handlerData)) {
         if (!Array.isArray(requestData) || handlerData.length !== requestData.length) {
-            return false
+            valid = false
+        } else {
+            valid = !handlerData.filter((v) => !requestData.includes(v)).length
         }
-        return !handlerData.filter((v) => !requestData.includes(v)).length
-    }
-
-    let valid = true
-    if (handlerData && typeof handlerData === 'object') {
+    } else if (handlerData && typeof handlerData === 'object') {
         let requestDataObject = requestData
         if (typeof requestDataObject === 'string') {
             requestDataObject = getQueryParams(requestDataObject)
         }
 
+        valid = true
         const keys = Object.keys(handlerData)
         for (let i = 0, l = keys.length; i < l; ++i) {
             const mockValue = handlerData[keys[i]]
@@ -622,6 +627,10 @@ function matchData(handlerData, requestData) {
             }
         }
     }
+
+    if (valid) {
+        getLogger().debug(`Mock handler matched data of request.`, handlerData, requestData)
+    }
     return valid
 }
 
@@ -639,6 +648,8 @@ function matchHeaders(handlerHeaders, requestHeaders) {
         return false
     }
 
+    let result = true
+
     const lowercaseRequestHeaders = {}
     Object.keys(requestHeaders || {}).forEach((name) => {
         lowercaseRequestHeaders[name.toLowerCase()] = name
@@ -651,15 +662,22 @@ function matchHeaders(handlerHeaders, requestHeaders) {
             requestHeaders &&
             requestHeaders[lowercaseRequestHeaders[handlerHeaderNames[i].toLowerCase()]]
         if (typeof mockValue !== 'string') {
-            return false
+            result = false
         } else if (!lowercaseRequestHeaders[handlerHeaderNames[i].toLowerCase()]) {
-            return false
+            result = false
         } else if (mockValue !== actualValue) {
-            return false
+            result = false
         }
     }
 
-    return true
+    if (result) {
+        getLogger().debug(
+            `Mock handler matched headers of request.`,
+            handlerHeaders,
+            requestHeaders
+        )
+    }
+    return result
 }
 
 /**
@@ -669,10 +687,14 @@ function matchHeaders(handlerHeaders, requestHeaders) {
  * @returns {boolean} True if method matches
  */
 function matchMethod(handlerMethod, requestMethod) {
-    return (
+    const result =
         !handlerMethod ||
         String(handlerMethod).toUpperCase() === String(requestMethod).toUpperCase()
-    )
+
+    if (result) {
+        getLogger().debug(`Mock handler matched method of request.`, handlerMethod, requestMethod)
+    }
+    return result
 }
 
 /* eslint-disable jsdoc/check-types */
@@ -723,6 +745,7 @@ function getQueryParams(queryString) {
 
 
 
+
 const READYSTATE = { unsent: 0, opened: 1, headers: 2, loading: 3, done: 4 }
 
 /**
@@ -746,7 +769,7 @@ function _createMockXHR(mockHandler, requestSettings) {
         allMockSettings.headers['content-type'] = allMockSettings.contentType
     }
 
-    return {
+    const mockXHR = {
         status: -1,
         statusText: '',
         readyState: READYSTATE.unsent,
@@ -786,6 +809,9 @@ function _createMockXHR(mockHandler, requestSettings) {
                 .join('\n')
         }
     }
+
+    getLogger().debug(`Generated mock XHR for mocked request to ${requestSettings.url}`, mockXHR)
+    return mockXHR
 }
 
 // Support dependency injection
@@ -828,7 +854,12 @@ function sendXHR(mockHandler, requestSettings) {
     }
 
     if (typeof mockHandler.proxy === 'string' && mockHandler.proxy.length) {
-        // We're proxying this request and loading in an external file instead
+        getLogger().debug(
+            `Sending proxy ajax request for mock data to ${mockHandler.proxy}`,
+            mockHandler,
+            requestSettings
+        )
+
         realAjaxCall({
             global: false,
             url: mockHandler.proxy,
@@ -873,16 +904,20 @@ function sendXHR(mockHandler, requestSettings) {
  * @returns {number} The response time to be used
  */
 function determineResponseTime(responseTime) {
+    let actualResponseTime = getSettings().responseTime
+
     if (Array.isArray(responseTime) && responseTime.length === 2) {
         const one = Math.max(0, Number(responseTime[0]))
         const two = Math.max(0, Number(responseTime[1]))
         const min = Math.min(one, two)
         const max = Math.max(one, two)
-        return Math.floor(Math.random() * (max - min)) + min
+        actualResponseTime = Math.floor(Math.random() * (max - min)) + min
     } else if (Number(responseTime)) {
-        return Number(responseTime)
+        actualResponseTime = Number(responseTime)
     }
-    return getSettings().responseTime
+
+    getLogger().debug(`Response time for request will be: ${actualResponseTime}`)
+    return actualResponseTime
 }
 
 /**
@@ -933,6 +968,8 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
     } else {
         mockXHR.statusText = String(mockHandler.statusText)
     }
+
+    getLogger().debug(`Mock response generated for request to ${requestSettings.url}`, mockXHR)
 
     // jQuery 2.0 renamed onreadystatechange to onload
     const onReady = mockXHR.onload || mockXHR.onreadystatechange
@@ -991,6 +1028,7 @@ function parseXML(xml) {
 
 
 
+
 const CALLBACK_REGEX = /=\?(&|$)/
 const URL_PROTOCOL_REGEX = /^(\w+:)?\/\/([^\/?#]+)/
 
@@ -1005,6 +1043,8 @@ let jsonpCallbackCounter = Date.now()
  * @returns {Deferred | boolean | null} Deferred object or true if handled, or null if not handled
  */
 function processJsonpMock(requestSettings, mockHandler, origSettings) {
+    getLogger().log(``)
+
     appendCallbackParameter(requestSettings)
 
     requestSettings.dataType = 'json'
@@ -1112,15 +1152,20 @@ function isRemoteRequest(url) {
  * @returns {object | null} jQuery Deferred object or null
  */
 function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
+    getLogger().log('Performing JSONP request', mockHandler, requestSettings, origSettings)
+
     const jq = getJQuery()
     const callbackContext = origSettings?.context || requestSettings
     const deferred = jq.Deferred ? new jq.Deferred() : null
 
     if (typeof mockHandler.response === 'function') {
+        getLogger().debug(`Calling dynamic "response" function for JSONP mock handler`, mockHandler)
         mockHandler.response(origSettings)
     } else if (typeof mockHandler.responseText === 'object') {
+        getLogger().debug(`Performing eval on JSONP mock responseText object`, mockHandler)
         jq.globalEval(`(${JSON.stringify(mockHandler.responseText)})`)
     } else if (mockHandler.proxy) {
+        getLogger().debug(`Performing JSONP proxy request to:  ${mockHandler.proxy}`, mockHandler)
         realAjaxCall({
             global: false,
             url: mockHandler.proxy,
@@ -1135,6 +1180,7 @@ function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
         })
         return deferred
     } else {
+        getLogger().debug(`Performing eval on JSONP mock responseText string`, mockHandler)
         const responseValue =
             typeof mockHandler.responseText === 'string'
                 ? `"${mockHandler.responseText}"`
@@ -1170,6 +1216,10 @@ function completeJsonpCall(requestSettings, mockHandler, callbackContext, deferr
                 /* we're okay if this fails, just send back the raw responseText */
             }
 
+            getLogger().debug(
+                `Resolving JSONP Deferred object with response`,
+                json || mockHandler.responseText
+            )
             deferred.resolveWith(callbackContext, [json || mockHandler.responseText])
         }
     }, delay)
@@ -1284,7 +1334,7 @@ let settingsValidated = false
  */
 function realAjaxCall(url, settings) {
     const jq = getJQuery()
-    getLogger().debug(`Calling real jQuery ajax method on ${url}`)
+    getLogger().debug(`Calling jQuery ajax method on ${url}`)
     return jq._ajax.apply(jq, [url, settings])
 }
 
@@ -1330,7 +1380,7 @@ function registerMockjaxHandler(options) {
     mockHandlers.push(mockHhandler)
     mockHandlerLookup[mockHhandler.id] = mockHhandler
 
-    getLogger().info('Registered new mock handler:', { ...mockHhandler })
+    getLogger().info('Registered new mock handler:', mockHhandler)
 
     return mockHhandler.id
 }
@@ -1367,6 +1417,8 @@ function mockAjaxCall(url, origSettings) {
     requestSettings.type = requestSettings.method || requestSettings.type
     requestSettings.method = requestSettings.type
 
+    getLogger().debug('Ajax call intercepted:', requestSettings.url, origSettings)
+
     const mockHandler = findMatchingHandler(mockHandlers, requestSettings)
 
     requestSettings.mocked = mockHandler ? true : false
@@ -1375,6 +1427,7 @@ function mockAjaxCall(url, origSettings) {
     retainAjaxCall(requestSettings)
 
     if (!mockHandler) {
+        getLogger().debug('No mock handler matched to request', requestSettings)
         if (getSettings().throwUnmocked === true) {
             throw new Error(`AJAX not mocked: ${requestSettings.url}`)
         } else {
@@ -1395,6 +1448,12 @@ function mockAjaxCall(url, origSettings) {
     ) {
         return redirectMockedRequest(mockHandler, requestSettings)
     }
+
+    getLogger().info(
+        `Mocking ${requestSettings.method.toUpperCase()} call to ${requestSettings.url}`,
+        mockHandler,
+        requestSettings
+    )
 
     if (
         Number(jq.fn.jquery.split('.')[0]) > 3 &&
@@ -1493,6 +1552,7 @@ function clearAll() {
         delete mockHandlerLookup[id]
     }
     clearRetainedAjaxCalls(removed)
+    getLogger().log(`Cleared all ${removed.length} mock handlers and retained mocked ajax calls.`)
 }
 
 /**
@@ -1509,6 +1569,7 @@ function clearById(id) {
             mockHandlers.splice(index, 1)
             clearRetainedAjaxCalls([id])
         }
+        getLogger().log(`Cleared mock handler ${id} and retained mocked ajax calls.`)
     }
 }
 
@@ -1542,6 +1603,9 @@ function clearByUrl(urlOrPattern) {
     }
     removed.forEach((handlerId) => delete mockHandlerLookup[handlerId])
     clearRetainedAjaxCalls(removed)
+    getLogger().log(
+        `Cleared ${removed.length} mock handlers by URL and retained mocked ajax calls.`
+    )
 }
 
 /**
@@ -1628,6 +1692,7 @@ function unmockedAjaxCalls() {
  * @returns {void}
  */
 function clearRetainedAjaxCalls(mockHandlerIds) {
+    const removeCount = mockHandlerIds?.length || retainedAjaxCalls.length
     if (!mockHandlerIds) {
         retainedAjaxCalls.length = 0
     } else {
@@ -1638,6 +1703,7 @@ function clearRetainedAjaxCalls(mockHandlerIds) {
             }
         }
     }
+    getLogger().log(`Cleared ${removeCount} retained ajax calls.`)
 }
 
 /**************************************/
@@ -1826,11 +1892,17 @@ function retainAjaxCall(ajaxSettings) {
         return
     }
 
-    retainedAjaxCalls.push({ ...ajaxSettings, timestamp: Date.now() })
+    const settings = { ...ajaxSettings, timestamp: Date.now() }
+    retainedAjaxCalls.push(settings)
+    getLogger().debug(`Retained ${ajaxSettings.mocked ? 'mocked ' : ''}ajax call.`, settings)
 
     if (limit > 0) {
         while (retainedAjaxCalls.length > limit) {
-            retainedAjaxCalls.shift()
+            const removed = retainedAjaxCalls.shift()
+            getLogger().debug(
+                `Removed oldest retained ajax call per "retainAjaxCalls" limit setting.`,
+                removed
+            )
         }
     }
 }
@@ -1874,6 +1946,13 @@ function redirectMockedRequest(mockHandler, requestSettings) {
     redirectSettings.mockHandlerId = null
     redirectSettings.timestamp = null
 
+    getLogger().log(
+        `Following mock redirect from ${requestSettings.url} to ${newUrl}`,
+        mockHandler,
+        requestSettings,
+        redirectSettings
+    )
+
     return mockAjaxCall(newUrl, redirectSettings)
 }
 
@@ -1907,6 +1986,13 @@ function copyUrlParameters(mockHandler, requestSettings) {
         urlParams[mockHandler.urlParams[i]] = captures[i]
     }
     requestSettings.urlParams = urlParams
+
+    getLogger().debug(
+        `Added ${Object.keys(urlParams).length} urlParams to requestSettings from path.`,
+        mockHandler.url,
+        requestSettings.url,
+        urlParams
+    )
 }
 
 ;// ./src/attach.mjs
@@ -1984,9 +2070,14 @@ function init() {
     return jq.mockjax
 }
 
+// We can't test this properly in a unit test because we can't
+// re-import the module after it's been imported. That means we
+// can't inject our own global.$ before loading.
+/* c8 ignore start */
 if (typeof $ !== 'undefined') {
     init()
 }
+/* c8 ignore stop */
 
 /******/ })()
 ;

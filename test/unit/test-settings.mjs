@@ -1,4 +1,5 @@
 
+import sinon from 'sinon'
 import QUnit from 'qunit'
 import { getJQueryMock } from './mocks.mjs'
 import { getJQuery } from '../../src/lib.mjs'
@@ -12,7 +13,8 @@ const it = QUnit.test
 import {
     getSettings,
     resetSettings,
-    validateSettings
+    validateSettings,
+    mocks
 } from '../../src/settings.mjs'
 
 QUnit.module('Settings', (hooks) => {
@@ -20,6 +22,17 @@ QUnit.module('Settings', (hooks) => {
         $ = getJQuery(getJQueryMock())
         resetSettings(true)
         getLogger().disable()
+    })
+
+    QUnit.module('dependency injection', () => {
+        it('should use mock method when set', (assert) => {
+            const sandbox = sinon.createSandbox()
+            const mock = sandbox.fake(function mockGetSettings() { return { foo: 'bar' } })
+            sandbox.replace.usingAccessor(mocks, 'getSettings', mock)
+            assert.equal(getSettings.name, 'mockGetSettings', 'A mock getter is injected')
+            sandbox.restore()
+            assert.equal(getSettings.name, '_getSettings', 'The true getter method is restored')
+        })
     })
 
     QUnit.module('getSettings', () => {

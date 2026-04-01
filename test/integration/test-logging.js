@@ -9,6 +9,7 @@
 	/* -------------------- */
 
 		beforeEach: function() {
+			$.mockjax.resetSettings()
 			windowConsole.debug = sinon.stub(window.console, 'debug')
 			windowConsole.log = sinon.stub(window.console, 'log')
 			windowConsole.info = sinon.stub(window.console, 'info')

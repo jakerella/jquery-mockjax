@@ -9,7 +9,6 @@
  */
 
 import { getJQuery } from './lib.mjs'
-import { getLogger } from './logger.mjs'
 
 const DEFAULTS = {
     logger: null,
@@ -73,10 +72,6 @@ export function resetSettings(maintainLogger = false) {
         logger = getSettings().logger
     }
     jq.mockjaxSettings = { ...DEFAULTS, logger }
-
-    getLogger().debug(
-        `Reset all global Mockjax settings${maintainLogger === true ? ' (except logger)' : ''}`
-    )
     return jq.mockjaxSettings
 }
 

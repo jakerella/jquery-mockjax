@@ -13,11 +13,22 @@ resetSettings()
 
 const it = QUnit.test
 
-import { createMockXHR, determineResponseTime, READYSTATE } from '../../src/xhr.mjs'
+import { createMockXHR, determineResponseTime, READYSTATE, mocks } from '../../src/xhr.mjs'
 
 QUnit.module('XHR', (hooks) => {
     hooks.before(() => {
         getLogger().disable()
+    })
+
+    QUnit.module('dependency injection', () => {
+        it('should use mock method when set', (assert) => {
+            const sandbox = sinon.createSandbox()
+            const mock = sandbox.fake(function mockCreation() { return { foo: 'bar' } })
+            sandbox.replace.usingAccessor(mocks, 'createMockXHR', mock)
+            assert.equal(createMockXHR.name, 'mockCreation', 'A mock creation method is injected')
+            sandbox.restore()
+            assert.equal(createMockXHR.name, '_createMockXHR', 'The true creation method is restored')
+        })
     })
 
     QUnit.module('READYSTATE constants', () => {

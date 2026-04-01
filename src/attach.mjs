@@ -102,6 +102,11 @@ function init() {
     return jq.mockjax
 }
 
+// We can't test this properly in a unit test because we can't
+// re-import the module after it's been imported. That means we
+// can't inject our own global.$ before loading.
+/* c8 ignore start */
 if (typeof $ !== 'undefined') {
     init()
 }
+/* c8 ignore stop */

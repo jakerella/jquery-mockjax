@@ -1,10 +1,47 @@
 import QUnit from 'qunit'
-import { getJQueryMock, MockDOMParser } from './mocks.mjs'
-import { getDOMParser, getJQuery } from '../../src/lib.mjs'
+import { getJQueryMock, MockCrypto, MockDOMParser } from './mocks.mjs'
+import { getCrypto, getDOMParser, getJQuery, resetMocks } from '../../src/lib.mjs'
 
 const it = QUnit.test
 
-QUnit.module('Lib', () => {
+QUnit.module('Lib', (hooks) => {
+    hooks.beforeEach(() => {
+        resetMocks()
+    })
+
+    hooks.after(() => {
+        // Reset mocks for use in other test modules
+        getCrypto(MockCrypto)
+        getDOMParser(MockDOMParser)
+        getJQuery(getJQueryMock())
+    })
+
+    QUnit.module('resetMocks', () => {
+        it('should reset mocks when asked', (assert) => {
+            getCrypto(MockCrypto)
+            getDOMParser(MockDOMParser)
+            getJQuery(getJQueryMock())
+
+            resetMocks()
+
+            assert.throws(
+                () => {
+                    getDOMParser()
+                },
+                /DOMParser not available/,
+                'Error thrown when mock DOMParser reset'
+            )
+            assert.throws(
+                () => {
+                    getJQuery()
+                },
+                /jQuery not available/,
+                'Error thrown when mock jQuery reset'
+            )
+            const inUseCrpto = getCrypto()
+            assert.equal(typeof inUseCrpto.counter, 'undefined', 'Crypto is not mock after reset')
+        })
+    })
 
     QUnit.module('DOMParser Library', () => {
 
@@ -26,6 +63,31 @@ QUnit.module('Lib', () => {
             const parser = new MockParser()
             assert.equal(typeof parser.parseFromString, 'function', 'The constructed mock parser should have a parseFromString method')
             assert.deepEqual(parser.parseFromString(), { namespaceURI: 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul' }, 'The parsed document should have a namespace URI')
+        })
+
+        it('should throw when DOMParser not available', (assert) => {
+            assert.throws(
+                () => {
+                    getDOMParser()
+                },
+                /DOMParser not available/,
+                'Error thrown when DOMParser not available'
+            )
+        })
+    })
+
+    QUnit.module('crypto Library', () => {
+        it('should return a mock crypto library when provided', (assert) => {
+            const inUseCrypto = getCrypto(MockCrypto)
+            assert.equal(typeof inUseCrypto.counter, 'number', 'The mock crypto should have a numeric counter')
+            assert.equal(typeof inUseCrypto.randomUUID, 'function', 'The mock crypto should have a randomUUID function')
+        })
+
+        it('should generate an incremental UUID each time', (assert) => {
+            const inUseCrypto = getCrypto(MockCrypto)
+            assert.strictEqual(inUseCrypto.counter, 0, 'The mock crypto counter shaould start at 0')
+            assert.equal(inUseCrypto.randomUUID(), '11111111-2222-3333-4444-000000000001', 'The mock crypto randomUUID method should return an incremented UUID')
+            assert.equal(inUseCrypto.randomUUID(), '11111111-2222-3333-4444-000000000002', 'The mock crypto randomUUID method should return a second incremented UUID')
         })
     })
 
@@ -63,7 +125,7 @@ QUnit.module('Lib', () => {
             const done = assert.async()
             assert.expect(4)
 
-            const $ = getJQuery()
+            const $ = getJQuery(getJQueryMock())
             const deferred = $.ajax('/foo', {})
             assert.equal(typeof deferred.complete, 'function', 'The ajax method returns a Deferred object')
             deferred.complete((result) => {
@@ -165,6 +227,16 @@ QUnit.module('Lib', () => {
             const defer = new $.Deferred()
             assert.equal(typeof defer, 'object', 'The created deferred variable is an object')
             assert.equal(typeof defer.resolveWith, 'function', 'The deferred object has a resolveWith method that is callable')
+        })
+
+        it('should throw when jQuery not available', (assert) => {
+            assert.throws(
+                () => {
+                    getJQuery()
+                },
+                /jQuery not available/,
+                'Error thrown when jQuery not available'
+            )
         })
     })
 })

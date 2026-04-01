@@ -1,4 +1,5 @@
 
+import sinon from 'sinon'
 import QUnit from 'qunit'
 import { getSettings, resetSettings } from '../../src/settings.mjs'
 import { getJQueryMock } from './mocks.mjs'
@@ -15,12 +16,24 @@ import {
     matchUrl,
     matchData,
     matchHeaders,
-    findMatchingHandler
+    findMatchingHandler,
+    mocks
 } from '../../src/matching.mjs'
 
 QUnit.module('Matching', (hooks) => {
     hooks.before(() => {
         getLogger().disable()
+    })
+
+    QUnit.module('dependency injection', () => {
+        it('should use mock method when set', (assert) => {
+            const sandbox = sinon.createSandbox()
+            const mock = sandbox.fake(function mockMatcher() { return 123 })
+            sandbox.replace.usingAccessor(mocks, 'findMatchingHandler', mock)
+            assert.equal(findMatchingHandler.name, 'mockMatcher', 'A mock matcher is injected')
+            sandbox.restore()
+            assert.equal(findMatchingHandler.name, '_findMatchingHandler', 'The true matcher method is restored')
+        })
     })
 
     QUnit.module('matchMethod', () => {

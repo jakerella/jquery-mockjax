@@ -74,6 +74,27 @@ QUnit.module('Logger', (hooks) => {
         })
     })
 
+    QUnit.module('disable/enable', () => {
+        it('should start enabled', (assert) => {
+            const logger = getLogger()
+            assert.strictEqual(logger.isDisabled(), false, 'The logger should begin enabled')
+        })
+
+        it('should be disanled when set', (assert) => {
+            const logger = getLogger()
+            logger.disable()
+            assert.strictEqual(logger.isDisabled(), true, 'The logger should be disabled when set')
+        })
+
+        it('should be re-enabled when set', (assert) => {
+            const logger = getLogger()
+            logger.disable()
+            assert.strictEqual(logger.isDisabled(), true, 'The logger should be disabled when set')
+            logger.enable()
+            assert.strictEqual(logger.isDisabled(), false, 'The logger should be re-enabled when set')
+        })
+    })
+
     QUnit.module('log methods', () => {
 
         it('should log with default levels', (assert) => {

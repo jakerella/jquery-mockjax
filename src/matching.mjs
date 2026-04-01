@@ -107,7 +107,7 @@ export function matchUrl(handlerUrl, requestUrl, namespace) {
             effectiveUrlPattern = effectiveUrlPattern
                 .replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&')
                 .replace(/\*/g, "[A-Za-z0-9\\-\\._~:\\/?#\\[\\]@!\\$&'()*+,;%=]+")
-            result = (new RegExp(effectiveUrlPattern)).test(requestUrl)
+            result = new RegExp(effectiveUrlPattern).test(requestUrl)
         }
     }
 
@@ -132,16 +132,12 @@ export function matchData(handlerData, requestData) {
 
     if (typeof handlerData === 'function') {
         valid = handlerData(requestData)
-
     } else if (handlerData === requestData) {
         valid = true
-
     } else if (handlerData instanceof RegExp) {
         valid = handlerData.test(String(requestData))
-
     } else if (typeof handlerData === 'string') {
         valid = handlerData === requestData
-
     } else if (Array.isArray(handlerData)) {
         if (!Array.isArray(requestData) || handlerData.length !== requestData.length) {
             valid = false
@@ -222,7 +218,11 @@ export function matchHeaders(handlerHeaders, requestHeaders) {
     }
 
     if (result) {
-        getLogger().debug(`Mock handler matched headers of request.`, handlerHeaders, requestHeaders)
+        getLogger().debug(
+            `Mock handler matched headers of request.`,
+            handlerHeaders,
+            requestHeaders
+        )
     }
     return result
 }
@@ -234,10 +234,10 @@ export function matchHeaders(handlerHeaders, requestHeaders) {
  * @returns {boolean} True if method matches
  */
 export function matchMethod(handlerMethod, requestMethod) {
-    const result = 
+    const result =
         !handlerMethod ||
         String(handlerMethod).toUpperCase() === String(requestMethod).toUpperCase()
-    
+
     if (result) {
         getLogger().debug(`Mock handler matched method of request.`, handlerMethod, requestMethod)
     }

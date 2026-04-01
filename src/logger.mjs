@@ -17,9 +17,9 @@ class Logger {
     #disabled = false
     #level = DEFAULT_LOG_LEVEL
     #methods = DEFAULT_LOG_LEVEL_METHODS
-    constructor(level, methods) {
-        this.#level = level
-        this.#methods = methods
+    constructor(level, methods = null) {
+        this.#level = level || DEFAULT_LOG_LEVEL
+        this.#methods = methods || DEFAULT_LOG_LEVEL_METHODS
         this.#methods.forEach((m) => {
             this[m] = function (...args) {
                 return this.#writeLog(m, ...args)
@@ -67,7 +67,7 @@ export function getLogger() {
         } else if (settings.logging === false) {
             level = -1
         }
-        settings.logger = new Logger(level, DEFAULT_LOG_LEVEL_METHODS)
+        settings.logger = new Logger(level)
     }
     return settings.logger
 }

@@ -120,12 +120,13 @@
 		})
 
 		QUnit.testDone(function() {
-			$.mockjax.clearAll()
-			$.mockjax.clearRetainedAjaxCalls()
 			// For some reason, calling resetSettings() causes every test
 			// to take about 10x as long to run...
 			// $.mockjax.resetSettings()
 			$.mockjaxSettings = {...QUnit.defaultMockjaxSettings}
+
+			$.mockjax.clearAll()
+			$.mockjax.clearRetainedAjaxCalls()
 		})
 		
 		window.addEventListener('load', async () => {

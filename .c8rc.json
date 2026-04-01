@@ -3,10 +3,10 @@
     "src": "src/",
     "include": ["src/**/*.mjs"],
     "exclude": ["src/typedefs.mjs"],
-    "checkCoverage": {
-        "lines": 85,
-        "functions": 95,
-        "branches": 95,
-        "statements": 90
-    }
+    "perFile": true,
+    "checkCoverage": true,
+    "statements": 85,
+    "branches": 90,
+    "functions": 90,
+    "lines": 85
 }

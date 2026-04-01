@@ -17,6 +17,13 @@ export function MockDOMParser() {
     }
 }
 
+export const MockCrypto = {
+    counter: 0,
+    randomUUID: function() {
+        return '11111111-2222-3333-4444-' + String(++this.counter).padStart(12, '0')
+    }
+}
+
 export function createMockXHR(handler={}) {
     return {
         url: handler.url || '',

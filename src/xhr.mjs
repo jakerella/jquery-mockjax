@@ -79,10 +79,7 @@ function _createMockXHR(mockHandler, requestSettings) {
         }
     }
 
-    getLogger().debug(
-        `Generated mock XHR for mocked request to ${requestSettings.url}`,
-        mockXHR
-    )
+    getLogger().debug(`Generated mock XHR for mocked request to ${requestSettings.url}`, mockXHR)
     return mockXHR
 }
 
@@ -240,11 +237,8 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
     } else {
         mockXHR.statusText = String(mockHandler.statusText)
     }
-    
-    getLogger().debug(
-        `Mock response generated for request to ${requestSettings.url}`,
-        mockXHR
-    )
+
+    getLogger().debug(`Mock response generated for request to ${requestSettings.url}`, mockXHR)
 
     // jQuery 2.0 renamed onreadystatechange to onload
     const onReady = mockXHR.onload || mockXHR.onreadystatechange

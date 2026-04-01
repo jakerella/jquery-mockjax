@@ -50,11 +50,7 @@ export function getDOMParser(mockDOMParserObject) {
     } else if (mockDOMParser) {
         return mockDOMParser
     } else {
-        if (mockDOMParser) {
-            return mockDOMParser
-        } else {
-            throw new Error('DOMParser not available!')
-        }
+        throw new Error('DOMParser not available!')
     }
 }
 
@@ -69,11 +65,20 @@ export function getCrypto(mockCryptoObject) {
     if (mockCryptoObject) {
         mockCrypto = mockCryptoObject
     }
+
     if (mockCrypto) {
         return mockCrypto
-    } else if (typeof crypto !== 'undefined') {
-        return crypto
     } else {
-        throw new Error('crypto not available!')
+        return crypto
     }
+}
+
+/**
+ * Resets the mock library objects to null. Useful for testing
+ * @returns {void}
+ */
+export function resetMocks() {
+    mockJQuery = null
+    mockDOMParser = null
+    mockCrypto = null
 }
