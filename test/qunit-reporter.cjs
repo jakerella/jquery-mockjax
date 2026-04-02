@@ -105,7 +105,7 @@ function done(context) {
 
     const skipCount = context.skipped || skippedTests
 
-    process.stdout.write(`${COLORS.white}Ran ${totalTests} Tests and ${context.total} Assertions in ${context.runtime}ms: `)
+    process.stdout.write(`${COLORS.white}Ran ${totalTests} Tests in ${context.runtime}ms: `)
     process.stdout.write([
         `${(context.passed) ? COLORS.green : COLORS.red}${context.passed} Passed${COLORS.reset}`,
         `${(skipCount > 0) ? COLORS.yellow : COLORS.green}${skipCount} Skipped${COLORS.reset}`,

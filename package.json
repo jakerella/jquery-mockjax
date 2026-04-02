@@ -50,6 +50,7 @@
     "test:nodejs": "npx qunit --reporter ../../../../test/qunit-reporter.cjs test/nodejs/test-*",
     "test:requirejs": "node test/requirejs/runner.mjs",
     "test:all": "npm run test:unit && npm run test:integration:all && npm run test:nodejs && npm run test:requirejs",
+    "test:browserstack": "node test/browserstack.mjs",
     "coverage": "npx c8 npm run test:unit",
     "lint": "npx eslint",
     "lint:fix": "npx eslint --fix",

@@ -7,3 +7,4 @@
 node_modules/
 test/browserify/bundle.js
 coverage/
+browserstack-test-report.json

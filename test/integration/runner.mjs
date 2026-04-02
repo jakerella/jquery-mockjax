@@ -1,20 +1,14 @@
 
 import { resolve } from 'path'
-import { readFileSync } from 'fs'
 import testRunner from '../qunit-puppeteer.mjs'
+import { getjQueryVersions } from '../get-jquery-versions.mjs'
 
 const PORT = 3000
 
 ;(async () => {
-    const metadata = getPackageJSON('./package.json')
-    const allVersions = []
-    const packages = Object.keys(metadata.peerDependencies)
-    for (let name of packages) {
-        const jqueryMetadata = getPackageJSON(`./node_modules/${name}/package.json`)
-        allVersions.push(jqueryMetadata.version)
-    }
-    let versions = []
+    const allVersions = getjQueryVersions()
 
+    const versions = []
     if (process.argv.length > 2 && process.argv[2] === 'all') {
         versions.push(...allVersions)
     } else if (process.argv.length > 2 && /^\d+\.\d+\.\d+$/.test(process.argv[2])) {
@@ -31,7 +25,7 @@ const PORT = 3000
     }
     console.log(`
 ************************************************************************************
-Running Mockjax v${metadata.version} test suite with jQuery version(s): ${versions}
+Running Mockjax test suite with jQuery version(s): ${versions}
 ************************************************************************************`)
 
     try {
@@ -50,8 +44,4 @@ Running Mockjax v${metadata.version} test suite with jQuery version(s): ${versio
     }
 
     process.exit(0)
-
-    function getPackageJSON(filepath) {
-        return JSON.parse(readFileSync(filepath).toString())
-    }
 })();

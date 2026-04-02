@@ -4,7 +4,7 @@
 	var t = qunit.test
 
 	/* ----------------- */
-	qunit.module( 'Core' )
+	qunit.module( 'JSONP' )
 	/* ----------------- */
 
     t('Preserve context when set in jsonp ajax requet', function(assert) {

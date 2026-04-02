@@ -576,11 +576,12 @@
 
 	t('Validate this is the $.ajax object if context is not set', function(assert) {
 		var done = assert.async();
+		assert.expect(1)
 
 		$.mockjax({
-				url: '/jsonp*',
-				contentType: 'text/json',
-				proxy: '../proxies/jsonp-script.js'
+			url: '/jsonp*',
+			contentType: 'text/json',
+			proxy: '../proxies/jsonp-script.js'
 		});
 
 		window.abcdef123456 = function() {};

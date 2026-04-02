@@ -106,11 +106,12 @@ main [README](README.md#browsers-tested) file for the browsers we support.
 We highly recommend running your tests in a virtual environment to capture any issues
 in specific browsers. You can do so easily with our BrowserStack integration. You can 
 run the integration test suite using the command below. All you need to do is set the 
-`BROWSERSTACK_KEY` environment variable first.
+`BROWSERSTACK_USERNAME` and `BROWSERSTACK_KEY` environment variables first.
 
 ```shell
+export BROWSERSTACK_USERNAME="your-username"
 export BROWSERSTACK_KEY="your-key"
-node browserstack.js
+npm run test:browserstack
 ```
 
 ## Submit Your PR
