@@ -1,6 +1,6 @@
 /*!
  * jQuery Mockjax v3.0.0 - https://github.com/jakerella/jquery-mockjax
- * Build Date: 2026-04-01
+ * Build Date: 2026-04-03
  * Copyright (c) 2026 Jordan Kasper and contributors, formerly appendTo
  * Licensed under the MIT license
  */
@@ -371,15 +371,13 @@ function validateSettings() {
 
 
 const DEFAULT_LOG_LEVEL = 2
-const DEFAULT_LOG_LEVEL_METHODS = ['error', 'warn', 'info', 'log', 'debug']
 
 class Logger {
     #disabled = false
     #level = DEFAULT_LOG_LEVEL
-    #methods = DEFAULT_LOG_LEVEL_METHODS
-    constructor(level, methods = null) {
+    #methods = ['error', 'warn', 'info', 'log', 'debug']
+    constructor(level) {
         this.#level = level || DEFAULT_LOG_LEVEL
-        this.#methods = methods || DEFAULT_LOG_LEVEL_METHODS
         this.#methods.forEach((m) => {
             this[m] = function (...args) {
                 return this.#writeLog(m, ...args)
@@ -1955,7 +1953,7 @@ function overrideCallback(context, action, mockHandler, requestSettings) {
         if (typeof origCallback === 'function') {
             origCallback.apply(context || {}, args)
         }
-        mockHandler[`onAfter${action}`](requestSettings)
+        mockHandler[`onAfter${action}`](...[requestSettings, mockHandler, ...args])
     }
 }
 

@@ -44,15 +44,22 @@
 
     <section>
         <article><h1>jQuery Mockjax: Ajax request mocking</h1>
-<p>There are some minor breaking changes in v2, so if you need an older version, please check the <a href="https://github.com/jakerella/jquery-mockjax/tree/v1.x">v1.x</a> branch or the list of <a href="https://github.com/jakerella/jquery-mockjax/tags">releases</a> in Github.</p>
-<p>jQuery Mockjax provides request/response mocking for ajax requests using the jQuery API and provides all standard behaviors in the request/response flow.</p>
-<p>You may report any issues you may find <a href="https://github.com/jakerella/jquery-mockjax/issues">in the github issue tracking</a>.</p>
-<p><strong>Table of Contents</strong></p>
+<p>jQuery Mockjax provides robust HTTP request &amp; response mocking during front end testing for the $.ajax() method.</p>
+<p>There are some <strong>major breaking changes in v3</strong>, so if you need an older version, please check the <a href="https://github.com/jakerella/jquery-mockjax/tree/v2.x">v2.x</a> branch or the list of <a href="https://github.com/jakerella/jquery-mockjax/tags">releases</a> in Github.</p>
+<blockquote>
+<p>Please note that this is a tool for <strong>testing</strong> your front end code without a server. It is not intended for use in a production environment!</p>
+</blockquote>
+<h2>Your first mock</h2>
+<p>Include the <code>jquery.mockjax.js</code> file in your tests, then before your tests register your mocks. For example, if you have an API endpoint at <code>/api/items</code> that returns an array of items for sale, you could mock that out like so:</p>
+<pre class="prettyprint source"><code>$.mockjax({
+  url: &quot;/api/items&quot;,
+  responseText: [{ id: 13, name: &quot;rubber duck&quot; }, { id: 42, name: &quot;house plant&quot; }]
+})
+</code></pre>
+<p>Now, when your test harness runs your source code and it in turn runs <code>$.ajax(...)</code>, the mock response will be provided to your application instead of hitting a live server!</p>
+<h2>Table of Contents</h2>
 <ul>
-<li><a href="#jquery-mockjax-ajax-request-mocking">jQuery Mockjax: Ajax request mocking</a>
-<ul>
-<li><a href="#about-mockjax-and-its-history">About Mockjax and Its History</a></li>
-<li><a href="#basic-documentation">Basic Documentation</a>
+<li><a href="#basic-usage">Basic Usage</a>
 <ul>
 <li><a href="#api-methods">API Methods</a></li>
 <li><a href="#overview-your-first-mock">Overview: Your First Mock</a></li>
@@ -96,6 +103,7 @@
 </li>
 <li><a href="#miscellaneous-information">Miscellaneous Information</a>
 <ul>
+<li><a href="#about-mockjax-and-its-history">About Mockjax and Its History</a></li>
 <li><a href="#jquery-version-support">jQuery Version Support</a></li>
 <li><a href="#browsers-tested">Browsers Tested</a></li>
 <li><a href="#using-mockjax-in-other-ways">Using Mockjax in Other Ways</a></li>
@@ -112,21 +120,6 @@
 </ul>
 </li>
 </ul>
-</li>
-</ul>
-<h2>About Mockjax and Its History</h2>
-<p>Most backend developers are familiar with the concepts of <a href="http://en.wikipedia.org/wiki/Mock_object">mocking
-objects</a> or stubbing in
-methods for unit testing. For those not familiar with mocking, it's the
-simulation of an interface or API for testing or integration development
-purposes. Mocking with front-end development though is still quite new. Mockjax
-gives front end developers the ability to define ajax requests that should be
-mocked out, as well as how those requests should be responded to. These mocks
-can be extremely simple or quite complex, representing the entire request-response
-workflow.</p>
-<p>This plugin was originally developed by appendTo in March 2010. That company
-closed in 2014 and the project was taken over by a former employee,
-<a href="https://jordankasper.com">@jakerella</a>.</p>
 <h2>Basic Documentation</h2>
 <h3>API Methods</h3>
 <p>Mockjax consists of just a few methods, each listed below. You'll find plenty of
@@ -739,6 +732,19 @@ $.mockjax.clear(&quot;/api/foo&quot;);
 $.mockjax.clear(/foo/);
 </code></pre>
 <h2>Miscellaneous Information</h2>
+<h2>About Mockjax and Its History</h2>
+<p>Most backend developers are familiar with the concepts of <a href="http://en.wikipedia.org/wiki/Mock_object">mocking
+objects</a> or stubbing in
+methods for unit testing. For those not familiar with mocking, it's the
+simulation of an interface or API for testing or integration development
+purposes. Mocking with front-end development though is still quite new. Mockjax
+gives front end developers the ability to define ajax requests that should be
+mocked out, as well as how those requests should be responded to. These mocks
+can be extremely simple or quite complex, representing the entire request-response
+workflow.</p>
+<p>This plugin was originally developed by appendTo in March 2010. That company
+closed in 2014 and the project was taken over by a former employee,
+<a href="https://jordankasper.com">@jakerella</a>.</p>
 <h3>jQuery Version Support</h3>
 <p>We strive to ensure that Mockjax is tested on the furthest patch version of all
 minor versions of jQuery (1.x.y through 3.x.y). In other words, we don't test
@@ -846,7 +852,7 @@ Pull Request ready for merging.</p></article>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Wed Apr 01 2026 16:50:37 GMT-0400 (Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri Apr 03 2026 10:00:01 GMT-0400 (Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

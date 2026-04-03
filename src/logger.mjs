@@ -11,15 +11,13 @@
 import { getSettings } from './settings.mjs'
 
 const DEFAULT_LOG_LEVEL = 2
-export const DEFAULT_LOG_LEVEL_METHODS = ['error', 'warn', 'info', 'log', 'debug']
 
 class Logger {
     #disabled = false
     #level = DEFAULT_LOG_LEVEL
-    #methods = DEFAULT_LOG_LEVEL_METHODS
-    constructor(level, methods = null) {
+    #methods = ['error', 'warn', 'info', 'log', 'debug']
+    constructor(level) {
         this.#level = level || DEFAULT_LOG_LEVEL
-        this.#methods = methods || DEFAULT_LOG_LEVEL_METHODS
         this.#methods.forEach((m) => {
             this[m] = function (...args) {
                 return this.#writeLog(m, ...args)

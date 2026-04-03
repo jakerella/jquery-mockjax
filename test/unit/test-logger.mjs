@@ -15,9 +15,10 @@ let mockGetSettings = null
 
 const sandbox = sinon.createSandbox()
 
+const DEFAULT_LOG_LEVEL_METHODS = ['error', 'warn', 'info', 'log', 'debug']
+
 import {
-    getLogger,
-    DEFAULT_LOG_LEVEL_METHODS
+    getLogger
 } from '../../src/logger.mjs'
 
 QUnit.module('Logger', (hooks) => {
