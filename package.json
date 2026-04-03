@@ -56,7 +56,6 @@
     "lint:fix": "npx eslint --fix",
     "style": "npx prettier --write 'src/**/*.mjs'",
     "style:check": "npx prettier --check 'src/**/*.mjs'",
-    "docs": "npx jsdoc -c jsdoc.config.json",
     "watch:build": "npx npm-watch build",
     "watch:test": "npx npm-watch test:unit"
   },
@@ -87,7 +86,6 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsdoc": "^62.8.0",
     "http-server": "^14.1.1",
-    "jsdoc": "^4.0.5",
     "jsdoc-tsimport-plugin": "^1.0.5",
     "jsdom": "^28.1.0",
     "npm-watch": "^0.13.0",
