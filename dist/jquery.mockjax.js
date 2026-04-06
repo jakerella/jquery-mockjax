@@ -1,6 +1,6 @@
 /*!
  * jQuery Mockjax v3.0.0 - https://github.com/jakerella/jquery-mockjax
- * Build Date: 2026-04-03
+ * Build Date: 2026-04-06
  * Copyright (c) 2026 Jordan Kasper and contributors, formerly appendTo
  * Licensed under the MIT license
  */
@@ -18,27 +18,17 @@
 
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
-/******/ 	// The require scope
-/******/ 	var __webpack_require__ = {};
-/******/ 	
-/************************************************************************/
-/******/ 	/* webpack/runtime/global */
-/******/ 	(() => {
-/******/ 		__webpack_require__.g = (function() {
-/******/ 			if (typeof globalThis === 'object') return globalThis;
-/******/ 			try {
-/******/ 				return this || new Function('return this')();
-/******/ 			} catch (e) {
-/******/ 				if (typeof window === 'object') return window;
-/******/ 			}
-/******/ 		})();
-/******/ 	})();
-/******/ 	
-/************************************************************************/
+/******/ 	var __webpack_modules__ = ({
 
-// UNUSED EXPORTS: clear, clearAll, clearById, clearByUrl, clearRetainedAjaxCalls, default, getLogger, getSettings, handler, handlers, init, mockedAjaxCalls, mockjax, resetSettings, unfiredHandlers, unmockedAjaxCalls, validateSettings
+/***/ 781
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
-;// ./src/lib.mjs
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   MY: () => (/* binding */ getCrypto),
+/* harmony export */   ab: () => (/* binding */ getDOMParser),
+/* harmony export */   vl: () => (/* binding */ getJQuery)
+/* harmony export */ });
+/* unused harmony export resetMocks */
 /**
  * Methods to dynamically retrieve external libraries or global interfaces
  * @private
@@ -124,6 +114,136 @@ function resetMocks() {
     mockCrypto = null
 }
 
+
+/***/ },
+
+/***/ 667
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   G: () => (/* binding */ deepClone),
+/* harmony export */   l: () => (/* binding */ generateUUID)
+/* harmony export */ });
+/* harmony import */ var _lib_mjs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(781);
+/**
+ * Utility functions for mockjax
+ * @private
+ * @module utils
+ */
+
+
+
+/**
+ * Generate a UUID using the Web Crypto API
+ * @returns {string} RFC 4122 compliant UUID
+ * @throws {Error} If crypto.randomUUID() is not available
+ */
+function generateUUID() {
+    const crypto = (0,_lib_mjs__WEBPACK_IMPORTED_MODULE_0__/* .getCrypto */ .MY)()
+    return crypto.randomUUID()
+}
+
+/**
+ * Deep clone an object
+ * @param {object} obj - Object to clone
+ * @returns {object} Cloned object
+ */
+function deepClone(obj) {
+    try {
+        const clone = structuredClone(obj)
+        return clone
+    } catch (_) {
+        /* can't clone functions, so we'll try this the hard way */
+    }
+
+    if (obj === null || typeof obj !== 'object') {
+        return obj
+    }
+
+    const clone = {}
+    for (const key in obj) {
+        if (typeof obj[key] === 'function') {
+            /* eslint-disable no-eval */
+            eval(
+                `const __mockjaxGlobal = (window || global); __mockjaxGlobal.__clonedMockjaxFn = ${obj[key].toString()};`
+            )
+            /* eslint-enable no-eval */
+            const g = window || __webpack_require__.g
+            clone[key] = g.__clonedMockjaxFn
+            delete g.__clonedMockjaxFn
+        } else {
+            clone[key] = deepClone(obj[key])
+        }
+    }
+    return clone
+}
+
+
+/***/ }
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/global */
+/******/ 	(() => {
+/******/ 		__webpack_require__.g = (function() {
+/******/ 			if (typeof globalThis === 'object') return globalThis;
+/******/ 			try {
+/******/ 				return this || new Function('return this')();
+/******/ 			} catch (e) {
+/******/ 				if (typeof window === 'object') return window;
+/******/ 			}
+/******/ 		})();
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+
+// UNUSED EXPORTS: clear, clearAll, clearById, clearByUrl, clearRetainedAjaxCalls, default, getLogger, getSettings, handler, handlers, init, mockedAjaxCalls, mockjax, resetSettings, unfiredHandlers, unmockedAjaxCalls, validateSettings
+
+// EXTERNAL MODULE: ./src/lib.mjs
+var lib = __webpack_require__(781);
 ;// ./src/settings.mjs
 /**
  * Global mockjax settings with default values
@@ -171,7 +291,7 @@ const DEFAULTS = {
  * @returns {MockjaxSettings} The global mockjax settings
  */
 function _getSettings() {
-    const jq = getJQuery()
+    const jq = (0,lib/* getJQuery */.vl)()
     return jq.mockjaxSettings || { ...DEFAULTS }
 }
 
@@ -194,7 +314,7 @@ const mocks = {
  * @returns {MockjaxSettings} The (reset) global mockjax settings
  */
 function resetSettings(maintainLogger = false) {
-    const jq = getJQuery()
+    const jq = (0,lib/* getJQuery */.vl)()
     let logger = null
     if (maintainLogger === true) {
         logger = getSettings().logger
@@ -431,50 +551,8 @@ function getLogger() {
 }
 /* eslint-enable jsdoc/check-types */
 
-;// ./src/utils.mjs
-/**
- * Utility functions for mockjax
- * @private
- * @module utils
- */
-
-
-
-/**
- * Generate a UUID using the Web Crypto API
- * @returns {string} RFC 4122 compliant UUID
- * @throws {Error} If crypto.randomUUID() is not available
- */
-function generateUUID() {
-    const crypto = getCrypto()
-    return crypto.randomUUID()
-}
-
-/**
- * Deep clone an object
- * @param {object} obj - Object to clone
- * @returns {object} Cloned object
- */
-function deepClone(obj) {
-    try {
-        const clone = structuredClone(obj)
-        return clone
-    } catch (_) {
-        /* can't clone functions, so we'll do this the hard way */
-    }
-
-    if (obj === null || typeof obj !== 'object') {
-        return obj
-    }
-
-    const clone = {}
-    for (const key in obj) {
-        clone[key] = deepClone(obj[key])
-    }
-
-    return clone
-}
-
+// EXTERNAL MODULE: ./src/utils.mjs
+var utils = __webpack_require__(667);
 ;// ./src/matching.mjs
 /**
  * Handler matching logic for mockjax
@@ -1016,8 +1094,8 @@ function generateResponse(mockXHR, mockHandler, requestSettings) {
  * @throws {TypeError}
  */
 function parseXML(xml) {
-    const jq = getJQuery()
-    const DocumentParser = getDOMParser()
+    const jq = (0,lib/* getJQuery */.vl)()
+    const DocumentParser = (0,lib/* getDOMParser */.ab)()
     try {
         const xmlDoc = new DocumentParser().parseFromString(xml, 'text/xml')
         if (jq.isXMLDoc(xmlDoc)) {
@@ -1173,7 +1251,7 @@ function isRemoteRequest(url) {
 function executeJsonpRequest(requestSettings, mockHandler, origSettings) {
     getLogger().log('Performing JSONP request', mockHandler, requestSettings, origSettings)
 
-    const jq = getJQuery()
+    const jq = (0,lib/* getJQuery */.vl)()
     const callbackContext = origSettings?.context || requestSettings
     const deferred = new jq.Deferred()
 
@@ -1259,7 +1337,7 @@ function completeJsonpCall(requestSettings, mockHandler, callbackContext, deferr
  * @returns {void}
  */
 function triggerSuccess(requestSettings, callbackContext, mockHandler) {
-    const jq = getJQuery()
+    const jq = (0,lib/* getJQuery */.vl)()
     if (typeof requestSettings.success === 'function') {
         requestSettings.success.call(callbackContext, mockHandler.responseText || '', 'success', {})
     }
@@ -1278,7 +1356,7 @@ function triggerSuccess(requestSettings, callbackContext, mockHandler) {
  * @returns {void}
  */
 function triggerComplete(requestSettings, callbackContext) {
-    const jq = getJQuery()
+    const jq = (0,lib/* getJQuery */.vl)()
     if (typeof requestSettings.complete === 'function') {
         requestSettings.complete.call(
             callbackContext,
@@ -1358,7 +1436,7 @@ let settingsValidated = false
  * @returns {jqXHR} The jQuery Ajax XHR object
  */
 function realAjaxCall(url, settings) {
-    const jq = getJQuery()
+    const jq = (0,lib/* getJQuery */.vl)()
     getLogger().debug(`Calling jQuery ajax method on ${url}`)
     return jq._ajax.apply(jq, [url, settings])
 }
@@ -1394,7 +1472,7 @@ function registerMockjaxHandler(options) {
 
     // Create handler object
     const mockHhandler = typeof options === 'function' ? options : { ...options }
-    mockHhandler.id = generateUUID()
+    mockHhandler.id = (0,utils/* generateUUID */.l)()
     mockHhandler.fired = false
     mockHhandler.registeredAt = Date.now()
 
@@ -1421,7 +1499,7 @@ function registerMockjaxHandler(options) {
  * @returns {jqXHR} The jqXHR object used in the request. Note that this will be the real jQuery jqXHR object if the call was not mocked
  */
 function mockAjaxCall(url, origSettings) {
-    const jq = getJQuery()
+    const jq = (0,lib/* getJQuery */.vl)()
 
     let tempSettings = {}
 
@@ -1642,7 +1720,7 @@ function clearByUrl(urlOrPattern) {
 function handlers(ids) {
     if (!ids) {
         return mockHandlers.map((h) => {
-            const cloned = deepClone(h)
+            const cloned = (0,utils/* deepClone */.G)(h)
             cloned.clear = function () {
                 clearById(this.id)
             }
@@ -1655,7 +1733,7 @@ function handlers(ids) {
         if (!mockHandler) {
             return null
         }
-        const cloned = deepClone(mockHandler)
+        const cloned = (0,utils/* deepClone */.G)(mockHandler)
         cloned.clear = function () {
             clearById(this.id)
         }
@@ -1684,7 +1762,7 @@ function unfiredHandlers() {
     return mockHandlers
         .filter((h) => !h.fired)
         .map((h) => {
-            const cloned = deepClone(h)
+            const cloned = (0,utils/* deepClone */.G)(h)
             cloned.clear = function () {
                 clearById(this.id)
             }
@@ -1967,7 +2045,7 @@ function overrideCallback(context, action, mockHandler, requestSettings) {
 function redirectMockedRequest(mockHandler, requestSettings) {
     const newUrl = mockHandler.responseHeaders.Location || mockHandler.responseHeaders.location
 
-    const redirectSettings = getJQuery().ajaxSetup({}, requestSettings)
+    const redirectSettings = (0,lib/* getJQuery */.vl)().ajaxSetup({}, requestSettings)
     redirectSettings.url = newUrl
     redirectSettings.headers = { Referer: requestSettings.url }
 
@@ -2075,7 +2153,7 @@ function copyUrlParameters(mockHandler, requestSettings) {
  */
 function init() {
     getLogger().info('Initializing Mockjax and adding methods to jQuery')
-    const jq = getJQuery()
+    const jq = (0,lib/* getJQuery */.vl)()
 
     jq._ajax = jq.ajax
     jq.ajax = mockAjaxCall

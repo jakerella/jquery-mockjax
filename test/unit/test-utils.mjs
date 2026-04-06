@@ -216,13 +216,16 @@ QUnit.module('Utils', () => {
         })
 
         it('should handle objects with function properties', (assert) => {
+            function original() { return 'hello' }
             const obj = {
                 name: 'test',
-                method: function() { return 'hello' }
+                method: original
             }
             const clone = deepClone(obj)
             assert.equal(clone.name, 'test', 'non-function properties cloned')
-            assert.ok(typeof clone.method === 'function', 'function property preserved')
+            assert.equal(typeof clone.method, 'function', 'function property preserved')
+            assert.notStrictEqual(clone.method, original, 'function property is not strictly the same')
+            assert.equal(clone.method.toString(), original.toString(), 'cloned function content is the same')
         })
 
         it('should use fallback cloning for nested objects with functions', (assert) => {

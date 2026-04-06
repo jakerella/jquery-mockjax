@@ -26,7 +26,7 @@ export function deepClone(obj) {
         const clone = structuredClone(obj)
         return clone
     } catch (_) {
-        /* can't clone functions, so we'll do this the hard way */
+        /* can't clone functions, so we'll try this the hard way */
     }
 
     if (obj === null || typeof obj !== 'object') {
@@ -35,8 +35,18 @@ export function deepClone(obj) {
 
     const clone = {}
     for (const key in obj) {
-        clone[key] = deepClone(obj[key])
+        if (typeof obj[key] === 'function') {
+            /* eslint-disable no-eval */
+            eval(
+                `const __mockjaxGlobal = (window || global); __mockjaxGlobal.__clonedMockjaxFn = ${obj[key].toString()};`
+            )
+            /* eslint-enable no-eval */
+            const g = window || global
+            clone[key] = g.__clonedMockjaxFn
+            delete g.__clonedMockjaxFn
+        } else {
+            clone[key] = deepClone(obj[key])
+        }
     }
-
     return clone
 }

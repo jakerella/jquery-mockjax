@@ -4,7 +4,7 @@ import { defineConfig } from 'eslint/config'
 
 export default defineConfig([
     {
-        ignores: ['dist/', 'test/', 'docs/'],
+        ignores: ['dist/', 'test/'],
     },
     jsdoc.configs['flat/recommended'],
     {

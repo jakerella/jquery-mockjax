@@ -41,7 +41,7 @@
   "license": "MIT",
   "scripts": {
     "build": "npx webpack --mode production --config webpack.config.mjs",
-    "build:dist": "npm run style && npm run lint && npm run coverage && npm run build && npm run docs && npm run test:all",
+    "build:dist": "npm run style && npm run lint && npm run coverage && npm run build && npm run test:integration:all && npm run test:nodejs && npm run test:requirejs",
     "test": "npm run test:unit",
     "test:unit": "npx qunit --reporter ../../../../test/qunit-reporter.cjs test/unit/test-*",
     "test:integration": "npm run test:integration:latest",
