@@ -544,9 +544,19 @@ QUnit.module('Core', (hooks) => {
             
             assert.equal(handlers().length, 3, 'should have 3 handlers')
             
-            clearAll()
+            const clearCount = clearAll()
             
+            assert.equal(clearCount, 3, 'should return proper count of cleared handlers')
             assert.equal(handlers().length, 0, 'should have no handlers')
+        })
+
+        it('should clear nothing when no handlers have been registered', (assert) => {
+            assert.equal(handlers().length, 0, 'should have 0 handlers to start')
+            
+            const clearCount = clearAll()
+            
+            assert.equal(clearCount, 0, 'should return proper count of cleared handlers')
+            assert.equal(handlers().length, 0, 'should have no handlers to end')
         })
     })
 
@@ -560,8 +570,9 @@ QUnit.module('Core', (hooks) => {
             const id1 = registerMockjaxHandler({ url: '/api/test1', responseText: 'test1' })
             const id2 = registerMockjaxHandler({ url: '/api/test2', responseText: 'test2' })
             
-            clearById(id1)
+            const clearCount = clearById(id1)
             
+            assert.equal(clearCount, 1, 'should return proper count of cleared handlers')
             assert.equal(handlers().length, 1, 'should have 1 handler remaining')
             assert.equal(handlers([id2])[0].url, '/api/test2', 'should keep correct handler')
         })
@@ -569,8 +580,9 @@ QUnit.module('Core', (hooks) => {
         it('should handle invalid ID gracefully', (assert) => {
             registerMockjaxHandler({ url: '/api/test', responseText: 'test' })
             
-            clearById('invalid-id')
+            const clearCount = clearById('invalid-id')
             
+            assert.equal(clearCount, 0, 'should return proper count of cleared handlers')
             assert.equal(handlers().length, 1, 'should still have 1 handler')
         })
     })
@@ -585,8 +597,9 @@ QUnit.module('Core', (hooks) => {
             registerMockjaxHandler({ url: '/api/users', responseText: 'users' })
             registerMockjaxHandler({ url: '/api/posts', responseText: 'posts' })
             
-            clearByUrl('/api/users')
+            const clearCount = clearByUrl('/api/users')
             
+            assert.equal(clearCount, 1, 'should return proper count of cleared handlers')
             assert.equal(handlers().length, 1, 'should have 1 handler remaining')
             assert.equal(handlers()[0].url, '/api/posts', 'should keep correct handler')
         })
@@ -595,8 +608,9 @@ QUnit.module('Core', (hooks) => {
             registerMockjaxHandler({ url: '/api/users', responseText: 'users' })
             registerMockjaxHandler({ url: '/api/posts', responseText: 'posts' })
             
-            clearByUrl(/\/api\/users/)
+            const clearCount = clearByUrl(/\/api\/users/)
             
+            assert.equal(clearCount, 1, 'should return proper count of cleared handlers')
             assert.equal(handlers().length, 1, 'should have 1 handler remaining')
             assert.equal(handlers()[0].url, '/api/posts', 'should keep correct handler')
         })
@@ -606,8 +620,9 @@ QUnit.module('Core', (hooks) => {
             registerMockjaxHandler({ url: pattern, responseText: 'user' })
             registerMockjaxHandler({ url: '/api/posts', responseText: 'posts' })
             
-            clearByUrl(/^\/api\/users\/\d+$/)
+            const clearCount = clearByUrl(/^\/api\/users\/\d+$/)
             
+            assert.equal(clearCount, 1, 'should return proper count of cleared handlers')
             assert.equal(handlers().length, 1, 'should have 1 handler remaining')
             assert.equal(handlers()[0].url, '/api/posts', 'should keep correct handler')
         })
@@ -617,8 +632,9 @@ QUnit.module('Core', (hooks) => {
             registerMockjaxHandler({ url: '/api/users/123', responseText: 'user' })
             registerMockjaxHandler({ url: '/api/posts', responseText: 'posts' })
             
-            clearByUrl(/\/api\/users/)
+            const clearCount = clearByUrl(/\/api\/users/)
             
+            assert.equal(clearCount, 2, 'should return proper count of cleared handlers')
             assert.equal(handlers().length, 1, 'should have 1 handler remaining')
             assert.equal(handlers()[0].url, '/api/posts', 'should keep correct handler')
         })
@@ -626,8 +642,9 @@ QUnit.module('Core', (hooks) => {
         it('should handle non-matching URL gracefully', (assert) => {
             registerMockjaxHandler({ url: '/api/test', responseText: 'test' })
             
-            clearByUrl('/api/nonexistent')
+            const clearCount = clearByUrl('/api/nonexistent')
             
+            assert.equal(clearCount, 0, 'should return proper count of cleared handlers')
             assert.equal(handlers().length, 1, 'should still have 1 handler')
         })
     })
@@ -819,7 +836,7 @@ QUnit.module('Core', (hooks) => {
 
         it('should clear all retained ajax calls when called with no arguments', (assert) => {
             const done = assert.async()
-            assert.expect(5)
+            assert.expect(6)
             const mockedUrl = '/foo'
             const unmockedUrl = '/foobar'
             const status = 201
@@ -838,7 +855,8 @@ QUnit.module('Core', (hooks) => {
                 defer2.always(() => {
                     assert.equal(unmockedAjaxCalls().length, 1, 'unmocked call was retained')
                     
-                    clearRetainedAjaxCalls()
+                    const count = clearRetainedAjaxCalls()
+                    assert.equal(count, 2, 'should return the correct count of removed calls')
                     assert.equal(mockedAjaxCalls().length, 0, 'mocked calls were cleared')
                     assert.equal(unmockedAjaxCalls().length, 0, 'unmocked calls were cleared')
 
@@ -850,16 +868,68 @@ QUnit.module('Core', (hooks) => {
             defer.resolveWith({}, [{ url: mockedUrl, status }])
         })
 
-        it('should handle array of handler IDs', (assert) => {
-            // Just verify the function can be called with an array
-            clearRetainedAjaxCalls(['id1', 'id2'])
-            assert.ok(true, 'should complete without error')
+        it('should only clear ajax calls matching mock handler IDs', (assert) => {
+            const done = assert.async()
+            const mockId = registerMockjaxHandler({ url: '/foo' })
+
+            const defer = mockAjaxCall({ url: '/foo' })
+            defer.always((xhr) => {
+                assert.equal(xhr.status, 200, 'The first ajax call was mocked with the correct status code')
+                const defer2 = mockAjaxCall({ url: '/foobar' })
+                defer2.always(() => {
+                    const count = clearRetainedAjaxCalls([mockId])
+                    assert.strictEqual(count, 1, 'should return the correct count of removed calls')
+                    assert.strictEqual(mockedAjaxCalls().length, 0, 'should have cleared mocked calls')
+                    const unmockedCalls = unmockedAjaxCalls()
+                    assert.equal(unmockedCalls.length, 1, 'there should be 1 unmocked ajax call retained')
+                    assert.equal(unmockedCalls[0].url, '/foobar', 'the retained unmocked call should have the correct URL')
+
+                    done()
+                })
+                defer2.resolveWith({}, [{ url: '/foobar', status: 404 }])
+            })
+            defer.resolveWith({}, [{ url: '/foo', status: 200 }])
         })
 
-        it('should handle array of handler IDs', (assert) => {
-            // Just verify the function can be called with an array
-            clearRetainedAjaxCalls(['id1', 'id2'])
-            assert.ok(true, 'should complete without error')
+        it('should handle array of mixed good and bad handler IDs', (assert) => {
+            const done = assert.async()
+            const mockId = registerMockjaxHandler({ url: '/foo' })
+
+            const defer = mockAjaxCall({ url: '/foo' })
+            defer.always((xhr) => {
+                assert.equal(xhr.status, 200, 'The first ajax call was mocked with the correct status code')
+                const defer2 = mockAjaxCall({ url: '/foobar' })
+                defer2.always(() => {
+                    const count = clearRetainedAjaxCalls(['id2', mockId])
+                    assert.strictEqual(count, 1, 'should return the correct count of removed calls')
+                    assert.strictEqual(mockedAjaxCalls().length, 0, 'should have cleared mocked calls')
+                    const unmockedCalls = unmockedAjaxCalls()
+                    assert.equal(unmockedCalls.length, 1, 'there should be 1 unmocked ajax call retained')
+                    assert.equal(unmockedCalls[0].url, '/foobar', 'the retained unmocked call should have the correct URL')
+
+                    done()
+                })
+                defer2.resolveWith({}, [{ url: '/foobar', status: 404 }])
+            })
+            defer.resolveWith({}, [{ url: '/foo', status: 200 }])
+        })
+
+        it('should handle array of only bad handler IDs', (assert) => {
+            const done = assert.async()
+            const defer = mockAjaxCall({ url: '/foobar' })
+            defer.always(() => {
+                const count = clearRetainedAjaxCalls(['id1', 'id2'])
+                assert.strictEqual(count, 0, 'should return the correct count of removed calls')
+                assert.equal(unmockedAjaxCalls().length, 1, 'there should be 1 unmocked ajax call retained')
+
+                done()
+            })
+            defer.resolveWith({}, [{ url: '/foobar', status: 404 }])
+        })
+
+        it('should clear nothing with no registered handlers', (assert) => {
+            const count = clearRetainedAjaxCalls()
+            assert.strictEqual(count, 0, 'should return the correct count of removed calls')
         })
     })
 
