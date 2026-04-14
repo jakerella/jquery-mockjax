@@ -392,7 +392,29 @@
 			complete: done
 		});
 	});
-	
+
+	t('Bug #123: match data in query format (limited params)', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/api/query',
+			data: {
+				foo: 'bar'
+			},
+			responseText: { foo: 'bar' }
+		});
+		
+		$.ajax({
+			url: '/api/query',
+			data: 'foo=bar&bat=baz',
+			success: function() {
+				assert.ok(true, 'Successfully matched data');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: done
+		});
+	});
+
 	t('Bug #123: don\'t match data in query format when not matching', function(assert) {
 		var done = assert.async();
 		
@@ -432,6 +454,29 @@
 		$.ajax({
 			url: '/api/query',
 			data: 'foo=bar&foo=bat&foo=baz',
+			success: function() {
+				assert.ok(true, 'Successfully matched data');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: done
+		});
+	});
+
+	t('match data in POST request', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '/api/foo',
+			data: {
+				bar: 'batbaz'
+			},
+			responseText: 'matched?'
+		});
+		
+		$.ajax({
+			url: '/api/foo',
+			method: 'POST',
+			data: { bar: 'batbaz', other: 'data' },
 			success: function() {
 				assert.ok(true, 'Successfully matched data');
 			},

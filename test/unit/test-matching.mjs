@@ -94,6 +94,7 @@ QUnit.module('Matching', (hooks) => {
         // Wildcard matching
         it('should match wildcard URLs', (assert) => {
             assert.ok(matchUrl('/api/*', '/api/users', null), 'wildcard matches single segment')
+            assert.notOk(matchUrl('/api/*', '/api/', null), 'wildcard does not match base path')
             assert.ok(matchUrl('/api/*', '/api/users/123', null), 'wildcard matches multiple segments')
             assert.ok(matchUrl('/api/*/profile', '/api/users/profile', null), 'wildcard in middle matches')
             assert.ok(matchUrl('*/users', '/api/users', null), 'wildcard at start matches')

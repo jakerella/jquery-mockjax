@@ -637,6 +637,32 @@
 		});
 	});
 
+	t('Dynamic mock definition - accessing request headers', function(assert) {
+		var done = assert.async();
+
+		$.mockjax(function( settings ) {
+			if (settings.headers.Authorization === 'api-key') {
+				return {
+					status: 201,
+					responseText: 'Auth key valid'
+				}
+			}
+			return null
+		});
+
+		$.ajax({
+			url: '/api',
+			headers: { Authorization: 'api-key' },
+			async: false,
+			error: qunit.noErrorCallbackExpected,
+			complete: function(xhr) {
+				assert.equal(xhr.status, 201, 'status is correct');
+				assert.equal(xhr.responseText, 'Auth key valid', 'Response text is correct');
+				done();
+			}
+		});
+	});
+
 	t('Dynamic mock response generation', function(assert) {
 		var done = assert.async();
 

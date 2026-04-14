@@ -180,7 +180,6 @@
  * @property {Object.<string, LogMethod>} logger - Logger object
  * @property {number} logLevel - How much to log (-1 = log nothing)
  * @property {number} logging - Deprecated, use logLevel
- * @property {string[]} logLevelMethods - Log level method names
  * @property {(string | null)} namespace - Global URL namespace
  * @property {number} status - Default HTTP status code
  * @property {string} statusText - Default status text
@@ -212,6 +211,7 @@
  * @property {?HTTPMethod} type - Deprecated, use method
  * @property {?HTTPMethod} method - The HTTP method to match against
  * @property {?DataMatcher} data - The HTTP request data to match against
+ * @property {?string} namespace - The namespace to override $.mockjaxSettings
  * @property {?Object.<string, string>} requestHeaders - The HTTP request headers to match against
  * @property {?number} status - The HTTP status code to return (100-599)
  * @property {?string} statusText - The HTTP status text to return

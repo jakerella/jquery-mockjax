@@ -94,4 +94,21 @@
 		});
 	});
 
+	t('match query data in GET request URL with wilcard', function(assert) {
+		var done = assert.async();
+		
+		$.mockjax({
+			url: '*?foo=bar'
+		})
+		
+		$.ajax({
+			url: '/api/query?foo=bar',
+			success: function() {
+				assert.ok(true, 'Successfully matched data');
+			},
+			error: qunit.noErrorCallbackExpected,
+			complete: done
+		});
+	});
+
 })(window.QUnit, window.jQuery);

@@ -11,20 +11,20 @@
 		var done = assert.async();
 
 		$.mockjax({
-				url: '/jsonp*',
-				contentType: 'text/json',
-				proxy: '../proxies/jsonp-script.js'
+			url: '/jsonp*',
+			contentType: 'text/json',
+			proxy: '../proxies/jsonp-script.js'
 		});
 
 		window.abcdef123456 = function() {};
 		var cxt = {context: 'context'};
 
 		$.ajax({
-				url: '/jsonp?callback=?',
-				jsonpCallback: 'abcdef123456',
-				dataType: 'jsonp',
-				error: qunit.noErrorCallbackExpected,
-				context: cxt
+			url: '/jsonp?callback=?',
+			jsonpCallback: 'abcdef123456',
+			dataType: 'jsonp',
+			error: qunit.noErrorCallbackExpected,
+			context: cxt
 		})
 		.done(function() {
 			assert.deepEqual(this, cxt, 'this is equal to context object');
@@ -37,9 +37,9 @@
 		var done = assert.async();
 
 		$.mockjax({
-				url: '/jsonp*',
-				contentType: 'text/json',
-				proxy: '../proxies/jsonp-script.js'
+			url: '/jsonp*',
+			contentType: 'text/json',
+			proxy: '../proxies/jsonp-script.js'
 		});
 
 		window.abcdef123456 = function() {};
