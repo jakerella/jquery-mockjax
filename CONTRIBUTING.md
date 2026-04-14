@@ -117,13 +117,13 @@ npm run test:browserstack
 ## Submit Your PR
 
 This is the last step! First, be sure you're merging with the correct branch! Version
-3.x of Mockjax is on the `master` branch, but if you're submitting a bug fix for v1.x 
-or v2.x, make sure it is submitted to the correct branch (as well as `master`, if the 
-bug exists in both).
+3.x of Mockjax is on the `master` branch, but if you're submitting a bug fix for v2.x, 
+make sure it is submitted to the correct branch (as well as `master`, if the bug exists 
+in both).
 
 Be sure to identify everything that is within your pull request in the description.
 If you have code that fixes a bug and also cleans up some documentation, please
-specify both! Additionally, if your PR fixes or resolves a specific Github issue
+specify both! Additionally, if your PR fixes or resolves a specific GitHub issue
 please reference it using the `#[id]` format so that the two can be linked!
 
 For new features, be sure to include information on _how to use_ the feature in the 
@@ -136,8 +136,8 @@ documentation on what goes into that in case anyone needs to take over the proce
 Currently, [@jakerella](/jakerella) is the only one doing so.
 
 1. Create a new branch for your version (maybe named `vx.y.z`)
-1. Run style checks, linting and all tests:
-    - Using `npm run build:dist` captures most of this
+1. Run style checks, linting, and all tests:
+    - Using `npm run build:dist` captures all of this
     - Also run `node browserstack.js` for cross-browser / OS checks
 1. Update the `CHANGELOG.md`, `package.json` version, and any other necessary files.
     - The version for Mockjax is ONLY located in the `package.json`
