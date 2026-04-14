@@ -1,6 +1,6 @@
 /*!
  * jQuery Mockjax v3.0.0 - https://github.com/jakerella/jquery-mockjax
- * Build Date: 2026-04-06
+ * Build Date: 2026-04-14
  * Copyright (c) 2026 Jordan Kasper and contributors, formerly appendTo
  * Licensed under the MIT license
  */
@@ -1646,7 +1646,7 @@ function clear(mechanism) {
 /**
  * Clear all mock handler(s)
  * @global
- * @returns {void}
+ * @returns {null} The number of cleared mock handlers
  */
 function clearAll() {
     mockHandlers.length = 0
@@ -1656,13 +1656,14 @@ function clearAll() {
     }
     clearRetainedAjaxCalls(removed)
     getLogger().log(`Cleared all ${removed.length} mock handlers and retained mocked ajax calls.`)
+    return removed.length
 }
 
 /**
  * Clear mock handler(s) by handler ID
  * @global
  * @param {string} [id] - Handler ID (UUID)
- * @returns {void}
+ * @returns {number} The number of cleared mock handlers (either 0 or 1, in this case)
  */
 function clearById(id) {
     if (mockHandlerLookup[id]) {
@@ -1673,7 +1674,9 @@ function clearById(id) {
             clearRetainedAjaxCalls([id])
         }
         getLogger().log(`Cleared mock handler ${id} and retained mocked ajax calls.`)
+        return 1
     }
+    return 0
 }
 
 /**
@@ -1682,7 +1685,7 @@ function clearById(id) {
  * that matches exactly (according to RegExp.toString())
  * @global
  * @param {string|RegExp} [urlOrPattern] - A string url path or url regexp
- * @returns {void}
+ * @returns {number} The number of cleared mock handlers
  */
 function clearByUrl(urlOrPattern) {
     const removed = []
@@ -1709,6 +1712,7 @@ function clearByUrl(urlOrPattern) {
     getLogger().log(
         `Cleared ${removed.length} mock handlers by URL and retained mocked ajax calls.`
     )
+    return removed.length
 }
 
 /**
@@ -1722,7 +1726,7 @@ function handlers(ids) {
         return mockHandlers.map((h) => {
             const cloned = (0,utils/* deepClone */.G)(h)
             cloned.clear = function () {
-                clearById(this.id)
+                return clearById(this.id)
             }
             return cloned
         })
@@ -1735,7 +1739,7 @@ function handlers(ids) {
         }
         const cloned = (0,utils/* deepClone */.G)(mockHandler)
         cloned.clear = function () {
-            clearById(this.id)
+            return clearById(this.id)
         }
         return cloned
     })
@@ -1792,21 +1796,24 @@ function unmockedAjaxCalls() {
  * Clear all retained AJAX call records
  * @global
  * @param {?string[]} mockHandlerIds - An optional array of mock handler IDs to restrict clearing of retained ajax calls
- * @returns {void}
+ * @returns {number} The number of cleared ajax call settings
  */
 function clearRetainedAjaxCalls(mockHandlerIds) {
-    const removeCount = mockHandlerIds?.length || retainedAjaxCalls.length
+    let removeCount = 0
     if (!mockHandlerIds) {
+        removeCount = retainedAjaxCalls.length
         retainedAjaxCalls.length = 0
     } else {
         for (let i = retainedAjaxCalls.length - 1; i > -1; --i) {
             const call = retainedAjaxCalls[i]
             if (call.mocked === true && mockHandlerIds.includes(call.mockHandlerId)) {
+                removeCount++
                 retainedAjaxCalls.splice(i, 1)
             }
         }
     }
     getLogger().log(`Cleared ${removeCount} retained ajax calls.`)
+    return removeCount
 }
 
 /**************************************/

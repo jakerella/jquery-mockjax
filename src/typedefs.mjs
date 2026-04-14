@@ -222,7 +222,6 @@
  * @property {?string} proxy - The URL to proxy the request to
  * @property {?HTTPMethod} proxyType - The HTTP method to use for proxying
  * @property {?Object.<string, string>} responseHeaders - The HTTP response headers to return
- * @property {?string} namespace - The namespace to override $.mockjaxSettings
  * @property {string} lastModified - The date to use for the last modification for this request (used internally in jQuery)
  * @property {string} etag - Unique identifier referencing a specific version of the requested data (used internally by jQuery)
  * @property {?CallbackWithRequestSettings} onAfterSuccess - A callback fired after the $.ajax success method has been called
