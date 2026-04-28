@@ -1,5 +1,5 @@
 
-## 2026-04-19 v3.0.0
+## 2026-04-28 v3.0.0
 
 * Migrated all source code to modern JavaScript syntax.
 * Migrated to modern ES Modules and build system.
