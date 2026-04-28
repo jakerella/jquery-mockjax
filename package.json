@@ -1,14 +1,11 @@
 {
   "name": "jquery-mockjax",
   "title": "jQuery Mockjax",
-  "version": "2.7.0",
-  "main": "./src/jquery.mockjax.js",
+  "version": "3.0.0",
+  "main": "./dist/jquery.mockjax.js",
+  "module": "./src/attach.mjs",
   "description": "The jQuery Mockjax Plugin provides a simple and extremely flexible interface for mocking or simulating ajax requests and responses.",
   "url": "https://github.com/jakerella/jquery-mockjax",
-  "scripts": {
-    "test": "grunt test:all",
-    "build": "grunt build"
-  },
   "keywords": [
     "ajax",
     "mock",
@@ -41,32 +38,73 @@
   "bugs": {
     "web": "http://github.com/jakerella/jquery-mockjax/issues"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://opensource.org/licenses/MIT"
+  "license": "MIT",
+  "scripts": {
+    "build": "npx webpack --mode production --config webpack.config.mjs",
+    "build:dist": "npm run style && npm run lint && npm run coverage && npm run build && npm run test:integration:all && npm run test:nodejs && npm run test:requirejs",
+    "test": "npm run test:unit",
+    "test:unit": "npx qunit --reporter ../../../../test/qunit-reporter.cjs test/unit/test-*",
+    "test:integration": "npm run test:integration:latest",
+    "test:integration:all": "node test/integration/runner.mjs all",
+    "test:integration:latest": "node test/integration/runner.mjs latest",
+    "test:nodejs": "npx qunit --reporter ../../../../test/qunit-reporter.cjs test/nodejs/test-*",
+    "test:requirejs": "node test/requirejs/runner.mjs",
+    "test:all": "npm run test:unit && npm run test:integration:all && npm run test:nodejs && npm run test:requirejs",
+    "test:browserstack": "node test/browserstack.mjs",
+    "coverage": "npx c8 npm run test:unit",
+    "lint": "npx eslint",
+    "lint:fix": "npx eslint --fix",
+    "style": "npx prettier --write 'src/**/*.mjs'",
+    "style:check": "npx prettier --check 'src/**/*.mjs'",
+    "watch:build": "npx npm-watch build",
+    "watch:test": "npx npm-watch test:unit"
+  },
+  "watch": {
+    "build": {
+      "patterns": [
+        "src",
+        "webpack.config.mjs",
+        "webpack.custom-umd.mjs"
+      ],
+      "extensions": "mjs,cjs,js",
+      "delay": 1500
+    },
+    "test:unit": {
+      "patterns": [
+        "src",
+        "test"
+      ],
+      "extensions": "mjs,cjs,js,json,html",
+      "delay": 1500
     }
-  ],
+  },
   "devDependencies": {
-    "browserify": "^17.0.0",
+    "@eslint/js": "^10.0.1",
     "browserstack-runner": "^0.9.4",
-    "grunt": "^1.6.1",
-    "grunt-browserify": "^6.0.0",
-    "grunt-contrib-concat": "^2.1.0",
-    "grunt-contrib-connect": "^4.0.0",
-    "grunt-contrib-jshint": "^3.2.0",
-    "grunt-contrib-qunit": "^8.0.1",
-    "grunt-contrib-uglify": "^5.2.2",
-    "grunt-contrib-watch": "^1.1.0",
-    "grunt-mocha-test": "^0.13.3",
+    "c8": "^11.0.0",
+    "eslint": "^10.0.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsdoc": "^62.8.0",
     "http-server": "^14.1.1",
-    "jquery": "^4.0.0",
-    "jsdom": "^24.0.0",
-    "load-grunt-tasks": "^5.1.0",
-    "mocha": "^10.3.0",
-    "puppeteer": "^22.1.0",
-    "qunit": "^2.20.1",
-    "sinon": "^17.0.1",
+    "jsdoc-tsimport-plugin": "^1.0.5",
+    "jsdom": "^28.1.0",
+    "npm-watch": "^0.13.0",
+    "prettier": "^3.8.1",
+    "puppeteer": "^24.39.0",
+    "qunit": "^2.25.0",
+    "sinon": "^21.0.2",
+    "terser-webpack-plugin": "^5.4.0",
+    "webpack": "^5.105.4",
+    "webpack-cli": "^6.0.1",
     "xmlhttprequest": "^1.8.0"
+  },
+  "peerDependencies": {
+    "jquery1": "npm:jquery@^1.12.4",
+    "jquery2": "npm:jquery@^2.2.4",
+    "jquery3": "npm:jquery@^3.7.1",
+    "jquery4": "npm:jquery@^4.0.0"
+  },
+  "optionalDependencies": {
+    "requirejs": "^2.3.8"
   }
 }

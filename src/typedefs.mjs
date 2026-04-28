@@ -1,0 +1,297 @@
+/**
+ * @module TypeDefinitions
+ */
+
+/**
+ * Valid HTTP methods enum
+ * @typedef {('GET' | 'POST' | 'PUT' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'CONNECT' | 'TRACE' | 'PATCH')} HTTPMethod
+ */
+
+/**
+ * Valid XHR readyState enum
+ * @typedef {(0 | 1 | 2 | 3 | 4)} ReadyState
+ */
+
+/* eslint-disable jsdoc/reject-any-type */
+/**
+ * Any valid value (used for things like logging and responseText)
+ * @private
+ * @typedef {*} AnyType
+ */
+/* eslint-enable jsdoc/reject-any-type */
+
+/**
+ * Valid Ajax callback method types
+ * @private
+ * @typedef {('Success' | 'Error' | 'Complete')} AjaxCallbackType
+ */
+
+/**
+ * A method called once a async operation is complete
+ * @private
+ * @callback AsyncComplete
+ * @param {...AnyType}
+ * @returns {void}
+ */
+
+/**
+ * A simple function which takes no arguments and returns no value
+ * @private
+ * @function VoidMethod
+ * @returns {void}
+ */
+
+/**
+ * A callback with jQuery ajax settings as its only parameter
+ * @private
+ * @callback CallbackWithRequestSettings
+ * @param {JQueryAjaxSettings} requestSettings - The request settings to generate the response from
+ * @returns {void}
+ */
+
+/**
+ * Request Data matching function
+ * @function DataMatcherFn
+ * @param {RequestData} requestData - The data to match against
+ * @returns {boolean} Whether the data was matched against or not
+ */
+
+/* eslint-disable jsdoc/check-types */
+/**
+ * The matcher for request data
+ * @typedef {(DataMatcherFn | string | Object.<string, DataMatcher>)} DataMatcher
+ */
+/* eslint-enable jsdoc/check-types */
+
+/* eslint-disable jsdoc/check-types */
+/**
+ * Data in the ajax request settings
+ * @typedef {Object.<string, (string | RequestData | Array)>} RequestData
+ */
+/* eslint-enable jsdoc/check-types */
+
+/**
+ * A function to determine if an ajax call should be matched or not
+ * @function TypeDefinitions.DynamicMockHandler
+ * @param {JQueryAjaxSettings} requestSettings - The request settings to determine mock or not
+ * @returns {(MockHandler | null)} - The dynamically generated mock handler, or null if not mocked
+ */
+
+/**
+ * A Deferred method to send args given context
+ * @private
+ * @function MethodWithContextAndArgs
+ * @param {object} context The context the function should execute within
+ * @param {...AnyType} args The arguments to send
+ * @returns Deferred
+ */
+
+/**
+ * A callback provided to a Deferred event such as done, fail, or always
+ * @private
+ * @function DeferredHandler
+ * @param {...AsyncComplete}
+ * @returns {void}
+ */
+
+/**
+ * A function to dynamically handle generating an HTTP response.
+ * The response fields should be added to the requestSettings
+ * @function TypeDefinitions.DynamicResponseHandler
+ * @param {JQueryAjaxSettings} requestSettings - The request settings to generate the response from
+ * @param {?AsyncComplete} done - The async completion callback
+ * @returns {void}
+ */
+
+/**
+ * A method for logging any number of arguments passed in
+ * @private
+ * @function LogMethod
+ * @param {...AnyType} elements - The things you want to be logged
+ * @returns {void}
+ */
+
+/**
+ * A generic callback used internally for forwarding arguments from jQuery ajax callback
+ * @private
+ * @function AjaxCallback
+ * @param {...AnyType} elements - The arguments to the original callback
+ * @returns {void}
+ */
+
+/**
+ * A callback function for JSONP calls
+ * @callback JSONPCallback
+ * @param {JQueryAjaxSettings} requestSettings - The ajax request settings
+ * @param {object} callbackContext - The context in which the callbacak is executed
+ * @param {?MockHandler} mockHandler - The mock handler used (only on success)
+ * @returns {void}
+ */
+
+/**
+ * A method for setting a header with a name and value
+ * @private
+ * @function SetHeader
+ * @param {string} name - The name of the header
+ * @param {string} value - The value of the header
+ * @returns {void}
+ */
+
+/**
+ * A method for retrieving a header's value by name
+ * @private
+ * @function GetHeader
+ * @param {string} name - The name of the header
+ * @returns {(string | undefined)} The header's value or undefined if no header exists
+ */
+
+/**
+ * A method for retrieving all headers in a line-delimited and colon-separated string
+ * @private
+ * @function GetHeaders
+ * @returns {string} The header names and values, delimited by newlines ("one: value\ntwo: other")
+ */
+
+/* eslint-disable jsdoc/valid-types */
+/**
+ * The main Mockjax object, which is also a function for registering
+ * new mock ajax handlers. The attached functions below are the
+ * public interface for Mockjax
+ * @typedef {object} Mockjax
+ * @property {function} getSettings A method to retrieve the current Mockjax global settings (same as accessing $.mockjaxSettings)
+ * @property {function} resetSettings A method to reset the Mockjax global settings to their defaults
+ * @property {function} validateSettings A method to validate the current Mockjax global settings
+ * @property {function} clear Deprecated, use one of the specific ClearByXx() methods
+ * @property {function} clearById A method to clear a single mock handler by its ID
+ * @property {function} clearByUrl A method to clear all mock handlers matching a URL
+ * @property {function} clearAll A method to clear all currently registered mock handlers
+ * @property {function} handler Deprecated, use handlers() with an array of size 1
+ * @property {function} handlers A method to retrieve clones of mock handlers by an array of IDs
+ * @property {function} unfiredHandlers A method to retrieve an array of all mock handlers not yet matched by an ajax call
+ * @property {function} mockedAjaxCalls A method to retrieve the settings for all ajax calls that have been mocked
+ * @property {function} unmockedAjaxCalls A method to retrieve the settings for all ajax calls that have NOT been mocked
+ * @property {function} clearRetainedAjaxCalls A method to clear all ajax calls that have been retained, regardless of mock status
+ */
+/* eslint-enable jsdoc/valid-types */
+
+/**
+ * Global configuration settings for mockjax
+ * @typedef {object} MockjaxSettings
+ * @property {Object.<string, LogMethod>} logger - Logger object
+ * @property {number} logLevel - How much to log (-1 = log nothing)
+ * @property {number} logging - Deprecated, use logLevel
+ * @property {(string | null)} namespace - Global URL namespace
+ * @property {number} status - Default HTTP status code
+ * @property {string} statusText - Default status text
+ * @property {number} responseTime - Default response time in ms
+ * @property {boolean} isTimeout - Default timeout flag
+ * @property {boolean} throwUnmocked - Throw error on unmocked requests
+ * @property {number} retainAjaxCalls - number of AJAX calls to retain
+ * @property {string} contentType - Default content type
+ * @property {(TypeDefinitions.DynamicResponseHandler | null)} response - Default response function
+ * @property {AnyType} responseText - Default response text
+ * @property {(string | null)} responseXML - Default for XML responses
+ * @property {(string | null)} proxy - Default proxy URL
+ * @property {HTTPMethod} proxyType - Deprecated, use proxyMethod
+ * @property {HTTPMethod} proxyMethod Default proxy HTTP method
+ * @property {string | null} lastModified - Default last modified header
+ * @property {string} etag - Default etag header
+ * @property {Object.<string, string>} headers - Deprecated, use responseHeaders
+ * @property {Object.<string, string>} responseHeaders - Default response headers
+ * @property {boolean} matchInRegistrationOrder - Match handlers in registration order
+ * @property {boolean} followRedirects - Whether or not to follow 3XX status code redirects
+ */
+
+/**
+ * Valid options for a jQuery Mockjax handler. Note that any missing
+ * options for the Response will be pulled from $.mockjaxSettings.
+ * One of (url, type, data, or requestHeaders) must be provided.
+ * @typedef {object} MockHandler
+ * @property {?(string | RegExp)} url - The URL to match against
+ * @property {?HTTPMethod} type - Deprecated, use method
+ * @property {?HTTPMethod} method - The HTTP method to match against
+ * @property {?DataMatcher} data - The HTTP request data to match against
+ * @property {?string} namespace - The namespace to override $.mockjaxSettings
+ * @property {?Object.<string, string>} requestHeaders - The HTTP request headers to match against
+ * @property {?number} status - The HTTP status code to return (100-599)
+ * @property {?string} statusText - The HTTP status text to return
+ * @property {?number} responseTime - The response delay in milliseconds (non-negative)
+ * @property {?string} contentType - The Content-Type header for the response
+ * @property {?TypeDefinitions.DynamicResponseHandler} response - A function to call for generating the HTTP Response
+ * @property {?AnyType} responseText - The response text string to return; if an object, will become stringified JSON
+ * @property {?string} proxy - The URL to proxy the request to
+ * @property {?HTTPMethod} proxyType - The HTTP method to use for proxying
+ * @property {?Object.<string, string>} responseHeaders - The HTTP response headers to return
+ * @property {string} lastModified - The date to use for the last modification for this request (used internally in jQuery)
+ * @property {string} etag - Unique identifier referencing a specific version of the requested data (used internally by jQuery)
+ * @property {?CallbackWithRequestSettings} onAfterSuccess - A callback fired after the $.ajax success method has been called
+ * @property {?CallbackWithRequestSettings} onAfterError - A callback fired after the $.ajax error method has been called
+ * @property {?CallbackWithRequestSettings} onAfterComplete - A callback fired after the $.ajax complete method has been called
+ * @property {string} id - A UUID for this handler (auto-generated)
+ * @property {boolean} fired - Whether this handler has been used (auto-generated)
+ * @property {number} registeredAt - The timestamp when this handler was registered (auto-generated)
+ */
+
+/**
+ * The current jQuery ajaxSettings (from version 4.0.0). Note that
+ * there are many other properties and  callback methods not
+ * specified here, but supported by the framework.
+ * https://api.jquery.com/jQuery.ajax/
+ *
+ * Additionally, this object includes three Mockjax properties added on
+ * (mocked, mockHandlerId, and a timestamp) for tracking mockjax operations.
+ * @typedef {object} JQueryAjaxSettings
+ * @property {string} url - The location for the request (location.href)
+ * @property {HTTPMethod} method - The HTTP Method ("GET")
+ * @property {boolean} async - Is the call asynchronous? (true)
+ * @property {string} contentType - Standard contentType specification for request data ("application/x-www-form-urlencoded; charset=UTF-8")
+ * @property {number} timeout - The amount of time to wait before timeout (or 0 to never timeout, the default)
+ * @property {(string | Array | object)} data - string for query string or object for body data fields (null)
+ * @property {string} dataType - The data type for the call (i.e. script or jsonp) (null)
+ * @property {?string} username - For basic HTTP auth (null)
+ * @property {?string} password - For basic HTTP auth (null)
+ * @property {Object.<string, string>} headers - Any request headers to send ({})
+ * @property {?boolean} mocked - Whether this ajax call was mocked
+ * @property {?(string | null)} mockHandlerId - The ID of the mock handler used to mock this ajax call if it was mocked
+ * @property {?number} timestamp - The timestamp when this call was initiated
+ */
+
+/**
+ * A mock of an XMLHttpRequest object that can be used to simulate
+ * an ajax call inside of jQuery. Note that this does NOT implement
+ * all methods of a real XHR object, OR of the jqXHR, so it should
+ * not be used outside of the Mockjax library!
+ * @typedef {object} MockXHR
+ * @property {number} status The mocked HTTP status code
+ * @property {string} statusText The mocked HTTP status text
+ * @property {ReadyState} readyState The state of the mock XHR
+ * @property {VoidMethod} open For mocked calls this is a no-op function
+ * @property {VoidMethod} send For mocked calls, this will execute a mocked XHR send and sets the "fired" property to true (takes no arguments)
+ * @property {VoidMethod} abort For mocked calls, this will clear the timeout that has been set (takes no arguments)
+ * @property {SetHeader} setRequestHeader Sets a single mocked request header (accepts header and value as arguments)
+ * @property {GetHeader} getResponseHeader Retreives a single mocked header (accepts header name as argument)
+ * @property {GetHeaders} getAllResponseHeaders Retrieves all mocked request headers as "name: value", separated by newlines (accepts no arguments)
+ * @property {number} responseTimer The ID of the timeout handler for this XHR
+ */
+
+/**
+ * A Promise-like object that will execute provided ccallbacks if supplied
+ * @private
+ * @typedef {object} Deferred
+ * @property {MethodWithContextAndArgs} resolveWith A method to resolve a Deferred in a given context
+ * @property {DeferredHandler} done Call to set handlers for when this Deferred is complete
+ * @property {DeferredHandler} then Call to set handlers for when this Deferred succeeds
+ * @property {DeferredHandler} fail Call to set handlers for when this Deferred fails
+ * @property {DeferredHandler} catch Call to set handlers for when this Deferred fails
+ * @property {DeferredHandler} always Call to set handlers for when this Deferred is complete
+ */
+
+/**
+ * Mock jqXHR which is a combination of XHR and Deferred, typically
+ * returned from a $.ajax() call
+ * @private
+ * @typedef {object} jqXHR
+ * @augments MockXHR The base MoxkXHR created by Mockjax
+ * @augments Deferred The jQuery Deferred interface
+ * @property {AsyncComplete} statusCode A method to retrieve the status code once ready
+ */

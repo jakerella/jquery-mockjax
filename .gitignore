@@ -3,8 +3,8 @@
 *.swp
 .idea/
 *.iml
+*.log
 node_modules/
-npm-debug.log
-package-lock.json
-
 test/browserify/bundle.js
+coverage/
+browserstack-test-report.json

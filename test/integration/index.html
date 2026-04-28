@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>MockJax Integration Tests</title>
+        <link rel='stylesheet' href='../../node_modules/qunit/qunit/qunit.css' type='text/css' media='screen' />
+        <style>
+            #jquery-switcher {
+                padding: 0.5em 0 0.5em 1em;
+                color: #C2CCD1;
+                background-color: #0D3349;
+                font-size: 1.3em;
+                line-height: 1em;
+            }
+            #jquery-switcher a {
+                text-decoration: none;
+                color: inherit;
+            }
+            #jquery-switcher a:hover {
+                color: #fff;
+            }
+        </style>
+        
+        <script src='../../node_modules/qunit/qunit/qunit.js'></script>
+        <script src='../../node_modules/sinon/pkg/sinon.js'></script>
+        <script>
+        if (/HeadlessChrome/.test(window.navigator.userAgent)) {
+            QUnit.config.autostart = false;
+        }
+        </script>
+
+        <script src='prepare-test-suite.js'></script>
+
+      </head>
+    <body>
+        <header>
+            <h1 id='qunit-header'>
+                Mockjax v<span id='mockjax-version'></span><br>
+            </h1>
+            <aside id='jquery-switcher'>
+                jQuery Version: 
+                <span id='jquery-versions'></span>
+                <button id='runall' disabled='disabled'>Run All Versions</button>
+            </aside>
+            <h2 id='qunit-banner'></h2>
+            <h2 id='qunit-userAgent'></h2>
+        </header>
+        <ol id='qunit-tests'></ol>
+    </body>
+</html>

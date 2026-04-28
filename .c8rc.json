@@ -1,0 +1,12 @@
+{
+    "all": true,
+    "src": "src/",
+    "include": ["src/**/*.mjs"],
+    "exclude": ["src/typedefs.mjs"],
+    "perFile": true,
+    "checkCoverage": true,
+    "statements": 90,
+    "branches": 90,
+    "functions": 90,
+    "lines": 90
+}

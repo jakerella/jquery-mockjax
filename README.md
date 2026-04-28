@@ -1,855 +1,963 @@
-# jQuery Mockjax: Ajax request mocking #
+# jQuery Mockjax: Ajax request mocking
 
-There are some minor breaking changes in v2, so if you need an older version, please check the [v1.x](https://github.com/jakerella/jquery-mockjax/tree/v1.x) branch or the list of [releases](https://github.com/jakerella/jquery-mockjax/tags) in Github.
+jQuery Mockjax provides robust HTTP request & response mocking during front end testing for the $.ajax() method.
 
-jQuery Mockjax provides request/response mocking for ajax requests using the jQuery API and provides all standard behaviors in the request/response flow.
+There are some **major breaking changes in v3**, so if you need an older version, please check the [v2.x](https://github.com/jakerella/jquery-mockjax/tree/v2.x) branch or the list of [releases](https://github.com/jakerella/jquery-mockjax/tags) in GitHub.
 
-You may report any issues you may find [in the github issue tracking](https://github.com/jakerella/jquery-mockjax/issues).
+> Please note that this is a tool for **testing** your front end code without a server. It is not intended for use in a production environment!
 
-**Table of Contents**
+## Your first mock
 
-* [About Mockjax and Its History](#about-mockjax-and-its-history)
-* [Basic Documentation](#basic-documentation)
-  * [API Methods](#api-methods)
-  * [Overview: Your First Mock](#overview-your-first-mock)
-  * [Mockjax in Depth](#mockjax-in-depth)
-* [Detailed Request and Response Definition](#detailed-request-and-response-definition)
-  * [Defining a Request to Match](#defining-a-request-to-match)
-  * [Defining Multiple Requests](#defining-multiple-requests)
-  * [Defining a Response](#defining-a-response)
+Include the `jquery.mockjax.js` file in your tests, then before your test cases, register your HTTP mocks. For example, if you have an API endpoint at `/api/products` that returns an array of products for sale, you could mock that out like so:
+
+```javascript
+$.mockjax({
+  url: '/api/products',
+  responseText: [
+    { id: 13, name: 'rubber duck' },
+    { id: 42, name: 'house plant' }
+  ]
+})
+```
+
+Now, when your test harness runs your source code and it in turn runs `$.ajax('/api/products')`, the mock response will be provided to your application instead of hitting a live server!
+
+
+## Documentation Table of Contents
+
+* [Basic Usage](#basic-usage)
+  * [Core Principles](#basic-principles)
+  * [Public API Methods](#public-api-methods)
+  * [`MockHandler` Object](#mockhandler-object)
+  * [Global Mockjax Settings](#global-mockjax-settings)
+  * [`MockjaxRequestSettings` Object](#mockjaxrequestsettings-object)
+* [Detailed Request Matching](#detailed-request-matching)
+  * [Matching on the URL](#matching-on-the-url)
+  * [Matching on the Data](#matching-on-the-data)
+  * [Matching on the Request Headers](#matching-on-the-request-headers)
+  * [Matching on the HTTP Method](#matching-on-the-http-method)
+  * [Registering Multiple Handlers](#registering-multiple-handlers)
+* [Detailed Response Definition](#detailed-response-definition)
+  * [Inline Responses](#inline-responses)
+  * [Using a Proxy](#using-a-proxy)
+  * [Dynamic Response Functions](#dynamic-response-functions)
+    * [Capturing URL parameters](#capturing-url-parameters)
 * [Advanced Mocking Techniques](#advanced-mocking-techniques)
   * [Simulating Response Time and Latency](#simulating-response-time-and-latency)
   * [Simulating HTTP Response Statuses](#simulating-http-response-statuses)
-  * [Setting the Content-Type](#setting-the-content-type)
   * [Setting Additional HTTP Response Headers](#setting-additional-http-response-headers)
-  * [Dynamically Generating Mock Definitions](#dynamically-generating-mock-definitions)
-  * [Accessing Request Headers](#accessing-request-headers)
-  * [Forced Simulation of Server Timeouts](#forced-simulation-of-server-timeouts)
   * [Dynamically Generating Mock Responses](#dynamically-generating-mock-responses)
-  * [Data Types](#data-types)
+  * [Forced Simulation of Server Timeouts](#forced-simulation-of-server-timeouts)
+  * [Using Other Data Types](#using-other-data-types)
+    * [Mocking JSONP](#mocking-jsonp)
   * [Performing Actions After Request Completion](#performing-actions-after-request-completion)
-  * [Globally Defining Mockjax Settings](#globally-defining-mockjax-settings)
-  * [Setting a Global URL Namespace](#setting-global-url-namespace)
-  * [Removing Mockjax Handlers](#removing-mockjax-handlers)
+  * [Setting a Global URL Namespace](#setting-a-global-url-namespace)
+  * [Globally Defining Match Order](#globally-defining-match-order)
+  * [Managing Mockjax Data](#managing-mockjax-data)
 * [Miscellaneous Information](#miscellaneous-information)
+  * [About Mockjax and Its History](#about-mockjax-and-its-history)
   * [jQuery Version Support](#jquery-version-support)
   * [Browsers Tested](#browsers-tested)
-  * [Using Mockjax in Other Ways (Node, browserify, etc)](#using-mockjax-in-other-ways)
+  * [Using Mockjax in Other Ways](#using-mockjax-in-other-ways)
   * [Logging](#logging)
+    * [Implement a custom logger](#implement-a-custom-logger)
   * [Release History](#release-history)
   * [License](#license)
+  * [Contributing](#contributing)
 
 
-## About Mockjax and Its History ##
+## Basic Usage
 
-Most backend developers are familiar with the concepts of [mocking
-objects](http://en.wikipedia.org/wiki/Mock_object) or stubbing in
-methods for unit testing. For those not familiar with mocking, it's the
-simulation of an interface or API for testing or integration development
-purposes. Mocking with front-end development though is still quite new. Mockjax
-gives front end developers the ability to define ajax requests that should be
-mocked out, as well as how those requests should be responded to. These mocks
-can be extremely simple or quite complex, representing the entire request-response
-workflow.
+### Core Principles
 
-This plugin was originally developed by appendTo in March 2010. That company
-closed in 2014 and the project was taken over by a former employee, 
-[@jakerella](https://jordankasper.com).
+This library is intended to help test front end code by mocking out your back end server. So long as every HTTP request your front end code makes is via `$.ajax()`, you can mock out your entire back end using Mockjax.
 
+We accomplish this by replacing the stock jQuery `ajax` method with our own version, intercepting every HTTP request and comparing it to the mock handlers you have registered beforehand. If there is a match, we send back your mock response instead of executing a real XMLHTTPRequest. Don't worry, we replicate all of the functionality of an ajax call, so your callbacks will all still execute as expected.
 
-## Basic Documentation ##
+Let's say you have some code in your application that calls the back end to retrieve the current set of products for sale when someone clicks on a button.
 
-### API Methods ###
-
-Mockjax consists of just a few methods, each listed below. You'll find plenty of
-examples in the sections below, but if you're looking for a specific option,
-checkout this list:
-
-* `Number $.mockjax(/* Object */ options)`
-  * Sets up a mockjax handler for a matching request
-  * Returns that handler's index, can be used to clear individual handlers
-  * `options`: [Object] Defines the settings to use for the mocked request
-      * `url`: [String | RegExp] Specifies the url of the request that the data should be mocked for. If it is a string and contains any asterisks ( `*` ), they will be treated as a wildcard by translating to a regular expression. Any `*` will be replaced with `.+`. If you run into trouble with this shortcut, switch to using a full regular expression instead of a string and asterisk combination
-      * `data`: [Object | Function] In addition to the URL, match parameters
-      * `type`: [String] Specify what HTTP method to match, usually GET or POST. Case-insensitive, so `get` and `post` also work
-      * `headers`: [Object] Keys will be simulated as additional headers returned from the server for the request (**NOTE: This is NOT used to match request headers!**)
-      * `status`: [Number] An integer that specifies a valid server response code. This simulates a server response code
-      * `statusText`: [String] Specifies a valid server response code description. This simulates a server response code description
-      * `responseTime`: [Number] An integer that specifies a simulated network
-         and server latency (in milliseconds). Default is `500`. Setting this
-	 to `0` will minimize the simulated latency
-      * `isTimeout`: [Boolean] Determines whether or not the mock will force a timeout on the request
-      * `contentType`: [String] Specifies the content type for the response
-      * `response`: [Function] A function that accepts the request settings and allows for the dynamic setting of response settings (including the body of the response) upon each request (see examples below)
-      * `responseText`: [String] Specifies the mocked text, or a mocked object literal, for the request
-      * `responseXML`: [String] Specifies the mocked XML for the request
-      * `proxy`: [String] Specifies a path to a file, from which the contents will be returned for the request
-      * `lastModified`: [String] A date string specifying the mocked last-modified time for the request. This is used by `$.ajax` to determine if the requested data is new since the last request
-      * `etag`: [String] Specifies a unique identifier referencing a specific version of the requested data. This is used by `$.ajax` to determine if the requested data is new since the last request. (see [HTTP_ETag](http://en.wikipedia.org/wiki/HTTP_ETag))
-      * `onAfterSuccess`: [Function] A callback that will be called after the success method has been called, this is useful to check a condition after the call has been completed
-      * `onAfterError`: [Function] A callback that will be called after the error method has been called, this is useful to check a condition after the call has been completed
-      * `onAfterComplete`: [Function] Similar to onAfterSuccess, but will be executed after the complete method has been called
-* `Object $.mockjax.handler(/* Number */ id)`
-  * Returns the mock request settings for the handler with the provided `id`. Be careful here, you're accessing the inner workings of the plugin, any changes to this object could be bad.
-* `Array $.mockjax.handlers()`
-  * Returns the array of mock handlers. **NOTE:** This array is NOT modified when a handler is cleared, the cleared handler position is simply set to `null`. As such, the array length will only change when new mocks are added. Be careful here, you're accessing the inner workings of the plugin, any changes to the array could be very bad.
-* `void $.mockjax.clear([/* Number || String */ identifier])`
-  * If the `identifier` provided is a Number, the handler with that ID is cleared (that is, requests matching it will no longer do so, the handler is completely removed)
-  * If the `identifier` provided is a String, the handler with that matching URL is cleared.
-  * If no `identifier` is provided, *ALL handlers are cleared*, resetting Mockjax to its initial state
-* `Array<Object> $.mockjax.mockedAjaxCalls()`
-  * Returns an array of all mocked ajax calls with each entry being the request settings object as passed into the `$.mockjax()` function
-  * If `$.mockjaxSettings.retainAjaxCalls is set to false, this will always be empty
-* `Array<Object> $.mockjax.unfiredHandlers()`
-  * Returns an array of all mock handler settings that have not been used. In other words, if a handler has been used for a `$.ajax()` call then it will _not_ appear in this array
-* `Array<Object> $.mockjax.unmockedAjaxCalls()`
-  * Returns an array of all unmocked Ajax calls that were made. The array contains the settings object passed into `$.ajax({...})`
-  * If `$.mockjaxSettings.retainAjaxCalls is set to false, this will always be empty
-* `void $.mockjax.clearRetainedAjaxCalls()`
-  * Empties the arrays returned by `$.mockjax.mockedAjaxCalls` and `$.mockjax.unmockedAjaxCalls`
-
-### Overview: Your First Mock ###
-
-Our first example will be for a simple REST service for a fortune app
-with the REST endpoint being `/restful/fortune` which returns the
-following JSON message:
-
-```json
-{
-    "status": "success",
-    "fortune" : "Are you a turtle?"
+```javascript
+function getProducts() {
+  $.ajax('/api/items', {
+    dataType: 'json',
+    error: (err) => { showErrorMessage(err) },
+    success: (data) => {
+      data.forEach(item => {
+        $('ul.products').append(`<li id='item-${item.id}'>${item.name}</li>`)
+      })
+    }
+  })
 }
+$('button.get-products').click(getProducts)
 ```
 
-To pull the fortune into our page, we'd use the following HTML and jQuery
-code:
+Now we want to test the `getProducts` function in isolation. The problem is we would need to spin up a whole API server just to test this out. Instead, our front end engineer can write a test themself using Mockjax to create a fake API server just for the test.
 
-```html
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Fortune App</title>
-    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-  </head>
-<body>
-  <div id="fortune"></div>
-</body>
-</html>
-```
+Let's assume they're using [QUnit](https://qunitjs.com/) as the testing framework. They could create the test like so:
+
 ```javascript
-$.getJSON("/restful/fortune", function(response) {
-  if ( response.status == "success") {
-    $("#fortune").html( "Your fortune is: " + response.fortune );
-  } else {
-    $("#fortune").html( "Things do not look good, no fortune was told" );
-  }
-});
+QUnit.test('Load products into page', function(assert) {
+  const done = assert.async()
+
+  $('ul.products').html('')
+
+  $.mockjax({
+    url: '/api/items',
+    responseText: [{ id: 13, name: 'rubber duck' }, { id: 42, name: 'house plant' }],
+    onAfterSuccess: () => {
+      const items = $('ul.products li')
+      assert.equal(items.length, 2, 'Both items were added')
+      assert.equal(item[0].text(), 'rubber duck', 'The rubber duck is the first item')
+      assert.equal(item[0].attr('id'), 'item-13', 'The rubber duck has the correct id attribute')
+      done()
+    }
+  })
+
+  getProducts()
+})
 ```
 
-At this point if we were to run this code it would fail since the REST
-service has yet to be implemented. This is where the benefit of the
-Mockjax plugin starts to pay off. The first step in using Mockjax is to
-include the plugin by just adding a regular script tag:
+In the code above, we first clear out any HTML elements inside the `<ul>` with the class of "products" so that we're starting from a clean slate. Then we create our mock handler. Notice that we set the `url`, which will match our `$.ajax()` call in the application code. We then set the `responseText` that we want to be returned. It's okay that it's an object, but we could also pass in a JSON string.
 
-```html
-<head>
-  ...
-  <script src="vendor/jquery.mockjax.js"></script>
-</head>
+Next, we set our `onAfterSuccess` callback. This is where we will perform our test assertions. This callback will fire _after_ the `success` callback in our application source code, and with the same arguments. There are other ways to test this, for example, the `getProducts` function could return the Deferred object (a jQuery Promise) so that our test could hook into that.
+
+Lastly, we call the `getProducts()` function to initiate our test. Note that we call QUnit's `done` callback inside the `onAfterSuccess` so that the test harness knows when the test is complete.
+
+### Public API Methods
+
+Mockjax has one primary interface: the `$.mockjax()` method which is added to the `window` object's jQuery instance automatically. In addition, Mockjax **overwrites `$.ajax()`** with its own version, so in essence, every time you call `$.ajax()` you are calling a Mockjax interface. There are a number of other public methods, all documented below.
+
+Note that the main data types (and method options) are listed below the method descriptions.
+
+`{UUID|Array<UUID>} $.mockjax({MockHandler|Function|Array<MockHandler|Function>} options)`
+
+Registers one or more new mock ajax handlers and returns the handler's UUID. If an array is provided, an array of UUID's is returned. Note that at least one matching mechanism must be provided in the options (`url`, `method`, `requestHeaders`, or `data`) if you provide an object. If you provide a function, it will be called on every `$.ajax()` request and must return an object representing a `MockHandler` if a match occurs, and `null` if not.
+
+See the [MockHandler](#MockHandler-object) section below for all options and properties of a Mockjax handler.
+
+`{Array<MockHandler>} $.mockjax.handlers({?Array<string>} uuids)`
+
+Returns an array of mock handler object _clones_ for the provided `UUIDs`, or _all_ mock handlers if no array is provided. Each one will have a `clear()` method on it for easy clean up. Note that since these are cloned objects, altering them will not change the operation of request mocking and response generation. If you want to alter a mock handler, first clear it using `$.mockjax.clearById()`, then register the new handler.
+
+See the [MockHandler](#MockHandler-Object) section below for all options and properties of a Mockjax handler.
+
+`DEPRECATED {MockHandler} $.mockjax.handler({string} uuid)`
+
+Use `handlers([UUID])` instead. As of v3.x, this method is a passthrough to `handlers()` above.
+
+`{number} $.mockjax.clearById({string} uuid)`
+
+Unregisters a single mock handler matching the provided UUID. If the UUID is not that of an existing handler, then nothing happens. Returns the count of mock handlers cleared (in this case 0 or 1). This will also clear any retained ajax calls that have been mocked using this handler.
+
+`{number} $.mockjax.clearByUrl({string|RegExp} url)`
+
+Unregisters any mock handlers matching the provided URL. If the argument is a string, it will only match mock handlers that have a `url` property that exactly matches the argument. If the provided URL is a regular expression _and_ the mock handler `url` property is a regular expression, then this code will compare the String versions of those regular expressions to determine a match. If the provided URL is a regular expression and the mock handler `url` property is a string, this code will execute the provided RegExp on that mock handler's `url` property to determine a match. Returns the count of mock handlers cleared (which may be 0). This will also clear any retained ajax calls that have been mocked using this handler.
+
+`{number} $.mockjax.clearAll()`
+
+Unregisters **all** mock handlers and returns the count of mock handlers cleared. This will also clear any _mocked_, retained ajax calls (but will retain non-mocked ajax calls).
+
+`DEPRECATED {number} $.mockjax.clear({?string | RegExp} mechanism)`
+
+Use the appropriate `clearByXx()` method above. As of v3.x, this method will attempt to determine what to clear using the provided "mechanism" and call the appropriate method. If no mechanism is provided, this method will call `clearAll()`. If the mechanism matches one of the known mock handler IDs, that one handler will be cleared. Otherwise this method will assume this is a `clearByUrl()` and pass the argument through to that method.
+
+`{Array<MockHandler>} $.mockjax.unfiredHandlers()`
+
+Returns an array of mock handler object _clones_ that have **not** yet been matched to a live `$.ajax()` request. Each one will have a `clear()` method on it for easy clean up. Note that since these are cloned objects, altering them will not change the operation of request mocking and response generation.
+
+See the [MockHandler](#MockHandler-object) section below for all options and properties of a Mockjax handler.
+
+`{Array<MockjaxRequestSettings>} $.mockjax.mockedAjaxCalls()`
+
+Returns an array of all ajax call settings that have been mocked by Mockjax. Each entry will be a `MockjaxRequestSettings` Object, which a wrapper around jQuery's [ajax settings object](https://api.jquery.com/jQuery.ajax/). Note that if the global `retainAjaxCalls` setting is set to a positive integer, only that many _total ajax calls_ (mocked or unmocked) will be retained, and Mockjax operates a first-in-first-out (FIFO) cache of these. If `retainAjaxCalls` is set to `0`, no calls will be retained and this method will always return an empty array.
+
+See the [MockjaxRequestSettings](#MockjaxRequestSettings-Object) section below for more info.
+
+`{Array<MockjaxRequestSettings>} $.mockjax.unmockedAjaxCalls()`
+
+Returns an array of all ajax call settings that have **not been mocked** by Mockjax. Each entry will be a `MockjaxRequestSettings` Object, which a wrapper around jQuery's [ajax settings object](https://api.jquery.com/jQuery.ajax/). Note that if the global `retainAjaxCalls` setting is set to a positive integer, only that many _total ajax calls_ (mocked or unmocked) will be retained, and Mockjax operates a first-in-first-out (FIFO) cache of these. If `retainAjaxCalls` is set to `0`, no calls will be retained and this method will always return an empty array.
+
+See the [MockjaxRequestSettings](#MockjaxRequestSettings-Object) section below for more info.
+
+`{number} $.mockjax.clearRetainedAjaxCalls({?Array<string>} mockUUIDs)`
+
+Remove any retained ajax calls that have been mocked by the provided mock handler UUIDs. If no array is provided, _all_ retained ajax calls will be removed. The number of removed ajax calls will be returned.
+
+### `MockHandler` Object
+
+This is the main object used to do request matching and provide response details for a mock. It also contains a few internal properties. Other than the internal properties at the bottom of this section, all of these are options that can be provided when registering a new mock handler.
+
+#### Options Used for Matching (one or more must be provided)
+
+If more than one of these is provided **all** of them must match to mock out an ajax request, but at least one is required. (Note that `namespace` does not match on its own.)
+
+* `url {string | RegExp}` Specifies the url of requests to match to this mock. If it is a string and contains any asterisks (`*`), they will be treated as a wildcard for any valid URL characters. Note that this is NOT a full glob pattern, just a simple wildcard replacement. If it is a regular expression, it will be executed against the request URL.
+* `namespace {string}` Acts as a prefix for request URLs during matching on this handler (and thus this only works in conjunction with a `url` matching property). This will override the global `namespace` setting for this handler only. Making this `null` will remove the global `namespace` for this handler only.
+* `method {string}` Specify what HTTP method to match for this mock, case-insensitive.
+* `type {string}` DEPRECATED, use `method` instead.
+* `requestHeaders {Object<string, string}` Specifies request headers to match to an ajax request. A request with _more_ headers will still match this mock so long as all headers in the registered mock match. Note that header names are case-insensitive.
+* `data {Object<string, *> | function}` Specifies data parameters to match to an ajax request. A request with _more_ data params will still match this mock so long as all data properties in the registered mock match. You can also pass in a function which will be executed when any request is made. The function will be given the ajax data and must return `true` or `false`.
+
+#### Options Used for Response Simulation:
+
+Note that any response options not provided here will be gathered from the global `mockjaxSettings` object as needed.
+
+* `status {number | Array<number>}` An integer (or array of integers) between 100 and 599 that specifies the server HTTP status code to send back in the response. If an array, a random selection is made for each matching request.
+* `statusText {string | Array<string>` Specifies the server response status description. If an array, the `status` property must also be an array of the same size and a corresponding `statusText` will be chosen when a random `status` is chosen.
+* `responseText {string | object}` Specifies the text, or an object literal that will be "stringified", for the mock response.
+* `responseXML {string | Document}` Specifies the mock XML response (as a string or Document node) for the request. Note that this is only used when the `dataType` for the ajax request is `xml`.
+* `response {function}` A function to call to modify or generate the response properties. It will be sent 2 arguments: the request settings and a callback function. In addition, the context for the function (the value of `this`) will be the mock handler. This function **must execute the callback** provided after updating the mock handler with the appropriate response fields such as `status`, `responseText`, etc. Note that this function does not _override_ the other response properties. It provides the developer a chance to alter them based on the specific request settings.
+* `responseHeaders {Object<string, string>}` Headers to be added to the simulated response for matched requests.
+* `headers`: [Object] DEPRECATED Use `responseHeaders`
+* `proxy {string}` Specifies a URL to a resource, the contents of which will be used as the `responseText` for the mocked request.
+* `proxyMethod {string}` Specifies the HTTP method to use to retrieve the proxy data.
+* `proxyType {string}` DEPRECATED USe `proxyMethod`
+* `responseTime {number}` An integer that specifies a simulated network / server latency (in milliseconds). Setting this to `0` will minimize the simulated latency, but keep the call asynchronous. Note that this setting is _ignored_ for non-asynchronous calls - that is, calls where `async: false` is provided to `$.ajax()`.
+* `isTimeout {boolean}` Determines whether or not the mock will force a timeout error on the ajax request.
+* `contentType {string}` Specifies the content type for the response (otherwise this is automatically determined, if possible).
+* `urlParams {Array<string>}` If provided - and the `url` property is a regular expression - matched group values from the expression will be assigned to an object called `urlParams` in the request settings with each property named by the strings in this array, and the values of those properties matching the group matches in the URL regular expression. This can be combined with a dynamic `response` function to change the response based on the URL path.
+* `lastModified {String}` A date string specifying the mocked "last-modified" time for the request. This is used internally by jQuery to determine if the requested data is new since the last request, and thus caching.
+* `etag {string}` Specifies a unique identifier referencing a specific version of the requested data. This is used internally by jQuery to determine if the requested data is new since the last request. (see [HTTP_ETag](http://en.wikipedia.org/wiki/HTTP_ETag))
+
+#### Optional Callback Methods
+
+Sometimes you need to perform assertions or other actions after the source code ajax request is complete, but in situations where the source code does not return a Promise or provide a callback argument. For these situations, you can use the callbacks below.
+
+* `onAfterSuccess {function}` Will be called after the original ajax call's "success" callback has completed, and with the same arguments.
+* `onAfterError {function}` Will be called after the original ajax call's "error" callback has completed, and with the same arguments.
+* `onAfterComplete {function}` Will be called after the original ajax call's "complete" callback has completed, and with the same arguments.
+
+#### Mockjax Properties and Methods
+
+The following properties (and a method) are added by Mockjax. You should not alter them, but obviously may find them helpful.
+
+* `id {string}` A UUID for this handler, auto-generated and assigned by Mockjax after registration.
+* `fired {boolean}` Whether or not this handler has been matched to a real ajax call.
+* `registeredAt {number}` The timestamp when this handler was registered with Mockjax.
+* `clear {function}` When you call `handlers()` or `unfiredHandlers()` Mockjax will add this method to the returned (cloned) handler object so that you can clear that one handler easily.
+
+
+### Global Mockjax Settings
+
+The global Mockjax settings include all "response simulation" options from the [`MockHandler` object](#MockHandler-Object), plus some additional settings found below. For the response simulation settings, we only provide the default values, refer to the section above for descriptions. To overwrite a particular setting, you can call `$.mockjax.getSettings()` and then set the value directly. (Note that the `$.mockjaxSettings` object is still there, but should be avoided in favor of `getSettings()`.)
+
+```javascript
+$.getSettings().responseTime = 200  // overwriting the default global setting
 ```
 
-Once you have that included, you can start intercepting Ajax requests
-and mocking the responses. So let's mock out the service by including
-the following code:
+#### Response Simulation Defaults
+
+* `status` defaults to `200`
+* `statusText` defaults to `"OK"`
+* `responseTime` defaults to `500`
+* `isTimeout` defaults to `false`
+* `contentType` defaults to `"text/plain"`
+* `response` defaults to `null`
+* `responseText` defaults to `""`
+* `responseXML` defaults to `""`
+* `responseHeaders` defaults to `{}`
+* `proxy` defaults to `null`
+* `proxyMethod` defaults to `null`
+* `lastModified` defaults to time of request
+* `etag` defaults to `"IJF@H#@923uf8023hFO@I#H#"`
+
+#### Other global settings
+
+These settings affect the global operation of Mockjax. With the exception of `namespace`, none of them can be overridden by a single mock handler.
+
+* `namespace {?string}` A global URL namespace which will prefix all mock handler URLs. (default: `null`)
+* `throwUnmocked {boolean}` Should Mockjax throw an `Error` if an ajax request goes unmocked? (default: `false`)
+* `retainAjaxCalls {number}` How many ajax call settings should be retained? (default: `-1`, or all of them)
+* `matchInRegistrationOrder {boolean}` Essentially, should Mockjax select the first mock handler a request matches to? Switch this to `false` to reverse the order. (default: `true`)
+* `followRedirects {boolean}` Should Mockjax follow 3XX status code redirects? (default: `true`)
+* `logLevel {number}` How much to log to the console (default: `2`, set to `-1` to log nothing)
+* `logger {Object<string, function>}` An object that has `debug`, `log`, `info`, `warn`, and `error` methods for handling log messages. 
+
+
+### `MockjaxRequestSettings` Object
+
+Whenever you receive the settings for the original ajax request, you will actually receive a Mockjax wrapper for those settings. This wrapper will have three additional properties on it (see below), but otherwise will be the same as [jQuery's ajax settings object](https://api.jquery.com/jQuery.ajax/).
+
+* `mocked {boolean}` Whether or not this ajax call was mocked.
+* `mockHandlerId {?string}` If this call was mocked, this will be the UUID of the matching mock handler, otherwise it will be `null`.
+* `timestamp {number}` The timestamp when this ajax call was initiated.
+
+
+## Detailed Request Matching
+
+Mockjax can match requests using their URL, request data, HTTP method, or request headers - or any combination of these. The library is able to handle and parse `Text`, `HTML`, `JSON`, `JSONP`, `Script` and `XML` data types, allowing you to mock many different types of ajax calls. And there is always the dynamic request matching (and response generation) mechanism.
+
+### Matching on the URL
 
 ```javascript
 $.mockjax({
-  url: "/restful/fortune",
-  responseText: {
-    status: "success",
-    fortune: "Are you a mock turtle?"
-  }
-});
+  url: "/api/foo/bar"
+})
 ```
 
-**Defining a JSON string inline requires a `JSON.stringify()` method to be
-available. For some browsers you may need to include
-[json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js),
-which is included in the `lib` folder.** However, you could also simply
-provide an already stringified version of your JSON in the `responseText`
-property.
+> Only matches the exact URL: "/api/foo/bar"
 
-_If you plan on mocking xml responses, you may also have to include
-`jquery.xmldom.js`, which can also be found in the `lib` folder._
+#### Using a Wildcard
 
-### Mockjax in Depth ###
-
-What Mockjax does at this point is replace the `$.ajax()` method with a
-wrapper that transparently checks the URL being requested. If the URL
-matches one defined by `$.mockjax()`, it intercepts the request
-and sets up a mock `XMLHttpRequest` object before executing the
-`jQuery.ajax()` handler. Otherwise, the request is handed back to the
-native `$.ajax()` method for normal execution. One benefit in this
-implementation detail is that by simulating the `XMLHttpRequest` object,
-the plugin continues to make use of jQuery's native ajax handling, so
-there are no concerns with implementing a custom Ajax workflow.
-
-As you write code to mock responses, there's great value in the fact that
-there are no modifications required to production code. The mocks can be
-transparently inserted. This provides easy integration into most
-frameworks by including the plugin and mock definitions through your
-build framework. It's also possible to include it at run time by
-listening for a query string flag and injecting the plugin and definitions.
-
-Now let's look at the various approaches to defining mocks as offered by
-the plugin. The sections below feature an extensive overview of the
-flexibility in Mockjax and creating responses.
-
-#### Data Types Available for Mocking ####
-
-jQuery is able to handle and parse `Text`, `HTML`, `JSON`, `JSONP`,
-`Script` and `XML` data formats and Mockjax is able to mock any of those
-formats. Two things to note: depending upon how you mock out `JSON` and
-`JSONP` you may need to include [json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js)
-for the `JSON.stringify()` method (older browsers only, typically). Additionally
-if you mock XML inline, you'll need to include the [`xmlDOM`](http://github.com/jakerella/jquery-xmldom)
-plugin that transforms a string of XML into a DOM object. However, if you use
-the proxy approach outlined below then there should be no need to include either
-the JSON or XMLDOM plugins in any case.
-
-
-## Detailed Request and Response Definition ##
-
-### Defining a Request to Match ###
-
-The first thing you need to do when mocking a request is define the URL
-end-point to intercept and mock. As with our example above this can be a
-simple string:
+Using the `*` as a wildcard will match any valid URL character:
 
 ```javascript
 $.mockjax({
-  url: "/url/to/rest-service"
-});
+  url: "/api/user/*"
+})
 ```
 
-or contain a `*` as a wildcard:
+> Matches any URL path under "/api/user/" such as "/api/user/13" or "/api/user/13/edit" or "/api/user/jordan". It will NOT match the base path (before the wildcard): "/api/user/"
+
+#### Using a Regular Expression
 
 ```javascript
 $.mockjax({
-  // Matches /data/quote, /data/tweet etc.
-  url: "/data/*"
-});
+  url: /^\/api\/(author|book)\/\d+$/i
+})
 ```
 
-or a full regular expression:
+> Matches "/api/author/42" or "/api/book/13" (or any other number)
+
+### Matching on the Data
+
+You can also match against the `data` option of the ajax call:
 
 ```javascript
 $.mockjax({
-  // Matches /data/quote, /data/tweet but not /data/quotes
-  url: /^\/data\/(quote|tweet)$/i
-});
-```
-
-You can also match against the data option in addition to url:
-
-```javascript
-$.mockjax({
-  url:  "/rest",
   data: { action: "foo" }
-});
+})
+
+$.ajax("/api", {
+  method: "POST",
+  data: { action: "foo" },
+  ...
+})
 ```
 
-The data option may be a custom matching function returning `true` of `false`
-whether the data is expected or not:
+The mock above will match if all of the _mock_ data attributes exist. It doesn't matter if there are more data attributes in the actual request. For example:
+
+```javascript
+// This ajax call will still match the mock above
+$.ajax("/api", {
+  method: "POST",
+  data: { user: 123, action: "foo", anotherField: "batbaz" },
+  ...
+})
+```
+
+For `GET` requests, the `data` attribute is converted to a query string, but Mockjax will work either way:
 
 ```javascript
 $.mockjax({
-  url: "/rest",
-  data: function( data ) {
-    return deepEqual( data, expected );
-  }
-});
+  data: { foo: "bar", bat: "baz" }
+})
+
+$.ajax({
+  url: '/api/query',
+  data: 'foo=bar&bat=baz'  // Matched!
+})
 ```
 
-The data function is a recommended place for assertions. Return `true` and let
-a testing framework of choice do the rest:
+That said, if the query data in the ajax call is placed in the `url` directly, then the `data` option in the mock handler will not match it:
 
 ```javascript
 $.mockjax({
-  url: "/rest",
-  data: function ( json ) {
-    assert.deepEqual( JSON.parse(json), expected ); // QUnit example.
-    return true;
-  }
-});
+  data: { foo: 'bar' }  // NO MATCH for ajax call below
+})
+
+$.ajax({
+  url: '/api/query?foo=bar'
+})
 ```
 
-To capture URL parameters, use a capturing regular expression for the
-URL and a `urlParams` array to indicate, ordinally, the names of the
-paramters that will be captured:
+In order to match query data in the `url` of the ajax call, you need to use a URL matcher in your mock handler:
 
 ```javascript
 $.mockjax({
-  // matches /author/{any number here}/isbn/{any number with dashes here}
-  // for example: "/author/1234/isbn/1234-5678-9012-0"
-  url: /^\/author\/([\d]+)\/isbn\/([\d\-]+)$/,
-  // names of matching params
-  urlParams: ["authorID", "isbnNumber"],
-  response: function (settings) {
-    var authorID = settings.urlParams.authorID;
-    var isbnNumber = settings.urlParams.isbnNumber;
-    // etc...
-  }
-});
+  url: '/api/query?foo=bar'  // Will match
+})
 ```
 
-### Defining Multiple Requests ###
-
-Since version 2.2 it is allowed to define several requests at once.
-`$.mockjax([...])` returns a array of handlers' indexes. It is possible to
-reset handler by index. Read more in [Removing Mockjax Handlers](#removing-mockjax-handlers).
+You could also use a wildcard to only match the query string:
 
 ```javascript
-var handlers = $.mockjax([
-  {url: '/rest', responseText: 'one'},
-  {url: '/rest', responseText: 'two'}
-]);
-
-$.mockjax.clear(handlers[0]);
+$.mockjax({
+  url: '*?foo=bar'  // Will match
+})
 ```
 
-### Defining a Response ###
+#### Using a Data Matcher Function
 
-The second step is to define the type and content of the response. The two main
-properties you will be dealing with are either `responseText` or
-`responseXML`. These properties mirror the native `XMLHttpRequest`
-object properties that are set during a live response. There are three
-different patterns for specifying the responses: Inline, Proxy, and
-Callback.
+The data option may be a custom matching function returning `true` of `false` whether the data is expected or not:
 
-#### Inline Responses ####
+```javascript
+$.mockjax({
+  data: function(data) {
+    return data.foo === "bar" && Number.isInteger(data.count) && data.count > 0
+  }
+})
+```
 
-A simple text response would be:
+You can use the data function of the mock as a place for assertions. Return `true` and let a testing framework of choice do the rest:
+
+```javascript
+const expected = { foo: "bar", count: 3 }
+$.mockjax({
+  data: function (data) {
+    assert.deepEqual(data, expected)  // QUnit example
+    return true
+  }
+})
+```
+
+### Matching on the Request Headers
+
+You can also match on the headers in the request:
+
+```javascript
+$.mockjax({
+  requestHeaders: {
+    Authorization: 'user-api-key'  // "authorization" also works here
+  },
+  responseText: 'You are authorized!'
+})
+```
+
+Note that request headers must be simple objects with string keys and string values. Also, similar to the data matching option, only the headers specified in the _mock_ must match. Additional headers in the request may be present, but will be ignored.
+
+> Request header **names** are treated as case-insensitive, but not the values!
+
+### Matching on the HTTP Method
+
+You can match ajax requests based on the HTTP method used as well, although you likely want to combine that with one of the other three methods (see below).
+
+```javascript
+$.mockjax({
+  method: 'POST'
+})
+```
+
+The mock handler above would match **all** HTTP `POST` requests (which likely isn't what you want to do).
+
+### Matching on Multiple Elements
+
+In many cases you will want to match on multiple aspects of the ajax call.
+
+```javascript
+// match only GET requests to URL "/api/user/13" (or similar URLs)
+$.mockjax({
+  url: /\/api\/user\/\d+/,
+  method: 'GET'
+})
+```
+
+```javascript
+// match a POST request to URL "/api/user" when the username is "jakerella"
+$.mockjax({
+  url: '/api/user',
+  method: 'POST',
+  data: { username: "jakerella", name: "jordan", role: "maintainer" }
+})
+```
+
+```javascript
+// match DELETE requests to "/api/*" endpoints with a valid API key
+$.mockjax({
+  url: '/api/*',
+  method: 'DELETE',
+  requestHeaders: { Authorization: "my-api-key" }
+})
+```
+
+### Registering Multiple Handlers
+
+Since version 2.2 you can register several mock handlers at once by providing an array to the primary `$.mockjax([...])` method:
+
+```javascript
+const handlerUUIDs = $.mockjax([
+  {url: '/api/users', method: 'GET', responseText: 'the user list...'},
+  {url: '/api/user', method: 'POST', data: { ... }, responseText: 'a new user'}
+])
+```
+
+## Detailed Response Definition
+
+There are two many portions of a mock handler definition: the [matching criteria](#detailed-request-matching) (described above) and the response fields, described in this section. The two main options you will be dealing with are `responseText` and `responseXML`. These two fields tell Mockjax what to return when a request is matched. There are three different patterns for specifying the response: Inline, Proxy, and as a Function.
+
+### Inline Responses
+
+A simple text response might look like this:
+
+```javascript
+$.mockjax({
+  url: "/api/time",
+  method: "GET",
+  responseText: "The time is one o'clock in the afternoon."
+})
+```
+
+In other words, any time a `GET` ajax request is sent to "/api/time", Mockjax will intercept it and instead of calling the server, it will respond with the `responseText` string above. Your jQuery success handler would then receive that response and keep processing as if it had hit the server.
+
+You can put JavaScript objects in the `responsetext` field (despite its name) and Mockjax will ensure it gets stringified and sent to the calling ajax code correctly:
 
 ```javascript
 $.mockjax({
   url: "/restful/api",
-  responseText: "A text response from the server"
-});
-```
-
-A simple JSON response would be:
-
-```javascript
-$.mockjax({
-  url: "/restful/api",
-  // You may need to include the [json2.js](https://raw.github.com/douglascrockford/JSON-js/master/json2.js) library for older browsers
   responseText: { "foo": "bar" }
-});
+})
 ```
 
-Also note that a JSON response is really just a text response that jQuery will
-parse as JSON for you (and return a JSON object to the `success` and `complete`
-callbacks).
-
-A simple XML response would be:
+The `responseXML` is similar: you can either pass in a string of XML text or an actual `Document` object. Mockjax will send it to your source code appropriately.
 
 ```javascript
 $.mockjax({
   url: "/restful/api",
-  // Need to include the xmlDOM plugin to have this translated into a DOM object
   responseXML: "<document><quote>Hello world!</quote></document>"
 });
 ```
 
-As you can see, if you have a significant amount of data being
-mocked this becomes unwieldy. So that brings us to the next pattern:
-the proxy.
+As you might imagine, if you have a significant amount of data being mocked, this process becomes unwieldy. So that brings us to the next pattern: the proxy.
 
-#### Proxy ####
+### Using a Proxy
 
-In this example below, the Mockjax plugin will intercept requests for
-`/restful/api` and redirect them to `/mocks/data.json`:
+In the example below, Mockjax will intercept `GET` requests for "/api/users", retrieve the data from a live server running at: "/mocks/user-data.json", and return the contents of that file as if it came from "/api/users".
 
 ```javascript
 $.mockjax({
-  url: "/restful/api",
-  proxy: "/mocks/data.json"
-});
+  url: "/api/users",
+  method: "GET",
+  proxy: "/mocks/user-data.json"
+})
 ```
 
-The `/mocks/data.json` file can have any valid JSON content you want, and allows
-you to maintain that mock data in its own file for maintainability.
+The "/mocks/user-data.json file can have any valid JSON content you want, and allows you to separate and reuse that mock data.
 
-> Note: If you're testing your code with a poxy, it is best to run an actual web
-server for the tests. Simply loading `test/index.html` from the file system may
-result in the proxy file not being loaded correctly. We recommend using something
-like the [`http-server` npm module](https://www.npmjs.com/package/http-server).
-
-#### Callback ####
-
-In the final response pattern, we can define a callback function on the
-`response` property and have it set `responseText` or `responseXML` as
-needed:
+It doesn't have to be a static file, either. In the example below, Mockjax will intercept `POST` requests to "/api/user" and then make a different POST request (presumably a live request) to a test server to get the mock data. Note that the `data` option in the mock 
+handler here will get passed through to the proxy endpoint for you to use in determining what mock data to send back.
 
 ```javascript
 $.mockjax({
-  url: "/restful/api",
+  url: "/api/user",
+  method: "POST",
+  proxy: "https://mocks.testserver.local/user/data",
+  proxyMethod: "POST",
+  data: { username: "jakerella", name: "jordan", role: "maintainer" }
+})
+```
+
+> Note: If you're testing your code with a poxy, you likely need to run a local web server for the tests. Simply loading `mocks/user-data.json` from the file system may result in the proxy file not being loaded correctly. We recommend using something like the [`http-server` npm module](https://www.npmjs.com/package/http-server).
+
+### Dynamic Response Functions
+
+In the final response pattern, we define a function as the `response` option on our mock handler. That function will receive the entire ajax settings object as its first argument and its context (the value of `this`) will be the mock handler. The function should set the `responseText` or `responseXML` property as needed (and any other response options).
+
+```javascript
+$.mockjax({
+  url: "/api/user",
+  method: "POST",
+  data: { username: "jakerella", name: "jordan", role: "maintainer" },
   response: function(settings) {
-    // Investigate the `settings` to determine the response...
-
-    this.responseText = "Hello world!";
+    if (!settings.data.username) {
+      this.status = 400
+      this.responseText = { error: "Please provide a username" }
+    } else {
+      this.status = 201
+      this.responseText = { id: "13", username: "jakerella" }
+    }
   }
-});
+})
 ```
 
-The default version of this callback is synchronous. If you provide both parameters
-to the callback function, you can use asynchronous code to set the dynamic response.
+The default version of the `repsonse` function is synchronous; however, if you specify a second parameter, Mockjax will provide you an asynchronous callback function to execute when your response handler is done.
 
 ```javascript
 $.mockjax({
-  url: '/restful/api',
+  url: "/api/user",
+  method: "POST",
+  data: { username: "jakerella", name: "jordan", role: "maintainer" },
   response: function(settings, done) {
-    var self = this;
-    someAsyncMethod(function(data){
-      self.responseText = data;
-      done();
-    });
+    const handler = this
+    addMockUser(settings.username)
+      .then((data) => {
+        handler.status = 201
+        handler.responseText = data
+        done()
+      })
   }
-});
+})
 ```
 
-Note that the callback is given the settings provided to the `$.mockjax({...})`
-method merged with any Ajax settings defined by jQuery or your application. This
-allows you to thoroughly investigate the request before setting the response
-body (or headers).
+> Note that because the `response` function is given the mockHandler as its context, you **cannot use an arrow function** here. Arrow functions will not have `this` defined.
 
+#### Capturing URL parameters
 
-## Advanced Mocking Techniques ##
-
-At this point we've looked at a series of basic mocking techniques with
-Mockjax and will now unpack some of the additional functionality
-contained in the plugin.
-
-### Simulating Response Time and Latency ###
-
-Simulating network and server latency for a mock is as simple as adding
-a `responseTime` property to your mock definition:
+You easily capture named URL parameters for use in the `response` function versus having to extract that data yourself. To do so, use a regular expression for your URL matcher, and provide a `urlParams` array to indicate, ordinally, the names of the parameters that will be captured.
 
 ```javascript
 $.mockjax({
-  url: "/restful/api",
-  // Simulate a network latency of 750ms
+  url: /\/user\/([\d]+)\/book\/(\w+)/,
+  method: "GET",
+  urlParams: ["authorID", "bookTitle"],
+  response: async function (settings, done) {
+    const authorData = await getAuthorData(settings.urlParams.authorID)
+    const bookData = await getBookData(settings.urlParams.bookTitle)
+    this.responseText = {
+      author: authorData,
+      book: bookData
+    }
+    done()
+  }
+})
+```
+
+## Advanced Mocking Techniques
+
+### Simulating Response Time and Latency
+
+Simulating network and server latency for a mock is as simple as adding a `responseTime` property to your mock definition:
+
+```javascript
+$.mockjax({
+  url: "/api/time",
   responseTime: 750,
-  responseText: "A text response from the server"
-});
+  responseText: "A delayed response"
+})
 ```
 
-You can also use an interval for `responseTime` to randomize latency:
+You can also use a range for `responseTime` to randomize latency:
 
 ```javascript
 $.mockjax({
-  url: "/restful/api",
-  // Use a random value between 250ms and 750ms
-  responseTime: [250, 750],
-  responseText: "A text response from the server"
-});
+  url: "/api/time",
+  responseTime: [500, 1500],
+  responseText: "A randomly delayed response"
+})
 ```
 
-### Simulating HTTP Response Statuses ###
+### Simulating HTTP Response Statuses
 
-It's also possible to simulate response statuses other than 200 (default
-for Mockjax) by simply adding a `status` property.
+As you;ve seen, you can simulate different response statuses other than 200 (the default for Mockjax) by simply adding a `status` property:
 
 ```javascript
 $.mockjax({
-  url: "/restful/api",
-  // Server 500 error occurred
+  url: "/api/oops",
   status: 500,
-  responseText: "A text response from the server"
-});
+  responseText: "There was an error"
+})
 ```
 
-The ability to provide an array of possible response statuses (from which the response
-for a given request will be randomly picked from):
+But you can also provide an array of possible response statuses and have Mockjax randomly select one at the time of interception:
 
 ```javascript
-// Randomly fail
 $.mockjax({
-  url: "/restful/api",
-  status: [200,400,500]
-});
+  url: "/api/errors",
+  status: [400, 401, 403, 404]
+})
 
 // Randomly fail (with a preference towards success)
 $.mockjax({
-  url: "/restful/api",
-  status: [200,400,200,500,200]
-});
+  url: "/api/random",
+  status: [200, 400, 200, 500, 200]
+})
 ```
 
-These forced error status codes will be handled just as if the server had
-returned the error: the `error` callback will get executed with the proper
-arguments.
+These forced error status codes will be handled just as if the server had returned the error. That is, the `error` callback on your `$.ajax()` call will get executed with the proper arguments.
 
-### Setting the Content-Type ###
+### Setting Additional HTTP Response Headers
 
-You can set the content type to associate with the mock response, in the
-example below, we're setting a JSON content type.
+Additional HTTP Response Headers may be provided by setting key-value pairs in the `responseHeaders` option of the mock handler:
 
 ```javascript
 $.mockjax({
-  url: "/restful/api",
-  contentType: "application/json",
-  responseText: {
-    hello: "World!"
-  }
-});
-```
-
-### Setting Additional HTTP Response Headers ###
-
-Additional HTTP Response Headers may be provided by setting a key in the
-headers object literal:
-
-```javascript
-$.mockjax({
-  url: "/restful/api",
-  contentType: "application/json",
-  responseText: {
-    hello: "World!"
-  },
+  url: "/api/hello",
+  responseText: "hello world",
   headers: {
-    etag: "xyz123"
+    "X-Powered-By": "Mockjax"
   }
-});
+})
 ```
 
-### Dynamically Generating Mock Definitions ###
+### Dynamically Generating Mock Definitions
 
-In some situations, all of your REST calls are based upon a URL schema.
-Mockjax has the ability for you to specify a callback function that is
-handed the `$.ajax` request settings. The callback function may then
-either return false to allow the request to be handled natively, or
-return an object literal with relevant Mockjax parameters set. Below is
-an example that rewrites all Ajax requests to proxy to static mocks:
+If all of your ajax calls are based upon a complex URL schema, you can use Mockjax's dynamic mocking ability to specify whether or not to match any single request. Your function must either return a mock handler object with various response options filled in, or `null`. If you return `null`, Mockjax will keep processing other mock handlers looking for a match, or allow the ajax call to proceed if no match is found. Below is an example that rewrites ajax requests to "/api/data/" sub-paths to proxy to static mocks:
 
 ```javascript
 $.mockjax(function(settings) {
-
-  // settings.url might be: "/restful/<service>" such as "/restful/user"
-
-  var service = settings.url.match(/\/restful\/(.*)$/);
-  if ( service ) {
-    return {
-      proxy: "/mocks/" + service[1] + ".json"
-    };
+  const [_, entity, id] = settings.url.match(/\/api\/data\/([^\/]+)\/?(\d+)?$/)
+  if (settings.method.toLowerCase() === 'get') {
+    if (id) {
+      return { status: 200, proxy: `/mocks/${entity}.json` }
+    } else {
+      return { status: 200, proxy: `/mocks/${entity}-${id}.json` }
+    }
+  } else if (settings.method.toLowerCase() === 'delete' && id) {
+    return { status: 200, responseText: { id, message: `${entity} was deleted` } }
   }
-  // If you get here, there was no url match
-  return;
-});
+  return null
+})
 ```
 
-### Accessing Request Headers ###
+> Note that your mock definition handler function is passed in the original ajax request settings from jQuery, so you can match on the request data, headers, or any other component of the request.
 
-In some situations, you may need access to the  request headers to determine
-matching or response bodies. To do this, you will need to specify a
-callback function that is handed the `$.ajax` request settings:
+### Forced Simulation of Server Timeouts
 
-```javascript
-$.mockjax(function( requestSettings ) {
-  // Here is our manual URL matching...
-  if ( requestSettings.url === "/restful/user" ) {
-    // We have a match, so we return a response callback...
-    return {
-      response: function( origSettings ) {
-
-      	// now we check the request headers, which may be set directly
-      	// on the xhr object through an ajaxSetup() call or otherwise:
-
-      	if ( requestSettings.headers["Authentication"] === "some-token" ) {
-      	  this.responseText = { user: { id: 13 } };
-      	} else {
-  		  this.status = 403;
-  		  this.responseText = "You are not authorized";
-        }
-      }
-    };
-  }
-  // If you get here, there was no url match
-  return;
-});
-```
-
-### Forced Simulation of Server Timeouts ###
-
-Because of the way Mockjax was implemented, it takes advantage of
-jQuery's internal timeout handling for requests. But if you'd like to
-force a timeout for a request you can do so by setting the `isTimeout`
-property to true:
+Because of the way Mockjax was implemented, it takes advantage of jQuery's internal timeout handling for requests. But if you'd like to force a timeout for a request you can do so by setting the `isTimeout` property to true:
 
 ```javascript
 $.mockjax({
-  url: '/restful/api',
+  url: '/api/timeout',
   responseTime: 1000,
   isTimeout: true
-});
+})
 ```
 
-### Dynamically Generating Mock Responses ###
+### Using Other Data Types
 
-It's also possible to dynamically generate the response text upon each
-request by implementing a callback function on the `response` parameter:
-
-```javascript
-$.mockjax({
-  url: "/restful/webservice",
-  dataType: "json",
-  response: function(settings) {
-    this.responseText = {
-      randomText: "random " + Math.random()
-    };
-  }
-});
-```
-
-### Data Types ###
-
-Many of the examples above mock a `json` response. You can also mock `xml`:
+Many of the examples above mock out a `JSON` response. You can mock other data types as shown below.
 
 ```javascript
 $.mockjax({
   url: "/some/xml",
   dataType: "xml",
-  responseXML: "<document><say>Hello world XML</say></document>"
-});
+  responseXML: "<document><say>Hello world XML</say></document>" // this could also be a proper Document object
+})
 ```
-
-(Don't forget that it's likely you'll need the [`xmlDOM`](http://github.com/jakerella/jquery-xmldom) library as well!)
-
-And `html`:
 
 ```javascript
 $.mockjax({
   url: "/some/webservice",
   dataType: "html",
   responseText: "<div>Hello there</div>"
-});
+})
 ```
 
-### Performing Actions After Request Completion ###
+#### Mocking JSONP
 
-If you need to perform some actions after a call has completed you can
-use one of the `onAfter{Xxxxx}` options. For example, to fire a method when
-a request completes (either successfully or not):
+Although JSONP is not as popular as it used to be, there are many legacy applications that still use it. You can use Mockjax to mock out those requests. Let's assume you have a JSONP call that expects to hit a callback in the local window like this:
+
+```javascript
+window.__jsonpCallback = function(result) {
+  console.log(result)
+  // do something with the result
+}
+```
+
+And your jQuery ajax call might look something like this:
+
+```javascript
+$.ajax({
+  url: '/jsonp-service?callback=?',
+  jsonpCallback: '__jsonpCallback',
+  dataType: 'jsonp',
+  ...
+})
+```
+
+Then you could mock out that ajax call like so:
+
+```javascript
+$.mockjax({
+  url: '/jsonp*',
+  dataType:'jsonp',
+  contentType: 'text/json',
+  responseText:{
+    success:true,
+    id: 12345
+  }
+})
+```
+
+You could even hit a mock JSONP service using a proxy:
+
+```javascript
+$.mockjax({
+  url: '/jsonp*',
+  contentType: 'text/json',
+  proxy: 'proxies/jsonp-script.js'
+})
+```
+
+Then in your proxy JSONP script you would have:
+
+```javascript
+__jsonpCallback({ success: true, id: 12345 })
+```
+
+### Performing Actions After Request Completion
+
+If you need to perform some actions after an ajax call has been mocked (and the source code as completed its callack), you can use one of the `onAfterSuccess`, `onAfterError`, and `onAfterComplete` options. For example, to fire a method when a request completes (either successfully or not):
 
 ```javascript
 $.mockjax({
   url: "/api/end/point",
-  onAfterComplete: function() {
+  onAfterComplete: (xhr) => {
     // do any required cleanup
   }
-});
-```
-
-### Globally Defining Mockjax Settings ###
-
-It is also possible to define the global defaults for all Mockjax
-requests by overwriting the `$.mockjaxSettings` object. By default the
-settings are as follows:
-
-```javascript
-{
-  log:             null,  // DEPRECATED, use $.mockjaxSettings.logger instead
-  logger:          window.console,
-  logging:         2,
-  logLevelMethods: ['error', 'warn', 'info', 'log', 'debug'],
-  namespace:       null,
-  status:          200,
-  statusText:      "OK",
-  responseTime:    500,
-  isTimeout:       false,
-  throwUnmocked:   false,
-  retainAjaxCalls: true,
-  contentType:     "text/plain",
-  response:        "",
-  responseText:    "",
-  responseXML:     "",
-  proxy:           "",
-  proxyType:       "GET",
-  lastModified:    null,
-  etag:            "",
-  headers: {
-    etag: "IJF@H#@923uf8023hFO@I#H#",
-    "content-type" : "text/plain"
-  }
-}
-```
-
-To overwrite a particular settings such as the default `content-type`, you
-would do the following:
-
-```javascript
-$.mockjaxSettings.contentType = "application/json";
-```
-
-### Setting a Global URL Namespace ###
-
-The namespace option in `$.mockjaxSettings` allows you to apply a prefix to
-all of your mocked urls, such as `/api/v1`.
-
-```javascript
-$.mockjaxSettings.namespace = "/api/v1";
-```
-
-Then the following mock will match `/api/v1/rest`:
-
-```javascript
-$.mockjax({
-    url: "/rest"
 })
 ```
 
-As will the following RegExp pattern:
+> These `onAfter` callbacks will receive the same arguments that the original callback in your source code would receive.
+
+### Setting a Global URL Namespace
+
+The namespace option in `$.mockjaxSettings` allows you to apply a prefix to all of your mock handler URLs. For example:
+
+```javascript
+$.mockjaxSettings.namespace = "/api/v1"
+```
+
+Now, the following mock handler will match "/api/v1/rest" and _not_ simply "/rest":
+
 ```javascript
 $.mockjax({
-    url: /^\/rest$/
+  url: "/rest"
 })
 ```
 
-The global namespace option can also be overwritten on a particular mock.
+This works with RegExp `url` definitions as well. In the example below, the `^` in the regex, which normally defines the beginning of the string, will be replaced with the global namespace.
 
 ```javascript
 $.mockjax({
-    url: "/rest-2",
-    namespace: null
+  url: /^\/rest$/
 })
 ```
 
-Note that the namespace prefix does not apply to proxies.
-
-### Globally defining match order
-
-By default, Mockjax matches requests in registration order (mockjax considers
-the handlers registered first before handlers registered last). To reverse this
-behavior:
+The global namespace option can also be overwritten on any single mock handler:
 
 ```javascript
-$.mockjaxSettings.matchInRegistrationOrder = false;
+$.mockjax({
+  url: "/user",  // This now matches "/user" only, NOT "/api/v1/user"
+  namespace: null
+})
 ```
 
-Setting `matchInRegistrationOrder` to `false` lets you override previously defined
-handlers. Suppose you had:
+> Note that the `namespace` prefix **does not apply to proxies**.
+
+### Globally Defining Match Order
+
+By default, Mockjax matches requests in registration order: Mockjax considers the handlers registered first before handlers registered last. To reverse this behavior:
+
+```javascript
+$.mockjaxSettings.matchInRegistrationOrder = false
+```
+
+Setting `matchInRegistrationOrder` to `false` lets you override previously defined handlers. Suppose you had:
 
 ```javascript
 $.mockjax({
-    url: "/rest",
-    responseText: "hello"
-});
+  url: "/api/greeting",
+  responseText: "hello"
+})
 $.mockjax({
-    url: "/rest",
-    responseText: "byebye"
-});
+  url: "/api/greeting",
+  responseText: "buhbye"
+})
 ```
 
 The default behavior is that Mockjax returns `"hello"`, but with `matchInRegistrationOrder`
-set to `false`, Mockjax would return `"byebye"`.
+set to `false`, Mockjax would return `"buhbye"`.
 
-This behavior allows you to override older handlers after they are initially set.
+### Managing Mockjax Data
 
-### Removing Mockjax Handlers ###
+Mockjax holds onto a lot of data. It does this so that you can inspect it later during your tests. If you find things running slowly, or if you just want to clear things out between tests, you can clear both the mock handlers and the retained ajax calls.
 
-If you need to reset the Mockjax handlers you've added, just call
-`$.mockjax.clear()`. _This will NOT reset the `$.mockjaxSettings`!_
+Obviously Mockjax must hold onto the mock handlers in order to match ajax requests. By default, it also retains every ajax call made (whether the call was mocked or not). You can modify this with the `retainAjaxCalls` global setting. Setting this to `0` will cause no ajax calls to be retained at all. Setting it to a positive integer will limit the number of calls retained to that number (again, whether mocked or not).
 
-```javascript
-$.mockjax.clear();
-```
-
-You can also clear individual mock handlers using their ID:
+You can clear all of the retained ajax calls using the `clearRetainedAjaxCalls()` method, which will return the count of cleared calls:
 
 ```javascript
-var id = $.mockjax({
-   ...
-});
-
-$.mockjax.clear(id);
+const countRemoved = $.mockjax.clearRetainedAjaxCalls()
 ```
 
-Or you can clear a handler by the URL that it matches with either a String or RegExp:
+Alternatively, you can provide this method an array of handler UUIDs to restrict the removal of ajax calls to those that were mocked by the provided handlers.
 
 ```javascript
-$.mockjax({
-   url: "/api/foo",
-   ...
-});
+const handlerUUIDs = ['1', '2', '3']
+const countRemoved = $.mockjax.clearRetainedAjaxCalls(handlerUUIDs)
+// only ajax calls mocked by the handlerUUIDs are removed
+```
 
-$.mockjax.clear("/api/foo");
-// or
-$.mockjax.clear(/foo/);
+If you need clear Mockjax handlers you've registered, there are a few methods for doing so...
+
+```javascript
+const countRemoved = $.mockjax.clearAll()
+```
+
+This will remove **all** registered mock handlers, but you can also remove a single handler by its UUID:
+
+```javascript
+const countRemoved = $.mockjax.clearById('1234') // will return 1 or 0
+```
+
+Lastly, you can clear mock handlers by the URL that it matches, using either a string or regular expression:
+
+```javascript
+$.mockjax({ url: "/api/foo", ... })
+$.mockjax({ url: "/api/foobar", ... })
+
+const countRemoved = $.mockjax.clearByUrl("/api/foo") // returns 1
+
+$.mockjax({ url: "/api/foo", ... }) // re-adding it
+$.mockjax({ url: "/api/user/foobar/edit", ... }) // and adding one more
+
+const moreRemoved = $.mockjax.clearByUrl(/foo/) // returns 3 (one was already removed)
 ```
 
 
-## Miscellaneous Information ##
+## Miscellaneous Information
 
-### jQuery Version Support ###
+### About Mockjax and Its History
 
-We strive to ensure that Mockjax is tested on the furthest patch version of all
-minor versions of jQuery (1.x.y through 3.x.y). In other words, we don't test 
-1.12.1, but rather 1.12.4 (the furthest patch version on the 1.x line). The QUnit 
-tests in the `/test` directory include links to each version of jQuery tested in 
-the header.
+Most backend developers are familiar with the concepts of [mocking objects](http://en.wikipedia.org/wiki/Mock_object) or stubbing in
+methods for unit testing. For those not familiar with mocking, it's the simulation of an interface or API for testing or integration development purposes. Mocking with front-end development though is still quite new. Mockjax gives front end developers the ability to define ajax requests that should be mocked out, as well as how those requests should be responded to. These mocks can be extremely simple or quite complex, representing the entire request-response workflow.
 
-### Browsers Tested ###
+This plugin was originally developed by appendTo in March 2010. That company closed in 2014 and the project was taken over by a former employee, [@jakerella](https://jordankasper.com).
 
-We use [BrowserStack](https://www.browserstack.com)'s awesome open source
-collaboration to test Mockjax in real browsers using VMs on their platform. We
-run all of our tests on the current versions of the major browsers below:
+### jQuery Version Support
+
+We strive to ensure that Mockjax is tested on the furthest patch version of all minor versions of jQuery (1.x.y through 3.x.y). In other words, we don't test  1.12.1, but rather 1.12.4 (the furthest patch version on the 1.x line). The QUnit tests in the `/test/integrsation` directory include links to each version of jQuery tested in the header so you can try it yourself.
+
+> Note that even though jQuery 1.x and 2.x are deprecated, we still support them in Mockjax.
+
+### Browsers Tested
+
+We use [BrowserStack](https://www.browserstack.com)'s awesome open source collaboration to test Mockjax in real browsers and real Operating Systems using VMs on their platform. We run all of our tests on the current versions of the major browsers below before publishing a release:
 
 * Edge
 * Firefox
 * Chrome
 * Safari
 
-### Using Mockjax in Other Ways ###
+### Using Mockjax in Other Ways
 
-You can use Mockjax as a Node module or with Browserify... and presumably in 
-other ways as well. We have tests for Node and Browserify. When using Mockjax 
-as a Node module (including with Browserify), 
-**you must provide the module with the jQuery library and a `window`**. 
-Here is an example using a module intended for use as a "browserified" module:
+You can use Mockjax as a Node module or with RequireJS... and presumably in  other ways as well. We have tests for Node (CommonJS) and RequireJS. When using Mockjax as a Node module, **you must provide the module with the jQuery library and a `window` object**. Here is a simplified example:
 
-```js
-const jquery = require('jquery');
-const mockjax = require('jquery-mockjax')(jquery, window);
-// Note that we expect `window` to be defined once this file is browserified and
-// used in a browser. If it isn't Mockjax will have a problem!
+```javascript
+const jquery = require('jquery')
+const window = (new JSDOM('<html></html>')).window
+const { jQueryFactory } = require('jquery4/factory')
+window.jQuery = jQueryFactory(window)
+const mockjax = require('jquery-mockjax')(jquery, window)
 
 mockjax({
     url: '/resource',
-    responseText: 'content'
-});
+    responseText: { foo: 'bar' }
+})
 
-function getResource(cb) {
-    jquery.ajax({
-        url: '/resource',
-        success: cb,
-        error: cb
-    });
-}
+jquery.ajax({
+    url: '/resource',
+    dataType: 'json',
+    error: () => { console.log('Oh no!') },
+    success: (data) => { console.log(`foo is ${data.foo}`) }
+})
 ```
 
+### Logging
 
-### Logging ###
+Mockjax logs various pieces of information to the `console`. You can alter the log level using the `$.mockjaxSettings.logLevel` global setting:
 
-Mockjax logs various pieces of information to the `console` (on `window`) in
-browsers, or to stdout in Node). You can customize various aspects of the
-logging to suit your needs. By default, only 'error', 'warn' or 'info' messages
-will be shown, but detailed information may be available in debug logs. Below
-are some common things you might need to do to get better logging information.
-
-#### Show different levels of log messages
-
-```js
+```javascript
 $.mockjaxSettings.logging = 4;  // very verbose debug messages
 $.mockjaxSettings.logging = 3;  // verbose log messages
 $.mockjaxSettings.logging = 2;  // informational messages
@@ -857,50 +965,17 @@ $.mockjaxSettings.logging = 1;  // warning messages
 $.mockjaxSettings.logging = 0;  // only critical error messages
 ```
 
-(Note that each level enables that level plus any lower number... thus setting
-logging to `2` also enables warnings and errors.)
+> Note that each level enables that level plus any lower number... thus setting logging to `2` also enables warnings and errors.
 
 #### Implement a custom logger
 
-If you don't want to use the `console` object, you can pass in your own logging
-implementation with the `logger` setting. Note that your logger must either
-implement the `debug`, `log`, `info`, `warn`, and `error` methods, or you must
-also provide what methods map to the 5 levels (0 through 4).
+If you don't want to use the `console` object, you can pass in your own logging implementation with the `logger` setting. Note that your logger must implement the `debug`, `log`, `info`, `warn`, and `error` methods.
 
-```js
-$.mockjaxSettings.logger = {
-  debug: function() { ... },
-  log: function() { ... },
-  // ...
-};
-```
+### Release History
 
-Your logger methods may receive any number of arguments to log out, either as
-strings or objects, similar to how the `window.console` object methods work.
+Please read the [CHANGELOG](https://github.com/jakerella/jquery-mockjax/blob/master/CHANGELOG.md) for a list of changes per release. All releases are tagged in GitHub for easy reference, the `master` branch should _not_ be considered a stable release!
 
-If you have a logger that uses different methods names, specify them in this array:
-
-```js
-$.mockjaxSettings.logLevelMethods = ['critical', 'bad', 'stuff', 'log', 'verbose'];
-```
-
-Note that the first entry in this array (index `0`) will be errors while the last
-entry will be verbose output. Anything beyond index `4` will be ignored.
-
-#### What about the old `log` setting?
-
-This was an undocumented feature whereby you could provide a `log` method using
-`$.mockjaxSettings`, however, it is no longer used internally.
-
-### Release History ###
-
-Please read the [CHANGELOG](https://github.com/jakerella/jquery-mockjax/blob/master/CHANGELOG.md)
-for a list of changes per release.
-
-Note that all releases are tagged in Github for easy reference, the `master` branch
-should _not_ be considered a stable release!
-
-### License ###
+### License
 
 Copyright (c) 2014-2026 Jordan Kasper, formerly appendTo
 
@@ -908,11 +983,8 @@ NOTE: This repository was taken over by Jordan Kasper (@jakerella) October, 2014
 
 Licensed under the MIT license: [http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT)
 
-### Contributing ###
+### Contributing
 
-We welcome any contributions by the community, whether in the form of a Pull
-Request, issue submission and comments, or just sharing on social media!
+We welcome any contributions by the community, whether in the form of a Pull Request, issue submission and comments, or just sharing on social media!
 
-If you want to contribute code to the project, please read our
-[Contribution guidelines](CONTRIBUTING.md) to see what you need to do to get your
-Pull Request ready for merging.
+If you want to contribute code to the project, please read our [Contribution guidelines](CONTRIBUTING.md) to see what you need to do to get your Pull Request ready for merging.

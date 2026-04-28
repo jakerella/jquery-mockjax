@@ -5,20 +5,18 @@
     "jquery": ">=1.12.4"
   },
   "ignore": [
+    ".c8rc.json",
     ".editorconfig",
     ".github",
     ".gitignore",
-    ".jshintrc",
-    ".jshintrc",
-    "browserstack-config.js",
-    "browserstack.js",
-    "grunt-config-options.js",
-    "Gruntfile.js",
-    "lib",
+    ".npmignore",
     "package.json",
-    "qunit-puppeteer.js",
     "test",
     "*.json",
-    "*.md"
+    "*.html",
+    "eslint.config.js",
+    "prettier.config.mjs",
+    "webpack.config.js",
+    "webpack.custom-umd.mjs"
   ]
 }
