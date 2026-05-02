@@ -4,13 +4,15 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
+| 3.x     | yes                |
 | 2.x     | yes                |
-| 1.x     | yes                |
+| 1.x     | no                 |
 
 ## Supported jQuery Versions
 
 | Version | Supported          |
 | ------- | ------------------ |
+| 4.x     | yes                |
 | 3.x     | yes                |
 | 2.x     | yes                |
 | 1.x     | yes                |
