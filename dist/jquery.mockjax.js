@@ -1,5 +1,5 @@
 /*!
- * jQuery Mockjax v3.0.0 - https://github.com/jakerella/jquery-mockjax
+ * jQuery Mockjax v3.0.1 - https://github.com/jakerella/jquery-mockjax
  * Build Date: 2026-05-07
  * Copyright (c) 2026 Jordan Kasper and contributors, formerly appendTo
  * Licensed under the MIT license

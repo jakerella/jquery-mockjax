@@ -1,7 +1,7 @@
 
-## 2026-04-28 v3.0.0
+## 2026-05-07 v3.0.1
 
-* Final release of v3.0.0
+* Final release of v3.x
 * Updates to some dev dependencies and minor fixes to unit tests
 
 ## 2026-04-28 v3.0.0-rc1
