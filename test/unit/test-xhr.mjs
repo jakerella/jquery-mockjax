@@ -25,7 +25,7 @@ QUnit.module('XHR', (hooks) => {
             const sandbox = sinon.createSandbox()
             const mock = sandbox.fake(function mockCreation() { return { foo: 'bar' } })
             sandbox.replace.usingAccessor(mocks, 'createMockXHR', mock)
-            assert.equal(createMockXHR.name, 'mockCreation', 'A mock creation method is injected')
+            assert.equal(createMockXHR.name, 'fake', 'A mock creation method is injected')
             sandbox.restore()
             assert.equal(createMockXHR.name, '_createMockXHR', 'The true creation method is restored')
         })

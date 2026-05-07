@@ -1,6 +1,11 @@
 
 ## 2026-04-28 v3.0.0
 
+* Final release of v3.0.0
+* Updates to some dev dependencies and minor fixes to unit tests
+
+## 2026-04-28 v3.0.0-rc1
+
 * Migrated all source code to modern JavaScript syntax.
 * Migrated to modern ES Modules and build system.
 * All mock handlers now have a unique id (UUID) versus sequential integer matching place in registration array.

@@ -30,7 +30,7 @@ QUnit.module('Matching', (hooks) => {
             const sandbox = sinon.createSandbox()
             const mock = sandbox.fake(function mockMatcher() { return 123 })
             sandbox.replace.usingAccessor(mocks, 'findMatchingHandler', mock)
-            assert.equal(findMatchingHandler.name, 'mockMatcher', 'A mock matcher is injected')
+            assert.equal(findMatchingHandler.name, 'fake', 'A mock matcher is injected')
             sandbox.restore()
             assert.equal(findMatchingHandler.name, '_findMatchingHandler', 'The true matcher method is restored')
         })

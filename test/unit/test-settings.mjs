@@ -29,7 +29,7 @@ QUnit.module('Settings', (hooks) => {
             const sandbox = sinon.createSandbox()
             const mock = sandbox.fake(function mockGetSettings() { return { foo: 'bar' } })
             sandbox.replace.usingAccessor(mocks, 'getSettings', mock)
-            assert.equal(getSettings.name, 'mockGetSettings', 'A mock getter is injected')
+            assert.equal(getSettings.name, 'fake', 'A mock getter is injected')
             sandbox.restore()
             assert.equal(getSettings.name, '_getSettings', 'The true getter method is restored')
         })
